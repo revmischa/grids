@@ -26,10 +26,4 @@ sub i_addi {
     $vm->set_reg($rt, $vm->reg($rs) + $data);
 }
 
-# rs = $data
-sub s_li {
-    my ($class, $vm, $rs, $rt, $data) = @_;
-    $vm->set_reg($rt, $vm->reg($rs) + $data);
-}
-
 1;
