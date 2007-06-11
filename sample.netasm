@@ -1,0 +1,5 @@
+li $a1, 0xdeadbeef ; load immediate!
+_start:
+addi $t1, $zero, 0x12345678
+add $t2, $t1, $t2
+j _start
