@@ -157,8 +157,6 @@ sub assemble_instruction {
     # process assembly of special instructions
     my $assemble_func = $SPECIAL_FUNCS{$opcode} if $opcode;
 
-    warn "args: @args";
-
     # determine operation type (r,i,j,c)
     my $res;
 
