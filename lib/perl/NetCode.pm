@@ -23,15 +23,19 @@ our (@REGS, %REGS); # mappings of register->symbolic name and vice-versa
 
 # I- and J-type opcodes
 our %OPCODES = (
-                li   => 0b111111,
-                lw   => 0b100011,
-                j    => 0b000010,
-                addi => 0b001000,
+                li    => 0b111111,
+                lw    => 0b100011,
+                j     => 0b000010,
+                addi  => 0b001000,
+                addiu => 0b001001
                 );
 
 # definition of R-type functions
 our %R_TYPE_FUNCS = (
-                     add => ["rd, rs, rt", 0b100000],
+                     add   => ["rd, rs, rt", 0b100000],
+                     addu  => ["rd, rs, rt", 0b100001],
+                     jr    => ["rs",         0b001000],
+                     sll   => ["rd, rs, sa", 0b000000],
                      );
 
 # handlers for special opcodes
