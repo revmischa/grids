@@ -143,7 +143,7 @@ sub mem {
     my $pos = 0;
     while ($vm->mem->read($bytes, 128)) {
         foreach my $byte (unpack("C*", $bytes)) {
-            $ret .= sprintf "%08X: 0x%04X 0b%08b\n", $pos, $byte, $byte;
+            $ret .= sprintf "%08X: 0x%04X 0b%08b %c\n", $pos, $byte, $byte, $byte;
             $pos++;
         }
         last if $pos > 15;

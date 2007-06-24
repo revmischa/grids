@@ -6,6 +6,9 @@ use IO::Seekable;
 use Data::Dumper;
 use NetCode;
 use NetVM::Instructions;
+use Class::Autouse;
+
+Class::Autouse->autouse_recursive('NetVM::SysCall');
 
 our $DEBUG = 1;
 
@@ -108,6 +111,21 @@ sub _reg {
     return $reg_num
 }
 
+# read part of memory
+sub get_mem {
+    my ($self, $offset, $len) = @_;
+
+    $len ||= 1; # default to one byte
+
+    # this is really slow and dumb. there is probably a way
+    # to make this a lot faster.
+    my $mem = $self->mem;
+    my $contents = '';
+    $mem->seek($offset, SEEK_SET);
+    $mem->sysread($contents, $len);
+
+    return $contents;
+}
 
 =item reg_name($reg)
 
@@ -199,11 +217,30 @@ sub execute {
         $self->execute_i($opcode, %fields);
     } elsif ($type eq 'J') {
         $self->execute_j($opcode, %fields);
+    } elsif ($type eq 'S') {
+        $self->syscall($fields{syscall});
+        $self->{pc} += 6;
     } else {
         die "Unknown instruction type '$type'\n";
     }
 
     return 1;
+}
+
+# do a syscall
+sub syscall {
+    my ($self, $syscall) = @_;
+
+    # lookup syscall name
+    my $sysc_name = $NetCode::SYSCALLS_REV{$syscall};
+    die "Unknown syscall $syscall" unless defined $sysc_name;
+
+    # convert syscall to method call
+    $sysc_name =~ s/\./::/g;
+
+    no strict 'refs';
+    my $method_name = "NetVM::SysCall::$sysc_name";
+    $method_name->($self);
 }
 
 sub execute_i {

@@ -33,7 +33,8 @@ die "$infile does not exist\n" unless -e $infile;
     if ($dis) {
         for (my $i = 0; $i < length $contents; $i+=6) {
             my $inst = substr($contents, $i, 6);
-            $code .= NetCode->disassemble_string($inst) . "\n";
+            my $addr = sprintf("%08X: ", $i);
+            $code .= $addr . NetCode->disassemble_string($inst) . "\n";
         }
     } else {
         $code = NetCode->assemble($contents);

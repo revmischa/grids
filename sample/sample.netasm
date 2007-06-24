@@ -1,5 +1,17 @@
-li $a1, 0xdeadbeef ; load immediate!
 _start:
-addi $t1, $zero, 0x12345678
+j init
+
+loop:
 add $t2, $t1, $t2
-j _start
+l $a1, $t2
+syscall Node.log
+j loop
+
+init:
+addi $t1, $zero, 0x12345678
+li $a1, hellostr
+syscall Node.logstr
+j loop
+
+hellostr:
+.dz "Hello world!"

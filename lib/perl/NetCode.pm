@@ -23,11 +23,13 @@ our (@REGS, %REGS); # mappings of register->symbolic name and vice-versa
 
 # I- and J-type opcodes
 our %OPCODES = (
-                li    => 0b111111,
-                lw    => 0b100011,
-                j     => 0b000010,
-                addi  => 0b001000,
-                addiu => 0b001001,
+                li      => 0b111110,
+                syscall => 0b111111,
+                l       => 0b111101,
+                lw      => 0b100011,
+                j       => 0b000010,
+                addi    => 0b001000,
+                addiu   => 0b001001,
                 );
 
 # definition of R-type functions
@@ -38,9 +40,21 @@ our %R_TYPE_FUNCS = (
                      sll   => ["rd, rs, sa", 0b000000],
                      );
 
+# syscalls
+our %SYSCALLS = (
+                 'Node.log'    => 32,
+                 'Node.logstr' => 33,
+                 );
+
+# opcode reverse lookup table
+our %SYSCALLS_REV;
+@SYSCALLS_REV{values %SYSCALLS} = keys %SYSCALLS;
+
 # handlers for special opcodes
 our %SPECIAL_FUNCS = (
-                      0b111111 => 'assemble_li',
+                      0b111110 => 'assemble_li',
+                      0b111101 => 'assemble_l',
+                      0b111111 => 'assemble_syscall',
                       );
 
 # opcode reverse lookup table
@@ -68,41 +82,93 @@ sub assemble {
 
     my $ret = '';
     my $base_address = 0;
-    my $pos = 0;
     my $line_num = 1;
     my %labels;
 
     my @lines = split("\n", $asm);
+
+    # first pass, remove labels and empty lines
+    my @pass1;
     foreach my $line (@lines) {
+        # remove comments
+        if ((my $cmtidx = index($line, ';')) >= 0) {
+            $line = substr($line, 0, $cmtidx);
+        }
+
+        # skip whitespace
+        next unless $line && $line =~ /\S/;
+
+        push @pass1, $line;
+    }
+
+    my $addr = 0;
+    my @pass2;
+    # second pass, calculate label offsets and parse instructions
+    foreach my $line (@pass1) {
         my $err = sub {
             my $msg = shift;
             print STDERR "Error at line $line_num: $msg (\"$line\")\n";
             return 0;
         };
 
-        # remove comments
-        if ((my $cmtidx = index($line, ';')) >= 0) {
-            $line = substr($line, 0, $cmtidx - 1);
-        }
-
-        # skip whitespace
-        next unless $line && $line =~ /\S/;
-
-        if (my ($label) = $line =~ /\s*([\w\.\d]+)\s*:/) {
+        if (my ($type, $data) = $line =~ /^\s*\.d([bwlsz])\s\"?([^"]+)\"?\s*$/i) { # "
+            # data (.db .dl .dw .ds .dz)
+            $type = lc $type;
+            if ($type eq 'b') {
+                # byte
+                push @pass2, pack("C", $data);
+                $addr += 1;
+            } elsif ($type eq 'w') {
+                # word
+                push @pass2, pack("s", $data);
+                $addr += 2;
+            } elsif ($type eq 'l') {
+                # long
+                push @pass2, pack("l", $data);
+                $addr += 4;
+            } elsif ($type eq 's') {
+                # char string
+                push @pass2, $data;
+                $addr += length($data);
+            } elsif ($type eq 'z') {
+                # null-terminated char string
+                push @pass2, $data . "\0";
+                $addr += length($data) + 1;
+            }
+        } elsif (my ($label) = $line =~ /\s*([\w\.\d]+)\s*:/) {
             # label definition
+            return $err->("label $label redefined") if exists $labels{$label};
+            $labels{$label} = $addr;
+        } else {
+            # must be an instruction. try to parse it
+            my $operation; # op mnemonic
+            my @pre_args; # raw arg strings
 
-            return $err->("label $label is invalid: label names cannot start with a number.\n")
-                if $label =~ /^\d/;
+            my @instruction_regexes = (
+                                       # syscall
+                                       qr/
+                                       ^\s*(syscall)\s*([\w.]+)\s*$
+                                       /xi,
 
-            $labels{$label} = $base_address + $pos;
+                                       # operation arg1[, arg2][, arg3]
+                                       qr/
+                                       ([\w.]+)\s*              # operation
+                                       ([\$\d\w]+)?\s*          # 1st arg
+                                       (?:,\s*([\$\d\w]+))?\s*  # 2nd
+                                       (?:,\s*([\$\d\w]+))?     # 3rd
+                                       /x,
+                                       );
 
-        } elsif (my ($operation, @pre_args) = $line =~ m/
-                 ([\w.]+)\s*              # operation
-                 ([\$\d\w]+)?\s*          # 1st arg
-                 (?:,\s*([\$\d\w]+))?\s*  # 2nd
-                 (?:,\s*([\$\d\w]+))?     # 3rd
-                 /x) {
-            # instruction
+            # try each regex until one properly parses the line
+            foreach my $re (@instruction_regexes) {
+                ($operation, @pre_args) = $line =~ $re;
+                last if $operation;
+            }
+
+            unless ($operation) {
+                # did not successfully parse line
+                warn "Unable to interpert line: $line\n";
+            }
 
             # process argument substitutions
             my @args;
@@ -124,24 +190,58 @@ sub assemble {
                         # convert from hex string
                         $val = hex($1);
                     } elsif ($arg =~ /0b(\d+)/i) {
+                        # convert from 32-bit binary string left zero padded
                         $val = unpack("N", pack("B32", substr("0" x 32 . "$1", -32)));
                     }
 
                     push @args, $val;
                 } else {
-                    # label reference
-                    my $label_address = $labels{$arg};
-                    return $err->("unknown reference to \"$arg\"") unless defined $label_address;
-                    push @args, $label_address;
+                    if (lc $operation eq 'syscall') {
+                        # syscall, dont do any special processing
+                        push @args, $arg;
+                    } else {
+                        # label reference
+                        push @args, $arg;
+                    }
                 }
             }
 
-            $ret .= $class->assemble_instruction($line_num, $operation, @args);
-        } else {
-            warn "Unable to interpert line: $line\n";
+            push @pass2, [$line_num, $operation, @args];
+            $addr += 6;
         }
 
         $line_num++;
+    }
+
+    # third pass, assemble instructions
+    foreach my $inst (@pass2) {
+        if (! ref $inst) {
+            # just immediate data, don't need to assemble
+            $ret .= $inst;
+            next;
+        }
+
+        my ($line_num, $operation, @args) = @$inst;
+
+        my $err = sub {
+            my $msg = shift;
+            print STDERR "Error at line $line_num: $msg (\"$operation\")\n";
+            return 0;
+        };
+
+        # replace label references with calculated label offsets
+        my @new_args;
+        foreach my $arg (@args) {
+            if ($arg =~ /\D/ && $operation ne 'syscall') {
+                my $addr = $labels{$arg};
+                return $err->("unknown reference to \"$arg\"") unless defined $addr;
+                push @new_args, $addr;
+            } else {
+                push @new_args, $arg;
+            }
+        }
+
+        $ret .= $class->assemble_instruction($line_num, $operation, @new_args);
     }
 
     return $ret;
@@ -184,10 +284,33 @@ sub assemble_instruction {
     return $res;
 }
 
+# assemble syscall
+sub assemble_syscall {
+    my ($class, $syscall_name) = @_;
+
+    my $syscall_num = $SYSCALLS{$syscall_name};
+    die "Unknown syscall: $syscall_name\n" unless defined $syscall_num;
+
+    my $bit_string = sprintf("%06b%032b%010b",
+                             $OPCODES{syscall},
+                             $syscall_num,
+                             0);
+
+    print "syscall [\"$syscall_name\"] = $bit_string\n";
+
+    return $class->pack_bit_string($bit_string);
+}
+
 # assemble li as addi, $rt, $zero, data
 sub assemble_li {
     my ($class, $rt, $data) = @_;
     return $class->assemble_i($OPCODES{addi}, $rt, 0, $data);
+}    
+
+# assemble l as add, $rd, $rs, $zero
+sub assemble_l {
+    my ($class, $rd, $rs) = @_;
+    return $class->assemble_r('add', $rd, $rs, 0);
 }    
 
 # assemble I-type instruction
@@ -245,7 +368,9 @@ sub assemble_r {
 sub pack_bit_string {
     my ($class, $bs) = @_;
 
-    my @bytes = unpack("CCCCCC", pack("B48", $bs));
+    my $bitstringlen = length($bs);
+    my $bytecnt = $bitstringlen / 8;
+    my @bytes = unpack("C" x $bytecnt, pack("B$bitstringlen", $bs));
 
     my $ret = '';
     $ret .= pack("C", $_) foreach @bytes;
@@ -286,10 +411,18 @@ sub disassemble_string {
         $ret .= ' ' . join(', ', @args);
     } elsif ($type eq 'I') {
         $ret .= $class->opcode_mnemonic($opcode);
-        $ret .= ' ' . join(', ', values %fields);
+        my @fields = qw(rt rs data);
+        my @args = map { sprintf("0x%X", $fields{$_}) } @fields;
+        $ret .= ' ' . join(', ', @args);
     } elsif ($type eq 'J') {
         $ret .= $class->opcode_mnemonic($opcode);
         $ret .= sprintf(" 0x%08X", $fields{data});
+    } elsif ($type eq 'S') {
+        my $syscall_name = $SYSCALLS_REV{$fields{syscall}};
+
+        $ret .= $class->opcode_mnemonic($opcode);
+        $ret .= sprintf(" 0x%08X", $fields{syscall});
+        $ret .= " ; $syscall_name";
     }
 
     return $ret;
@@ -339,6 +472,10 @@ sub disassemble {
         $fields = {
             data => $bit_substr->(6, 32, 'N'),
         };
+    } elsif ($type eq 'S') {
+        $fields = {
+            syscall => $bit_substr->(6, 32, 'N'),
+        };
     }
 
     return undef unless $fields;
@@ -346,12 +483,14 @@ sub disassemble {
     return ($opcode, %$fields);
 }
 
-# given an opcode, returns 'R', 'I', 'J' or 'C' depending on the type
+# given an opcode, returns 'R', 'I', 'J', 'S' or 'C' depending on the type
 sub opcode_type {
     my ($class, $opcode) = @_;
 
     if (! $opcode) {
         return 'R';
+    } elsif ($OPCODES_REV{$opcode} eq 'syscall') {
+        return 'S';
     } elsif ((($opcode >> 1) ^ 0b00001) == 0) {
         return 'J';
     } elsif ((($opcode >> 2) ^ 0b0100) == 0) {
