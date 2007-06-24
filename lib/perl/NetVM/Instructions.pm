@@ -9,7 +9,7 @@ package NetVM::Instructions;
 ### utility funcs
 
 # returns 32-bit unsigned representation of this number
-sub _u { int(sprintf("$L", $_)) }
+sub _u { int(sprintf("%L", $_)) }
 
 
 ### instructions
@@ -50,6 +50,12 @@ sub r_sll {
 sub i_addi {
     my ($class, $vm, $rs, $rt, $data) = @_;
     $vm->set_reg($rt, $vm->reg($rs) + $data);
+}
+
+# rt = $data($rs)
+sub i_lw {
+    my ($class, $vm, $rt, $rs, $data) = @_;
+    $vm->set_reg($rt, $rs + $data);
 }
 
 # is $rs unsigned too? need to check

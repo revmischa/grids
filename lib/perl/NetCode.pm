@@ -11,7 +11,7 @@ our (@REGS, %REGS); # mappings of register->symbolic name and vice-versa
              zero at v0 v1 a0 a1 a2 a3
              t0 t1 t2 t3 t4 t5 t6 t7
              s0 s1 s2 s3 s4 s5 s6 s7
-             t8 t9 k0 k1 gp sp fp ra
+             t8 t9 k0 k1 gp sp fp ra hi lo
              /);
 }
 
@@ -27,7 +27,7 @@ our %OPCODES = (
                 lw    => 0b100011,
                 j     => 0b000010,
                 addi  => 0b001000,
-                addiu => 0b001001
+                addiu => 0b001001,
                 );
 
 # definition of R-type functions
