@@ -39,23 +39,30 @@ sub new {
 
     croak "Unknown options: " . join(',', keys %opts) if %opts;
 
-    # initialize registers
-    my $regs = [];
-    $regs->[$_] = 0 for (0..31);
-
-    # empty memory
-    my $memory = new MemHandle;
-
     my $self = {
         mem_limit => $mem_limit,
-        regs => $regs,
-        mem => $memory,
-        pc  => 0,
+        regs      => [],
     };
 
-    return bless $self, $class;
+    bless $self, $class;
+    $self->init;
+
+    return $self;
 }
 
+# initializes the vm
+sub init {
+    my $self = shift;
+
+    # initialize registers
+    $self->{regs}->[$_] = 0 for (0..31);
+
+    # empty memory
+    $self->{mem} = new MemHandle;
+
+    # reset PC
+    $self->{pc} = 0;
+}
 
 =item regs()
 
@@ -125,6 +132,14 @@ sub get_mem {
     $mem->sysread($contents, $len);
 
     return $contents;
+}
+
+sub mem_size {
+    my ($self) = @_;
+
+    my $mem = $self->mem;
+    $mem->seek(0, SEEK_END);
+    return $mem->tell;
 }
 
 =item reg_name($reg)
@@ -223,6 +238,8 @@ sub execute {
     } else {
         die "Unknown instruction type '$type'\n";
     }
+
+    return 0 if $self->{pc} >= $self->mem_size;
 
     return 1;
 }

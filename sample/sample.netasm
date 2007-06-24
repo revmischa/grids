@@ -1,11 +1,10 @@
-_start:
 j init
 
 loop:
 add $t2, $t1, $t2
 l $a1, $t2
 syscall Node.log
-j loop
+j end
 
 init:
 addi $t1, $zero, 0x12345678
@@ -15,3 +14,5 @@ j loop
 
 hellostr:
 .dz "Hello world!"
+
+end:

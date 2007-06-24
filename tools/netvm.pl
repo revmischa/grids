@@ -44,14 +44,15 @@ sub do_command {
     $cmd = lc $cmd;
 
     my %handlers = (
-                    help => \&help,
-                    load => \&load,
-                    step => \&step,
-                    s    => \&step,
-                    mem  => \&mem,
-                    run  => \&run,
-                    r    => \&run,
-                    regs => \&regs,
+                    help  => \&help,
+                    load  => \&load,
+                    step  => \&step,
+                    s     => \&step,
+                    mem   => \&mem,
+                    run   => \&run,
+                    r     => \&run,
+                    regs  => \&regs,
+                    reset => \&reset,
                     );
 
     my $func = $handlers{$cmd} or die "No such command: $cmd\n";
@@ -116,17 +117,30 @@ sub regs {
     return $ret;
 }
 
+sub reset {
+    $vm->init;
+    return load($infile);
+}
+
 sub run {
     my @args = @_;
 
-    return "Running...";
+    print "Running...\n";
+    while ($vm->step) {
+
+    }
+
+    return "Program reached end of memory";
 }
 
 sub step {
     my @args = @_;
 
-    $vm->step;
-    return dis_current_instruction();
+    if ($vm->step) {
+        return dis_current_instruction();
+    } else {
+        return "End of program reached";
+    }
 }
 
 # returns disassembly of current instruction

@@ -20,7 +20,7 @@ sub logstr {
         $str .= $c;
     }
 
-    printf "[Node.log] %s\n", $str;
+    printf "[Node.logstr] %s\n", $str;
 }
 
 1;
