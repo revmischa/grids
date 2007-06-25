@@ -111,20 +111,21 @@ sub assemble {
             return 0;
         };
 
-        if (my ($type, $data) = $line =~ /^\s*\.d([bwlsz])\s\"?([^"]+)\"?\s*$/i) { # "
+        if (my ($type, $data) = $line =~ /^\s*\.d([bwlsz])\s\"?([^"]+)\"?\s*$/i) { # " ) { emacs is dumb
             # data (.db .dl .dw .ds .dz)
             $type = lc $type;
+                                                                 
             if ($type eq 'b') {
                 # byte
-                push @pass2, pack("C", $data);
+                push @pass2, pack("C", $class->parse_value($data, 1));
                 $addr += 1;
             } elsif ($type eq 'w') {
                 # word
-                push @pass2, pack("s", $data);
+                push @pass2, pack("s", $class->parse_value($data, 2));
                 $addr += 2;
             } elsif ($type eq 'l') {
                 # long
-                push @pass2, pack("l", $data);
+                push @pass2, pack("l", $class->parse_value($data, 4));
                 $addr += 4;
             } elsif ($type eq 's') {
                 # char string
@@ -181,19 +182,8 @@ sub assemble {
                     return $err->("invalid register '$1'") unless defined $reg_num;
                     push @args, $reg_num;
                 } elsif ($arg =~ /^\d/) {
-                    # immediate data
-
-                    # convert to 32-bit data
-                    my $val = int($arg);
-
-                    if ($arg =~ /0x([A-Fa-f0-9]+)/i) {
-                        # convert from hex string
-                        $val = hex($1);
-                    } elsif ($arg =~ /0b(\d+)/i) {
-                        # convert from 32-bit binary string left zero padded
-                        $val = unpack("N", pack("B32", substr("0" x 32 . "$1", -32)));
-                    }
-
+                    # convert immediate value to 32-bit data
+                    my $val = $class->parse_value($arg, 32);
                     push @args, $val;
                 } else {
                     if (lc $operation eq 'syscall') {
@@ -245,6 +235,21 @@ sub assemble {
     }
 
     return $ret;
+}
+
+# converts values such as "0x3F" and "0b11001100" to ints
+sub parse_value {
+    my ($class, $val, $size) = @_;
+    if ($val =~ /0x([A-Fa-f0-9]+)/i) {
+        # convert from hex string
+        return hex($1);
+    } elsif ($val =~ /0b(\d+)/i) {
+        # convert from 32-bit binary string left zero padded
+        my $b = $size * 8;
+        return unpack("N", pack("B$b", substr("0" x $b . "$1", -32)));
+    }
+
+    return int($val);
 }
 
 sub assemble_instruction {
