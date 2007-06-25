@@ -18,6 +18,7 @@ my $prog = q {
   xor $a0, $a0, $a0
   addiu $a0, $a0, 0xFFFFFFFE
   xori $a0, $a0, 1
+  andi $a0, $a0, 0x7FFFFFFF
   li $v0, teststring
   lb $t0, 1($v0)
   lb $t0, 8($v0)
@@ -67,6 +68,9 @@ is($vm->reg('a0'), 0xFFFFFFFE, 'addiu');
 
 $vm->step;
 is($vm->reg('a0'), 0xFFFFFFFF, 'xori');
+
+$vm->step;
+is($vm->reg('a0'), 0x7FFFFFFF, 'andi');
 
 $vm->step;
 $vm->step;
