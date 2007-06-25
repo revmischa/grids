@@ -80,7 +80,13 @@ sub i_xori {
 # rt = $data($rs)
 sub i_lw {
     my ($class, $vm, $rt, $rs, $data) = @_;
-    $vm->set_reg($rt, $rs + $data);
+    $vm->set_reg($rt, $vm->get_mem($vm->reg($rs) + $data, 4));
+}
+
+# rt = $data($rs) - 1 byte
+sub i_lb {
+    my ($class, $vm, $rt, $rs, $data) = @_;
+    $vm->set_reg($rt, $vm->get_mem($vm->reg($rs) + $data, 1));
 }
 
 # is $rs unsigned too? need to check

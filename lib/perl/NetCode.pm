@@ -27,6 +27,7 @@ our %OPCODES = (
                 syscall => 0b111111,
                 l       => 0b111101,
                 lw      => 0b100011,
+                lb      => 0b100000,
                 j       => 0b000010,
                 addi    => 0b001000,
                 addiu   => 0b001001,
@@ -76,10 +77,16 @@ our @UNSIGNED_OPCODES = qw (
                             ori
                             );
 
+# opcodes which have an offset encoded in the immediate data
+our @OFFSET_OPCODES = qw (
+                          lw
+                          lb
+                          );
+
 # returns if an opcode expects unsigned immediate data
 sub opcode_unsigned { 
-    my $opcode = shift;
-    my $om = opcode_mnemonic($opcode);
+    my ($class, $opcode) = @_;
+    my $om = $class->opcode_mnemonic($opcode);
     return map { $_ eq $om } @UNSIGNED_OPCODES;
 }
 
@@ -166,6 +173,16 @@ sub assemble {
             my $operation; # op mnemonic
             my @pre_args; # raw arg strings
 
+            # rewrite offset addressing to be consistant with other
+            # i-type instuction ordering
+            $line =~ s/
+                ([\w]+)\s*              # operation
+                ([\-\$\d\w]+)?\s*       # 1st arg
+                (?:,\s*([\-\d]+)\(      # offset
+                 \s*([\-\$\d\w]+)\s*    # 3rd arg
+                 \))
+                /$1 $4, $2, $3/xg;
+
             my @instruction_regexes = (
                                        # syscall
                                        qr/
@@ -174,7 +191,7 @@ sub assemble {
 
                                        # operation arg1[, arg2][, arg3]
                                        qr/
-                                       ([\w.]+)\s*              # operation
+                                       ([\w.]+)\s*                # operation
                                        ([\-\$\d\w]+)?\s*          # 1st arg
                                        (?:,\s*([\-\$\d\w]+))?\s*  # 2nd
                                        (?:,\s*([\-\$\d\w]+))?     # 3rd
@@ -281,12 +298,12 @@ sub assemble_instruction {
         return '';
     };
 
-    my $opcode = $OPCODES{$op}; # or return $err->("unknown instruction $op");
+    my $opcode = $OPCODES{$op};
 
     # process assembly of special instructions
     my $assemble_func = $SPECIAL_FUNCS{$opcode} if $opcode;
 
-    # determine operation type (r,i,j,c)
+    # determine operation type (r,i,j,c,s)
     my $res;
 
     my $type = $class->opcode_type($opcode);
@@ -340,10 +357,23 @@ sub assemble_l {
 
 # assemble I-type instruction
 sub assemble_i {
-    my ($class, $op, $rt, $rs, $data) = @_;
+    my $class = shift;
+    my $op = shift;
 
-    my $bit_string = sprintf "%06b%05b%05b%032b", $op, $rs, $rt, $data;
-    print "i [$op, $rs, $rt, $data] = $bit_string\n";
+    my @inst_order = qw(rs rt data);
+    my @field_order = qw(rt rs data);
+
+    my $bit_string = sprintf "%06b", $op;
+
+    my %fields = map { ($_, shift(@_)) } @field_order;
+
+    foreach my $field (@inst_order) {
+        my $f = $fields{$field};
+        my $s = $field eq 'data' ? 32 : 5;
+        $bit_string .= sprintf("%0${s}b", $f);
+    }
+
+    print "i [$op, " . join(', ', map { $fields{$_} } @inst_order) . "] = $bit_string\n";
 
     return $class->pack_bit_string($bit_string);
 }
@@ -435,10 +465,18 @@ sub disassemble_string {
 
         $ret .= ' ' . join(', ', @args);
     } elsif ($type eq 'I') {
-        $ret .= $class->opcode_mnemonic($opcode);
+        my $inst = $class->opcode_mnemonic($opcode);
+        $ret .= $inst;
         my @fields = qw(rt rs data);
         my @args = map { sprintf("0x%X", $fields{$_}) } @fields;
-        $ret .= ' ' . join(', ', @args);
+
+        $ret .= ' ';
+
+        if (grep { $_ eq $inst } @OFFSET_OPCODES) {
+            $ret .= "$fields{rt}, $fields{data}($fields{rs})";
+        } else {
+            $ret .= join(', ', @args);
+        }
     } elsif ($type eq 'J') {
         $ret .= $class->opcode_mnemonic($opcode);
         $ret .= sprintf(" 0x%08X", $fields{data});
@@ -470,7 +508,6 @@ sub disassemble {
         $bitstr = "0" x (8 - $len % 8) . $bitstr if $len % 8;
 
         my $val = unpack($template, pack("B*", $bitstr));
-        #printf "val ($offset, $len) [%s]: %s %b\n", substr($ib, $offset, $len), $val, $val;
         return $val;
     };
 
@@ -480,7 +517,7 @@ sub disassemble {
     my $fields;
 
     # is the immediate data signed or unsigned?
-    my $unsigned_data = opcode_unsigned($opcode);
+    my $unsigned_data = $class->opcode_unsigned($opcode);
     my $pack_template = $unsigned_data ? 'N' : 'l';
 
     if ($type eq 'R') {
@@ -505,6 +542,9 @@ sub disassemble {
         $fields = {
             syscall => $bit_substr->(6, 32, $pack_template),
         };
+    } else {
+        # unknown
+        #die "unknown opcode type '$type'";
     }
 
     return undef unless $fields;
@@ -517,14 +557,19 @@ sub opcode_type {
     my ($class, $opcode) = @_;
 
     if (! $opcode) {
+        # register
         return 'R';
     } elsif ($OPCODES_REV{$opcode} eq 'syscall') {
+        # syscall
         return 'S';
     } elsif ((($opcode >> 1) ^ 0b00001) == 0) {
+        # jump
         return 'J';
     } elsif ((($opcode >> 2) ^ 0b0100) == 0) {
+        # co-processor (e.g. floating point. not yet implemented)
         return 'C';
     } else {
+        # immediate data
         return 'I';
     }
 

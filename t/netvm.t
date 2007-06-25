@@ -18,7 +18,13 @@ my $prog = q {
   xor $a0, $a0, $a0
   addiu $a0, $a0, 0xFFFFFFFE
   xori $a0, $a0, 1
+  li $v0, teststring
+  lb $t0, 1($v0)
+  lb $t0, 8($v0)
   j beginning
+
+ teststring:
+  .dz "cody sux!"
 };
 
 my $bytecode = NetCode->assemble($prog);
@@ -60,6 +66,13 @@ is($vm->reg('a0'), 0xFFFFFFFE, 'addiu');
 
 $vm->step;
 is($vm->reg('a0'), 0xFFFFFFFF, 'xori');
+
+$vm->step;
+$vm->step;
+is(chr(unpack("CCCC", $vm->reg('t0'))), 'o', 'load memory byte');
+
+$vm->step;
+is(chr(unpack("CCCC", $vm->reg('t0'))), '!', 'load memory byte');
 
 $vm->step;
 is($vm->pc, 0, 'j');

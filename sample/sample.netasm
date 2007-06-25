@@ -11,6 +11,13 @@ li $t0, 0
 addi $t1, $zero, 0x12345678
 li $a1, hellostr
 syscall Node.logstr
+li $a1, 0
+j memload
+
+memload:
+li $t0, hellostr
+lb $a1, 2($t0)
+syscall Node.log
 j loop
 
 hellostr:
