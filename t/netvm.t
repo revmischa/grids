@@ -21,6 +21,7 @@ my $prog = q {
   li $v0, teststring
   lb $t0, 1($v0)
   lb $t0, 8($v0)
+  andi $t1, $t0, 0b00111110
   j beginning
 
  teststring:
@@ -73,6 +74,9 @@ is(chr(unpack("CCCC", $vm->reg('t0'))), 'o', 'load memory byte');
 
 $vm->step;
 is(chr(unpack("CCCC", $vm->reg('t0'))), '!', 'load memory byte');
+
+$vm->step;
+is($vm->reg('t1'), 0b00100000, 'andi');
 
 $vm->step;
 is($vm->pc, 0, 'j');

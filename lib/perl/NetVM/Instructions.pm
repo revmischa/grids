@@ -77,6 +77,23 @@ sub i_xori {
     $vm->set_reg($rt, $vm->reg($rs) ^ _u($data));
 }
 
+# rt = $rs | $data
+sub i_ori {
+    my ($class, $vm, $rs, $rt, $data) = @_;
+    $vm->set_reg($rt, $vm->reg($rs) | _u($data));
+}
+
+# rt = $rs & $data
+sub i_andi {
+    my ($class, $vm, $rs, $rt, $data) = @_;
+
+    # have to left-pad to 32 bits because & is retarded
+    # there has GOT to be a better way to do this
+    my $bstr = unpack("N", pack('B32', sprintf("%032b", $data)));
+    $rs = unpack('CCCC', $vm->reg($rs));
+    $vm->set_reg($rt, ($rs & $bstr));
+}
+
 # rt = $data($rs)
 sub i_lw {
     my ($class, $vm, $rt, $rs, $data) = @_;

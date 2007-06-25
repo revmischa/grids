@@ -32,6 +32,8 @@ our %OPCODES = (
                 addi    => 0b001000,
                 addiu   => 0b001001,
                 xori    => 0b001110,
+                ori     => 0b001101,
+                andi    => 0b001100,
                 );
 
 # definition of R-type functions
@@ -518,7 +520,7 @@ sub disassemble {
 
     # is the immediate data signed or unsigned?
     my $unsigned_data = $class->opcode_unsigned($opcode);
-    my $pack_template = $unsigned_data ? 'N' : 'l';
+    my $pack_template = $unsigned_data ? 'N' : 'l'; # network 32-bit unsigned or (2's complement?) signed
 
     if ($type eq 'R') {
         $fields = {
@@ -543,8 +545,7 @@ sub disassemble {
             syscall => $bit_substr->(6, 32, $pack_template),
         };
     } else {
-        # unknown
-        #die "unknown opcode type '$type'";
+        # unknown, probably data
     }
 
     return undef unless $fields;
