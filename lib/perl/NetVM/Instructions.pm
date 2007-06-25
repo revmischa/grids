@@ -9,8 +9,9 @@ package NetVM::Instructions;
 ### utility funcs
 
 # returns 32-bit unsigned representation of this number
-sub _u { int(sprintf("%L", $_)) }
-
+sub _u { $_[0] }
+# signed version
+sub _s { return int(sprintf("%ld", $_[0])) }
 
 ### instructions
 
@@ -46,10 +47,34 @@ sub r_sll {
     $vm->set_reg($rd, $vm->reg($rs) << $sa);
 }
 
+# rd = rs >> sa
+sub r_srl {
+    my ($class, $vm, $rs, $rt, $rd, $sa) = @_;
+    $vm->set_reg($rd, $vm->reg($rs) >> $sa);
+}
+
+# rd = rs & rt
+sub r_and {
+    my ($class, $vm, $rs, $rt, $rd, $sa) = @_;
+    $vm->set_reg($rd, $vm->reg($rs) & $vm->reg($rt));
+}
+
+# rd = rs ^ rt
+sub r_xor {
+    my ($class, $vm, $rs, $rt, $rd, $sa) = @_;
+    $vm->set_reg($rd, $vm->reg($rs) ^ $vm->reg($rt));
+}
+
 # rt = $rs + $data
 sub i_addi {
     my ($class, $vm, $rs, $rt, $data) = @_;
-    $vm->set_reg($rt, $vm->reg($rs) + $data);
+    $vm->set_reg($rt, $vm->reg($rs) + _s($data));
+}
+
+# rt = $rs ^ $data
+sub i_xori {
+    my ($class, $vm, $rs, $rt, $data) = @_;
+    $vm->set_reg($rt, $vm->reg($rs) ^ _u($data));
 }
 
 # rt = $data($rs)

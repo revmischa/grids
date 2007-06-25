@@ -30,14 +30,18 @@ our %OPCODES = (
                 j       => 0b000010,
                 addi    => 0b001000,
                 addiu   => 0b001001,
+                xori    => 0b001110,
                 );
 
 # definition of R-type functions
 our %R_TYPE_FUNCS = (
                      add   => ["rd, rs, rt", 0b100000],
                      addu  => ["rd, rs, rt", 0b100001],
+                     and   => ["rd, rs, rt", 0b100100],
                      jr    => ["rs",         0b001000],
                      sll   => ["rd, rs, sa", 0b000000],
+                     srl   => ["rd, rs, sa", 0b000010],
+                     xor   => ["rd, rs, rt", 0b100110],
                      );
 
 # syscalls
@@ -61,6 +65,23 @@ our %SPECIAL_FUNCS = (
 our %OPCODES_REV;
 @OPCODES_REV{values %OPCODES} = keys %OPCODES;
 
+# opcodes which have unsigned immediate data
+our @UNSIGNED_OPCODES = qw (
+                            addu
+                            addiu
+                            j
+                            syscall
+                            xori
+                            andi
+                            ori
+                            );
+
+# returns if an opcode expects unsigned immediate data
+sub opcode_unsigned { 
+    my $opcode = shift;
+    my $om = opcode_mnemonic($opcode);
+    return map { $_ eq $om } @UNSIGNED_OPCODES;
+}
 
 # return instruction mnemonic for opcode
 sub opcode_mnemonic { return $OPCODES_REV{$_[1]} }
@@ -154,9 +175,9 @@ sub assemble {
                                        # operation arg1[, arg2][, arg3]
                                        qr/
                                        ([\w.]+)\s*              # operation
-                                       ([\$\d\w]+)?\s*          # 1st arg
-                                       (?:,\s*([\$\d\w]+))?\s*  # 2nd
-                                       (?:,\s*([\$\d\w]+))?     # 3rd
+                                       ([\-\$\d\w]+)?\s*          # 1st arg
+                                       (?:,\s*([\-\$\d\w]+))?\s*  # 2nd
+                                       (?:,\s*([\-\$\d\w]+))?     # 3rd
                                        /x,
                                        );
 
@@ -181,7 +202,7 @@ sub assemble {
                     my $reg_num = $REGS{lc $1};
                     return $err->("invalid register '$1'") unless defined $reg_num;
                     push @args, $reg_num;
-                } elsif ($arg =~ /^\d/) {
+                } elsif ($arg =~ /^\-?\d/) {
                     # convert immediate value to 32-bit data
                     my $val = $class->parse_value($arg, 32);
                     push @args, $val;
@@ -222,7 +243,7 @@ sub assemble {
         # replace label references with calculated label offsets
         my @new_args;
         foreach my $arg (@args) {
-            if ($arg =~ /\D/ && $operation ne 'syscall') {
+            if ($arg !~ /^[\d\-]+$/ && $operation ne 'syscall') {
                 my $addr = $labels{$arg};
                 return $err->("unknown reference to \"$arg\"") unless defined $addr;
                 push @new_args, $addr;
@@ -248,7 +269,6 @@ sub parse_value {
         my $b = $size * 8;
         return unpack("N", pack("B$b", substr("0" x $b . "$1", -32)));
     }
-
     return int($val);
 }
 
@@ -459,6 +479,10 @@ sub disassemble {
 
     my $fields;
 
+    # is the immediate data signed or unsigned?
+    my $unsigned_data = opcode_unsigned($opcode);
+    my $pack_template = $unsigned_data ? 'N' : 'l';
+
     if ($type eq 'R') {
         $fields = {
             rs   => $bit_substr->(6, 5),
@@ -471,15 +495,15 @@ sub disassemble {
         $fields = {
             rs   => $bit_substr->(6, 5),
             rt   => $bit_substr->(11, 5),
-            data => $bit_substr->(16, 32, 'N'),
+            data => $bit_substr->(16, 32, $pack_template),
         };
     } elsif ($type eq 'J') {
         $fields = {
-            data => $bit_substr->(6, 32, 'N'),
+            data => $bit_substr->(6, 32, $pack_template),
         };
     } elsif ($type eq 'S') {
         $fields = {
-            syscall => $bit_substr->(6, 32, 'N'),
+            syscall => $bit_substr->(6, 32, $pack_template),
         };
     }
 
