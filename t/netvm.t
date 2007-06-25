@@ -18,11 +18,13 @@ my $prog = q {
   xor $a0, $a0, $a0
   addiu $a0, $a0, 0xFFFFFFFE
   xori $a0, $a0, 1
-  andi $a0, $a0, 0x7FFFFFFF
+  andi $a1, $a0, 0x7FFFFFFF
   li $v0, teststring
   lb $t0, 1($v0)
   lb $t0, 8($v0)
   andi $t1, $t0, 0b00111110
+  li $t2, 0xFFFFFFFF
+  andi $t3, $t2, 0b00000001
   j beginning
 
  teststring:
@@ -69,8 +71,9 @@ is($vm->reg('a0'), 0xFFFFFFFE, 'addiu');
 $vm->step;
 is($vm->reg('a0'), 0xFFFFFFFF, 'xori');
 
-$vm->step;
-is($vm->reg('a0'), 0x7FFFFFFF, 'andi');
+ $vm->step;
+warn "a0: " . $vm->reg('a0');
+is($vm->reg('a1'), 0x7FFFFFFF, 'andi');
 
 $vm->step;
 $vm->step;
@@ -81,6 +84,10 @@ is(chr(unpack("CCCC", $vm->reg('t0'))), '!', 'load memory byte');
 
 $vm->step;
 is($vm->reg('t1'), 0b00100000, 'andi');
+
+$vm->step;
+$vm->step;
+is($vm->reg('t3'), 0b00000001, 'andi');
 
 $vm->step;
 is($vm->pc, 0, 'j');

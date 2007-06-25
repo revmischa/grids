@@ -9,7 +9,7 @@ package NetVM::Instructions;
 ### utility funcs
 
 # returns 32-bit unsigned representation of this number
-sub _u { $_[0] }
+sub _u { return int(sprintf("%u", $_[0])) }
 # signed version
 sub _s { return int(sprintf("%ld", $_[0])) }
 
@@ -87,11 +87,14 @@ sub i_ori {
 sub i_andi {
     my ($class, $vm, $rs, $rt, $data) = @_;
 
+    $rs = unpack("CCCC", $vm->reg($rs));
+    warn "rs: $rs";
+
     # have to left-pad to 32 bits because & is retarded
-    # there has GOT to be a better way to do this
-    my $bstr = unpack("N", pack('B32', sprintf("%032b", $data)));
-    $rs = unpack('CCCC', $vm->reg($rs));
-    $vm->set_reg($rt, ($rs & $bstr));
+    #$rs = sprintf("%u", $rs);
+    printf "bstr: %032b rs: %032b and: %032b\n", $data, $rs, ($rs & $data);
+
+    $vm->set_reg($rt, ($rs & $data));
 }
 
 # rt = $data($rs)
