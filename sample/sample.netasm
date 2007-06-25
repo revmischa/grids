@@ -7,6 +7,7 @@ syscall Node.log
 j end
 
 init:
+li $t0, 0
 addi $t1, $zero, 0x12345678
 li $a1, hellostr
 syscall Node.logstr
