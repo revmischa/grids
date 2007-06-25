@@ -360,8 +360,8 @@ sub assemble_i {
     my $class = shift;
     my $op = shift;
 
-    my @inst_order = qw(rs rt data);
-    my @field_order = qw(rt rs data);
+    my @inst_order = qw(rs rt data); # opcode instruction order
+    my @field_order = qw(rt rs data); # assembled args order
 
     my $bit_string = sprintf "%06b", $op;
 
