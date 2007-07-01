@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 use strict;
-use lib '../../lib/perl';
+use lib 'lib/perl';
 use NetVM;
 use Term::ReadLine;
 use NetNode;
@@ -8,11 +8,15 @@ use Getopt::Long;
 use Sys::Hostname;
 use File::UserConfig;
 use sigtrap qw(die normal-signals);
+use Storable;
+
+my $conffile = 'netnode.conf';
 
 my ($help, $nodename);
 my %prog_opts = (
                  'h|help' => \$help,
                  'n|name' => \$nodename,
+                 'c|conf' => \$conffile,
                  );
 GetOptions(%prog_opts);
 $nodename ||= hostname;
@@ -24,22 +28,24 @@ $SIG{USR1} = sub {
     exit 0;
 };
 
-my $node = NetNode->new();
-my $trans = $node->add_transport("TCP");
-if(my $chpid = fork()) {
-    $children{$chpid} = 1;
-} else {
-    $trans->accept_loop;
-    exit 0;
-}
+my $node;
 run();
 
 sub run {
+    $node = NetNode->new();
+    load_settings();
+
+    my $trans = $node->add_transport("TCP");
+    if(my $chpid = fork()) {
+        $children{$chpid} = 1;
+    } else {
+        $trans->accept_loop;
+        exit 0;
+    }
+
     my $term = new Term::ReadLine 'NetVM';
     my $OUT = $term->OUT || \*STDOUT;
     my $infile = shift();
-
-    load_settings();
 
     my $prompt = "NetNode [$nodename]> ";
 
@@ -65,7 +71,7 @@ sub do_command {
     my $input = shift();
 
     my ($cmd, $args) = $input =~ /^\s*(\w+)\s*(.+)?\s*$/sm;
-    my @args = split(/\s*/, $args);
+    my @args = split(/\s+/, $args);
 
     return "" unless $cmd;
 
@@ -103,11 +109,14 @@ sub set {
 
 # save settings
 sub save {
-
+    my %vars = $node->conf;
+    Storable::nstore(\%vars, $conffile);
 }
 
 sub load_settings {
-
+    return unless -e $conffile;
+    my $varsref = Storable::retrieve($conffile);
+    $node->set_conf_vars(%$varsref);
 }
 
 # show all variables
