@@ -46,12 +46,15 @@ sub do_command {
     my %handlers = (
                     help  => \&help,
                     load  => \&load,
+                    asld  => \&asld,
                     step  => \&step,
+                    st    => \&step,
                     s     => \&step,
                     mem   => \&mem,
                     run   => \&run,
                     r     => \&run,
                     regs  => \&regs,
+                    reg   => \&regs,
                     reset => \&reset,
                     );
 
@@ -60,19 +63,19 @@ sub do_command {
     return $func->(@args);
 }
 
-sub load {
-    my @args = @_;
+# slurp in a file and return its contents, returns undef on error
+sub slurp {
+    my ($filename) = @_;
 
-    my ($filename) = @args;
     unless (-e $filename) {
         print STDERR "$filename does not exist.\n";
-        return 0;
+        return undef;
     }
 
     my ($contents, $in);
     unless (open($in, $filename)) {
         print STDERR "Could not open $filename: $!\n";
-        return 0;
+        return undef;
     }
 
     # slurp in file
@@ -83,13 +86,26 @@ sub load {
 
     close $in;
 
-    my $bytecode = '';
-    my @bytes = unpack("C*", $contents);
+    return $contents;
+}
 
-    foreach my $byte (@bytes) {
-        #printf "byte: %b\n", $byte;
-        $bytecode .= sprintf "%c", $byte;
-    }
+sub load {
+    my ($filename) = @_;
+
+    my $contents = slurp($filename) or return undef;
+    my $bytecode = pack("C*", unpack("C*", $contents));
+
+    return vmload($bytecode);
+}
+
+sub asld {
+    my $code = slurp(shift());
+    my $bytecode = NetCode->assemble($code);
+    return vmload($bytecode);
+}
+
+sub vmload {
+    my $bytecode = shift;
 
     $vm->load($bytecode);
 
@@ -171,6 +187,7 @@ sub help {
 
     return q {
 load (filename) - loads a file containing NetCode
+asld (filename) - (assemble and load) assemble a NetAsm file and load it
 mem - dump memory
 step - step program one instruction
 run - runs program
