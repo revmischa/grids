@@ -1,26 +1,32 @@
 #!/usr/bin/perl
 use strict;
-use lib 'lib/perl';
+
+use lib '../../lib/perl';
 use NetVM;
-use Term::ReadLine;
+use NetConsole;
+use NetConf;
 use NetNode;
+
+use Term::ReadLine;
 use Getopt::Long;
 use Sys::Hostname;
 use File::UserConfig;
-use sigtrap qw(die normal-signals);
 use Storable;
+use sigtrap qw(die normal-signals);
 
 my $conffile = 'netnode.conf';
+my $nodename = hostname;
+my $help;
 
-my ($help, $nodename);
 my %prog_opts = (
                  'h|help' => \$help,
                  'n|name' => \$nodename,
                  'c|conf' => \$conffile,
                  );
-GetOptions(%prog_opts);
-$nodename ||= hostname;
 
+GetOptions(%prog_opts);
+
+# keep track of child listening processes
 my %children;
 $SIG{CHLD} = 'IGNORE';
 
@@ -28,12 +34,27 @@ $SIG{USR1} = sub {
     exit 0;
 };
 
+my $conf = NetConf->new(conf_file => $conffile);
+
 my $node;
+my $con = NetConsole->new(
+                          conf => $conf,
+                          title => "NetNode",
+                          prompt => "NetNode [$nodename]> ",
+                          handlers => {
+                              help  => \&help,
+                              set   => \&NetConsole::set,
+                              save  => \&NetConsole::save,
+                              list  => \&NetConsole::list,
+                          },
+                          );
+
 run();
 
 sub run {
-    $node = NetNode->new();
-    load_settings();
+    $node = NetNode->new(conf => $conf);
+
+    $con->print("Loaded settings from $conffile") if $conf->load;
 
     my $trans = $node->add_transport("TCP");
     if(my $chpid = fork()) {
@@ -43,94 +64,7 @@ sub run {
         exit 0;
     }
 
-    my $term = new Term::ReadLine 'NetVM';
-    my $OUT = $term->OUT || \*STDOUT;
-    my $infile = shift();
-
-    my $prompt = "NetNode [$nodename]> ";
-
-    while (defined (my $line = $term->readline($prompt))) {
-        if ($line =~ /^\s*(q|quit|exit)\b/ig) {
-            last;
-        }
-
-        my $res = eval {
-            do_command($line);
-        };
-
-        if ($@) {
-            print $OUT "Error: $@\n";
-        } else {
-            print $OUT $res . "\n" if $res;
-            $term->addhistory($line) if $line =~ /\S/;
-        }
-    }
-}
-
-sub do_command {
-    my $input = shift();
-
-    my ($cmd, $args) = $input =~ /^\s*(\w+)\s*(.+)?\s*$/sm;
-    my @args = split(/\s+/, $args);
-
-    return "" unless $cmd;
-
-    $cmd = lc $cmd;
-
-    my %handlers = (
-                    help => \&help,
-                    set  => \&set,
-                    save => \&save,
-                    list => \&list,
-                    );
-
-    my $func = $handlers{$cmd} or die "No such command: $cmd\n";
-
-    return $func->(@args);
-}
-
-sub set {
-    my ($var, $val) = @_;
-
-    if (! $var) {
-        return "Usage: set [\$variable] [\$value]\nDisplays current value of \$variable if \$value is not defined";
-    } elsif (! $val) {
-        $val = $node->get_conf($var);
-        return "$var: $val";
-    } else {
-        my $old_val = $node->get_conf($var);
-        if ($node->set_conf($var, $val)) {
-            return "$var: old value: $old_val new value: $val";
-        } else {
-            return "No such variable $var";
-        }
-    }
-}
-
-# save settings
-sub save {
-    my %vars = $node->conf;
-    Storable::nstore(\%vars, $conffile);
-}
-
-sub load_settings {
-    return unless -e $conffile;
-    my $varsref = Storable::retrieve($conffile);
-    $node->set_conf_vars(%$varsref);
-}
-
-# show all variables
-sub list {
-    my $ret = "Variables:\n" . '-' x 10 . "\n";
-
-    my @vars = $node->conf_vars;
-    foreach my $var (@vars) {
-        $ret .= "$var: " . $node->get_conf($var) . "\n";
-    }
-
-    $ret .= '-' x 10;
-
-    return $ret;
+    $con->run;
 }
 
 sub help {
