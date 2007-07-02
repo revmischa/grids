@@ -2,66 +2,39 @@
 use strict;
 use lib 'lib/perl';
 use NetVM;
-use Term::ReadLine;
 use MemHandle;
 use IO::Seekable;
 
+use NetConsole;
+
+my $infile = shift;
+
 my $vm = NetVM->new(memory_limit => 16);
 
-my $term = new Term::ReadLine 'NetVM';
+my %handlers = (
+                help  => \&help,
+                load  => \&load,
+                asld  => \&asld,
+                step  => \&step,
+                st    => \&step,
+                s     => \&step,
+                mem   => \&mem,
+                run   => \&run,
+                r     => \&run,
+                regs  => \&regs,
+                reg   => \&regs,
+                reset => \&reset,
+                );
 
-my $OUT = $term->OUT || \*STDOUT;
+my $con = NetConsole->new(
+                          title => "NetVM",
+                          prompt => "NetVM> ",
+                          handlers => \%handlers,
+                          );
 
-my $infile = shift();
-print $OUT load($infile) if $infile;
+load($infile) if $infile;
 
-my $prompt = "NetVM> ";
-
-while (defined (my $line = $term->readline($prompt))) {
-    if ($line =~ /^\s*(q|quit|exit)\b/ig) {
-        last;
-    }
-
-    my $res = eval {
-        do_command($line);
-    };
-
-    if ($@) {
-        print $OUT "Error: $@\n";
-    } else {
-        print $OUT $res . "\n" if $res;
-        $term->addhistory($line) if $line =~ /\S/;
-    }
-}
-
-sub do_command {
-    my $input = shift();
-
-    my ($cmd, @args) = $input =~ /^\s*(\w+)\b\s*(.+)?\s*$/sm;
-
-    return "" unless $cmd;
-
-    $cmd = lc $cmd;
-
-    my %handlers = (
-                    help  => \&help,
-                    load  => \&load,
-                    asld  => \&asld,
-                    step  => \&step,
-                    st    => \&step,
-                    s     => \&step,
-                    mem   => \&mem,
-                    run   => \&run,
-                    r     => \&run,
-                    regs  => \&regs,
-                    reg   => \&regs,
-                    reset => \&reset,
-                    );
-
-    my $func = $handlers{$cmd} or die "No such command: $cmd\n";
-
-    return $func->(@args);
-}
+$con->run;
 
 # slurp in a file and return its contents, returns undef on error
 sub slurp {
