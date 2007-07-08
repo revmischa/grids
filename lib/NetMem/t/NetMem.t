@@ -21,3 +21,12 @@ $mem->set(5, pack("c*", 12, 34, 56, 78));
 $val = $mem->get(5, 4);
 my @vals = unpack("c*", $val);
 is_deeply(\@vals, [12, 34, 56, 78], "retreived 4 bytes");
+
+$mem->resize(6);
+is(unpack("C", $mem->get(5, 1)), 12, "resize");
+
+my $bytes = pack("C*", 0xa1, 0xb2, 0xc3, 0xd4, 0xe5, 0xf6);
+$mem->load($bytes);
+is(unpack("C", $mem->get(0, 1)), 0xa1, "load");
+is(unpack("C", $mem->get(2, 1)), 0xc3, "load");
+is(unpack("C", $mem->get($mem->size - 1, 1)), 0xf6, "load + size");

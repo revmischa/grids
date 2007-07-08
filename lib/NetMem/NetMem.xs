@@ -22,6 +22,11 @@ SV *mem_get(unsigned int handle, unsigned long offset, unsigned long len) {
   return newSVpvn(buf, len);
 }
 
+void mem_copy(unsigned int oldhandle, unsigned int newhandle, unsigned long len) {
+  if (! oldhandle || ! newhandle) return;
+  memcpy((char *)newhandle, (char *)(oldhandle), len);
+}
+
 void mem_destroy(unsigned int handle) {
   free((char *)handle);
 }
@@ -35,6 +40,12 @@ mem_new(size)
 void
 mem_destroy(handle)
      unsigned int handle
+
+void
+mem_copy(oldhandle, newhandle, len)
+     unsigned int oldhandle
+     unsigned int newhandle
+     unsigned long len
 
 SV*
 mem_get(handle,offset,len)

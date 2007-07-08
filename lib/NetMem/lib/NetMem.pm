@@ -4,6 +4,7 @@ use 5.008008;
 use strict;
 use warnings;
 use Carp qw (croak);
+use bytes;
 
 require Exporter;
 
@@ -54,12 +55,19 @@ sub init {
 }
 
 sub resize {
-    my ($self, $newsize) = @_;
+    my ($self, $newsize, %opts) = @_;
 
-    my $handle = $self->h or warn "null handle";
-    NetMem::mem_destroy($handle);
+    my $oldsize = $self->size;
+    my $oldhandle = $self->h or warn "null handle";
 
     $self->init($newsize);
+    my $copysize = $oldsize > $newsize ? $newsize : $oldsize;
+
+    if ($oldsize && $copysize && ! $opts{nocopy}) {
+        NetMem::mem_copy($oldhandle, $self->h, $copysize);
+      }
+
+    NetMem::mem_destroy($oldhandle);
 }
 
 sub size { $_[0]->{size} }
@@ -72,6 +80,14 @@ sub set {
 sub get {
     my ($self, $offset, $len) = @_;
     NetMem::mem_get($self->h, $offset, $len);
+}
+
+# resize to new data size and set to new data
+sub load {
+    my ($self, $data) = @_;
+    my $size = length $data;
+    $self->resize($size, nocopy => 1);
+    $self->set(0, $data);
 }
 
 sub h { $_[0]->{handle} }
