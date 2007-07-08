@@ -1,0 +1,8 @@
+Changes
+Makefile.PL
+MANIFEST
+NetMem.xs
+ppport.h
+README
+t/NetMem.t
+lib/NetMem.pm

@@ -8,10 +8,11 @@ use Carp qw (croak);
 sub new {
     my ($class, %opts) = @_;
 
-    my $conf = $opts{conf} or croak "No conf";
+    my $conf = $opts{conf};
     my $handlers = $opts{handlers} || {};
     my $prompt = $opts{prompt} || '>';
     my $title = $opts{title} || 'Net';
+    my $msg = $opts{message};
 
     my $term = new Term::ReadLine $title;
     my $OUT = $term->OUT || \*STDOUT;
@@ -22,6 +23,7 @@ sub new {
         conf   => $conf,
         term   => $term,
         OUT    => $OUT,
+        msg    => $msg,
     };
 
     bless $self, $class;
@@ -38,6 +40,8 @@ sub run {
     my $self = shift;
 
     my $prompt = $self->{prompt};
+
+    $self->print("\n$self->{msg}") if $self->{msg};
 
     while (defined (my $line = $self->term->readline($prompt))) {
         if ($line =~ /^\s*(q|quit|exit)\b/ig) {

@@ -26,13 +26,19 @@ my %handlers = (
                 reset => \&reset,
                 );
 
-my $con = NetConsole->new(
-                          title => "NetVM",
-                          prompt => "NetVM> ",
-                          handlers => \%handlers,
-                          );
+my $msg;
 
-load($infile) if $infile;
+if ($infile) {
+    load($infile);
+    $msg = dis_current_instruction();
+}
+
+my $con = NetConsole->new(
+                          title    => "NetVM",
+                          prompt   => "NetVM> ",
+                          handlers => \%handlers,
+                          message  => $msg,
+                          );
 
 $con->run;
 

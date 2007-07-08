@@ -1,6 +1,8 @@
-# This is a module to define the NetCode instruction set
+# This is a module to define the NetCode instruction set, handling
+# assembling and disassembling NetAsm and interperting NetCode
 package NetCode;
 use strict;
+use bytes;
 use Data::Dumper;
 
 our (@REGS, %REGS); # mappings of register->symbolic name and vice-versa
@@ -88,8 +90,17 @@ our @OFFSET_OPCODES = qw (
 # returns if an opcode expects unsigned immediate data
 sub opcode_unsigned { 
     my ($class, $opcode) = @_;
-    my $om = $class->opcode_mnemonic($opcode);
-    return map { $_ eq $om } @UNSIGNED_OPCODES;
+
+    my $type = $class->opcode_type($opcode);
+
+    if ($type ne 'R') {
+        my $om = $class->opcode_mnemonic($opcode);
+        return grep { $_ eq $om } @UNSIGNED_OPCODES;
+    } else {
+        # R-type, check function name instead
+        my $om = $class->r_function_mnemonic($opcode);
+        return grep { $_ eq $om } @UNSIGNED_OPCODES;
+    }
 }
 
 # return instruction mnemonic for opcode
@@ -183,7 +194,7 @@ sub assemble {
                 (?:,\s*([\-\d]+)\(      # offset
                  \s*([\-\$\d\w]+)\s*    # 3rd arg
                  \))
-                /$1 $4, $2, $3/xg;
+                /$1 $2, $4, $3/xg;
 
             my @instruction_regexes = (
                                        # syscall
@@ -362,12 +373,12 @@ sub assemble_i {
     my $class = shift;
     my $op = shift;
 
-    my @inst_order = qw(rs rt data); # opcode instruction order
-    my @field_order = qw(rt rs data); # assembled args order
+    my @inst_order = qw (rs rt data);
+    my %fields = map { $_ => shift() } qw (rt rs data);
 
-    my $bit_string = sprintf "%06b", $op;
+    warn Dumper(\%fields);
 
-    my %fields = map { ($_, shift(@_)) } @field_order;
+    my $bit_string = sprintf("%06b", $op);
 
     foreach my $field (@inst_order) {
         my $f = $fields{$field};
@@ -505,22 +516,25 @@ sub disassemble {
 
     my $bit_substr = sub {
         my ($offset, $len, $template) = @_;
-        $template ||= 'C*';
+
+        $template ||= "c$len";
+
         my $bitstr = substr($ib, $offset, $len);
+        my $bitlen = $len % 4 ? $len + 4 - ($len % 4) : $len;
         $bitstr = "0" x (8 - $len % 8) . $bitstr if $len % 8;
 
-        my $val = unpack($template, pack("B*", $bitstr));
+        my $val = unpack($template, pack("B$bitlen", $bitstr));
         return $val;
     };
 
-    my $opcode = $bit_substr->(0, 6);
+    my $opcode = $bit_substr->(0, 6, 'C');
     my $type = $class->opcode_type($opcode);
 
     my $fields;
 
     # is the immediate data signed or unsigned?
     my $unsigned_data = $class->opcode_unsigned($opcode);
-    my $pack_template = $unsigned_data ? 'N' : 'l'; # network 32-bit unsigned or (2's complement?) signed
+    my $pack_template = $unsigned_data ? 'N' : 'N'; # network 32-bit unsigned or (2's complement?) signed
 
     if ($type eq 'R') {
         $fields = {

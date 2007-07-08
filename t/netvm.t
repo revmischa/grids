@@ -25,6 +25,11 @@ my $prog = q {
   andi $t1, $t0, 0b00111110
   li $t2, 0xFFFFFFFF
   andi $t3, $t2, 0b00000001
+
+  li $t2, 0b10110101
+  li $t1, 0b00101001
+  and $t0, $t2, $t1
+
   j beginning
 
  teststring:
@@ -66,18 +71,18 @@ $vm->step;
 is($vm->reg('a0'), 0, 'xor');
 
 $vm->step;
-is($vm->reg('a0'), 0xFFFFFFFE, 'addiu');
+is(_u($vm->reg('a0')), 0xFFFFFFFE, 'addiu');
 
 $vm->step;
-is($vm->reg('a0'), 0xFFFFFFFF, 'xori');
+is(_u($vm->reg('a0')), 0xFFFFFFFF, 'xori');
 
  $vm->step;
-warn "a0: " . $vm->reg('a0');
 is($vm->reg('a1'), 0x7FFFFFFF, 'andi');
 
 $vm->step;
 $vm->step;
-is(chr(unpack("CCCC", $vm->reg('t0'))), 'o', 'load memory byte');
+warn "t0: " . $vm->reg('t0');
+is(chr($vm->reg('t0')), 'o', 'load memory byte');
 
 $vm->step;
 is(chr(unpack("CCCC", $vm->reg('t0'))), '!', 'load memory byte');
@@ -90,4 +95,12 @@ $vm->step;
 is($vm->reg('t3'), 0b00000001, 'andi');
 
 $vm->step;
+$vm->step;
+$vm->step;
+is($vm->reg('t0'), 0b00100001, 'and');
+
+$vm->step;
 is($vm->pc, 0, 'j');
+
+# convert to unsigned
+sub _u { return int(sprintf("%u", $_[0])); }

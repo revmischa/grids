@@ -5,7 +5,8 @@ package NetVM::SysCall::Node;
 sub log {
     my ($vm) = @_;
 
-    printf "[Node.log] %08X\n", $vm->reg('a1');
+
+    printf "[Node.log] %032b %s %u 0x%08X\n", $vm->reg('a1'), $vm->reg('a1'),$vm->reg('a1'),$vm->reg('a1');
 }
 
 # prints null-terminated string at addr in $a1

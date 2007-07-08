@@ -10,8 +10,11 @@ package NetVM::Instructions;
 
 # returns 32-bit unsigned representation of this number
 sub _u { return int(sprintf("%u", $_[0])) }
+sub _s { return int(sprintf("%d", $_[0])) }
 # signed version
-sub _s { return int(sprintf("%ld", $_[0])) }
+#sub _s { return int(sprintf("%ld", $_[0])) }
+# return 32-bit bit string
+sub _bs { return sprintf("%032b", $_[0]) }
 
 ### instructions
 
@@ -53,12 +56,6 @@ sub r_srl {
     $vm->set_reg($rd, $vm->reg($rs) >> $sa);
 }
 
-# rd = rs & rt
-sub r_and {
-    my ($class, $vm, $rs, $rt, $rd, $sa) = @_;
-    $vm->set_reg($rd, $vm->reg($rs) & $vm->reg($rt));
-}
-
 # rd = rs ^ rt
 sub r_xor {
     my ($class, $vm, $rs, $rt, $rd, $sa) = @_;
@@ -83,29 +80,38 @@ sub i_ori {
     $vm->set_reg($rt, $vm->reg($rs) | _u($data));
 }
 
+# rd = rs & rt
+sub r_and {
+    my ($class, $vm, $rs, $rt, $rd, $sa) = @_;
+    my $res = (_bs($vm->reg($rs)) & _bs($vm->reg($rt)));
+    $res = unpack("N", pack("B32", $res));
+   
+    $vm->set_reg($rd, $res);
+}
+
 # rt = $rs & $data
 sub i_andi {
     my ($class, $vm, $rs, $rt, $data) = @_;
 
-    $rs = unpack("CCCC", $vm->reg($rs));
-    warn "rs: $rs";
+    warn "rs: " . _bs(_u($vm->reg($rs))) . " vm->reg: " . $vm->reg($rs) . " data: $data";
 
-    # have to left-pad to 32 bits because & is retarded
-    #$rs = sprintf("%u", $rs);
-    printf "bstr: %032b rs: %032b and: %032b\n", $data, $rs, ($rs & $data);
-
-    $vm->set_reg($rt, ($rs & $data));
+    my $res = (_bs($vm->reg($rs)) & _bs($data));
+    $res = unpack("N", pack("B32", $res));
+    warn "rs: " . _bs($vm->reg($rs)) . " data: " . _bs($data) . " res: " . _bs($res) ;
+    $vm->set_reg($rt, $res);
 }
 
 # rt = $data($rs)
 sub i_lw {
-    my ($class, $vm, $rt, $rs, $data) = @_;
+    my ($class, $vm, $rs, $rt, $data) = @_;
     $vm->set_reg($rt, $vm->get_mem($vm->reg($rs) + $data, 4));
 }
 
 # rt = $data($rs) - 1 byte
 sub i_lb {
-    my ($class, $vm, $rt, $rs, $data) = @_;
+    my ($class, $vm, $rs, $rt, $data) = @_;
+    warn "[rs: $rs rt: $rt] data: $data rs: " . $vm->reg_name($rs) . ": $rs = " . $vm->reg($rs);
+    warn "offset = " . ($vm->reg($rs) + $data);
     $vm->set_reg($rt, $vm->get_mem($vm->reg($rs) + $data, 1));
 }
 

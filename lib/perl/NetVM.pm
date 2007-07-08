@@ -1,12 +1,14 @@
 package NetVM;
 use strict;
+use bytes;
+
 use Carp qw (croak);
-use MemHandle;
-use IO::Seekable;
+use Class::Autouse;
 use Data::Dumper;
+
 use NetCode;
 use NetVM::Instructions;
-use Class::Autouse;
+use NetMem;
 
 Class::Autouse->autouse_recursive('NetVM::SysCall');
 
@@ -58,7 +60,7 @@ sub init {
     $self->{regs}->[$_] = 0 for (0..31);
 
     # empty memory
-    $self->{mem} = new MemHandle;
+    $self->{mem} = new NetMem(1);
 
     # reset PC
     $self->{pc} = 0;
@@ -101,7 +103,7 @@ sub set_reg {
 
     croak "Cannot modify zero register" if $reg_idx == 0;
 
-    return $self->regs->[$reg_idx] = $val;
+    return $self->regs->[$reg_idx] = sprintf("%d", $val);
 }
 
 # utility method to look up a register number that accepts either the
@@ -121,25 +123,20 @@ sub _reg {
 # read part of memory
 sub get_mem {
     my ($self, $offset, $len) = @_;
-
     $len ||= 1; # default to one byte
 
-    # this is really slow and dumb. there is probably a way
-    # to make this a lot faster.
-    my $mem = $self->mem;
-    my $contents = '';
-    $mem->seek($offset, SEEK_SET);
-    $mem->sysread($contents, $len);
+    my $contents = $self->mem->get($offset, $len);
 
-    return $contents;
+    return unpack("c", $contents) if $len == 1;
+
+    my @bytes = unpack("c$len", $contents);
+    return join('', @bytes); # is this right?
 }
 
 sub mem_size {
     my ($self) = @_;
 
-    my $mem = $self->mem;
-    $mem->seek(0, SEEK_END);
-    return $mem->tell;
+    return $self->mem->size;
 }
 
 =item reg_name($reg)
@@ -176,14 +173,10 @@ Loads C<$bytecode> at 0x00000000
 sub load {
     my ($self, $bytecode) = @_;
 
-    # TODO: check memory constraints
+    $self->mem->resize(length $bytecode);
+    $self->mem->set(0, $bytecode);
 
-    # seek to 0x00000000
-    my $mem = $self->mem;
-    $mem->seek(0, SEEK_SET);
-
-    $mem->mem($bytecode);
-    return;
+    return 1;
 }
 
 
@@ -208,14 +201,7 @@ sub current_instruction {
     my $self = shift;
 
     # read 6-byte instruction at PC
-    $self->mem->seek($self->pc, SEEK_SET);
-    my $inst;
-    my $read = read($self->mem, $inst, 6);
-
-    unless ($read) {
-        # memory EOF, do nothing?
-        return undef;
-    }
+    my $inst = $self->mem->get($self->pc, 6);
 
     return $inst;
 }
