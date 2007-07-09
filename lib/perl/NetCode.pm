@@ -376,8 +376,6 @@ sub assemble_i {
     my @inst_order = qw (rs rt data);
     my %fields = map { $_ => shift() } qw (rt rs data);
 
-    warn Dumper(\%fields);
-
     my $bit_string = sprintf("%06b", $op);
 
     foreach my $field (@inst_order) {
@@ -386,7 +384,7 @@ sub assemble_i {
         $bit_string .= sprintf("%0${s}b", $f);
     }
 
-    print "i [$op, " . join(', ', map { $fields{$_} } @inst_order) . "] = $bit_string\n";
+    print "i [$op, " . join(', ', map { sprintf("0x%X", $fields{$_}) } @inst_order) . "] = $bit_string\n";
 
     return $class->pack_bit_string($bit_string);
 }
@@ -396,7 +394,7 @@ sub assemble_j {
     my ($class, $op, $data) = @_;
 
     my $bit_string = sprintf "%06b%032b%010b", $op, $data, 0;
-    print "j [$op, $data] = $bit_string\n";
+    printf "j [$op, 0x%08X] = $bit_string\n", $data;
 
     return $class->pack_bit_string($bit_string);
 }
@@ -427,7 +425,7 @@ sub assemble_r {
     }
 
     my $bit_string = sprintf "%06b%05b%05b%05b%08b%06b%013b", $op, $rs, $rt, $rd, $sa, $func, 0;
-    print "r [$op, $rs, $rt, $rd] = $bit_string\n";
+    printf "r [%06b, 0x%02X, 0x%02X, 0x%02X] = $bit_string\n", $op, $rs, $rt, $rd;
 
     return $class->pack_bit_string($bit_string);
 }
