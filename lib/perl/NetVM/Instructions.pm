@@ -22,8 +22,7 @@ sub _bs { return sprintf("%032b", $_[0]) }
 sub j_j {
     my ($class, $vm, $address) = @_;
 
-    $vm->{pc} = $address;
-    #dbg(sprintf("set pc to %032b\n", $address));
+    $vm->{pc} = _u($address);
 }
 
 # jump to address in $rs
@@ -47,6 +46,11 @@ sub r_addu {
 # rd = rs << sa
 sub r_sll {
     my ($class, $vm, $rs, $rt, $rd, $sa) = @_;
+
+    # if $rd $rs and $sa are all 0, this is "sll 0, 0, 0" which
+    # really means nop
+    return if ! $rs && ! $rt && ! $sa;
+
     $vm->set_reg($rd, $vm->reg($rs) << $sa);
 }
 
@@ -93,11 +97,8 @@ sub r_and {
 sub i_andi {
     my ($class, $vm, $rs, $rt, $data) = @_;
 
-    #warn "rs: " . _bs(_u($vm->reg($rs))) . " vm->reg: " . _u($vm->reg($rs)) . " data: $data";
-
     my $res = (_bs($vm->reg($rs)) & _bs($data));
     $res = unpack("N", pack("B32", $res));
-    #warn "rs: " . _bs($vm->reg($rs)) . " data: " . _bs($data) . " res: " . _bs($res) ;
     $vm->set_reg($rt, $res);
 }
 

@@ -87,6 +87,10 @@ our @OFFSET_OPCODES = qw (
                           lb
                           );
 
+our %ALIASES = (
+                'nop' => "sll 0, 0, 0",
+                );
+
 # returns if an opcode expects unsigned immediate data
 sub opcode_unsigned { 
     my ($class, $opcode) = @_;
@@ -128,7 +132,7 @@ sub assemble {
 
     my @lines = split("\n", $asm);
 
-    # first pass, remove labels and empty lines
+    # first pass, remove labels and empty lines, substitute aliases
     my @pass1;
     foreach my $line (@lines) {
         # remove comments
@@ -138,6 +142,13 @@ sub assemble {
 
         # skip whitespace
         next unless $line && $line =~ /\S/;
+
+        # do alias substitution
+        my ($cmd) = $line =~ /^\s*(\w+)\s*$/;
+        my $alias = $ALIASES{lc $cmd};
+        if (defined $alias) {
+            $line = $alias;
+        }
 
         push @pass1, $line;
     }
