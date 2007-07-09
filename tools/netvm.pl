@@ -110,13 +110,16 @@ sub dis_current_instruction {
 }
 
 sub mem {
-    my ($self) = @_;
+    my ($self, $len) = @_;
+
+    $len ||= 256;
 
     my $ret = '';
     my $bytes;
 
     my $size = $vm->mem->size;
-    $size = $size > 128 ? 128 : $size;
+    
+    $size = $size > $len ? $len : $size;
     for (my $pos = 0; $pos < $size; $pos++) {
         my $byte = unpack("C", $vm->mem->get($pos, 1));
         $ret .= sprintf "%08X: 0x%02X %3d 0b%08b %c\n", $pos, $byte, $byte, $byte, $byte;

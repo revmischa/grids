@@ -93,11 +93,11 @@ sub r_and {
 sub i_andi {
     my ($class, $vm, $rs, $rt, $data) = @_;
 
-    warn "rs: " . _bs(_u($vm->reg($rs))) . " vm->reg: " . $vm->reg($rs) . " data: $data";
+    #warn "rs: " . _bs(_u($vm->reg($rs))) . " vm->reg: " . _u($vm->reg($rs)) . " data: $data";
 
     my $res = (_bs($vm->reg($rs)) & _bs($data));
     $res = unpack("N", pack("B32", $res));
-    warn "rs: " . _bs($vm->reg($rs)) . " data: " . _bs($data) . " res: " . _bs($res) ;
+    #warn "rs: " . _bs($vm->reg($rs)) . " data: " . _bs($data) . " res: " . _bs($res) ;
     $vm->set_reg($rt, $res);
 }
 
@@ -110,8 +110,6 @@ sub i_lw {
 # rt = $data($rs) - 1 byte
 sub i_lb {
     my ($class, $vm, $rs, $rt, $data) = @_;
-    warn "[rs: $rs rt: $rt] data: $data rs: " . $vm->reg_name($rs) . ": $rs = " . $vm->reg($rs);
-    warn "offset = " . ($vm->reg($rs) + $data);
     $vm->set_reg($rt, $vm->get_mem($vm->reg($rs) + $data, 1));
 }
 
