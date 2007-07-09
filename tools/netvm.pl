@@ -2,8 +2,6 @@
 use strict;
 use lib 'lib/perl';
 use NetVM;
-use MemHandle;
-use IO::Seekable;
 
 use NetConsole;
 
@@ -148,14 +146,12 @@ sub mem {
 
     my $ret = '';
     my $bytes;
-    $vm->mem->seek(0, SEEK_SET);
-    my $pos = 0;
-    while ($vm->mem->read($bytes, 128)) {
-        foreach my $byte (unpack("C*", $bytes)) {
-            $ret .= sprintf "%08X: 0x%04X 0b%08b %c\n", $pos, $byte, $byte, $byte;
-            $pos++;
-        }
-        last if $pos > 15;
+
+    my $size = $vm->mem->size;
+    $size = $size > 128 ? 128 : $size;
+    for (my $pos = 0; $pos < $size; $pos++) {
+        my $byte = unpack("C", $vm->mem->get($pos, 1));
+        $ret .= sprintf "%08X: 0x%02X %3d 0b%08b %c\n", $pos, $byte, $byte, $byte, $byte;
     }
 
     return $ret;
