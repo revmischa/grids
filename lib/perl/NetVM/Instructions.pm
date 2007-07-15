@@ -25,10 +25,10 @@ sub j_j {
     $vm->{pc} = _u($address);
 }
 
-# jump to address in $rs
-sub r_jr {
+# offset pc by $rs
+sub r_jrel {
     my ($class, $vm, $rs, $rt, $rd, $sa) = @_;
-    $vm->{pc} = $vm->reg($rs);
+    $vm->{pc} += _s($rs) * 6;
 }
 
 # rd = rs + rt

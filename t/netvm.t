@@ -69,12 +69,35 @@ $vm->step;
 $vm->step;
 is($vm->reg('t0'), 0b00100001, 'and');
 
+my $pc = $vm->pc;
+$vm->step;
+is($vm->pc, $pc + 18, 'jrel');
+is(op_r(), 'jrel', 'jrel op');
+
+$pc = $vm->pc;
+$vm->step;
+is($vm->pc, $pc - 12, 'negative jrel');
+is(op_r(), 'nop', 'negative jrel');
+
+$vm->step;
+is(op(), 'j', 'nop');
+
+$vm->step;
+is(op(), 'j', 'j');
+
 $vm->step;
 is($vm->pc, 0, 'j');
 
 # convert to unsigned
 sub _u { return int(sprintf("%u", $_[0])); }
 
+# get opcode mnemonic
+sub op { NetCode->opcode_mnemonic($vm->current_instruction); }
+
+# get opcode mnemonic for r-type
+sub op_r { NetCode->r_function_mnemonic($vm->current_instruction); }
+
+# read in a file
 sub slurp {
     my $filename = shift;
 

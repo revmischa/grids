@@ -44,6 +44,7 @@ our %R_TYPE_FUNCS = (
                      addu  => ["rd, rs, rt", 0b100001],
                      and   => ["rd, rs, rt", 0b100100],
                      jr    => ["rs",         0b001000],
+                     jrel  => ["rs",         0b001001],
                      sll   => ["rd, rs, sa", 0b000000],
                      srl   => ["rd, rs, sa", 0b000010],
                      xor   => ["rd, rs, rt", 0b100110],

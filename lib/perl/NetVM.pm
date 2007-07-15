@@ -249,8 +249,10 @@ sub syscall {
 sub execute_i {
     my ($self, $opcode, %fields) = @_;
 
-    my $func = 'i_' . NetCode->opcode_mnemonic($opcode)
+    my $func = NetCode->opcode_mnemonic($opcode)
         or die "Unknown instruction $opcode";
+
+    $func = "i_$func";
 
     my @args;
     push @args, $fields{$_} for qw(rs rt data);
