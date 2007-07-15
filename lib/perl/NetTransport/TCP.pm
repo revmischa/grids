@@ -20,7 +20,7 @@ sub accept_loop {
     $self->{sock} = IO::Socket::INET->new(Proto     => "tcp",
                                           Blocking  => 1,
                                           Reuse     => 1,
-                                          LocalPort => $self->node->conf->get_conf('port'),
+                                          LocalPort => $self->parent->conf->get_conf('port'),
                                           Listen    => 5,
                                           ) or die;
 

@@ -14,14 +14,18 @@ use sigtrap qw(die normal-signals);
 my $conffile = 'netnode.conf';
 my $nodename = hostname;
 my $help;
+my $id;
 
 my %prog_opts = (
                  'h|help' => \$help,
                  'n|name' => \$nodename,
                  'c|conf' => \$conffile,
+                 'i|id'   => \$id,
                  );
 
 GetOptions(%prog_opts);
+
+usage() and exit if $help;
 
 # keep track of child listening processes
 my %children;
@@ -72,6 +76,17 @@ set  - set/view server variables
 save - save settings
 list - show all variables
 quit - quit
+};
+}
+
+sub usage {
+    my @args = @_;
+    print qq {
+usage: $0 [-cnih]
+ -c[onf]:  specify a configuration file. default is "netnode.conf"
+ -n[ame]:  specify node name
+ -i[d]:    specify an identity to use
+ -h[help]: print this help
 };
 }
 
