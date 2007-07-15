@@ -35,11 +35,13 @@ sub load {
     return undef unless -e $conffile;
 
     my $varsref = Storable::retrieve($conffile);
+
     $self->set_conf_vars(%$varsref);
 
     return 1;
 }
 
+*set = \&set_conf;
 sub set_conf {
     my ($self, $var, $val) = @_;
 
@@ -48,6 +50,7 @@ sub set_conf {
     return 1;
 }
 
+*get = \&get_conf;
 sub get_conf { $_[0]->{conf}->{$_[1]} }
 
 sub conf_vars { keys %{$_[0]->{conf}} }
