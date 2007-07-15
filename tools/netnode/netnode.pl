@@ -7,11 +7,8 @@ use NetConsole;
 use NetConf;
 use NetNode;
 
-use Term::ReadLine;
 use Getopt::Long;
 use Sys::Hostname;
-use File::UserConfig;
-use Storable;
 use sigtrap qw(die normal-signals);
 
 my $conffile = 'netnode.conf';
