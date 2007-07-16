@@ -61,6 +61,13 @@ sub run {
     }
 }
 
+sub ask {
+    my ($self, $txt) = @_;
+    my $line = $self->term->readline($txt);
+    chomp $line;
+    return $line;
+}
+
 sub print {
     my ($self, $txt) = @_;
     my $OUT = $self->{OUT};
