@@ -1,6 +1,6 @@
 # This package represents a Net Identity. All an identity needs is a
-# private key, although other attributes may be associated with an
-# identity.
+# public or private key, although other attributes may be associated
+# with an identity.
 
 use strict;
 
