@@ -69,10 +69,22 @@ my $con = NetConsole->new(
                           );
 
 if ($id) {
-    $id = NetIdentity->deserialize($id) or die "Error loading identity";
-    my $decrypted = decrypt($id) if $id->encrypted;
-    print $decrypted ? "Identity decrypted\n" : "Incorrect passphrase. Identity not loaded\n";
-} else {
+    # load serialized id
+    $id = NetIdentity->deserialize($id) or die "Error loading identity\n";
+    die "Invalid identity\n" unless $id->privkey->check;
+
+    if ($encrypted) {
+        my $decrypted = decrypt($id);
+        if ($decrypted) {
+            print "Identity decrypted\n";
+        } else {
+            print "Incorrect passphrase. Identity not loaded\n";
+            $id = undef;
+        }
+    }
+}
+
+unless ($id) {
     # no id specified, ask to create one
     my $create = $con->yesorno("No identity specified and there are no saved identities. " .
                                "Would you like to create one?");
@@ -96,7 +108,7 @@ sub run {
 
 # user didn't specify an id and there were none in the conf file
 sub create_id {
-    my $name = $con->ask("What personal identifier would you like to give this identity? ") || '';
+    my $name = $con->ask("What personal identifier would you like to give this identity? ") || 'default';
     my $passphrase = $con->ask("Enter id passphrase (leave blank for no passphrase): ") || '';
     my $id = NetIdentity->create(passphrase => $passphrase, name => $name, verbose => 1);
 
@@ -118,7 +130,7 @@ sub create_id {
         print "Saved\n";
     }
 
-    $id->decrypt($passphrase) if $passphrase; # is this necessary?
+    $id->decrypt_privkey($passphrase) if $passphrase; # is this necessary?
 
     return $id;
 }
@@ -131,7 +143,7 @@ sub decrypt {
     my $passphrase = $con->ask("Passphrase needed for identity '$name': ")
         or return 0;
 
-    return $id->decrypt($passphrase);
+    return $id->decrypt_privkey($passphrase);
 }
 
 sub help {

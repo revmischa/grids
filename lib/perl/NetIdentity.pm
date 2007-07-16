@@ -32,6 +32,7 @@ sub new {
     return $self;
 }
 
+# generate a public/private keypair
 sub create {
     my ($class, %opts) = @_;
 
@@ -62,7 +63,24 @@ sub create {
                        );
 }
 
+# encrypt plaintext for $id
+sub encrypt {
+    my ($self, $plaintext, $id, %opts) = @_;
+    my $rsa = new Crypt::RSA;
+    return $rsa->encrypt(Message => $plaintext, Key => $id->pubkey, Armor => $opts{armor})
+        or die $rsa->errstr;
+}
+
+# decrypt ciphertext for $id
 sub decrypt {
+    my ($id, $ciphertext, %opts) = @_;
+    my $rsa = new Crypt::RSA;
+    return $rsa->decrypt(Cyphertext => $ciphertext, Key => $id->privkey, Armor => $opts{armor})
+        or die $rsa->errstr;
+}
+
+# decrypts private key with $passphrase, returns if successful
+sub decrypt_privkey {
     my ($self, $passphrase) = @_;
     $self->privkey->reveal(Password => $passphrase);
 
@@ -92,6 +110,7 @@ sub privkey { $_[0]->{privkey} }
 
 sub name { $_[0]->{name} }
 
+# warning! this will have a side-effect of encrypting the private key!
 sub serialize {
     my $self = shift;
 
