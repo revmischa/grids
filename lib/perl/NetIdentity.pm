@@ -81,10 +81,11 @@ sub decrypt {
 
 # sign plaintext with pubkey, return signature
 sub sign {
-    my ($id, $plaintext, %opts) = @_;
+    my ($id, $message, %opts) = @_;
     my $rsa = new Crypt::RSA;
-    return $rsa->sign(Message => $plaintext, Key => $id->privkey, Armor => $opts{armor})
-        or die $rsa->errstr;
+    return $rsa->sign(Message => $message,
+                      Key     => $id->privkey,
+                      Armor   => $opts{armor}) or die $rsa->errstr;
 }
 
 # return if $message is signed by $id's pubkey
@@ -93,10 +94,10 @@ sub verify {
 
     my $rsa = new Crypt::RSA;
 
-    return $rsa->verify(Message => $message,
-                        Key => $id->pubkey,
-                        Sign => $sig,
-                        Armor => $opts{armor}) or die $rsa->errstr;
+    return $rsa->verify(Message   => $message,
+                        Key       => $id->pubkey,
+                        Signature => $sig,
+                        Armor     => $opts{armor}) or die $rsa->errstr;
 }
 
 # decrypts private key with $passphrase, returns if successful
