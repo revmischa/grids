@@ -11,29 +11,56 @@ use NetConf;
 
 use Carp qw (croak);
 use Getopt::Long;
+use Data::Dumper;
 
 ############
 
 my $conffile = 'netclient.conf';
-my $id;
+my $id_name;
 my $help;
+my $dump;
 
 my %prog_opts = (
                  'h|help' => \$help,
-                 'i|id'   => \$id,
+                 'i|id'   => \$id_name,
                  'c|conf' => \$conffile,
+                 'd|dump' => \$dump,
                  );
 
 GetOptions(%prog_opts);
 
 my $conf = NetConf->new(conf_file => $conffile);
-$id ||= $conf->get('id');
+print "Loaded settings from $conffile\n" if $conf->load;
+
+die Dumper($conf) if $dump;
+
+my $ids = $conf->get('id') || {};
+my $id;
+
+if ($id_name) {
+    die "There are no saved identities\n" unless %$ids;
+    $id = $ids->{$id_name} or die "There is no saved identity named \"$id_name\"\n";
+}
+
+if (%$ids && ! $id) {
+    # ids exist, but none specified
+    if ((scalar keys %$ids) == 1) {
+        # if only one id exists, use that
+        my $name;
+        ($name, $id) = %$ids;
+        print "Loaded identity '$name'\n";
+    } else {
+        # have user choose id
+        # TODO
+    }
+}
 
 my $con = NetConsole->new(
                           conf => $conf,
                           title => "Net",
                           prompt => "Net> ",
                           handlers => {
+                              newid => \&create_id,
                               help  => \&help,
                               set   => \&NetConsole::set,
                               save  => \&NetConsole::save,
@@ -41,7 +68,19 @@ my $con = NetConsole->new(
                           },
                           );
 
-$id = create_id() unless $id;
+if ($id) {
+    $id = NetIdentity->deserialize($id) or die "Error loading identity";
+    my $decrypted = decrypt($id) if $id->encrypted;
+    print $decrypted ? "Identity decrypted\n" : "Incorrect passphrase. Identity not loaded\n";
+} else {
+    # no id specified, ask to create one
+    my $create = $con->yesorno("No identity specified and there are no saved identities. " .
+                               "Would you like to create one?");
+
+    $id = create_id() if $create;
+
+    die "You must have an identity to use this program.\n" unless $id;
+}
 
 my $client = NetClient->new(
                             conf      => $conf,
@@ -52,22 +91,47 @@ my $client = NetClient->new(
 run();
 
 sub run {
-    $con->print("Loaded settings from $conffile") if $conf->load;
     $con->run;
 }
 
 # user didn't specify an id and there were none in the conf file
 sub create_id {
-    my $create = $con->ask("No identity specified and there are no saved identities. " .
-                           "Would you like to create one [Y/n]? ");
-
-    return unless $create eq '' || $create =~ /^\s*y/i;
-
-    my $name = $con->ask("What identifier would you like to give this identity? ") || '';
+    my $name = $con->ask("What personal identifier would you like to give this identity? ") || '';
     my $passphrase = $con->ask("Enter id passphrase (leave blank for no passphrase): ") || '';
     my $id = NetIdentity->create(passphrase => $passphrase, name => $name, verbose => 1);
 
     my $id_ser = $id->serialize;
+    $name ||= 'default';
+    
+    my $ids = $conf->get('id') || {};
+
+    if ($ids->{$name}) {
+        my $overwrite = $con->ask("Identity '$name' already exists. Overwrite it?");
+        return unless $overwrite;
+    }
+
+    $ids->{$name} = $id_ser;
+    $conf->set('id', $ids);
+
+    if ($con->yesorno("Identity generated. Do you want to save it? ")) {
+        $conf->save;
+        print "Saved\n";
+    }
+
+    $id->decrypt($passphrase) if $passphrase; # is this necessary?
+
+    return $id;
+}
+
+sub decrypt {
+    my $id = shift;
+    
+    my $name = $id->name;
+
+    my $passphrase = $con->ask("Passphrase needed for identity '$name': ")
+        or return 0;
+
+    return $id->decrypt($passphrase);
 }
 
 sub help {
@@ -78,6 +142,7 @@ connect - connect to a node
 set     - set/view client variables
 save    - save settings
 list    - show all variables
+newid   - create a new identity
 quit    - quit
 };
     }

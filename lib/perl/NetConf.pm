@@ -42,7 +42,12 @@ sub load {
 }
 
 *set = \&set_conf;
-sub set_conf {
+
+# sets new value, creating the conf var if necessary
+sub set_conf { $_[0]->{conf}->{$_[1]} = $_[2] }
+
+# only sets a variable if it exists, doesn't create new vars
+sub set_conf_if_exists {
     my ($self, $var, $val) = @_;
 
     return 0 unless exists $self->{conf}->{$var};
@@ -63,6 +68,8 @@ sub set_conf_vars {
     $self->set_conf($_ => $vars{$_}) foreach keys %vars;
 }
 
+# creates a new conf with a value if it doesn't exist, does nothing if
+# it already exists
 sub add_conf { $_[0]->{conf}->{$_[1]} ||= $_[2] }
 
 1;

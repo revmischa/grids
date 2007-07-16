@@ -19,11 +19,13 @@ sub new {
     my $privkey = delete $opts{privkey};
     my $pubkey = delete $opts{pubkey};
     my $name = delete $opts{name};
+    my $encrypted = delete $opts{encrypted};
 
     my $self = {
-        pubkey  => $pubkey,
-        privkey => $privkey,
-        name    => $name,
+        pubkey    => $pubkey,
+        privkey   => $privkey,
+        name      => $name,
+        encrypted => $encrypted,
     };
 
     bless $self, $class;
@@ -34,8 +36,10 @@ sub create {
     my ($class, %opts) = @_;
 
     my $verbose = delete $opts{verbose} ? 1 : 0;
-    my $size = delete $opts{size} || 2048;
+    my $size = delete $opts{size} || 512;
     my $passphrase = delete $opts{passphrase} || '';
+
+    print "\nGenerating public/private keypair, this may take a little while...\n\n" if $verbose;
 
     # generate a private key
     my $rsa = new Crypt::RSA;
@@ -48,12 +52,39 @@ sub create {
 
     die "Error generating keypair: " . $rsa->errstr . "\n" unless $pubkey && $privkey;
 
+    print "\nGenerated identity keypair.\n\n" if $verbose;
+
     return $class->new(
+                       encrypted => $passphrase ? 1 : 0,
                        pubkey => $pubkey,
                        privkey => $privkey,
                        %opts,
                        );
 }
+
+sub decrypt {
+    my ($self, $passphrase) = @_;
+    $self->privkey->reveal(Password => $passphrase);
+
+    return $self->keys_match;
+}
+
+# returns true if the stored pubkey is correct for the privkey
+sub keys_match {
+    my $self = shift;
+
+    my $rsa = new Crypt::RSA;
+
+    my $ciphertext = $rsa->encrypt(Message => 'plaintext', Key => $self->pubkey)
+        or die $rsa->errstr;
+
+    my $plaintext = $rsa->decrypt(Cyphertext => $ciphertext, Key => $self->privkey)
+        or return 0;
+
+    return $plaintext eq 'plaintext';
+}
+
+sub encrypted { $_[0]->{encrypted} }
 
 *pub = \&pubkey;
 *priv = \&privkey;
@@ -64,8 +95,11 @@ sub name { $_[0]->{name} }
 sub serialize {
     my $self = shift;
 
+    $self->priv->hide;
+
     my $store = {
         name => $self->name,
+        encrypted => $self->encrypted,
         pubkey => $self->pub->serialize,
         privkey => $self->priv->serialize,
     };

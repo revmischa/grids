@@ -61,6 +61,28 @@ sub run {
     }
 }
 
+sub yesorno {
+    my ($self, $q, $default) = @_;
+
+    $default ||= 'Y';
+    $default = lc $default;
+
+    my $defstr;
+    if ($default eq 'y') {
+        $defstr = 'Y/n';
+    } elsif ($default eq 'n') {
+        $defstr = 'N/y';
+    } else {
+        croak "default to yesorno must be '', 'y' or 'n'";
+    }
+
+    my $resp = $self->ask("$q [$defstr] ");
+    $resp = $default if $resp =~ /^\s*$/;
+
+    my $yes = $resp =~ /^\s*y/i;
+    return $yes;
+}
+
 sub ask {
     my ($self, $txt) = @_;
     my $line = $self->term->readline($txt);
