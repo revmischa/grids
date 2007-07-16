@@ -28,3 +28,8 @@ my $plaintext = 'lol dongues';
     is($plaintext, $alice2->decrypt($ciphertext), "deserialization and private key decryption");
 }
 
+# sign and verify a message
+{
+    my $sig = $alice->sign($plaintext);
+    ok(NetIdentity->verify($plaintext, $sig, $alice), "signed message with pubkey");
+}
