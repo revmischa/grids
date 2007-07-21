@@ -125,7 +125,7 @@ None by default.
 
 =head1 SEE ALSO
 
-Net, Time::Cubic
+Net
 
 =head1 AUTHOR
 
