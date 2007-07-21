@@ -1,0 +1,6 @@
+Revision history for Perl extension NetReg.
+
+0.01  Fri Jul 20 20:40:24 2007
+	- original version; created by h2xs 1.23 with options
+		-A -n NetReg
+

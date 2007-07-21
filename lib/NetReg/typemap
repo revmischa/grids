@@ -1,0 +1,6 @@
+TYPEMAP
+
+reg_t           T_IV
+reghandle_t     T_PV
+reghandle_t *   T_PV
+ureg_t          T_UV

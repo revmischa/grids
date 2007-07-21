@@ -1,0 +1,8 @@
+Changes
+Makefile.PL
+MANIFEST
+NetReg.xs
+ppport.h
+README
+t/NetReg.t
+lib/NetReg.pm
