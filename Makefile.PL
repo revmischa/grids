@@ -1,7 +1,6 @@
 use 5.008008;
 use ExtUtils::MakeMaker;
-# See lib/ExtUtils/MakeMaker.pm for details of how to influence
-# the contents of the Makefile that is written.
+
 WriteMakefile(
     NAME              => 'Net',
 #    VERSION_FROM      => 'lib/NetReg.pm', # finds $VERSION
@@ -17,9 +16,7 @@ WriteMakefile(
 #      (ABSTRACT_FROM  => 'lib/NetReg.pm', # retrieve abstract from module
 #       AUTHOR         => 'mish <mspiegelmock@gmail.com>') : ()),
 
-    LIBS              => [''], # e.g., '-lm'
-    DEFINE            => '', # e.g., '-DHAVE_SOMETHING'
-    INC               => '-I.', # e.g., '-I. -I/usr/include/other'
-	# Un-comment this if you add C files to link with later:
-    # OBJECT            => '$(O_FILES)', # link all the C files too
+    LIBS              => [''],
+    DEFINE            => '',
+    INC               => '-I.',
 );
