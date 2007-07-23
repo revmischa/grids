@@ -9,6 +9,7 @@ use Data::Dumper;
 use NetCode;
 use NetVM::Instructions;
 use NetMem;
+use NetReg;
 
 Class::Autouse->autouse_recursive('NetVM::SysCall');
 
@@ -41,9 +42,12 @@ sub new {
 
     croak "Unknown options: " . join(',', keys %opts) if %opts;
 
+    my $regs = new NetReg(scalar @REGS)
+        or die "couldn't create register storage";
+
     my $self = {
         mem_limit => $mem_limit,
-        regs      => [],
+        regs      => $regs,
     };
 
     bless $self, $class;
@@ -56,8 +60,10 @@ sub new {
 sub init {
     my $self = shift;
 
+    croak "invalid vm" unless defined $self->{regs};
+
     # initialize registers
-    $self->{regs}->[$_] = 0 for (0..31);
+    $self->{regs}->set($_, 0) for (0 .. (scalar @REGS));
 
     # empty memory
     $self->{mem} = new NetMem(1);
@@ -68,7 +74,7 @@ sub init {
 
 =item regs()
 
-Returns arrayref of registers 0-31
+Returns NetReg object containing registers
 
 =cut
 
@@ -84,11 +90,15 @@ number or the register name (e.g. 8 or 't0')
 
 sub reg {
     my ($self, $reg) = @_;
-
     my $reg_idx = $self->_reg($reg);
-    return $self->regs->[$reg_idx];
+    return $self->regs->get($reg_idx);
 }
 
+sub reg_u {
+    my ($self, $reg) = @_;
+    my $reg_idx = $self->_reg($reg);
+    return $self->regs->get_u($reg_idx);
+}
 
 =item set_reg($reg, $val)
 
@@ -100,10 +110,11 @@ sub set_reg {
     my ($self, $reg, $val) = @_;
 
     my $reg_idx = $self->_reg($reg);
+    croak "undefined register" unless defined $reg_idx;
 
     croak "Cannot modify zero register" if $reg_idx == 0;
 
-    return $self->regs->[$reg_idx] = sprintf("%d", $val);
+    return $self->regs->set($reg_idx, $val);
 }
 
 # utility method to look up a register number that accepts either the
@@ -111,13 +122,13 @@ sub set_reg {
 sub _reg {
     my ($self, $reg) = @_;
 
-    return undef unless $reg;
+    return undef unless defined $reg;
 
     my $reg_num = $REGS{lc $reg} || $reg;
 
     croak "Invalid register $reg" if $reg_num < 0 || $reg_num > 31;
 
-    return $reg_num
+    return $reg_num;
 }
 
 # read part of memory
