@@ -71,17 +71,6 @@ our %SPECIAL_FUNCS = (
 our %OPCODES_REV;
 @OPCODES_REV{values %OPCODES} = keys %OPCODES;
 
-# opcodes which have unsigned immediate data
-our @UNSIGNED_OPCODES = qw (
-                            addu
-                            addiu
-                            j
-                            syscall
-                            xori
-                            andi
-                            ori
-                            );
-
 # opcodes which have an offset encoded in the immediate data
 our @OFFSET_OPCODES = qw (
                           lw
@@ -91,22 +80,6 @@ our @OFFSET_OPCODES = qw (
 our %ALIASES = (
                 'nop' => "sll 0, 0, 0",
                 );
-
-# returns if an opcode expects unsigned immediate data
-sub opcode_unsigned { 
-    my ($class, $opcode) = @_;
-
-    my $type = $class->opcode_type($opcode);
-
-    if ($type ne 'R') {
-        my $om = $class->opcode_mnemonic($opcode);
-        return grep { $_ eq $om } @UNSIGNED_OPCODES;
-    } else {
-        # R-type, check function name instead
-        my $om = $class->r_function_mnemonic($opcode);
-        return grep { $_ eq $om } @UNSIGNED_OPCODES;
-    }
-}
 
 # return instruction mnemonic for opcode
 sub opcode_mnemonic { return $OPCODES_REV{$_[1]} }
@@ -542,9 +515,7 @@ sub disassemble {
 
     my $fields;
 
-    # is the immediate data signed or unsigned?
-    my $unsigned_data = $class->opcode_unsigned($opcode);
-    my $pack_template = $unsigned_data ? 'N' : 'N'; # network 32-bit unsigned or (2's complement?) signed
+    my $pack_template = 'N';
 
     if ($type eq 'R') {
         $fields = {
