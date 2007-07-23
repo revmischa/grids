@@ -82,19 +82,19 @@ set_reg_u(handle, idx, val)
   unsigned int idx
   ureg_t val
 
-reg_t
+ureg_t
 and_regs(handle, idx1, idx2)
   reghandle_t handle
   unsigned int idx1
   unsigned int idx2
 
-reg_t
+ureg_t
 or_regs(handle, idx1, idx2)
   reghandle_t handle
   unsigned int idx1
   unsigned int idx2
 
-reg_t
+ureg_t
 xor_regs(handle, idx1, idx2)
   reghandle_t handle
   unsigned int idx1
