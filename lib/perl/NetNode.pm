@@ -1,6 +1,6 @@
-# This is a class for a Node on the Net. You should not instantiate
-# this base class but rather a subclass with a network transport
-# defined.
+# This is a class for a Node on the Net.  
+# It handles sending/receiving
+# data over transports and handling requests
 
 use strict;
 package NetNode;
@@ -10,24 +10,32 @@ use NetConf;
 use NetTransport;
 use Carp qw (croak);
 
+use base qw/Class::Accessor::Fast/;
+__PACKAGE__->mk_accessors(qw/conf transports proto debug/);
+
 our $default_conf = { };
 
 sub new {
     my ($class, %opts) = @_;
 
-    my $conf = $opts{conf} or croak "No conf";
+    my $conf = $opts{conf};
+    my $debug = $opts{debug} || 0;
+
+    # create default configuration if none specified
+    unless ($conf) {
+        $conf = NetConf->new;
+    }
 
     my $self = {
         conf       => $conf,
         transports => [],
+        debug      => $debug,
     };
 
     bless $self, $class;
 
     return $self;
 }
-
-sub conf { $_[0]->{conf} }
 
 sub add_transport {
     my ($self, $trans_class, %opts) = @_;
@@ -39,13 +47,71 @@ sub add_transport {
 sub connection_established {
     my ($self, $trans, $con) = @_;
 
-    print "received connection: $con\n";
+    $self->dbg("server transport $trans received connection: $con\n");
 }
 
+sub data_received {
+    my ($self, $trans, $data) = @_;
+
+    if ($self->proto) {
+        $self->proto->handle_request($data);
+    } else {
+        # if we don't have a protocol handler set up yet, this should be
+        # the first transmission containing an initiation string
+        $self->dbg("initating protocol handler with session init string [$data]");
+        my $p = NetProtocol->new_from_initiation_string($data,
+                                                        event_handler => \&handle_protocol_request,
+                                                        event_handler_obj => $self);
+
+        $self->dbg("invalid initiation string [$data]") unless $p;
+        $self->{proto} = $p;
+        $self->session_initiated($trans);
+    }
+}
+
+sub session_initiated {
+    my ($self, $trans) = @_;
+
+    $self->dbg("initiated session");
+    $self->dbg("doing login request");
+
+    $self->do_request('Login', {
+        node => 'dongs',
+        public_key => '123456',
+    });
+}
+
+# protocol handler callback
+sub handle_protocol_request {
+    my ($self, $proto, $event, $args) = @_;
+
+    $self->dbg("proto $proto got request $event");
+}
+
+sub do_request {
+    my ($self, $trans, $event, $params) = @_;
+    my $p = $self->proto;
+
+    unless ($p) {
+        warn "attempted to write data without initalized protocol handler";
+        return 0;
+    }
+
+    my $serialized_data = $p->encapsulate($event, $params);
+    return 0 unless $serialized_data;
+
+    return $trans->write($serialized_data);
+}
 
 sub services {
     my ($self) = @_;
 
+}
+
+sub dbg {
+    my ($self, $msg) = @_;
+    return unless $self->debug;
+    warn $msg;
 }
 
 1;

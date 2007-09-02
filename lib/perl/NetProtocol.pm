@@ -3,9 +3,9 @@ use strict;
 use warnings;
 
 use Carp;
-use base qw/Class::Accessor/;
 
-__PACKAGE__->mk_accessors(qw(encap event_handler encap_method));
+use base qw/Class::Accessor/;
+__PACKAGE__->mk_accessors(qw(encap event_handler encap_method event_handler_obj));
 
 # autouse all encapsulation methods
 use Class::Autouse;
@@ -15,15 +15,19 @@ sub new {
     my ($class, %opts) = @_;
 
     my $enc = delete $opts{encapsulation};
-    my $evt_handler = delete $opts{event_handler};
 
+    my $evt_handler = delete $opts{event_handler};
+    my $handler_obj = delete $opts{event_handler_object};
+
+    return undef if $enc =~ /\W/;
     my $encap_method = "NetProtocol::Encapsulation::$enc";
-    my $encap = $encap_method->new;
+    my $encap = eval { $encap_method->new } or return undef;
 
     my $self = {
         encap_method => $enc,
         encap => $encap,
         event_handler => $evt_handler,
+        event_handler_obj => $handler_obj,
     };
 
     bless $self, $class;
@@ -34,14 +38,14 @@ sub new {
 sub initiation_string {
     my ($self) = @_;
 
-    return join(':', ($self->encap_method));
+    return join('/', ($self->encap_method));
 }
 
 # returns a new NetProtocol instance from an initiation string
 sub new_from_initiation_string {
     my ($class, $initstr, %params) = @_;
 
-    my ($enc) = split(':', $initstr);
+    my ($enc) = split('/', $initstr);
 
     return undef unless $enc;
 
@@ -87,7 +91,17 @@ sub handle_request {
     my $event = delete $args->{_event};
 
     # call event handler
-    return $cb->($self, $event, $args);
+    {
+        my @args = ($self, $event, $args);
+
+        if ($self->event_handler_obj) {
+            # instance method callback
+            return $cb->($self->event_handler_obj, @args);
+        } else {
+            # class method callback
+            return $cb->(@args);
+        }
+    }
 }
 
 1;

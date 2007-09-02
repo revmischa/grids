@@ -7,9 +7,23 @@ sub new {
     my ($class, $parent, %opts) = @_;
 
     my $self = $class->SUPER::new($parent, %opts);
-    $self->parent->conf->add_conf(port => 1488);
+    $self->parent->conf->add_conf(port => 1488); # add default port
 
     return $self;
+}
+
+sub write {
+    my ($self, $data) = @_;
+
+    my $sock = $self->{sock};
+    if ($sock) {
+        print $sock $data;
+    } else {
+        warn "tried to send data [$data] to unconnected transport";
+        return 0;
+    }
+
+    return 1;
 }
 
 sub accept_loop {
@@ -29,7 +43,8 @@ sub accept_loop {
         $self->connection_established($con);
 
         while (<$con>) {
-            print "$_\n";
+            $self->data_received($_) if $_;
+            print "Data received: [$_]\n";
         }
     }
 

@@ -35,5 +35,6 @@ ok($p_srv, "Created new NetProtocol from initiation string");
 # the "Server" side of the Protocol
 sub handler {
     my ($proto, $event, $info) = @_;
+
     $EVENTS{$event} = $info;
 }

@@ -13,14 +13,14 @@ use sigtrap qw(die normal-signals);
 
 my $conffile = 'netnode.conf';
 my $nodename = hostname;
-my $help;
-my $id;
+my ($help, $id, $debug);
 
 my %prog_opts = (
-                 'h|help' => \$help,
-                 'n|name' => \$nodename,
-                 'c|conf' => \$conffile,
-                 'i|id'   => \$id,
+                 'h|help'  => \$help,
+                 'n|name'  => \$nodename,
+                 'c|conf'  => \$conffile,
+                 'i|id'    => \$id,
+                 'd|debug' => \$debug,
                  );
 
 GetOptions(%prog_opts);
@@ -53,7 +53,7 @@ my $con = NetConsole->new(
 run();
 
 sub run {
-    $node = NetNode->new(conf => $conf);
+    $node = NetNode->new(conf => $conf, debug => $debug);
 
     $con->print("Loaded settings from $conffile") if $conf->load;
 

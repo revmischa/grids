@@ -8,7 +8,7 @@ use Data::Dumper;
 sub new {
     my ($class, %opts) = @_;
 
-    my $conffile = $opts{conf_file} or croak "No conf file";
+    my $conffile = $opts{conf_file};
 
     my $self = {
         conf_file => $conffile,
@@ -32,7 +32,7 @@ sub load {
     my $self = shift;
     my $conffile = $self->conf_file;
 
-    return undef unless -e $conffile;
+    return undef unless $conffile && -e $conffile;
 
     my $varsref = Storable::retrieve($conffile);
 
