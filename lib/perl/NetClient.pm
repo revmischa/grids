@@ -4,7 +4,7 @@ use NetTransport;
 use NetProtocol;
 use Carp qw (croak);
 
-use base qw/Class::Accessor/;
+use base qw/Class::Accessor::Fast/;
 __PACKAGE__->mk_accessors(qw/transport id conf proto transport debug/);
 
 # opts: id, transport, conf
@@ -46,16 +46,25 @@ sub do_request {
     $self->transport->write($msg);
 }
 
+# attempt to connect to a Node
+sub connect {
+    my ($self, $address, $node_public_key) = @_;
+
+    $self->transport->connect($address);
+}
+
+# called when a connection with a Node has been established
 sub connection_established {
     my ($self, $trans, $con) = @_;
 
+    $self->transport->write($self->proto->initiation_string);
     $self->dbg("client transport $trans received connection: $con\n");
 }
 
 sub dbg {
     my ($self, $msg) = @_;
     return unless $self->debug;
-    warn $msg;
+    warn "NetClient: $msg";
 }
 
 1;

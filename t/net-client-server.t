@@ -12,5 +12,6 @@ my $client = NetClient->new(id => '123456', transport => 'Loop', debug => 1);
 my $client_trans = $client->transport;
 
 # connect client to server using Loop transport
-$client_trans->set_peer($server_trans);
-$server_trans->set_peer($client_trans);
+$client->connect($server_trans);
+
+$client->do_request('Login', { dongs => 1});

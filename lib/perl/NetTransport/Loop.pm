@@ -13,12 +13,15 @@ sub new {
     return $self;
 }
 
-sub set_peer {
+sub connect {
     my ($self, $peer) = @_;
     return 0 unless $peer;
 
     $self->{peer} = $peer;
     $self->connection_established($peer);
+
+    $self->{peer}->{peer} = $self;
+    $self->{peer}->connection_established($self);
 
     return 1;
 }

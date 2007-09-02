@@ -61,7 +61,7 @@ sub data_received {
         $self->dbg("initating protocol handler with session init string [$data]");
         my $p = NetProtocol->new_from_initiation_string($data,
                                                         event_handler => \&handle_protocol_request,
-                                                        event_handler_obj => $self);
+                                                        event_handler_object => $self);
 
         $self->dbg("invalid initiation string [$data]") unless $p;
         $self->{proto} = $p;
@@ -75,7 +75,7 @@ sub session_initiated {
     $self->dbg("initiated session");
     $self->dbg("doing login request");
 
-    $self->do_request('Login', {
+    $self->do_request($trans, 'Login', {
         node => 'dongs',
         public_key => '123456',
     });
@@ -111,7 +111,7 @@ sub services {
 sub dbg {
     my ($self, $msg) = @_;
     return unless $self->debug;
-    warn $msg;
+    warn "NetNode:   $msg\n";
 }
 
 1;

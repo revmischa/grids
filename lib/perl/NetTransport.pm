@@ -15,14 +15,22 @@ sub new {
     return bless { parent => $parent }, $class;
 }
 
-sub accept_loop {
-    my $self = shift;
-    return 0;
-}
-
+# write data
 sub write {
     my ($self, $data) = @_;
     croak "write called on NetTransport base class";
+}
+
+# initiate a connection to specified address
+sub connect {
+    my ($self, $address) = @_;
+    croak "connect called on NetTransport base class";
+}
+
+# optional: wait in a loop for connections
+sub accept_loop {
+    my $self = shift;
+    return 0;
 }
 
 ##################################
