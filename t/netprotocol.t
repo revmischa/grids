@@ -17,16 +17,20 @@ my $p_srv = NetProtocol->new_from_initiation_string(
                                                     event_handler => \&handler,
                                                     );
 
-# test encapsulation
-my $req = $p_cli->encapsulate('Login', {
-    public_key => '123456',
-});
+ok($p_srv, "Created new NetProtocol from initiation string");
 
-$p_srv->handle_request($req);
+# test encapsulation / handling
+{
+    my $req = $p_cli->encapsulate('Login', {
+        public_key => '123456',
+    });
 
-my $info = $EVENTS{'Login'};
+    $p_srv->handle_request($req);
 
-is($info->{public_key}, '123456', 'Request');
+    my $info = $EVENTS{'Login'};
+
+    is($info->{public_key}, '123456', 'Request');
+}
 
 # the "Server" side of the Protocol
 sub handler {
