@@ -79,7 +79,7 @@ sub decapsulate {
 
 # decode a protocol transmission and call event handler
 sub handle_request {
-    my ($self, $data) = @_;
+    my ($self, $data, @extra_args) = @_;
 
     my $cb = $self->event_handler;
 
@@ -92,7 +92,7 @@ sub handle_request {
 
     # call event handler
     {
-        my @args = ($self, $event, $args);
+        my @args = ($self, $event, $args, @extra_args);
 
         if ($self->event_handler_obj) {
             # instance method callback

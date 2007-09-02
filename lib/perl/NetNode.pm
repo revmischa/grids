@@ -54,7 +54,7 @@ sub data_received {
     my ($self, $trans, $data) = @_;
 
     if ($self->proto) {
-        $self->proto->handle_request($data);
+        $self->proto->handle_request($data, $trans);
     } else {
         # if we don't have a protocol handler set up yet, this should be
         # the first transmission containing an initiation string
@@ -83,9 +83,21 @@ sub session_initiated {
 
 # protocol handler callback
 sub handle_protocol_request {
-    my ($self, $proto, $event, $args) = @_;
+    my ($self, $proto, $event, $args, $trans) = @_;
 
     $self->dbg("proto $proto got request $event");
+
+    if ($event eq 'Login') {
+        $self->do_request($trans, 'Login', {
+            error => -1,
+            error_msg => 'Invalid login',
+        });
+    } else {
+        $self->dbg("Got unknown event: $event");
+        return 0;
+    }
+
+    return 1;
 }
 
 sub do_request {

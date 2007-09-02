@@ -5,7 +5,7 @@ use NetProtocol;
 use Carp qw (croak);
 
 use base qw/Class::Accessor::Fast/;
-__PACKAGE__->mk_accessors(qw/transport id conf proto transport debug/);
+__PACKAGE__->mk_accessors(qw/transport id conf proto transport debug hooks/);
 
 # opts: id, transport, conf
 # other opts passed to transport
@@ -16,24 +16,40 @@ sub new {
     my $trans_class = delete $opts{transport} || 'TCP';
     my $enc_class   = delete $opts{encapsulation} || 'JSON';
 
-    my $proto = NetProtocol->new(
-                                 encapsulation => $enc_class,
-                                 event_handler => "$class::event_handler",
-                                 );
-
     my $self = {
-        conf => $opts{conf},
+        conf  => $opts{conf},
         debug => $opts{debug},
-        id   => $id,
-        proto => $proto,
+        id    => $id,
+        hooks => {},
     };
 
     bless $self, $class;
+
+    my $proto = NetProtocol->new(
+                                 encapsulation => $enc_class,
+                                 event_handler => \&event_handler,
+                                 event_handler_object => $self,
+                                 );
+    $self->{proto} = $proto;
 
     my $t = "NetTransport::$trans_class"->new($self, %opts);
     $self->{transport} = $t;
 
     return $self;
+}
+
+# called when our transport receives data
+sub data_received {
+    my ($self, $trans, $data) = @_;
+    $self->proto->handle_request($data);
+}
+
+# called on protocol events
+sub event_handler {
+    my ($self, $proto, $event, $args) = @_;
+
+    $self->run_event_hooks($event, $args);
+    $self->dbg("received event $event");
 }
 
 # transmits a protocol request over the specified transport
@@ -59,6 +75,30 @@ sub connection_established {
 
     $self->transport->write($self->proto->initiation_string);
     $self->dbg("client transport $trans received connection: $con\n");
+}
+
+sub run_event_hooks {
+    my ($self, $event, $args) = @_;
+
+    my $hooks = $self->hooks->{"Event-$event"};
+    return unless $hooks;
+
+    foreach my $hook (@$hooks) {
+        $hook->($self, $args);
+    }
+}
+
+sub register_event_hook {
+    my ($self, $event, $cb, $cb_obj) = @_;
+
+    if ($cb_obj) {
+        my $_cb = $cb;
+        $cb = sub { $cb->($cb_obj, @_) };
+    }
+
+    $self->hooks->{"Event-$event"} ||= [];
+
+    push @{$self->hooks->{"Event-$event"}}, $cb;
 }
 
 sub dbg {
