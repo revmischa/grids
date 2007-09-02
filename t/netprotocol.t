@@ -5,17 +5,24 @@ use NetProtocol;
 
 my %EVENTS; # holds event info received in Protocol event handler callback
 
-my $p = NetProtocol->new(
-                         encapsulation => 'JSON',
-                         event_handler => \&handler,
-                         );
+my $p_cli = NetProtocol->new(
+                             encapsulation => 'JSON',
+                             event_handler => \&handler,
+                             );
+
+my $initiation = $p_cli->initiation_string;
+
+my $p_srv = NetProtocol->new_from_initiation_string(
+                                                    $initiation,
+                                                    event_handler => \&handler,
+                                                    );
 
 # test encapsulation
-my $req = $p->encapsulate('Login', {
+my $req = $p_cli->encapsulate('Login', {
     public_key => '123456',
 });
 
-$p->handle_request($req);
+$p_srv->handle_request($req);
 
 my $info = $EVENTS{'Login'};
 
