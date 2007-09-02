@@ -123,6 +123,17 @@ sub keys_match {
     return $plaintext eq 'plaintext';
 }
 
+# returns true if all keys check out ok
+sub check {
+    my $self = shift;
+    my $ok = 1;
+
+    $ok &&= $self->pubkey->check if $self->pubkey;
+    $ok &&= $self->privkey->check if $self->privkey;
+
+    return $ok;
+}
+
 sub encrypted { $_[0]->{encrypted} }
 
 *pub = \&pubkey;
@@ -135,20 +146,22 @@ sub name { $_[0]->{name} }
 sub serialize {
     my $self = shift;
 
-    $self->priv->hide;
+    warn "encrypted" if $self->encrypted;
+    $self->priv->hide if $self->encrypted && $self->priv;
 
     my $store = {
         name => $self->name,
         encrypted => $self->encrypted,
-        pubkey => $self->pub->serialize,
-        privkey => $self->priv->serialize,
     };
+
+    $store->{pubkey} = $self->pub->serialize if $self->pub;
+    $store->{privkey} = $self->priv->serialize if $self->priv;
 
     local $Data::Dumper::Purity = 1;         # fill in the holes for eval
     local $Data::Dumper::Deepcopy = 1;       # avoid cross-refs
 
-    my $dump = Data::Dumper->Dump([$store], ['*store']); 
-    return $dump;
+    my $ser = Data::Dumper->Dump([$store], ['*store']); 
+    return $ser;
 }
 
 sub deserialize {
@@ -159,6 +172,8 @@ sub deserialize {
 
     my $pubkey = delete $store{pubkey};
     my $privkey = delete $store{privkey};
+
+    warn "privkey: $privkey";
 
     $pubkey = Crypt::RSA::Key::Public->deserialize(String => [$pubkey]) if $pubkey;
     $privkey = Crypt::RSA::Key::Private->deserialize(String => [$privkey]) if $privkey;

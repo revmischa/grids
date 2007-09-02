@@ -40,7 +40,7 @@ sub r_add {
 # rd = unsigned(rs) + unsigned(rt)
 sub r_addu {
     my ($class, $vm, $rs, $rt, $rd, $sa) = @_;
-    $vm->set_reg($rd, _u($vm->reg($rs)) + _u($vm->reg($rt)));
+    $vm->set_reg($rd, $vm->reg_u($rs) + $vm->reg_u($rt));
 }
 
 # rd = rs << sa
@@ -63,34 +63,33 @@ sub r_srl {
 # rd = rs ^ rt
 sub r_xor {
     my ($class, $vm, $rs, $rt, $rd, $sa) = @_;
-    $vm->set_reg($rd, $vm->reg($rs) ^ $vm->reg($rt));
+    $vm->set_reg($rd, $vm->regs->xor($rs, $rt));
 }
 
 # rt = $rs + $data
 sub i_addi {
     my ($class, $vm, $rs, $rt, $data) = @_;
+    warn "reg: " . $vm->reg($rs) . " + $data";
     $vm->set_reg($rt, $vm->reg($rs) + _s($data));
 }
 
 # rt = $rs ^ $data
 sub i_xori {
     my ($class, $vm, $rs, $rt, $data) = @_;
-    $vm->set_reg($rt, $vm->reg($rs) ^ _u($data));
+    $vm->set_reg($rt, $vm->reg_u($rs) ^ _u($data));
 }
 
 # rt = $rs | $data
 sub i_ori {
     my ($class, $vm, $rs, $rt, $data) = @_;
+
     $vm->set_reg($rt, $vm->reg($rs) | _u($data));
 }
 
 # rd = rs & rt
 sub r_and {
     my ($class, $vm, $rs, $rt, $rd, $sa) = @_;
-    my $res = (_bs($vm->reg($rs)) & _bs($vm->reg($rt)));
-    $res = unpack("N", pack("B32", $res));
-   
-    $vm->set_reg($rd, $res);
+    $vm->set_reg($rd, $vm->regs->and($rs, $rt));
 }
 
 # rt = $rs & $data
@@ -99,6 +98,7 @@ sub i_andi {
 
     my $res = (_bs($vm->reg($rs)) & _bs($data));
     $res = unpack("N", pack("B32", $res));
+
     $vm->set_reg($rt, $res);
 }
 
@@ -111,14 +111,14 @@ sub i_lw {
 # rt = $data($rs) - 1 byte
 sub i_lb {
     my ($class, $vm, $rs, $rt, $data) = @_;
-    $vm->set_reg($rt, $vm->get_mem($vm->reg($rs) + $data, 1));
+    $vm->set_reg($rt, $vm->get_mem($vm->reg($rs) + _s($data), 1));
 }
 
 # is $rs unsigned too? need to check
 # rt = unsigned($rs) + unsigned($data)
 sub i_addiu {
     my ($class, $vm, $rs, $rt, $data) = @_;
-    $vm->set_reg($rt, _u($vm->reg($rs)) + _u($data));
+    $vm->set_reg($rt, $vm->reg_u($rs) + _u($data));
 }
 
 1;

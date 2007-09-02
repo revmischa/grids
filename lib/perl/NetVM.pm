@@ -58,12 +58,12 @@ sub new {
 
 # initializes the vm
 sub init {
-    my $self = shift;
+    my $self =  shift;
 
     croak "invalid vm" unless defined $self->{regs};
 
-    # initialize registers
-    $self->{regs}->set($_, 0) for (0 .. (scalar @REGS));
+    # initialize zero register
+    $self->{regs}->set(0, 0);
 
     # empty memory
     $self->{mem} = new NetMem(1);
