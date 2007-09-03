@@ -61,13 +61,13 @@ sub new_from_initiation_string {
 
     return undef unless $initstr =~ s/^==//;
 
-    my ($prog, $ver, @encapsulation_classes) = split('/', $initstr);
+    my ($prog, $ver, $encapsulation_classes) = split('/', $initstr);
 
-    return undef unless $prog eq 'Net' && $ver eq '1.0' && @encapsulation_classes;
+    return undef unless $prog eq 'Net' && $ver eq '1.0' && $encapsulation_classes;
 
     my $p;
     # try each requested encapsulation method in listed order
-    foreach my $enc (@encapsulation_classes) {
+    foreach my $enc (split(',', $encapsulation_classes)) {
         $p = eval { $class->new(encapsulation => $enc, %params) };
         last if $p;
     }

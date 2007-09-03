@@ -5,7 +5,7 @@ use lib 'lib/perl';
 use NetNode;
 use NetClient;
 
-my $debug = 0;
+my $debug = 1;
 
 my $server = NetNode->new(debug => $debug);
 my $server_trans = $server->add_transport('Loop');
@@ -16,6 +16,7 @@ my $client = NetClient->new(id => '123456', transport => 'Loop', debug => $debug
 $client->connect($server_trans);
 
 $client->register_event_hook('Authentication.Login', \&client_login_hook);
+$client->register_event_hook('Services.List', \&client_service_list);
 
 my $login_good = 0;
 $client->do_request('Authentication.Login', { public_key => 'lolwtf' });
@@ -25,6 +26,14 @@ $login_good = 1;
 $client->do_request('Authentication.Login', { public_key => 'lolwtf' });
 
 ok($client->session_token, "Got session token");
+
+$client->do_request('Services.List');
+
+sub client_service_list {
+    my ($c, %info) = @_;
+
+    ok($info{args}{services}, "Services list");
+}
 
 sub client_login_hook {
     my ($c, %info) = @_;

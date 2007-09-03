@@ -78,6 +78,10 @@ sub event_handler {
 sub do_request {
     my ($self, $method, $args) = @_;
 
+    if ($self->session_token) {
+        $args->{_session_token} = $self->session_token;
+    }
+
     my $msg = $self->proto->encapsulate($method, $args);
     return 0 unless $msg;
 

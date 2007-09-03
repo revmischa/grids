@@ -10,7 +10,7 @@ use NetTransport;
 use Carp qw (croak);
 
 use base qw/Class::Accessor::Fast/;
-__PACKAGE__->mk_accessors(qw/conf transports proto debug/);
+__PACKAGE__->mk_accessors(qw/conf transports proto sessions debug/);
 
 our $default_conf = { };
 
@@ -32,6 +32,7 @@ sub new {
         conf       => $conf,
         transports => [],
         debug      => $debug,
+        sessions   => {},
     };
 
     bless $self, $class;
@@ -129,6 +130,22 @@ sub do_request {
 sub services {
     my ($self) = @_;
 
+    return qw/Service1 Service2/;
+}
+
+sub check_authentication {
+    my ($self, $req) = @_;
+
+    my $session_token = delete $req->{_session_token} or return 0;
+    return $self->check_session_token($session_token);
+}
+
+sub check_session_token {
+    my ($self, $token) = @_;
+
+    return 1 if $self->sessions->{$token};
+
+    return 0;
 }
 
 sub authorized_keys {
