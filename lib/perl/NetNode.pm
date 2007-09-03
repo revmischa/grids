@@ -90,17 +90,21 @@ sub handle_protocol_request {
 
     $self->dbg("proto $proto got request $event");
 
-    my $res = $self->run_event_hooks(event => $event,
-                                     args => $args,
-                                     trans => $trans);
+    my @hook_results = $self->run_event_hooks(event => $event,
+                                              args => $args,
+                                              trans => $trans);
 
-    if ($event eq 'Login') {
-        $self->do_request($trans, 'Login', {
-            error => -1,
-            error_msg => 'Invalid login',
-        });
+    # were there any results?
+    if (@hook_results) {
+        # if any hooks returned hashrefs of request arguments, do those requests
+        foreach my $res (@hook_results) {
+            next unless ref $res && ref $res eq 'HASH';
+
+            # default the return request to be of the same method
+            my $res_evt = $res{event} || $event;
+            $self->do_request($trans, $event, $res);
+        }
     } else {
-        $self->dbg("Got unknown event: $event");
         return 0;
     }
 

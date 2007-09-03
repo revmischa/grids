@@ -7,9 +7,14 @@ sub run_event_hooks {
     my $hooks = $self->{hooks}->{"Event-$event"};
     return unless $hooks;
 
+    my @res;
+
     foreach my $hook (@$hooks) {
-        $hook->($self, %info);
+        my $ret = $hook->($self, %info)
+        push @res, $ret if $ret;
     }
+
+    return @res;
 }
 
 sub register_event_hook {
