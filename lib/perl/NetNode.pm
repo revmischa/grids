@@ -56,6 +56,8 @@ sub connection_established {
 sub data_received {
     my ($self, $trans, $data) = @_;
 
+    $self->dbg("received data [$data]");
+
     if ($self->proto) {
         $self->proto->handle_request($data, $trans);
     } else {
@@ -136,16 +138,16 @@ sub services {
 sub check_authentication {
     my ($self, $req) = @_;
 
-    my $session_token = delete $req->{_session_token} or return 0;
+    my $session_token = delete $req->{args}{_session_token} or return 0;
     return $self->check_session_token($session_token);
 }
 
 sub check_session_token {
     my ($self, $token) = @_;
 
-    return 1 if $self->sessions->{$token};
+    my $remote = $self->sessions->{$token};
 
-    return 0;
+    return $remote;
 }
 
 sub authorized_keys {
