@@ -12,7 +12,7 @@ Class::Autouse->autouse_recursive('NetTransport');
 sub new {
     my ($class, $parent) = @_;
 
-    return bless { parent => $parent }, $class;
+    my $self = bless { parent => $parent }, $class;
 }
 
 # write data

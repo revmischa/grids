@@ -10,7 +10,7 @@ use NetTransport;
 use Carp qw (croak);
 
 use base qw/Class::Accessor::Fast/;
-__PACKAGE__->mk_accessors(qw/conf transports proto sessions debug/);
+__PACKAGE__->mk_accessors(qw/conf transports proto sessions debug event_queue/);
 
 our $default_conf = { };
 
@@ -28,11 +28,15 @@ sub new {
         $conf = NetConf->new;
     }
 
+    # instantiate event queue
+    my $evt_queue = NetProtocol::EventQueue->new;
+
     my $self = {
-        conf       => $conf,
-        transports => [],
-        debug      => $debug,
-        sessions   => {},
+        conf        => $conf,
+        transports  => [],
+        debug       => $debug,
+        sessions    => {},
+        event_queue => $evt_queue,
     };
 
     bless $self, $class;
@@ -92,9 +96,28 @@ sub handle_protocol_request {
     my ($self, $proto, $event, $args, $trans) = @_;
 
     $self->dbg("proto $proto got request $event");
+    # save transport
+    $args->{_trans} = $trans;
+    $self->event_queue->add($event, $args) or $self->warn("Could not enqueue event $event");
+}
 
-    my @hook_results = $self->run_event_hooks(event => $event,
-                                              args => $args,
+# processes everything in the event queue
+sub flush_event_queue {
+    my ($self) = @_;
+    while ($self->do_next_event) {}
+}
+
+sub do_next_event {
+    my ($self) = @_;
+
+    my $evt = $self->event_queue->shift
+        or return 0;
+
+    my $trans = delete $evt->args->{_trans}
+        or die "Invalid Event record in queue: missing transport";
+
+    my @hook_results = $self->run_event_hooks(event => $evt->event_name,
+                                              args => $evt->args,
                                               trans => $trans);
 
     # were there any results?
@@ -104,11 +127,9 @@ sub handle_protocol_request {
             next unless ref $res && ref $res eq 'HASH';
 
             # default the return request to be of the same method
-            my $res_evt = $res->{event} || $event;
-            $self->do_request($trans, $event, $res);
+            my $res_evt = $res->{event} || $evt->event_name;
+            $self->do_request($trans, $evt->event_name, $res);
         }
-    } else {
-        return 0;
     }
 
     return 1;

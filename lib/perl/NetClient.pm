@@ -4,8 +4,10 @@ use NetTransport;
 use NetProtocol;
 use Carp qw (croak);
 
+use Class::Autouse(qw/NetProtocol::EventQueue/);
+
 use base qw/Class::Accessor::Fast/;
-__PACKAGE__->mk_accessors(qw/transport id conf proto transport debug session_token/);
+__PACKAGE__->mk_accessors(qw/transport id conf proto transport debug session_token event_queue/);
 
 # add hook support
 do 'nethooks.pl' or die $@;
@@ -19,7 +21,10 @@ sub new {
     my $trans_class = delete $opts{transport} || 'TCP';
     my $enc_class   = delete $opts{encapsulation} || 'JSON';
 
+    my $evt_queue   = NetProtocol::EventQueue->new;
+
     my $self = {
+        event_queue => $evt_queue,
         conf  => $opts{conf},
         debug => $opts{debug},
         id    => $id,
@@ -55,9 +60,27 @@ sub event_handler {
     my ($self, $proto, $event, $args) = @_;
 
     $self->dbg("received event $event");
+    $self->event_queue->add($event, $args) or $self->warn("Could not enqueue event $event");
+}
 
-    my @hook_results = $self->run_event_hooks(event => $event,
-                                              args => $args);
+# processes everything in the event queue
+sub flush_event_queue {
+    my ($self) = @_;
+    while ($self->do_next_event) {}
+}
+
+# fetches next event from event queue and handles it
+# returns true if handled an event
+sub do_next_event {
+    my ($self) = @_;
+
+    my $event = $self->event_queue->shift
+        or return 0;
+
+    $self->dbg("Handling event " . $event->event_name);
+
+    my @hook_results = $self->run_event_hooks(event => $event->event_name,
+                                              args => $event->args);
 
     # were there any results?
     if (@hook_results) {
@@ -66,12 +89,12 @@ sub event_handler {
             next unless ref $res && ref $res eq 'HASH';
 
             # default the return request to be of the same method
-            my $res_evt = $res->{event} || $event;
-            $self->do_request($event, $res);
+            my $res_evt = $res->{event} || $event->event_name;
+            $self->do_request($event->event_name, $res);
         }
-    } else {
-        return 0;
     }
+
+    return 1;
 }
 
 # transmits a protocol request over the specified transport

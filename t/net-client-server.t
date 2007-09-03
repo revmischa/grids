@@ -20,22 +20,35 @@ $client->register_event_hook('Services.List', \&client_service_list);
 $client->register_event_hook('Storage.List', \&client_storage_list);
 
 my $login_good = 0;
-$client->do_request('Authentication.Login', { public_key => 'lolwtf' });
+
+c_req('Authentication.Login', { public_key => 'lolwtf' });
 
 $server->conf->set_conf('Node.AuthorizedKeys', { 'lolwtf' => 1 });
 $login_good = 1;
-$client->do_request('Authentication.Login', { public_key => 'lolwtf' });
+c_req('Authentication.Login', { public_key => 'lolwtf' });
 
 ok($client->session_token, "Got session token");
 
-$client->do_request('Services.List');
-$client->do_request('Storage.Empty');
+c_req('Services.List');
+c_req('Storage.Empty');
 
 my $storage = {};
-$client->do_request('Storage.List');
+c_req('Storage.List');
+
 $storage->{lol} = 'dongs';
-$client->do_request('Storage.Store', { data => $storage });
-$client->do_request('Storage.List');
+c_req('Storage.Store', { data => $storage });
+c_req('Storage.List');
+
+
+sub s_do {
+    $server->flush_event_queue;
+}
+
+sub c_req {
+    $client->do_request(@_);
+    s_do();
+    $client->flush_event_queue;
+}
 
 sub client_service_list {
     my ($c, %info) = @_;
