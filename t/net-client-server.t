@@ -5,10 +5,10 @@ use lib 'lib/perl';
 use NetNode;
 use NetClient;
 
-my $server = NetNode->new(debug => 1);
+my $server = NetNode->new(debug => 0);
 my $server_trans = $server->add_transport('Loop');
 
-my $client = NetClient->new(id => '123456', transport => 'Loop', debug => 1);
+my $client = NetClient->new(id => '123456', transport => 'Loop', debug => 0);
 
 # connect client to server using Loop transport
 $client->connect($server_trans);
@@ -21,6 +21,8 @@ $client->do_request('Authentication.Login', { public_key => 'lolwtf' });
 $server->conf->set_conf('Node.AuthorizedKeys', { 'lolwtf' => 1 });
 $login_good = 1;
 $client->do_request('Authentication.Login', { public_key => 'lolwtf' });
+
+ok($client->session_token, "Got session token");
 
 sub client_login_hook {
     my ($c, %info) = @_;

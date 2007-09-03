@@ -18,7 +18,7 @@ sub hook_login {
     my ($server, %info) = @_;
 
     if ($server->test_any_hook('Authentication.Login.AuthCheck', %info)) {
-        return $server->event_hook_success();
+        return $server->event_hook_success(session_token => 1234);
     } else {
         return $server->event_hook_error(ERROR_LOGIN_INVALID);
     }

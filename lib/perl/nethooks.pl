@@ -1,6 +1,9 @@
+use strict;
 use Class::Autouse;
 # load all hooks for this module
 Class::Autouse->load_recursive(__PACKAGE__);
+
+our $HOOKS;
 
 # run hooks and require them all to return true
 sub test_all_hooks {
@@ -16,11 +19,24 @@ sub test_any_hook {
     return grep { $_ } $self->run_hooks($hookname, %info);
 }
 
+# find hooks on instance/package
 sub run_hooks {
     my ($self, $hookname, %info) = @_;
 
-    $__PACKAGE__::HOOKS ||= {};
-    my $hooks = $self->{hooks}->{$hookname} || $__PACKAGE__::HOOKS->{$hookname};
+    my @res;
+    if (ref $self) {
+        # this is an instance, instance hooks if any
+        push @res, $self->_run_hooks($self, $self->{hooks}->{$hookname}, %info);
+    }
+
+    push @res, $self->_run_hooks($self, $HOOKS->{$hookname}, %info);
+
+    return @res;
+}
+
+# actually runs hooks
+sub _run_hooks {
+    my ($pkg, $self, $hooks, %info) = @_;
 
     return () unless $hooks && @$hooks;
 
@@ -78,10 +94,9 @@ sub register_hook {
         push @{$self->{hooks}->{$hookname}}, $cb;
     } else {
         # add hooks to package
-        $__PACKAGE__::HOOKS ||= {};
-        $__PACKAGE__::HOOKS->{$hookname} ||= [];
+        $HOOKS->{$hookname} ||= [];
 
-        push @{$__PACKAGE__::HOOKS->{$hookname}}, $cb;
+        push @{$HOOKS->{$hookname}}, $cb;
     }
 }
 

@@ -5,7 +5,7 @@ use NetProtocol;
 use Carp qw (croak);
 
 use base qw/Class::Accessor::Fast/;
-__PACKAGE__->mk_accessors(qw/transport id conf proto transport debug/);
+__PACKAGE__->mk_accessors(qw/transport id conf proto transport debug session_token/);
 
 # add hook support
 do 'nethooks.pl' or die $@;
