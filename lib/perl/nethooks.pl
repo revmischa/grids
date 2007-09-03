@@ -109,6 +109,7 @@ sub register_hook {
     }
 }
 
+*hook_ok = \&event_hook_success;
 sub event_hook_success {
     my ($self, %opts) = @_;
     return { success => 1, %opts };

@@ -76,13 +76,16 @@ sub event_handler {
 
 # transmits a protocol request over the specified transport
 sub do_request {
-    my ($self, $method, $args) = @_;
+    my ($self, $method, $argsref) = @_;
+
+    # copy args so we don't modify anything
+    my %args = $argsref ? %$argsref : ();
 
     if ($self->session_token) {
-        $args->{_session_token} = $self->session_token;
+        $args{_session_token} = $self->session_token;
     }
 
-    my $msg = $self->proto->encapsulate($method, $args);
+    my $msg = $self->proto->encapsulate($method, \%args);
     return 0 unless $msg;
 
     $self->transport->write($msg);

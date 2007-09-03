@@ -5,7 +5,7 @@ use lib 'lib/perl';
 use NetNode;
 use NetClient;
 
-my $debug = 1;
+my $debug = 0;
 
 my $server = NetNode->new(debug => $debug);
 my $server_trans = $server->add_transport('Loop');
@@ -29,24 +29,25 @@ $client->do_request('Authentication.Login', { public_key => 'lolwtf' });
 ok($client->session_token, "Got session token");
 
 $client->do_request('Services.List');
+$client->do_request('Storage.Empty');
 
 my $storage = {};
 $client->do_request('Storage.List');
 $storage->{lol} = 'dongs';
-$client->do_request('Storage.Store', $storage);
+$client->do_request('Storage.Store', { data => $storage });
 $client->do_request('Storage.List');
 
 sub client_service_list {
     my ($c, %info) = @_;
     ok($info{args}{services}, "Services list");
+    return 0;
 }
 
 sub client_storage_list {
     my ($c, %info) = @_;
-    use Data::Dumper;
-    warn Dumper(\%info);
 
     is_deeply($info{args}{storage}, $storage, "Storage list");
+    return 0;
 }
 
 sub client_login_hook {
