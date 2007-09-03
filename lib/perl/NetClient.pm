@@ -8,7 +8,7 @@ use base qw/Class::Accessor::Fast/;
 __PACKAGE__->mk_accessors(qw/transport id conf proto transport debug/);
 
 # add hook support
-do 'nethooks.pl';
+do 'nethooks.pl' or die $@;
 
 # opts: id, transport, conf
 # other opts passed to transport
@@ -56,8 +56,22 @@ sub event_handler {
 
     $self->dbg("received event $event");
 
-    $self->run_event_hooks(event => $event,
-                           args  => $args);
+    my @hook_results = $self->run_event_hooks(event => $event,
+                                              args => $args);
+
+    # were there any results?
+    if (@hook_results) {
+        # if any hooks returned hashrefs of request arguments, do those requests
+        foreach my $res (@hook_results) {
+            next unless ref $res && ref $res eq 'HASH';
+
+            # default the return request to be of the same method
+            my $res_evt = $res->{event} || $event;
+            $self->do_request($event, $res);
+        }
+    } else {
+        return 0;
+    }
 }
 
 # transmits a protocol request over the specified transport

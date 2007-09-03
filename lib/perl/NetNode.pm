@@ -16,7 +16,7 @@ __PACKAGE__->mk_accessors(qw/conf transports proto debug/);
 our $default_conf = { };
 
 # add hook support
-do 'nethooks.pl';
+do 'nethooks.pl' or die $@;
 
 sub new {
     my ($class, %opts) = @_;
@@ -101,7 +101,7 @@ sub handle_protocol_request {
             next unless ref $res && ref $res eq 'HASH';
 
             # default the return request to be of the same method
-            my $res_evt = $res{event} || $event;
+            my $res_evt = $res->{event} || $event;
             $self->do_request($trans, $event, $res);
         }
     } else {

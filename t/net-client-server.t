@@ -14,9 +14,9 @@ my $client = NetClient->new(id => '123456', transport => 'Loop', debug => 1);
 $client->connect($server_trans);
 
 $client->register_event_hook('Login', \&client_login_hook);
-$client->do_request('Login', { dongs => 1 });
-
 $server->register_event_hook('Login', \&server_login_hook);
+
+$client->do_request('Login', { dongs => 1 });
 
 sub client_login_hook {
     my ($c, %info) = @_;

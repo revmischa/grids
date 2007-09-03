@@ -1,20 +1,20 @@
 sub run_event_hooks {
     my ($self, %info) = @_;
 
-    return unless $self->{hooks};
+    return undef unless $self->{hooks};
 
     my $event = $info{event};
     my $hooks = $self->{hooks}->{"Event-$event"};
-    return unless $hooks;
+    return undef unless $hooks && @$hooks;
 
     my @res;
 
     foreach my $hook (@$hooks) {
-        my $ret = $hook->($self, %info)
+        my $ret = $hook->($self, %info);
         push @res, $ret if $ret;
     }
 
-    return @res;
+    return @res || undef;
 }
 
 sub register_event_hook {
