@@ -5,10 +5,12 @@ use lib 'lib/perl';
 use NetNode;
 use NetClient;
 
-my $server = NetNode->new(debug => 0);
+my $debug = 0;
+
+my $server = NetNode->new(debug => $debug);
 my $server_trans = $server->add_transport('Loop');
 
-my $client = NetClient->new(id => '123456', transport => 'Loop', debug => 0);
+my $client = NetClient->new(id => '123456', transport => 'Loop', debug => $debug);
 
 # connect client to server using Loop transport
 $client->connect($server_trans);

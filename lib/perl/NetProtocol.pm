@@ -5,7 +5,7 @@ use warnings;
 use Carp;
 
 use base qw/Class::Accessor/;
-__PACKAGE__->mk_accessors(qw(encap event_handler encap_method event_handler_obj));
+__PACKAGE__->mk_accessors(qw(encap encap_base event_handler encap_method event_handler_obj));
 
 # autouse all encapsulation methods
 use Class::Autouse;
@@ -24,6 +24,7 @@ sub new {
     my $encap = eval { $encap_method->new } or return undef;
 
     my $self = {
+        encap_base => $enc,
         encap_method => $enc,
         encap => $encap,
         event_handler => $evt_handler,
@@ -38,18 +39,27 @@ sub new {
 sub initiation_string {
     my ($self) = @_;
 
-    return join('/', ($self->encap_method));
+    my @elements = ('Net', '1.0', $self->encap_method);
+    return '==' . join('/', @elements);
 }
 
 # returns a new NetProtocol instance from an initiation string
 sub new_from_initiation_string {
     my ($class, $initstr, %params) = @_;
 
-    my ($enc) = split('/', $initstr);
+    return undef unless $initstr =~ s/^==//;
 
-    return undef unless $enc;
+    my ($prog, $ver, @encapsulation_classes) = split('/', $initstr);
 
-    my $p = $class->new(encapsulation => $enc, %params);
+    return undef unless $prog eq 'Net' && $ver eq '1.0' && @encapsulation_classes;
+
+    my $p;
+    # try each requested encapsulation method in listed order
+    foreach my $enc (@encapsulation_classes) {
+        $p = eval { $class->new(encapsulation => $enc, %params) };
+        last if $p;
+    }
+
     return $p;
 }
 
@@ -61,7 +71,7 @@ sub encapsulate {
         unless $self->encap;
 
     $args ||= {};
-    $args->{_event} = $event;
+    $args->{_method} = $event;
 
     return $self->encap->encapsulate($args);
 }
@@ -81,27 +91,59 @@ sub decapsulate {
 sub handle_request {
     my ($self, $data, @extra_args) = @_;
 
+    if (index($data, '==') == 0) {
+        # this is an initiation string, handle it
+        my ($status, $info, $extrainfo) = $data =~ /^==(\w+)\/(\w+)(?:\/(\w*))?/;
+
+        unless ($status) {
+            warn "Got invalid request string: '$data'";
+            return 0;
+        }
+
+        if ($status eq 'OK') {
+            #$self->set_encapsulation_method($info) or die "Invalid encapsulation method \"$info\" specified by server";
+        } elsif ($status eq 'ERROR') {
+            if ($info eq 'Unauthorized') {
+                $self->dispatch_event_handler('Protocol.Error.Unauthorized', {message => $extrainfo});
+            } elsif ($info eq 'IncompatibleVersion') {
+                $self->dispatch_event_handler('Protocol.Error.IncompatibleVersion', {min_version => $extrainfo});
+            } elsif ($info eq 'InvalidEncapsulations') {
+                $self->dispatch_event_handler('Protocol.Error.InvalidEncapsulations');
+            } else {
+                $self->dispatch_event_handler('Protocol.Error.UnknownError', {error => $info});
+            }
+        } else {
+            $self->dispatch_event_handler('Protocol.Error.UnknownStatus', {status => $status});
+        }
+
+        return;
+    }
+
+    return unless $self->event_handler;
+
+    # decode message
+    my $args = $self->decapsulate($data);
+    my $event = delete $args->{_method};
+
+    $self->dispatch_event_handler($event, $args, @extra_args);
+}
+
+sub dispatch_event_handler {
+    my ($self, $event, $args, @extra) = @_;
+
     my $cb = $self->event_handler;
 
     # no handler, we don't care about anything
     return unless $cb;
 
-    # decode message
-    my $args = $self->decapsulate($data);
-    my $event = delete $args->{_event};
+    my @args = ($self, $event, $args, @extra);
 
-    # call event handler
-    {
-        my @args = ($self, $event, $args, @extra_args);
-
-        if ($self->event_handler_obj) {
-            # instance method callback
-            return $cb->($self->event_handler_obj, @args);
-        } else {
-            # class method callback
-            return $cb->(@args);
-        }
+    if ($self->event_handler_obj) {
+        # instance method callback
+        return $cb->($self->event_handler_obj, @args);
+    } else {
+        # class method callback
+        return $cb->(@args);
     }
 }
-
 1;

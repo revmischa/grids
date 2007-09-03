@@ -26,10 +26,19 @@ sub run_hooks {
     my @res;
     if (ref $self) {
         # this is an instance, instance hooks if any
-        push @res, $self->_run_hooks($self, $self->{hooks}->{$hookname}, %info);
+        my @instance_hooks = keys %{$self->{hooks}};
+
+        # find regex hooknames
+        foreach my $re (@instance_hooks) {
+            push @res, $self->_run_hooks($self, $self->{hooks}->{$re}, %info) if $hookname =~ $re;
+        }
     }
 
-    push @res, $self->_run_hooks($self, $HOOKS->{$hookname}, %info);
+    # find regex hooknames
+    my @package_hooks = keys %$HOOKS;
+    foreach my $re (@package_hooks) {
+        push @res, $self->_run_hooks($self, $HOOKS->{$re}, %info) if $hookname =~ $re;
+    }
 
     return @res;
 }

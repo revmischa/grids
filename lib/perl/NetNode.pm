@@ -67,6 +67,8 @@ sub data_received {
 
         $self->dbg("invalid initiation string [$data]") unless $p;
         $self->{proto} = $p;
+
+        $trans->write("==OK/" . $p->encap_base) or $self->dbg("Unable to write session init response");
         $self->session_initiated($trans);
     }
 }

@@ -18,10 +18,10 @@ sub connect {
     return 0 unless $peer;
 
     $self->{peer} = $peer;
-    $self->connection_established($peer);
-
     $self->{peer}->{peer} = $self;
+
     $self->{peer}->connection_established($self);
+    $self->connection_established($peer);
 
     return 1;
 }
