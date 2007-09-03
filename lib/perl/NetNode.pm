@@ -76,12 +76,6 @@ sub session_initiated {
     my ($self, $trans) = @_;
 
     $self->dbg("initiated session");
-    $self->dbg("doing login request");
-
-    $self->do_request($trans, 'Login', {
-        node => 'dongs',
-        public_key => '123456',
-    });
 }
 
 # protocol handler callback
