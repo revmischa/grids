@@ -17,7 +17,11 @@ $client->register_event_hook('Login', \&login_hook);
 $client->do_request('Login', { dongs => 1 });
 
 sub login_hook {
-    my ($c, $args) = @_;
+    my ($c, %info) = @_;
+
+    my $args = $info{args};
+    is ($c, $client, "Got client in hook info");
+    is ($info{event}, 'Login', "Got correct event in hook info");
 
     is($args->{error}, '-1', 'Login protocol');
 }

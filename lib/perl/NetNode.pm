@@ -15,6 +15,9 @@ __PACKAGE__->mk_accessors(qw/conf transports proto debug/);
 
 our $default_conf = { };
 
+# add hook support
+do 'nethooks.pl';
+
 sub new {
     my ($class, %opts) = @_;
 
@@ -86,6 +89,10 @@ sub handle_protocol_request {
     my ($self, $proto, $event, $args, $trans) = @_;
 
     $self->dbg("proto $proto got request $event");
+
+    my $res = $self->run_event_hooks(event => $event,
+                                     args => $args,
+                                     trans => $trans);
 
     if ($event eq 'Login') {
         $self->do_request($trans, 'Login', {

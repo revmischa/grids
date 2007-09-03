@@ -5,7 +5,10 @@ use NetProtocol;
 use Carp qw (croak);
 
 use base qw/Class::Accessor::Fast/;
-__PACKAGE__->mk_accessors(qw/transport id conf proto transport debug hooks/);
+__PACKAGE__->mk_accessors(qw/transport id conf proto transport debug/);
+
+# add hook support
+do 'nethooks.pl';
 
 # opts: id, transport, conf
 # other opts passed to transport
@@ -41,6 +44,9 @@ sub new {
 # called when our transport receives data
 sub data_received {
     my ($self, $trans, $data) = @_;
+
+    $self->dbg("received data [$data]");
+
     $self->proto->handle_request($data);
 }
 
@@ -48,8 +54,10 @@ sub data_received {
 sub event_handler {
     my ($self, $proto, $event, $args) = @_;
 
-    $self->run_event_hooks($event, $args);
     $self->dbg("received event $event");
+
+    $self->run_event_hooks(event => $event,
+                           args  => $args);
 }
 
 # transmits a protocol request over the specified transport
@@ -77,34 +85,10 @@ sub connection_established {
     $self->dbg("client transport $trans received connection: $con\n");
 }
 
-sub run_event_hooks {
-    my ($self, $event, $args) = @_;
-
-    my $hooks = $self->hooks->{"Event-$event"};
-    return unless $hooks;
-
-    foreach my $hook (@$hooks) {
-        $hook->($self, $args);
-    }
-}
-
-sub register_event_hook {
-    my ($self, $event, $cb, $cb_obj) = @_;
-
-    if ($cb_obj) {
-        my $_cb = $cb;
-        $cb = sub { $cb->($cb_obj, @_) };
-    }
-
-    $self->hooks->{"Event-$event"} ||= [];
-
-    push @{$self->hooks->{"Event-$event"}}, $cb;
-}
-
 sub dbg {
     my ($self, $msg) = @_;
     return unless $self->debug;
-    warn "NetClient: $msg";
+    warn "NetClient: $msg\n";
 }
 
 1;
