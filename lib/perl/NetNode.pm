@@ -65,7 +65,12 @@ sub data_received {
                                                         event_handler => \&handle_protocol_request,
                                                         event_handler_object => $self);
 
-        $self->dbg("invalid initiation string [$data]") unless $p;
+        unless ($p) {
+            $self->warn("invalid initiation string [$data]");
+            $trans->reset;
+            return;
+        }
+
         $self->{proto} = $p;
 
         $trans->write("==OK/" . $p->encap_base) or $self->dbg("Unable to write session init response");
@@ -136,6 +141,11 @@ sub authorized_keys {
 sub dbg {
     my ($self, $msg) = @_;
     return unless $self->debug;
+    warn "NetNode:   $msg\n";
+}
+
+sub warn {
+    my ($self, $msg) = @_;
     warn "NetNode:   $msg\n";
 }
 

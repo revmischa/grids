@@ -51,7 +51,7 @@ sub set_encapsulation_method {
 sub initiation_string {
     my ($self) = @_;
 
-    my @elements = ('Net', '1.0', $self->encap_method);
+    my @elements = ('Net', '1.0', $self->encap_base);
     return '==' . join('/', @elements);
 }
 

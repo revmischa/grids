@@ -96,6 +96,7 @@ sub connection_established {
     my ($self, $trans, $con) = @_;
 
     $self->dbg("client transport $trans received connection: $con\n");
+    $self->dbg("sending initiation string: " . $self->proto->initiation_string);
     $self->transport->write($self->proto->initiation_string);
 }
 

@@ -33,6 +33,12 @@ sub accept_loop {
     return 0;
 }
 
+# optional: reset to initial state
+sub reset {
+    my $self = shift;
+    return 0;
+}
+
 ##################################
 
 # parent is whatever object owns this Transport.
