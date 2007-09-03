@@ -13,31 +13,27 @@ my $client = NetClient->new(id => '123456', transport => 'Loop', debug => 1);
 # connect client to server using Loop transport
 $client->connect($server_trans);
 
-$client->register_event_hook('Login', \&client_login_hook);
-$server->register_event_hook('Login', \&server_login_hook);
+$client->register_event_hook('Authentication.Login', \&client_login_hook);
 
-$client->do_request('Login', { dongs => 1 });
+my $login_good = 0;
+$client->do_request('Authentication.Login', { public_key => 'lolwtf' });
+
+$server->conf->set_conf('Node.AuthorizedKeys', { 'lolwtf' => 1 });
+$login_good = 1;
+$client->do_request('Authentication.Login', { public_key => 'lolwtf' });
 
 sub client_login_hook {
     my ($c, %info) = @_;
 
     my $args = $info{args};
     is ($c, $client, "Got client in hook info");
-    is ($info{event}, 'Login', "Got correct event in hook info");
+    is ($info{event}, 'Authentication.Login', "Got correct event in hook info");
 
-    is($args->{error}, '-1', 'Login protocol');
+    if ($login_good) {
+        is($args->{success}, 1, 'Login successful');
+    } else {
+        is($args->{error}, NetNode::ERROR_LOGIN_INVALID, 'Login unsuccessful');
+    }
 
     return 1;
-}
-
-sub server_login_hook {
-    my ($s, %info) = @_;
-
-    my $args = $info{args};
-    is ($s, $server, "Got server in hook info");
-    is ($info{event}, 'Login', "Got correct event in hook info");
-
-    return {
-        error => -1,
-    };
 }

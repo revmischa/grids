@@ -1,6 +1,5 @@
 # This is a class for a Node on the Net.  
-# It handles sending/receiving
-# data over transports and handling requests
+# It handles sending/receiving data over transports and handling requests
 
 use strict;
 package NetNode;
@@ -123,6 +122,13 @@ sub do_request {
 sub services {
     my ($self) = @_;
 
+}
+
+sub authorized_keys {
+    my ($self) = @_;
+
+    my $pubkeys = $self->conf->get('Node.AuthorizedKeys') || {};
+    return %$pubkeys;
 }
 
 sub dbg {
