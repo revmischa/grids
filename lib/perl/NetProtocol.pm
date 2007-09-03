@@ -19,20 +19,32 @@ sub new {
     my $evt_handler = delete $opts{event_handler};
     my $handler_obj = delete $opts{event_handler_object};
 
-    return undef if $enc =~ /\W/;
-    my $encap_method = "NetProtocol::Encapsulation::$enc";
-    my $encap = eval { $encap_method->new } or return undef;
-
     my $self = {
-        encap_base => $enc,
-        encap_method => $enc,
-        encap => $encap,
         event_handler => $evt_handler,
         event_handler_obj => $handler_obj,
     };
 
     bless $self, $class;
+
+    if ($enc) {
+        return undef unless $self->set_encapsulation_method($enc);
+    }
+
     return $self;
+}
+
+sub set_encapsulation_method {
+    my ($self, $enc) = @_;
+
+    return undef if $enc =~ /\W/;
+    my $encap_method = "NetProtocol::Encapsulation::$enc";
+    my $encap = eval { $encap_method->new } or return undef;
+
+    $self->encap_base($enc);
+    $self->encap_method($encap_method);
+    $self->encap($encap);
+
+    return 1;
 }
 
 # returns a string to pass to initiate a protocol connection
@@ -101,7 +113,7 @@ sub handle_request {
         }
 
         if ($status eq 'OK') {
-            #$self->set_encapsulation_method($info) or die "Invalid encapsulation method \"$info\" specified by server";
+            $self->set_encapsulation_method($info) or die "Invalid encapsulation method \"$info\" specified by server";
         } elsif ($status eq 'ERROR') {
             if ($info eq 'Unauthorized') {
                 $self->dispatch_event_handler('Protocol.Error.Unauthorized', {message => $extrainfo});
