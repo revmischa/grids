@@ -69,13 +69,23 @@ sub run {
             $trans->select;
             threads->yield;
         }
+
+        $trans->close_all;
         warn "accept thread finished";
     };
 
+    my $finish = sub {
+        return if $finished;
+        $finished = 1;
+        $evt_thread->join;
+        $select_thread->join;
+        exit 0;
+    };
+
+    local $SIG{INT} = $finish;
+
     $con->run;
-    $finished = 1;
-    $evt_thread->join;
-    $select_thread->join;
+    $finish->();
 }
 
 sub help {

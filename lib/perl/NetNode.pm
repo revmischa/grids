@@ -63,7 +63,7 @@ sub connection_established {
 }
 
 sub data_received {
-    my ($self, $trans, $data) = @_;
+    my ($self, $trans, $data, $connection) = @_;
 
     $self->dbg("received data [$data]");
 
@@ -85,7 +85,7 @@ sub data_received {
 
         $self->{proto} = $p;
 
-        $trans->write("==OK/" . $p->encap_base) or $self->dbg("Unable to write session init response");
+        $trans->write("==OK/" . $p->encap_base, $connection) or $self->dbg("Unable to write session init response");
         $self->session_initiated($trans);
     }
 }

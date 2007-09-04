@@ -18,7 +18,7 @@ sub new {
 
 # write data
 sub write {
-    my ($self, $data) = @_;
+    my ($self, $data, $connection) = @_;
     croak "write called on NetTransport base class";
 }
 
@@ -60,10 +60,10 @@ sub connection_established {
 }
 
 sub data_received {
-    my ($self, $data) = @_;
+    my ($self, $connection, $data) = @_;
 
     return unless $self->parent->can('data_received');
-    $self->parent->data_received($self, $data);
+    $self->parent->data_received($self, $data, $connection);
 }
 
 1;
