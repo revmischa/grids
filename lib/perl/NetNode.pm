@@ -42,6 +42,7 @@ sub new {
         debug       => $debug,
         sessions    => {},
         event_queue => $evt_queue,
+        proto       => {}, # mapping of Connection => NetProtocol
     };
 
     bless $self, $class;
@@ -67,15 +68,21 @@ sub data_received {
 
     $self->dbg("received data [$data]");
 
-    if ($self->proto) {
-        $self->proto->handle_request($data, $trans);
+    my $protocol_handler = $self->proto->{$connection};
+
+    if ($protocol_handler) {
+        my $event = $protocol_handler->parse_request($data);
+        if ($event) {
+            $event->args->{_trans} = $trans;
+            $event->args->{_proto} = $protocol_handler;
+            $event->args->{_conn} = $connection;
+            $self->event_queue->add($event) or $self->warn("Could not enqueue event $event");
+        }
     } else {
         # if we don't have a protocol handler set up yet, this should be
         # the first transmission containing an initiation string
         $self->dbg("initating protocol handler with session init string [$data]");
-        my $p = NetProtocol->new_from_initiation_string($data,
-                                                        event_handler => \&handle_protocol_request,
-                                                        event_handler_object => $self);
+        my $p = NetProtocol->new_from_initiation_string($data);
 
         unless ($p) {
             $self->warn("invalid initiation string [$data]");
@@ -83,7 +90,7 @@ sub data_received {
             return;
         }
 
-        $self->{proto} = $p;
+        $self->proto->{$connection} = $p;
 
         $trans->write("==OK/" . $p->encap_base, $connection) or $self->dbg("Unable to write session init response");
         $self->session_initiated($trans);
@@ -94,16 +101,6 @@ sub session_initiated {
     my ($self, $trans) = @_;
 
     $self->dbg("initiated session");
-}
-
-# protocol handler callback
-sub handle_protocol_request {
-    my ($self, $proto, $event, $args, $trans) = @_;
-
-    $self->dbg("proto $proto got request $event");
-    # save transport
-    $args->{_trans} = $trans;
-    $self->event_queue->add($event, $args) or $self->warn("Could not enqueue event $event");
 }
 
 # processes everything in the event queue
@@ -121,6 +118,11 @@ sub do_next_event {
     my $trans = delete $evt->args->{_trans}
         or die "Invalid Event record in queue: missing transport";
 
+    my $proto = delete $evt->args->{_proto}
+        or die "Invalid Event record in queue: missing protocol";
+
+    my $conn = delete $evt->args->{_conn};
+
     my @hook_results = $self->run_event_hooks(event => $evt->event_name,
                                               args => $evt->args,
                                               trans => $trans);
@@ -133,7 +135,13 @@ sub do_next_event {
 
             # default the return request to be of the same method
             my $res_evt = $res->{event} || $evt->event_name;
-            $self->do_request($trans, $evt->event_name, $res);
+
+            # do request
+            $self->do_request(transport => $trans,
+                              event_name => $evt->event_name,
+                              event_args => $res,
+                              connection => $conn,
+                              protocol_handler => $proto);
         }
     }
 
@@ -141,18 +149,18 @@ sub do_next_event {
 }
 
 sub do_request {
-    my ($self, $trans, $event, $params) = @_;
-    my $p = $self->proto;
+    my ($self, %opts) = @_;
 
-    unless ($p) {
-        warn "attempted to write data without initalized protocol handler";
-        return 0;
-    }
+    my $trans = delete $opts{transport} or croak "No transport";
+    my $proto = delete $opts{protocol_handler} or croak "No protocol handler";
+    my $connection = delete $opts{connection} or croak "No connection";
+    my $event = delete $opts{event_name} or croak "No event name";
+    my $params = delete $opts{event_args} || {};    
 
-    my $serialized_data = $p->encapsulate($event, $params);
+    my $serialized_data = $proto->encapsulate($event, $params);
     return 0 unless $serialized_data;
 
-    return $trans->write($serialized_data);
+    return $trans->write($serialized_data, $connection);
 }
 
 sub services {
@@ -186,12 +194,12 @@ sub authorized_keys {
 sub dbg {
     my ($self, $msg) = @_;
     return unless $self->debug;
-    warn "NetNode:   $msg\n";
+    warn "NetNode:   [Debug] $msg\n";
 }
 
 sub warn {
     my ($self, $msg) = @_;
-    warn "NetNode:   $msg\n";
+    warn "NetNode:   [Warn] $msg\n";
 }
 
 1;

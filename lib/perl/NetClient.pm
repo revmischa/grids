@@ -33,11 +33,7 @@ sub new {
 
     bless $self, $class;
 
-    my $proto = NetProtocol->new(
-                                 encapsulation => $enc_class,
-                                 event_handler => \&event_handler,
-                                 event_handler_object => $self,
-                                 );
+    my $proto = NetProtocol->new(encapsulation => $enc_class);
     $self->{proto} = $proto;
 
     my $t = "NetTransport::$trans_class"->new($self, %opts);
@@ -52,15 +48,9 @@ sub data_received {
 
     $self->dbg("received data [$data]");
 
-    $self->proto->handle_request($data);
-}
-
-# called on protocol events
-sub event_handler {
-    my ($self, $proto, $event, $args) = @_;
-
-    $self->dbg("received event $event");
-    $self->event_queue->add($event, $args) or $self->warn("Could not enqueue event $event");
+    my $evt = $self->proto->parse_request($data);
+    $evt->{_trans} = $trans;
+    $self->event_queue->add($evt) if $evt;
 }
 
 # processes everything in the event queue
@@ -126,14 +116,18 @@ sub connection_established {
     my ($self, $trans, $con) = @_;
 
     $self->dbg("client transport $trans received connection: $con\n");
-    $self->dbg("sending initiation string: " . $self->proto->initiation_string);
     $self->transport->write($self->proto->initiation_string);
 }
 
 sub dbg {
     my ($self, $msg) = @_;
     return unless $self->debug;
-    warn "NetClient: $msg\n";
+    warn "NetClient: [Debug] $msg\n";
+}
+
+sub warn {
+    my ($self, $msg) = @_;
+    warn "NetClient: [Warn] $msg\n";
 }
 
 1;

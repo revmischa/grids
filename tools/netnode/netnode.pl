@@ -55,18 +55,13 @@ sub run {
 
     my $trans = $node->add_transport("TCP");
 
-    # run event queue processing in seperate thread
-    my $evt_thread = async {
-        while (! $finished) {
-            $node->flush_event_queue;
-            threads->yield;
-        }
-        warn "event thread finished";
-    };
+    # run socket reading/event queue processing in seperate thread
+    my $work_thread = async {
+        $trans->listen;
 
-    my $select_thread = async {
         while (! $finished) {
             $trans->select;
+            $node->flush_event_queue;
             threads->yield;
         }
 
@@ -77,8 +72,7 @@ sub run {
     my $finish = sub {
         return if $finished;
         $finished = 1;
-        $evt_thread->join;
-        $select_thread->join;
+        $work_thread->join;
         exit 0;
     };
 

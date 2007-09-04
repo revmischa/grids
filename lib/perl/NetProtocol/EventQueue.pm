@@ -19,9 +19,7 @@ sub new {
 }
 
 sub add {
-    my ($self, $evt_name, $params) = @_;
-    my $evt = NetProtocol::Event->new(event_name => $evt_name, params => $params);
-    croak "Invalid event $evt_name" unless $evt;
+    my ($self, $evt) = @_;
     push @{$self->queue}, $evt;
 }
 

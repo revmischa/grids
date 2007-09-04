@@ -12,7 +12,7 @@ sub hook_login {
     my $args = $info{args};
 
     if ($args->{success}) {
-        my $session = $args->{session_token} or $client->dbg("Did not receive session token in login success");
+        my $session = $args->{session_token} or $client->warn("Did not receive session token in login success");
         $client->session_token($session);
         $client->dbg("Logged in successfully");
     } else {

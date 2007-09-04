@@ -20,11 +20,13 @@ sub connect {
     return undef unless $addr;
 
     $self->{sock} = IO::Socket::INET->new(Proto     => "tcp",
-                                          Blocking  => 1,
+                                          Blocking  => 0,
                                           Reuse     => 1,
                                           PeerAddr  => $addr,
                                           PeerPort  => 1488,
                                           ) or return $self->error("Could not connect to host $addr: $!");
+
+    $self->add_socket($self->{sock});
 
     $self->connection_established($self->{sock});
 }
@@ -35,7 +37,8 @@ sub write {
     $sock ||= $self->{sock};
 
     if ($sock && $sock->connected) {
-        $sock->send($data);
+        my $byte_count = $sock->syswrite($data);
+        warn "wrote $data";
     } else {
         $self->error("Tried to send data [$data] to unconnected transport");
         return 0;
@@ -47,12 +50,12 @@ sub write {
 sub listen_sock {
     my ($self) = @_;
 
-    return $self->{sock} = IO::Socket::INET->new(Proto     => "tcp",
-                                                 Blocking  => 0,
-                                                 Reuse     => 1,
-                                                 LocalPort => $self->parent->conf->get_conf('port'),
-                                                 Listen    => 16,
-                                                 ) or die $!;
+    return $self->{listen_sock} = IO::Socket::INET->new(Proto     => "tcp",
+                                                        Blocking  => 0,
+                                                        Reuse     => 1,
+                                                        LocalPort => $self->parent->conf->get_conf('port'),
+                                                        Listen    => 16,
+                                                        ) or die $!;
 }
 
 sub close_all {
@@ -69,19 +72,20 @@ sub add_socket {
 
 sub remove_socket {
     my ($self, $socket) = @_;
-    $self->{sockets} = grep { $_ ne $socket } $self->sockets;
+    $self->{sockets} = [ grep { $_ ne $socket } $self->sockets ];
     $self->remove_from_read_set($socket);
-}
-
-sub remove_socket {
-    my ($self, $socket) = @_;
-    return unless grep { $_ eq $socket } $self->sockets;
 }
 
 sub sockets { @{$_[0]->{sockets}} }
 
 sub add_to_read_set {
     my ($self, $socket) = @_;
+
+    unless ($self->{read_set}) {
+        my $read_set = IO::Select->new;
+        $self->{read_set} = $read_set;
+    }
+
     $self->{read_set}->add($socket);
 }
 
@@ -89,26 +93,25 @@ sub remove_from_read_set {
     my ($self, $socket) = @_;
     $self->{read_set}->remove($socket);
 }
+
+sub listen {
+    my $self = shift;
+
+    # create main listening socket and add it to our read_set
+    my $ls = $self->listen_sock;
+    $self->add_socket($ls);
+    $ls->listen;
+}
+
 sub select {
     my ($self, $timeout) = @_;
 
     $timeout ||= 1;
 
-    # do we have a set of filehandles to select on already created?
-    unless ($self->{read_set}) {
-        # instantiate read_set
-        my $read_set = IO::Select->new;
-        $self->{read_set} = $read_set;
-
-        # create main listening socket and add it to our read_set
-        my $ls = $self->listen_sock;
-        $self->add_socket($ls);
-        $ls->listen;
-    }
-
     my ($rh_set) = IO::Select->select($self->{read_set}, undef, undef, $timeout);
     foreach my $rh (@$rh_set) {
-        if ($rh eq $self->{sock}) {
+
+        if ($rh eq $self->{listen_sock}) {
             # this is the main read socket, accept the connection
             # and add it to the read set
             my $ns = $rh->accept;
@@ -118,11 +121,13 @@ sub select {
             # otherwise this is a normal socket reading for reading
 
             # read up to 2048 bytes (FIXME: need to define max message size)
-            my $buf;
-            my $read = $rh->sysread($buf, 2048);
+            my $buf = '';
+            my $read = 0;
+            $read = $rh->sysread($buf, 2048);
 
             if ($read) {
                 # got data, process it
+                warn "read: $buf";
                 $self->data_received($rh, $buf);
             } else {
                 # socket is closed

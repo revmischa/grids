@@ -27,11 +27,11 @@ sub connect {
 }
 
 sub write {
-    my ($self, $data) = @_;
+    my ($self, $data, $conn) = @_;
 
     my $peer = $self->{peer};
     if ($peer) {
-        $peer->data_received($data);
+        $peer->data_received($self, $data);
     } else {
         return 0;
     }

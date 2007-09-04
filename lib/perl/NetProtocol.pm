@@ -5,7 +5,7 @@ use warnings;
 use Carp;
 
 use base qw/Class::Accessor/;
-__PACKAGE__->mk_accessors(qw(encap encap_base event_handler encap_method event_handler_obj));
+__PACKAGE__->mk_accessors(qw(encap encap_base encap_method));
 
 # autouse all encapsulation methods
 use Class::Autouse;
@@ -15,16 +15,7 @@ sub new {
     my ($class, %opts) = @_;
 
     my $enc = delete $opts{encapsulation};
-
-    my $evt_handler = delete $opts{event_handler};
-    my $handler_obj = delete $opts{event_handler_object};
-
-    my $self = {
-        event_handler => $evt_handler,
-        event_handler_obj => $handler_obj,
-    };
-
-    bless $self, $class;
+    my $self = bless {}, $class;
 
     if ($enc) {
         return undef unless $self->set_encapsulation_method($enc);
@@ -99,9 +90,11 @@ sub decapsulate {
     return $args;
 }
 
-# decode a protocol transmission and call event handler
-sub handle_request {
-    my ($self, $data, @extra_args) = @_;
+# decode a protocol transmission and return an Event record
+sub parse_request {
+    my ($self, $data) = @_;
+
+    my $event;
 
     if (index($data, '==') == 0) {
         # this is an initiation string, handle it
@@ -114,48 +107,40 @@ sub handle_request {
 
         if ($status eq 'OK') {
             $self->set_encapsulation_method($info) or die "Invalid encapsulation method \"$info\" specified by server";
+            return $self->event('Connected');
         } elsif ($status eq 'ERROR') {
             if ($info eq 'Unauthorized') {
-                $self->dispatch_event_handler('Protocol.Error.Unauthorized', {message => $extrainfo});
+                return $self->error_event('Protocol.Error.Unauthorized', {message => $extrainfo});
             } elsif ($info eq 'IncompatibleVersion') {
-                $self->dispatch_event_handler('Protocol.Error.IncompatibleVersion', {min_version => $extrainfo});
+                return $self->error_event('Protocol.Error.IncompatibleVersion', {min_version => $extrainfo});
             } elsif ($info eq 'InvalidEncapsulations') {
-                $self->dispatch_event_handler('Protocol.Error.InvalidEncapsulations');
+                return $self->error_event('Protocol.Error.InvalidEncapsulations');
             } else {
-                $self->dispatch_event_handler('Protocol.Error.UnknownError', {error => $info});
+                return $self->error_event('Protocol.Error.UnknownError', {msg => $info});
             }
         } else {
-            $self->dispatch_event_handler('Protocol.Error.UnknownStatus', {status => $status});
+            return $self->error_event('Protocol.Error.UnknownStatus', {status => $status});
         }
-
-        return;
     }
-
-    return unless $self->event_handler;
 
     # decode message
     my $args = $self->decapsulate($data);
-    my $event = delete $args->{_method};
 
-    $self->dispatch_event_handler($event, $args, @extra_args);
+    # instantiate Event record
+    my $event_name = delete $args->{_method};
+    return NetProtocol::Event->new(event_name => $event_name, params => $args);
 }
 
-sub dispatch_event_handler {
-    my ($self, $event, $args, @extra) = @_;
-
-    my $cb = $self->event_handler;
-
-    # no handler, we don't care about anything
-    return unless $cb;
-
-    my @args = ($self, $event, $args, @extra);
-
-    if ($self->event_handler_obj) {
-        # instance method callback
-        return $cb->($self->event_handler_obj, @args);
-    } else {
-        # class method callback
-        return $cb->(@args);
-    }
+sub error_event {
+    my ($self, $error_event, $params) = @_;
+    $params ||= {};
+    $params->{error} = 1;
+    return NetProtocol::Event->new(event_name => $error_event, params => $params);
 }
+
+sub event {
+    my ($self, $event, $params) = @_;
+    return NetProtocol::Event->new(event_name => $event, params => $params);
+}
+
 1;
