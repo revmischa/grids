@@ -7,8 +7,11 @@ use Carp;
 use base qw/Class::Accessor/;
 __PACKAGE__->mk_accessors(qw(encap encap_base encap_method));
 
+use Class::Autouse qw/
+    NetProtocol::Event
+/;
+
 # autouse all encapsulation methods
-use Class::Autouse;
 Class::Autouse->autouse_recursive('NetProtocol::Encapsulation');
 
 sub new {
