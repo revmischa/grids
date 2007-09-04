@@ -10,6 +10,8 @@ use NetNode;
 use Getopt::Long;
 use Sys::Hostname;
 use sigtrap qw(die normal-signals);
+use threads;
+use threads::shared;
 
 my $conffile = 'netnode.conf';
 my $nodename = hostname;
@@ -26,14 +28,6 @@ my %prog_opts = (
 GetOptions(%prog_opts);
 
 usage() and exit if $help;
-
-# keep track of child listening processes
-my %children;
-$SIG{CHLD} = 'IGNORE';
-
-$SIG{USR1} = sub {
-    exit 0;
-};
 
 my $conf = NetConf->new(conf_file => $conffile);
 
@@ -57,15 +51,31 @@ sub run {
 
     $con->print("Loaded settings from $conffile") if $conf->load;
 
+    my $finished : shared;
+
     my $trans = $node->add_transport("TCP");
-    if(my $chpid = fork()) {
-        $children{$chpid} = 1;
-    } else {
-        $trans->accept_loop;
-        exit 0;
-    }
+
+    # run event queue processing in seperate thread
+    my $evt_thread = async {
+        while (! $finished) {
+            $node->flush_event_queue;
+            threads->yield;
+        }
+        warn "event thread finished";
+    };
+
+    my $select_thread = async {
+        while (! $finished) {
+            $trans->select;
+            threads->yield;
+        }
+        warn "accept thread finished";
+    };
 
     $con->run;
+    $finished = 1;
+    $evt_thread->join;
+    $select_thread->join;
 }
 
 sub help {
@@ -89,10 +99,3 @@ usage: $0 [-cnih]
  -h[help]: print this help
 };
 }
-
-END {
-    foreach my $chpid (keys %children) {
-        kill 'USR1', $chpid;
-    }
-}
-

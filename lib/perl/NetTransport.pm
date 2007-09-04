@@ -2,6 +2,7 @@ package NetTransport;
 use strict;
 use warnings;
 use Carp;
+use IO::Select;
 
 # use all subclasses
 use Class::Autouse;
@@ -27,9 +28,9 @@ sub connect {
     croak "connect called on NetTransport base class";
 }
 
-# optional: wait in a loop for connections
-sub accept_loop {
-    my $self = shift;
+# optional: select filehandles and do reading/accepting/writing as appropriate
+sub select {
+    my ($self, $timeout) = @_;
     return 0;
 }
 
@@ -44,6 +45,12 @@ sub reset {
 # parent is whatever object owns this Transport.
 # it needs to implement the "conf" method
 sub parent { $_[0]->{parent} }
+
+sub error {
+    my ($self, $error) = @_;
+    warn "Transport error: $error";
+    return 0;
+}
 
 sub connection_established {
     my ($self, $con) = @_;

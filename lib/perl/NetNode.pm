@@ -3,9 +3,14 @@
 
 use strict;
 package NetNode;
-use NetCode;
-use NetVM;
-use NetConf;
+use Class::Autouse qw/
+    NetCode
+    NetVM
+    NetConf
+    NetProtocol
+    NetProtocol::EventQueue
+    /;
+
 use NetTransport;
 use Carp qw (croak);
 
