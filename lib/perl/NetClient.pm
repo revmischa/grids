@@ -46,7 +46,7 @@ sub new {
 sub data_received {
     my ($self, $trans, $data) = @_;
 
-    $self->dbg("received data [$data]");
+    #$self->dbg("received data [$data]");
 
     my $evt = $self->proto->parse_request($data);
     $evt->{_trans} = $trans;
@@ -67,10 +67,12 @@ sub do_next_event {
     my $event = $self->event_queue->shift
         or return 0;
 
-    $self->dbg("Handling event " . $event->event_name);
+    my $args = $event->args;
+    $self->dbg("Handling event " .
+               $event->event_name . ' (' . join(', ', map { $_ . ' = ' . $args->{$_} } keys %$args) . ')') if $args;
 
     my @hook_results = $self->run_event_hooks(event => $event->event_name,
-                                              args => $event->args);
+                                              args => $args);
 
     # were there any results?
     if (@hook_results) {
@@ -111,11 +113,14 @@ sub connect {
     $self->transport->connect($address);
 }
 
-# called when a connection with a Node has been established
+# Called when a connection with a Node has been established This
+# simply means there is a connection, but the protocol handler has not
+# been set up yet. Once the connection is set up peroperly, the
+# Connected event will be called
 sub connection_established {
     my ($self, $trans, $con) = @_;
 
-    $self->dbg("client transport $trans received connection: $con\n");
+    $self->dbg("Connection to node successful.");
     $self->transport->write($self->proto->initiation_string);
 }
 

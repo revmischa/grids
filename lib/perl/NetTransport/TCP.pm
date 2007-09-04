@@ -38,7 +38,6 @@ sub write {
 
     if ($sock && $sock->connected) {
         my $byte_count = $sock->syswrite($data);
-        warn "wrote $data";
     } else {
         $self->error("Tried to send data [$data] to unconnected transport");
         return 0;
@@ -127,7 +126,6 @@ sub select {
 
             if ($read) {
                 # got data, process it
-                warn "read: $buf";
                 $self->data_received($rh, $buf);
             } else {
                 # socket is closed
