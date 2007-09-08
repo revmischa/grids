@@ -31,6 +31,7 @@ our %OPCODES = (
                 lw      => 0b100011,
                 lb      => 0b100000,
                 j       => 0b000010,
+                jreli   => 0b000011,
                 addi    => 0b001000,
                 addiu   => 0b001001,
                 xori    => 0b001110,
@@ -44,7 +45,6 @@ our %R_TYPE_FUNCS = (
                      addu  => ["rd, rs, rt", 0b100001],
                      and   => ["rd, rs, rt", 0b100100],
                      jr    => ["rs",         0b001000],
-                     jrel  => ["rs",         0b001001],
                      sll   => ["rd, rs, sa", 0b000000],
                      srl   => ["rd, rs, sa", 0b000010],
                      xor   => ["rd, rs, rt", 0b100110],
@@ -78,11 +78,22 @@ our @OFFSET_OPCODES = qw (
                           );
 
 our %ALIASES = (
-                'nop' => "sll 0, 0, 0",
+                'nop' => 'sll 0, 0, 0',
                 );
 
 # return instruction mnemonic for opcode
-sub opcode_mnemonic { return $OPCODES_REV{$_[1]} }
+sub opcode_mnemonic {
+    my ($class, $op) = @_;
+    return $OPCODES_REV{$op};
+}
+
+# given a 6-byte instruction, determine the opcode
+sub instruction_opcode {
+    my ($class, $inst) = @_;
+
+    my ($opcode) = $class->disassemble($inst);
+    return $opcode;
+}
 
 # return instruction mnemonic for r-type function
 sub r_function_mnemonic {
@@ -410,7 +421,7 @@ sub assemble_r {
     }
 
     my $bit_string = sprintf "%06b%05b%05b%05b%08b%06b%013b", $op, $rs, $rt, $rd, $sa, $func, 0;
-    printf "r [%06b, 0x%02X, 0x%02X, 0x%02X] = $bit_string\n", $op, $rs, $rt, $rd;
+    printf "r [%06b, 0x%02X, 0x%02X, 0x%02X, %08b, %06b] = $bit_string\n", $op, $rs, $rt, $rd, $sa, $func;
 
     return $class->pack_bit_string($bit_string);
 }

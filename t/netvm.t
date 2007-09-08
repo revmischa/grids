@@ -47,7 +47,7 @@ is(_u($vm->reg('a0')), 0xFFFFFFFE, 'addiu');
 $vm->step;
 is(_u($vm->reg('a0')), 0xFFFFFFFF, 'xori');
 
- $vm->step;
+$vm->step;
 is($vm->reg('a1'), 0x7FFFFFFF, 'andi');
 
 $vm->step;
@@ -71,13 +71,13 @@ is($vm->reg('t0'), 0b00100001, 'and');
 
 my $pc = $vm->pc;
 $vm->step;
-is($vm->pc, $pc + 18, 'jrel');
-is(op_r(), 'jrel', 'jrel op');
+is($vm->pc, $pc + 18, 'jreli');
+is(op(), 'jreli', 'jrel op');
 
 $pc = $vm->pc;
 $vm->step;
-is($vm->pc, $pc - 12, 'negative jrel');
-is(op_r(), 'nop', 'negative jrel');
+is($vm->pc, $pc - 12, 'negative jreli');
+is(op_r(), 'sll', 'negative jreli');
 
 $vm->step;
 is(op(), 'j', 'nop');
@@ -92,10 +92,10 @@ is($vm->pc, 0, 'j');
 sub _u { return int(sprintf("%u", $_[0])); }
 
 # get opcode mnemonic
-sub op { NetCode->opcode_mnemonic($vm->current_instruction); }
+sub op { NetCode->opcode_mnemonic($vm->current_instruction_opcode); }
 
 # get opcode mnemonic for r-type
-sub op_r { NetCode->r_function_mnemonic($vm->current_instruction); }
+sub op_r { NetCode->r_function_mnemonic($vm->current_instruction_opcode); }
 
 # read in a file
 sub slurp {

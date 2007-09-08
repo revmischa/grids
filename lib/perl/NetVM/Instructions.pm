@@ -25,10 +25,10 @@ sub j_j {
     $vm->{pc} = _u($address);
 }
 
-# offset pc by $rs
-sub r_jrel {
-    my ($class, $vm, $rs, $rt, $rd, $sa) = @_;
-    $vm->{pc} += _s($rs) * 6;
+# offset pc by $data
+sub j_jreli {
+    my ($class, $vm, $addr) = @_;
+    $vm->{pc} += _s($addr) * 6;
 }
 
 # rd = rs + rt
@@ -69,7 +69,6 @@ sub r_xor {
 # rt = $rs + $data
 sub i_addi {
     my ($class, $vm, $rs, $rt, $data) = @_;
-    warn "reg: " . $vm->reg($rs) . " + $data";
     $vm->set_reg($rt, $vm->reg($rs) + _s($data));
 }
 

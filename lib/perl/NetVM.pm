@@ -217,6 +217,13 @@ sub current_instruction {
     return $inst;
 }
 
+# returns opcode of current instruction
+sub current_instruction_opcode {
+    my $self = shift;
+    my $inst = $self->current_instruction;
+    return NetCode->instruction_opcode($inst);
+}
+
 sub execute {
     my ($self, $inst) = @_;
 

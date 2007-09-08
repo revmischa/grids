@@ -56,23 +56,31 @@ sub size { $_[0]->{size} }
 
 sub set {
     my ($self, $index, $data) = @_;
+    croak "Trying to set register at index $index > " . $self->size
+        if $index > $self->size;
     NetReg::set_reg($self->h, $index, $data);
 }
 
 *set_u = \&set_unsigned;
 sub set_unsigned {
     my ($self, $index, $data) = @_;
+    croak "Trying to set register at index $index > " . $self->size
+        if $index > $self->size;
     NetReg::set_reg_u($self->h, $index, $data);
 }
 
 sub get {
     my ($self, $index) = @_;
+    croak "Trying to get register at index $index > " . $self->size
+        if $index > $self->size;
     return NetReg::get_reg($self->h, $index);
 }
 
 *get_u = \&get_unsigned;
 sub get_unsigned {
     my ($self, $index) = @_;
+    croak "Trying to get register at index $index > " . $self->size
+        if $index > $self->size;
     return NetReg::get_reg_u($self->h, $index);
 }
 

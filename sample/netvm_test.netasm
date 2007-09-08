@@ -22,10 +22,10 @@
   li $t1, 0b00101001
   and $t0, $t2, $t1
 
-  jrel 2   ; goto a
+  jreli 3   ; goto a
   nop      ; b
   j end    ; goto end
-  jrel -3  ; a, goto b
+  jreli -2  ; a, goto b
 
 
 end:
