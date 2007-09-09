@@ -78,6 +78,14 @@ br_done:
 
   jal testjal
   nop
+
+  ; test subu
+  li $t4, 0xFFFFFFFF
+  or $t1, $zero, $t4
+  li $t3, 1
+  subu $t2, $t1, $t3
+
+
   j end
 
 ;;;;;;;;;;;;;;;;

@@ -155,6 +155,15 @@ $vm->step; # jr $ra
 is(op_r(), 'sll', 'jr $ra');
 
 $vm->step; # nop
+$vm->step; # li $t4, 0xFFFFFFFF
+
+# test subu
+$vm->step; # or $t1, $zero, 0xFFFFFFFF
+is($vm->reg_u('t1'), 0xFFFFFFFF, 'or');
+$vm->step; # li $t3, 1
+is($vm->reg_u('t3'), 1, 'li');
+$vm->step; # subu $t2, $t1, $t3
+is($vm->reg_u('t2'), 0xFFFFFFFE, 'subu');
 
 $vm->step; # j end
 $vm->step; # j beginning

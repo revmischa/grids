@@ -72,11 +72,17 @@ our @J_TYPE_OPS = qw /j jal jreli/;
 our %R_TYPE_FUNCS = (
                      add   => ["rd, rs, rt", 0b100000],
                      addu  => ["rd, rs, rt", 0b100001],
-                     and   => ["rd, rs, rt", 0b100100],
+                     'sub' => ["rd, rs, rt", 0b100010],
+                     subu  => ["rd, rs, rt", 0b100011],
+
                      jr    => ["rs",         0b001000],
+
                      sll   => ["rd, rs, sa", 0b000000],
                      srl   => ["rd, rs, sa", 0b000010],
+
+                     and   => ["rd, rs, rt", 0b100100],
                      xor   => ["rd, rs, rt", 0b100110],
+                     or    => ["rd, rs, rt", 0b100101],
                      );
 
 # syscalls

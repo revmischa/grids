@@ -51,6 +51,18 @@ sub r_addu {
     $vm->set_reg($rd, $vm->reg_u($rs) + $vm->reg_u($rt));
 }
 
+# rd = rs - rt
+sub r_sub {
+    my ($class, $vm, $rs, $rt, $rd, $sa) = @_;
+    $vm->set_reg($rd, $vm->reg($rs) - $vm->reg($rt));
+}
+
+# rd = unsigned(rs)? - unsigned(rt)
+sub r_subu {
+    my ($class, $vm, $rs, $rt, $rd, $sa) = @_;
+    $vm->set_reg($rd, $vm->reg_u($rs) - $vm->reg_u($rt));
+}
+
 # rd = rs << sa
 sub r_sll {
     my ($class, $vm, $rs, $rt, $rd, $sa) = @_;
@@ -96,6 +108,12 @@ sub i_ori {
 sub r_and {
     my ($class, $vm, $rs, $rt, $rd, $sa) = @_;
     $vm->set_reg($rd, $vm->regs->and($rs, $rt));
+}
+
+# rd = rs | rt
+sub r_or {
+    my ($class, $vm, $rs, $rt, $rd, $sa) = @_;
+    $vm->set_reg($rd, $vm->regs->or($rs, $rt));
 }
 
 # rt = $rs & $data
