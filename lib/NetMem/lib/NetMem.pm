@@ -47,10 +47,17 @@ sub new {
     return $self;
 }
 
+sub size {
+    my ($self, $size) = @_;
+    return $self->{size} unless defined $size;
+    croak "Invalid size $size" if $size < 0;
+    $self->{size} = $size;
+}
+
 sub init {
     my ($self, $size) = @_;
 
-    $self->{size} = $size;
+    $self->size($size);
     $self->{handle} = NetMem::mem_new($size);
 }
 
@@ -65,20 +72,26 @@ sub resize {
 
     if ($oldsize && $copysize && ! $opts{nocopy}) {
         NetMem::mem_copy($oldhandle, $self->h, $copysize);
-      }
+    }
 
     NetMem::mem_destroy($oldhandle);
 }
 
-sub size { $_[0]->{size} }
-
 sub set {
     my ($self, $offset, $data) = @_;
+
+    croak "Tried to set memory outside bounds"
+        if $offset + length $data > $self->size;
+
     NetMem::mem_set($self->h, $offset, $data);
 }
 
 sub get {
     my ($self, $offset, $len) = @_;
+
+    croak "Tried to get memory outside bounds"
+        if $offset + $len > $self->size;
+
     NetMem::mem_get($self->h, $offset, $len);
 }
 

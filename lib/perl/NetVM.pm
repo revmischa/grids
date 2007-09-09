@@ -11,6 +11,9 @@ use NetVM::Instructions;
 use NetMem;
 use NetReg;
 
+use base qw (Class::Accessor::Fast);
+__PACKAGE__->mk_accessors(qw/mem pc mem_limit/);
+
 Class::Autouse->autouse_recursive('NetVM::SysCall');
 
 our $DEBUG = 1;
@@ -60,10 +63,10 @@ sub new {
 sub init {
     my $self =  shift;
 
-    croak "invalid vm" unless defined $self->{regs};
+    croak "invalid vm" unless $self->{regs};
 
     # initialize zero register
-    $self->{regs}->set(0, 0);
+    $self->regs->set(0, 0);
 
     # empty memory
     $self->{mem} = new NetMem(1);
@@ -79,7 +82,6 @@ Returns NetReg object containing registers
 =cut
 
 sub regs { $_[0]->{regs} }
-
 
 =item reg($reg)
 
@@ -169,12 +171,6 @@ Returns current program counter
 
 =cut
 
-sub pc { $_[0]->{pc} }
-
-
-sub mem { $_[0]->{mem} }
-
-
 =item load($bytecode)
 
 Loads C<$bytecode> at 0x00000000
@@ -243,7 +239,7 @@ sub execute {
         die "Unknown instruction type '$type'\n";
     }
 
-    return 0 if $self->{pc} >= $self->mem_size;
+    return 0 if $self->pc >= $self->mem_size;
 
     return 1;
 }
@@ -276,7 +272,14 @@ sub execute_i {
     push @args, $fields{$_} for qw(rs rt data);
 
     my $handler_package = __PACKAGE__ . "::Instructions";
-    "$handler_package"->$func($self, @args);
+    my $res = "$handler_package"->$func($self, @args);
+
+    my $mnemonic = NetCode->opcode_mnemonic($opcode);
+    if (grep { $_ eq $mnemonic } @NetCode::BRANCH_OPCODES) {
+        # this is a branch i-type instruction.
+        # don't touch PC if it returns true.
+        return if $res;
+    }
 
     # increment PC
     $self->{pc} += 6;

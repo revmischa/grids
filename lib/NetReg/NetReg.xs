@@ -7,18 +7,22 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define REG(i) (*(handle + i * sizeof(reg_t)))
+#define REG(i) (*(handle + i))
 
 typedef int reg_t;
 typedef unsigned int  ureg_t;
 typedef int * reghandle_t;
 
-SV* alloc_regs(unsigned int count) {
+reghandle_t alloc_regs(unsigned int count) {
   reghandle_t regs = malloc(sizeof(reg_t) * count);
-  return newSVuv((unsigned int)regs);
+  return regs;
 }
 
 void dealloc_regs(reghandle_t handle) {
+  if (! handle) {
+    fprintf(stderr, "Attempting to dealloc null handle\n");
+    return;
+  }
   free(handle);
 }
  
@@ -52,7 +56,7 @@ ureg_t xor_regs(reghandle_t handle, unsigned int idx1, unsigned int idx2) {
 
 MODULE = NetReg		PACKAGE = NetReg
 
-SV*
+reghandle_t
 alloc_regs(count)
   unsigned int count
 

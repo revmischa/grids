@@ -75,17 +75,34 @@ is($vm->pc, $pc + 18, 'jreli');
 is(op(), 'jreli', 'jrel op');
 
 $pc = $vm->pc;
-$vm->step;
+$vm->step; # jreli -2
 is($vm->pc, $pc - 12, 'negative jreli');
 is(op_r(), 'sll', 'negative jreli');
 
-$vm->step;
+$vm->step; # nop
 is(op(), 'j', 'nop');
 
-$vm->step;
-is(op(), 'j', 'j');
+$vm->step; # j testbranching
+is(op(), 'addi', 'jump ok');
 
-$vm->step;
+$vm->step; # li
+is($vm->reg('t1'), 0xf3d8, 'li');
+$vm->step; # li
+is($vm->reg('t2'), 0xf3d8, 'li');
+$vm->step; # beq
+is(op(), 'j', 'beq');
+
+$vm->step; # j t2
+is(op(), 'addi', 'beq');
+
+$vm->step; # li
+$vm->step; # bne $t1, $t2, good2
+is(op(), 'j', 'bne');
+
+$vm->step; # j end
+is(op(), 'j', 'bne');
+
+$vm->step; # j beginning
 is($vm->pc, 0, 'j');
 
 # convert to unsigned

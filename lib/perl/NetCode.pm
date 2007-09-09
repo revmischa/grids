@@ -26,12 +26,19 @@ our (@REGS, %REGS); # mappings of register->symbolic name and vice-versa
 # I- and J-type opcodes
 our %OPCODES = (
                 li      => 0b111110,
+
                 syscall => 0b111111,
+
                 l       => 0b111101,
                 lw      => 0b100011,
                 lb      => 0b100000,
+
                 j       => 0b000010,
                 jreli   => 0b000011,
+
+                beq     => 0b000100,
+                bne     => 0b000101,
+
                 addi    => 0b001000,
                 addiu   => 0b001001,
                 xori    => 0b001110,
@@ -77,9 +84,21 @@ our @OFFSET_OPCODES = qw (
                           lb
                           );
 
+# branch opcodes
+our @BRANCH_OPCODES = qw (
+                          bne
+                          beq
+                          );
+
 our %ALIASES = (
                 'nop' => 'sll 0, 0, 0',
                 );
+
+# verify opcodes on load
+my %_opcodes_seen;
+die "Invalid opcodes" if grep {
+    ++$_opcodes_seen{$_} > 1
+    } values %OPCODES;
 
 # return instruction mnemonic for opcode
 sub opcode_mnemonic {

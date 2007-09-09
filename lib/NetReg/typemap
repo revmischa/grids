@@ -2,5 +2,4 @@ TYPEMAP
 
 reg_t           T_IV
 reghandle_t     T_UV
-reghandle_t *   T_UV
 ureg_t          T_UV

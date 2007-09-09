@@ -24,10 +24,26 @@
 
   jreli 3   ; goto a
   nop      ; b
-  j end    ; goto end
+  j testbranching ; goto branch tests
   jreli -2  ; a, goto b
 
+;;;;;;;; branch testing
+testbranching:
 
+t1:
+  li $t1, 0xf3d8
+  li $t2, 0xf3d8
+  beq $t1, $t2, good1
+  jreli 2
+good1:  j t2
+
+t2:
+  li $t2, 0xf3d7
+  bne $t1, $t2 good2
+  jreli 2
+good2:  j end
+
+;;;;;;;;;;;;;;;;
 end:
   j beginning
 

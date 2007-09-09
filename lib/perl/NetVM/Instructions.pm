@@ -81,7 +81,6 @@ sub i_xori {
 # rt = $rs | $data
 sub i_ori {
     my ($class, $vm, $rs, $rt, $data) = @_;
-
     $vm->set_reg($rt, $vm->reg($rs) | _u($data));
 }
 
@@ -118,6 +117,26 @@ sub i_lb {
 sub i_addiu {
     my ($class, $vm, $rs, $rt, $data) = @_;
     $vm->set_reg($rt, $vm->reg_u($rs) + _u($data));
+}
+
+# if $rs == $rt pc = data; else advance_pc (6);
+sub i_beq {
+    my ($class, $vm, $rs, $rt, $data) = @_;
+    if ($vm->reg($rs) == $vm->reg($rt)) {
+        $vm->pc($data);
+        return 1;
+    }
+    return 0;
+}
+
+# if $rs != $rt pc = $data; else advance_pc (6);
+sub i_bne {
+    my ($class, $vm, $rs, $rt, $data) = @_;
+    if ($vm->reg($rs) != $vm->reg($rt)) {
+        $vm->pc($data);
+        return 1;
+    }
+    return 0;
 }
 
 1;
