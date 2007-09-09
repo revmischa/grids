@@ -49,6 +49,10 @@ t3:
   bgez $t0, end
   nop
 
+t4:
+  bgez $t2, end
+  nop
+
 ;;;;;;;;;;;;;;;;
 end:
   j beginning

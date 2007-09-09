@@ -109,6 +109,9 @@ $vm->step; # bgez
 is(op_r(), 'sll', 'bgez');
 $vm->step; # nop
 
+is(op(), 'bgez', 'bgez');
+$vm->step; # bgez
+
 $vm->step; # j beginning
 is($vm->pc, 0, 'j');
 
