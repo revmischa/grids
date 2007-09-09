@@ -144,10 +144,17 @@ is(op(), 'addi', 'jump ok');
     $vm->step; # addi $t0, $t0, 1
     is($vm->reg('t0'), 0, 'addi');
     $vm->step; # blez $t0, br_done
-    is(op(), 'j', 'blez');
+    is(op(), 'jal', 'blez');
 
     #### end of branch tests
 }
+
+$vm->step; # jal testjal
+is(op_r(), 'jr', 'jal');
+$vm->step; # jr $ra
+is(op_r(), 'sll', 'jr $ra');
+
+$vm->step; # nop
 
 $vm->step; # j end
 $vm->step; # j beginning

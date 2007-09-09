@@ -36,7 +36,8 @@ our %OPCODES = (
                 lb      => 0b100000,
 
                 j       => 0b000010,
-                jreli   => 0b000011,
+                jal     => 0b000011,
+                jreli   => 0b100001,
 
                 # branch opcodes
                 beq     => 0b000100,
@@ -61,9 +62,11 @@ our %OPCODES = (
                 );
 
 # branch opcodes
-our @BRANCH_OPCODES = qw /
+our @BRANCH_OPS = qw /
     beq bne jr bgez bgezal bgtz bgtzal bltz bltzal blez blezal
 /;
+
+our @J_TYPE_OPS = qw /j jal jreli/;
 
 # definition of R-type functions
 our %R_TYPE_FUNCS = (
@@ -96,8 +99,8 @@ our %SPECIAL_FUNCS = (
 if ($ASSEMBLE_BRANCH_FUNCS_SPECIAL) {
     # branches get assembled specially
     # (add 'assemble_branch') for all branch opcodes in %SPECIAL_FUNCS
-    @SPECIAL_FUNCS{map {$OPCODES{$_}} grep { $OPCODES{$_} }@BRANCH_OPCODES} =
-        map { 'assemble_branch' } @BRANCH_OPCODES;
+    @SPECIAL_FUNCS{map {$OPCODES{$_}} grep { $OPCODES{$_} }@BRANCH_OPS} =
+        map { 'assemble_branch' } @BRANCH_OPS;
 }
 
 # opcode reverse lookup table
@@ -149,14 +152,14 @@ sub r_function_mnemonic {
 sub is_branch_opcode {
     my ($self, $opcode) = @_;
     my $mnemonic = NetCode->opcode_mnemonic($opcode);
-    return grep { $_ eq $mnemonic } @NetCode::BRANCH_OPCODES;
+    return grep { $_ eq $mnemonic } @NetCode::BRANCH_OPS;
 }
 
 # returns if this R-type function is a branch instruction
 sub is_branch_r_func {
     my ($self, $rfunc) = @_;
     my $mnemonic = NetCode->r_function_mnemonic($rfunc);
-    return grep { $_ eq $mnemonic } @NetCode::BRANCH_OPCODES;
+    return grep { $_ eq $mnemonic } @NetCode::BRANCH_OPS;
 }
 
 # takes a string of NetAsm and returns assembled bytecode
@@ -659,16 +662,18 @@ sub disassemble {
 sub opcode_type {
     my ($class, $opcode) = @_;
 
+    my $mnemonic = $class->opcode_mnemonic($opcode);
+
     if (! $opcode) {
         # register
         return 'R';
-    } elsif ($OPCODES_REV{$opcode} eq 'syscall') {
+    } elsif ($mnemonic eq 'syscall') {
         # syscall
         return 'S';
-    } elsif ((($opcode >> 1) ^ 0b00001) == 0) {
+    } elsif (grep { $_ eq $mnemonic } @J_TYPE_OPS ) {
         # jump
         return 'J';
-    } elsif ((($opcode >> 2) ^ 0b0100) == 0) {
+    } elsif ((($opcode >> 2) ^ 0b000100) == 0) {
         # co-processor (e.g. floating point. not yet implemented)
         return 'C';
     } else {

@@ -74,11 +74,18 @@ t8:
  nop
 
 br_done:
+;;;;;;;;;
+
+  jal testjal
+  nop
   j end
 
 ;;;;;;;;;;;;;;;;
 end:
   j beginning
+
+testjal:
+  jr $ra
 
  teststring:
   .dz "cody sux!"

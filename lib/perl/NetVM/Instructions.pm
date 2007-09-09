@@ -25,6 +25,14 @@ sub j_j {
     $vm->{pc} = _u($address);
 }
 
+# long jump and link, takes 32-bit address
+sub j_jal {
+    my ($class, $vm, $address) = @_;
+
+    $vm->link;
+    $vm->{pc} = _u($address);
+}
+
 # offset pc by $data
 sub j_jreli {
     my ($class, $vm, $addr) = @_;
