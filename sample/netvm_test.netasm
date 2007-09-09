@@ -36,15 +36,13 @@ t1:
   beq $t1, $t2, good1
   jreli 2
 
-good1:
-  j t2
+good1: j t2
 
 t2:
   li $t2, 0xf3d7
   bne $t1, $t2, good2
   jreli 2
-good2:
-  j end
+good2: j end
 
 ;;;;;;;;;;;;;;;;
 end:

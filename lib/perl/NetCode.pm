@@ -154,6 +154,12 @@ sub assemble {
             $line = $alias;
         }
 
+        # if this line begins with a label, break it into two lines
+        if (my ($label, $other) = $line =~ /^\s*(\w+\s*:)\s*(.+)$/) {
+            push @pass1, ($label, $other);
+            next;
+        }
+
         push @pass1, $line;
     }
 
