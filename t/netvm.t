@@ -96,6 +96,7 @@ $vm->step; # j t2
 is(op(), 'addi', 'beq');
 
 $vm->step; # li
+is(op(), 'bne', 'beq');
 $vm->step; # bne $t1, $t2, good2
 is(op(), 'j', 'bne');
 

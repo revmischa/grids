@@ -68,9 +68,10 @@ sub regs {
 
     $ret .= sprintf "PC: 0x%08X\n", $vm->pc;
 
-    foreach my $reg (@$regs) {
+    my $regcount = @NetVM::REGS - 1;
+    foreach my $reg (0 .. $regcount) {
         my $regname = $vm->reg_name($i);
-        $ret .= sprintf "[%02d %4s]: 0x%08X   ", $i++, $regname, $reg;
+        $ret .= sprintf "[%02d %4s]: 0x%08X   ", $i++, $regname, $vm->reg($reg);
         $ret .= "\n" if $i % 2 == 0;
     }
 
