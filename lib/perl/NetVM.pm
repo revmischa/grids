@@ -42,7 +42,7 @@ blah blah
 
 =item new
 
-Returns a new C<NetVM>, ready to load and execute C<NetCode> bytecode.
+Returns a new L<NetVM>, ready to load and execute L<NetCode> bytecode.
 
 =cut
 
@@ -69,7 +69,7 @@ sub new {
 
 =item init
 
-=Resets the VM.
+Resets the VM.
 
 =cut
 
@@ -88,15 +88,27 @@ sub init {
     $self->{pc} = 0;
 }
 
+=item set_node
+
+Sets the Node that the VM will pass to Syscalls
+
+=cut
+
 sub set_node {
     my ($self, $node) = @_;
     $self->{node} = $node;
     weaken $self->{node};
 }
 
+=item node
+
+Returns the Node this VM uses
+
+=cut
+
 sub node { $_->{node} }
 
-=item regs()
+=item regs
 
 Returns NetReg object containing registers
 
@@ -117,6 +129,12 @@ sub reg {
     return $self->regs->get($reg_idx);
 }
 
+=item reg_u($reg)
+
+Like C<reg($reg)> but returns unsigned value
+
+=cut
+
 sub reg_u {
     my ($self, $reg) = @_;
     my $reg_idx = $self->_reg($reg);
@@ -125,7 +143,7 @@ sub reg_u {
 
 =item set_reg($reg, $val)
 
-Set contents of register C<$reg> to the 32-bit integer value in $val
+Set contents of register C<$reg> to the 32-bit integer value in C<$val>
 
 =cut
 
@@ -154,7 +172,12 @@ sub _reg {
     return $reg_num;
 }
 
-# read part of memory
+=item get_mem($offset, $len)
+
+Returns string of bytes of length C<$len> at offset C<$offset>
+
+=cut
+
 sub get_mem {
     my ($self, $offset, $len) = @_;
     $len ||= 1; # default to one byte
@@ -167,6 +190,12 @@ sub get_mem {
     return join('', @bytes); # is this right?
 }
 
+=item mem_size
+
+Returns size of memory
+
+=cut
+
 sub mem_size {
     my ($self) = @_;
 
@@ -175,7 +204,7 @@ sub mem_size {
 
 =item reg_name($reg)
 
-Returns symbolic name of register $reg
+Returns symbolic name of register C<$reg>
 
 =cut
 
@@ -185,8 +214,7 @@ sub reg_name {
     return $REGS[$reg];
 }
 
-
-=item pc()
+=item pc
 
 Returns current program counter
 
@@ -207,7 +235,7 @@ sub load {
     return 1;
 }
 
-=item link()
+=item link
 
 Sets $ra to PC + 6
 
@@ -218,7 +246,7 @@ sub link {
     $self->set_reg('ra', $self->pc + 6);
 }
 
-=item step()
+=item step
 
 Steps the VM one instruction.
 Returns true if success, undef if no instruction executed.
@@ -234,7 +262,12 @@ sub step {
     return $self->execute($inst);
 }
 
-# returns instruction at PC
+=item current_instruction
+
+Returns instruction at PC
+
+=cut
+
 sub current_instruction {
     my $self = shift;
 
@@ -244,20 +277,36 @@ sub current_instruction {
     return $inst;
 }
 
-# returns opcode of current instruction
+=item current_instruction_opcode
+
+Returns opcode of current instruction
+
+=cut
+
 sub current_instruction_opcode {
     my $self = shift;
     my $inst = $self->current_instruction;
     return NetCode->instruction_opcode($inst);
 }
 
-# returns opcode of current instruction
+=item current_instruction_opcode
+
+Returns R-type function of current instruction
+
+=cut
+
 sub current_instruction_r_func {
     my $self = shift;
     my $inst = $self->current_instruction;
     my ($opcode, %fields) = NetCode->disassemble($inst);
     return $fields{func};
 }
+
+=item execute($inst)
+
+Executes instruction $inst
+
+=cut
 
 sub execute {
     my ($self, $inst) = @_;
@@ -291,7 +340,12 @@ sub execute {
     return 1;
 }
 
-# do a syscall
+=item syscall($syscall_name)
+
+Does a syscall, giving the syscall access to C<$vm-E<gt>node>
+
+=cut
+
 sub syscall {
     my ($self, $syscall) = @_;
 
@@ -343,7 +397,7 @@ sub _execute_branch {
     }
 }
 
-=item execute_i(\%fields)
+=item execute_i($opcode, \%fields)
 
 Executes an I-type instruction
 
@@ -370,7 +424,7 @@ sub execute_i {
     $self->{pc} += 6;
 }
 
-=item execute_j(\%fields)
+=item execute_j($opcode, \%fields)
 
 Executes an J-type instruction
 
@@ -414,7 +468,7 @@ sub execute_r {
 
 =item dbg($msg)
 
-Prints debug message $msg
+Prints debug message C<$msg>
 
 =cut
 
