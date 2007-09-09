@@ -2,6 +2,7 @@ package NetProtocol::Event;
 use strict;
 use warnings;
 
+use Carp;
 use base qw/Class::Accessor::Fast/;
 __PACKAGE__->mk_accessors(qw/event_name args time expires/);
 
@@ -12,6 +13,9 @@ sub new {
     my $args = delete $opts{params} || {};
     my $expires = delete $opts{expires};
     my $evt_name = delete $opts{event_name} or return undef;
+
+    croak "Invalid args to Event->new: " . join ', ', keys %opts
+        if %opts;
 
     my $self = {
         expires => $expires,

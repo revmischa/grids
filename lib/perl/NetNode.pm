@@ -12,7 +12,7 @@ use Class::Autouse qw/
     /;
 
 use NetTransport;
-use Carp qw (croak);
+use Carp;
 
 use base qw/Class::Accessor::Fast/;
 __PACKAGE__->mk_accessors(qw/conf transports proto sessions debug event_queue/);
@@ -58,9 +58,35 @@ sub add_transport {
 }
 
 sub connection_established {
-    my ($self, $trans, $con) = @_;
+    my ($self, $trans, $conn) = @_;
 
-    $self->dbg("server transport $trans received connection: $con\n");
+    $self->dbg("server transport $trans received connection: $conn\n");
+
+    # fire 'Connected' event
+    $self->run_hooks('Connected', _trans => $trans, _conn => $conn);
+}
+
+# called when a connection to another node is established to set up a
+# protocol communication layer with the other node
+sub initiate_node_protocol {
+    my ($self, %info) = @_;
+
+    my $transport = $info{_trans} or die "Got invalid Connected event";
+    my $conn = $info{_conn} or die "Got invalid Connected event";
+
+    my $proto = new NetProtocol;
+    my $init_string = $proto->initiation_string;
+
+    # save protocol handler
+    $self->proto->{$conn} = $proto;
+
+    $transport->write($init_string, $conn);
+}
+
+sub register_node_protocol_handler {
+    my $self = shift;
+
+    $self->register_hook('^Connected', \&initiate_node_protocol);
 }
 
 sub data_received {
@@ -68,6 +94,7 @@ sub data_received {
 
     $self->dbg("received data [$data]");
 
+    # todo: make sure this is destroyed when connection is closed
     my $protocol_handler = $self->proto->{$connection};
 
     if ($protocol_handler) {

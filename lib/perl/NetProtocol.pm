@@ -17,7 +17,7 @@ Class::Autouse->autouse_recursive('NetProtocol::Encapsulation');
 sub new {
     my ($class, %opts) = @_;
 
-    my $enc = delete $opts{encapsulation};
+    my $enc = delete $opts{encapsulation} || 'JSON';
     my $self = bless {}, $class;
 
     if ($enc) {
@@ -110,7 +110,7 @@ sub parse_request {
 
         if ($status eq 'OK') {
             $self->set_encapsulation_method($info) or die "Invalid encapsulation method \"$info\" specified by server";
-            return $self->event('Connected');
+            return $self->event('ProtocolEstablished');
         } elsif ($status eq 'ERROR') {
             if ($info eq 'Unauthorized') {
                 return $self->error_event('Protocol.Error.Unauthorized', {message => $extrainfo});

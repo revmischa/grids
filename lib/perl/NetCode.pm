@@ -40,6 +40,8 @@ our %OPCODES = (
                 bne     => 0b000101,
                 bgez    => 0b000001,
                 bgezal  => 0b000111,
+                bgtz    => 0b010101,
+                bgtzal  => 0b010111,
 
                 addi    => 0b001000,
                 addiu   => 0b001001,
@@ -87,7 +89,8 @@ our @OFFSET_OPCODES = qw (
                           );
 
 # branch opcodes
-our @BRANCH_OPCODES = qw (bne beq bgez bgezal jr);
+our @BRANCH_OPCODES = qw (bne beq bgez bgezal jr
+                          bgtz bgtzal);
 
 our %ALIASES = (
                 'nop' => 'sll 0, 0, 0',

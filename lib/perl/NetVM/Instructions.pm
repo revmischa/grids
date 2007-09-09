@@ -126,6 +126,10 @@ sub i_addiu {
     $vm->set_reg($rt, $vm->reg_u($rs) + _u($data));
 }
 
+sub branch {
+    my ($class, $vm, $rs, $rt, $data) = @_;
+
+
 # if $rs == $rt pc = data; else advance_pc (6);
 sub i_beq {
     my ($class, $vm, $rs, $rt, $data) = @_;
@@ -146,7 +150,28 @@ sub i_bne {
     return 0;
 }
 
-# if $rs > 0 pc = $data; else advance_pc (6);
+# if $rs >= 0 pc = $data; else advance_pc (6);
+sub i_bgez {
+    my ($class, $vm, $rs, $rt, $data) = @_;
+    if ($vm->reg($rs) >= 0) {
+        $vm->pc($data);
+        return 1;
+    }
+    return 0;
+}
+
+# if $rs >= 0 { link; pc = $data; } else advance_pc (6);
+sub i_bgezal {
+    my ($class, $vm, $rs, $rt, $data) = @_;
+    if ($vm->reg($rs) >= 0) {
+        $vm->link;
+        $vm->pc($data);
+        return 1;
+    }
+    return 0;
+}
+
+# if $rs >= 0 pc = $data; else advance_pc (6);
 sub i_bgez {
     my ($class, $vm, $rs, $rt, $data) = @_;
     if ($vm->reg($rs) >= 0) {
@@ -157,9 +182,9 @@ sub i_bgez {
 }
 
 # if $rs > 0 { link; pc = $data; } else advance_pc (6);
-sub i_bgezal {
+sub i_bgtzal {
     my ($class, $vm, $rs, $rt, $data) = @_;
-    if ($vm->reg($rs) >= 0) {
+    if ($vm->reg($rs) > 0) {
         $vm->link;
         $vm->pc($data);
         return 1;
