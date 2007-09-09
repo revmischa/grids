@@ -5,6 +5,8 @@ use strict;
 use bytes;
 use Data::Dumper;
 
+our $ASSEMBLE_BRANCH_FUNCS_SPECIAL;
+
 our (@REGS, %REGS); # mappings of register->symbolic name and vice-versa
 
 # define registers
@@ -82,9 +84,13 @@ our %SPECIAL_FUNCS = (
                       0b111101 => 'assemble_l',
                       0b111111 => 'assemble_syscall',
                       );
-# branches get assembled specially as well
-@SPECIAL_FUNCS{map {$OPCODES{$_}} grep { $OPCODES{$_} }@BRANCH_OPCODES} =
-    map { 'assemble_branch' } @BRANCH_OPCODES;
+
+if ($ASSEMBLE_BRANCH_FUNCS_SPECIAL) {
+    # branches get assembled specially
+    # (add 'assemble_branch') for all branch opcodes in %SPECIAL_FUNCS
+    @SPECIAL_FUNCS{map {$OPCODES{$_}} grep { $OPCODES{$_} }@BRANCH_OPCODES} =
+        map { 'assemble_branch' } @BRANCH_OPCODES;
+}
 
 # opcode reverse lookup table
 our %OPCODES_REV;
@@ -384,16 +390,23 @@ sub assemble_instruction {
 sub assemble_branch {
     my ($class, $op, @args) = @_;
 
-    # some branch instructions have the same opcode but a different
-    # function coded into $rt
-    my %func_map = (
-                    bgez   => 0b00001,
-                    bgezal => 0b10001,
-                    bgtz   => 0b00000,
-                    blez   => 0b00000,
-                    bltz   => 0b00000,
-                    bltzal => 0b10000,
-                    ); # map of opcode => $rt func code
+    # in traditional MIPS implementations a function specifier is
+    # built into $rt for certain branch instructions. this is a
+    # massive pain to deal with so we are just going to assemble
+    # instructions like normal for now, but this map will be here in
+    # case we ever want to do this in the future
+    {
+        # some branch instructions have the same opcode but a different
+        # function coded into $rt
+        my %func_map = (
+                        bgez   => 0b00001,
+                        bgezal => 0b10001,
+                        bgtz   => 0b00000,
+                        blez   => 0b00000,
+                        bltz   => 0b00000,
+                        bltzal => 0b10000,
+                        ); # map of opcode => $rt func code
+    }
 
     return $class->assemble_i($op, @args);
 }    
