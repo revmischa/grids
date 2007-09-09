@@ -38,12 +38,20 @@ our %OPCODES = (
                 j       => 0b000010,
                 jreli   => 0b000011,
 
+                # branch opcodes
                 beq     => 0b000100,
                 bne     => 0b000101,
+
                 bgez    => 0b000001,
                 bgezal  => 0b000111,
                 bgtz    => 0b010101,
                 bgtzal  => 0b010111,
+
+                blez    => 0b011011,
+                blezal  => 0b011001,
+                bltz    => 0b011010,
+                bltzal  => 0b010001,
+                ####
 
                 addi    => 0b001000,
                 addiu   => 0b001001,
@@ -54,7 +62,7 @@ our %OPCODES = (
 
 # branch opcodes
 our @BRANCH_OPCODES = qw /
-    beq bne bgez bgezal jr bgtz bgtzal
+    beq bne jr bgez bgezal bgtz bgtzal bltz bltzal blez blezal
 /;
 
 # definition of R-type functions

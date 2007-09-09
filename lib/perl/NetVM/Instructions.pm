@@ -139,10 +139,22 @@ my %branch_funcs = (
                         $f->{rs} >= 0 ? $f->{data} : undef;
                     },
 
-                    # if $rs >= 0 { link; pc = $data; } else advance_pc (6);
-                    bgezal => sub {
-                        my $f = shift;                        
-                        $f->{rs} >= 0 ? $f->{data} : undef;
+                    # if $rs > 0 pc = data; else advance_pc (6);
+                    bgtz =>  sub {
+                        my $f = shift;
+                        $f->{rs} > 0 ? $f->{data} : undef;
+                    },
+
+                    # if $rs <= 0 pc = $data; else advance_pc (6);
+                    blez => sub {
+                        my $f = shift;
+                        $f->{rs} <= 0 ? $f->{data} : undef;
+                    },
+
+                    # if $rs < 0 pc = data; else advance_pc (6);
+                    bltz =>  sub {
+                        my $f = shift;
+                        $f->{rs} < 0 ? $f->{data} : undef;
                     },
 
                     # pc = $rs
@@ -156,6 +168,9 @@ my %branch_funcs = (
 sub branch {
     my ($class, $vm, $func, $fields) = @_;
 
+    # is this a "and link" branch?
+    my $is_link = $func =~ s/al$//i;
+
     my $brfunc = $branch_funcs{$func} or die "Unknown branch function $func";
 
     # lookup register values
@@ -165,8 +180,8 @@ sub branch {
     if (defined $res) {
         # branching
 
-        # if this is an "and link" branch, link
-        $vm->link if $func =~ /al$/i;
+        # link ($ra = PC + 6) if we are linking
+        $vm->link if $is_link;
 
         return $res;
     }

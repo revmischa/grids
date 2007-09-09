@@ -361,6 +361,12 @@ sub syscall {
     $method_name->($self, $self->node);
 }
 
+=item execute_branch($opcode, \%fields)
+
+Executes a branch instruction
+
+=cut
+
 sub execute_branch {
     my ($self, $opcode, $fields) = @_;
 
@@ -369,6 +375,12 @@ sub execute_branch {
 
     $self->_execute_branch($func, $fields);
 }
+
+=item execute_branch_r(\%fields)
+
+Executes an R-type branch instruction (e.g. jr)
+
+=cut
 
 sub execute_branch_r {
     my ($self, $fields) = @_;
