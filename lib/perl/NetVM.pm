@@ -2,9 +2,10 @@ package NetVM;
 use strict;
 use bytes;
 
-use Carp qw (croak);
+use Carp;
 use Class::Autouse;
 use Data::Dumper;
+use Scalar::Util qw / weaken /;
 
 use NetCode;
 use NetVM::Instructions;
@@ -18,9 +19,13 @@ Class::Autouse->autouse_recursive('NetVM::SysCall');
 
 our $DEBUG = 1;
 
-=head1 NAME NetVM - A VM instance in an object
+=head1 NAME
+
+NetVM
 
 =head1 SYNOPSIS
+
+A NetVM instance in an object
 
 =head1 DESCRIPTION
 
@@ -31,6 +36,9 @@ blah blah
     our @REGS = @NetCode::REGS;
     our %REGS = %NetCode::REGS;
 
+=head1 METHODS
+
+=over 4
 
 =item new
 
@@ -59,7 +67,12 @@ sub new {
     return $self;
 }
 
-# initializes the vm
+=item init
+
+=Resets the VM.
+
+=cut
+
 sub init {
     my $self =  shift;
 
@@ -74,6 +87,14 @@ sub init {
     # reset PC
     $self->{pc} = 0;
 }
+
+sub set_node {
+    my ($self, $node) = @_;
+    $self->{node} = $node;
+    weaken $self->{node};
+}
+
+sub node { $_->{node} }
 
 =item regs()
 
@@ -247,16 +268,16 @@ sub execute {
     # is this a branch opcode?
     if (NetCode->is_branch_opcode($opcode)) {
         # handle branching
-        $self->execute_branch($opcode, %fields);
+        $self->execute_branch($opcode, \%fields);
     } elsif ($type eq 'R' && NetCode->is_branch_r_func($fields{func})) {
-        $self->execute_branch_r(%fields);
+        $self->execute_branch_r(\%fields);
     } else {
         if ($type eq 'R') {
-            $self->execute_r(%fields);
+            $self->execute_r(\%fields);
         } elsif ($type eq 'I') {
-            $self->execute_i($opcode, %fields);
+            $self->execute_i($opcode, \%fields);
         } elsif ($type eq 'J') {
-            $self->execute_j($opcode, %fields);
+            $self->execute_j($opcode, \%fields);
         } elsif ($type eq 'S') {
             $self->syscall($fields{syscall});
             $self->{pc} += 6;
@@ -283,27 +304,27 @@ sub syscall {
 
     no strict 'refs';
     my $method_name = "NetVM::SysCall::$sysc_name";
-    $method_name->($self);
+    $method_name->($self, $self->node);
 }
 
 sub execute_branch {
-    my ($self, $opcode, %fields) = @_;
+    my ($self, $opcode, $fields) = @_;
 
     my $func = NetCode->opcode_mnemonic($opcode)
         or die "Unknown branch instruction $opcode";
 
-    $self->_execute_branch($func, \%fields);
+    $self->_execute_branch($func, $fields);
 }
 
 sub execute_branch_r {
-    my ($self, %fields) = @_;
+    my ($self, $fields) = @_;
 
-    my $rfunc = $fields{func};
+    my $rfunc = $fields->{func};
 
     my $func = NetCode->r_function_mnemonic($rfunc)
-        or die "Unknown r-type branch function $fields{func}";
+        or die "Unknown r-type branch function $fields->{func}";
 
-    $self->_execute_branch($func, \%fields);
+    $self->_execute_branch($func, $fields);
 }
 
 sub _execute_branch {
@@ -322,8 +343,14 @@ sub _execute_branch {
     }
 }
 
+=item execute_i(\%fields)
+
+Executes an I-type instruction
+
+=cut
+
 sub execute_i {
-    my ($self, $opcode, %fields) = @_;
+    my ($self, $opcode, $fields) = @_;
 
     my $func = NetCode->opcode_mnemonic($opcode)
         or die "Unknown instruction $opcode";
@@ -335,7 +362,7 @@ sub execute_i {
         unless $handler_package->can($i_sub);
 
     my @args;
-    push @args, $fields{$_} for qw(rs rt data);
+    push @args, $fields->{$_} for qw(rs rt data);
 
     "$handler_package"->$i_sub($self, @args);
 
@@ -343,10 +370,16 @@ sub execute_i {
     $self->{pc} += 6;
 }
 
-sub execute_j {
-    my ($self, $opcode, %fields) = @_;
+=item execute_j(\%fields)
 
-    my $addr = $fields{data};
+Executes an J-type instruction
+
+=cut
+
+sub execute_j {
+    my ($self, $opcode, $fields) = @_;
+
+    my $addr = $fields->{data};
 
     my $func = 'j_' . NetCode->opcode_mnemonic($opcode)
         or die "Unknown instruction $opcode";
@@ -355,16 +388,22 @@ sub execute_j {
     "$handler_package"->$func($self, $addr);
 }
 
-sub execute_r {
-    my ($self, %fields) = @_;
+=item execute_r(\%fields)
 
-    my $rfunc = $fields{func};
+Executes an R-type instruction
+
+=cut
+
+sub execute_r {
+    my ($self, $fields) = @_;
+
+    my $rfunc = $fields->{func};
 
     my $func = 'r_' . NetCode->r_function_mnemonic($rfunc)
-        or die "Unknown r-type function $fields{func}";
+        or die "Unknown r-type function $fields->{func}";
 
     my @args;
-    push @args, $fields{$_} for qw(rs rt rd sa);
+    push @args, $fields->{$_} for qw(rs rt rd sa);
 
     my $handler_package = __PACKAGE__ . "::Instructions";
     "$handler_package"->$func($self, @args);
@@ -373,11 +412,21 @@ sub execute_r {
     $self->{pc} += 6;
 }
 
+=item dbg($msg)
+
+Prints debug message $msg
+
+=cut
+
 sub dbg {
     my ($msg) = @_;
 
     return unless $DEBUG;
     print $msg . "\n";
 }
+
+=back
+
+=cut
 
 1;
