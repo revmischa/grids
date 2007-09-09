@@ -100,8 +100,14 @@ is(op(), 'bne', 'beq');
 $vm->step; # bne $t1, $t2, good2
 is(op(), 'j', 'bne');
 
-$vm->step; # j end
-is(op(), 'j', 'bne');
+$vm->step; # j
+
+# t3
+is(op(), 'addi', 'bne');
+$vm->step; # li
+$vm->step; # bgez
+is(op_r(), 'sll', 'bgez');
+$vm->step; # nop
 
 $vm->step; # j beginning
 is($vm->pc, 0, 'j');

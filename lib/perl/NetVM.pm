@@ -186,6 +186,16 @@ sub load {
     return 1;
 }
 
+=item link()
+
+Sets $ra to PC + 6
+
+=cut
+
+sub link {
+    my ($self) = @_;
+    $self->set_reg('ra', $self->pc + 6);
+}
 
 =item step()
 

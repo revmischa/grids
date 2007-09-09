@@ -139,4 +139,26 @@ sub i_bne {
     return 0;
 }
 
+# if $rs > 0 pc = $data; else advance_pc (6);
+sub i_bgez {
+    my ($class, $vm, $rs, $rt, $data) = @_;
+    warn "rs: $rs data: $data";
+    if ($vm->reg($rs) > 0) {
+        $vm->pc($data);
+        return 1;
+    }
+    return 0;
+}
+
+# if $rs > 0 { link; pc = $data; } else advance_pc (6);
+sub i_bgezal {
+    my ($class, $vm, $rs, $rt, $data) = @_;
+    if ($vm->reg($rs) > 0) {
+        $vm->link;
+        $vm->pc($data);
+        return 1;
+    }
+    return 0;
+}
+
 1;

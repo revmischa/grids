@@ -42,7 +42,12 @@ t2:
   li $t2, 0xf3d7
   bne $t1, $t2, good2
   jreli 2
-good2: j end
+good2: j t3
+
+t3:
+  li $t0, 0x0
+  bgez $t0, end
+  nop
 
 ;;;;;;;;;;;;;;;;
 end:

@@ -38,6 +38,8 @@ our %OPCODES = (
 
                 beq     => 0b000100,
                 bne     => 0b000101,
+                bgez    => 0b000001,
+                bgezal  => 0b000111,
 
                 addi    => 0b001000,
                 addiu   => 0b001001,
@@ -85,10 +87,7 @@ our @OFFSET_OPCODES = qw (
                           );
 
 # branch opcodes
-our @BRANCH_OPCODES = qw (
-                          bne
-                          beq
-                          );
+our @BRANCH_OPCODES = qw (bne beq bgez bgezal);
 
 our %ALIASES = (
                 'nop' => 'sll 0, 0, 0',
@@ -394,11 +393,23 @@ sub assemble_i {
     my $class = shift;
     my $op = shift;
 
-    my @inst_order = qw (rs rt data);
-    my %fields = map { $_ => shift() } qw (rt rs data);
+    my @args = @_;
+
+    my @arg_order;
+
+    if (@args == 2) {
+        # if we got two args and it is an I-type instruction, the
+        # second arg is the immediate data
+        @arg_order = qw /rs data/;
+    } else {
+        @arg_order = qw /rt rs data/;
+    }
+
+    my %fields = map { $_ => shift(@args) } @arg_order;
 
     my $bit_string = sprintf("%06b", $op);
 
+    my @inst_order = qw (rs rt data);
     foreach my $field (@inst_order) {
         my $f = $fields{$field};
         my $s = $field eq 'data' ? 32 : 5;
