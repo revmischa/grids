@@ -230,6 +230,14 @@ sub current_instruction_opcode {
     return NetCode->instruction_opcode($inst);
 }
 
+# returns opcode of current instruction
+sub current_instruction_r_func {
+    my $self = shift;
+    my $inst = $self->current_instruction;
+    my ($opcode, %fields) = NetCode->disassemble($inst);
+    return $fields{func};
+}
+
 sub execute {
     my ($self, $inst) = @_;
 
@@ -284,9 +292,8 @@ sub execute_i {
     my $handler_package = __PACKAGE__ . "::Instructions";
     my $res = "$handler_package"->$func($self, @args);
 
-    my $mnemonic = NetCode->opcode_mnemonic($opcode);
-    if (grep { $_ eq $mnemonic } @NetCode::BRANCH_OPCODES) {
-        # this is a branch i-type instruction.
+    if (NetCode->is_branch_opcode($opcode)) {
+        # this is a branch I-type instruction.
         # don't touch PC if it returns true.
         return if $res;
     }
@@ -310,14 +317,22 @@ sub execute_j {
 sub execute_r {
     my ($self, %fields) = @_;
 
-    my $func = 'r_' . NetCode->r_function_mnemonic($fields{func})
+    my $rfunc = $fields{func};
+
+    my $func = 'r_' . NetCode->r_function_mnemonic($rfunc)
         or die "Unknown r-type function $fields{func}";
 
     my @args;
     push @args, $fields{$_} for qw(rs rt rd sa);
 
     my $handler_package = __PACKAGE__ . "::Instructions";
-    "$handler_package"->$func($self, @args);
+    my $res = "$handler_package"->$func($self, @args);
+
+    if (NetCode->is_branch_r_func($rfunc)) {
+        # this is a branch I-type instruction.
+        # don't touch PC if it returns true.
+        return if $res;
+    }
 
     # increment PC
     $self->{pc} += 6;

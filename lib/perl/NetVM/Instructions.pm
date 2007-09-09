@@ -90,6 +90,13 @@ sub r_and {
     $vm->set_reg($rd, $vm->regs->and($rs, $rt));
 }
 
+# pc = rs
+sub r_jr {
+    my ($class, $vm, $rs, $rt, $rd, $sa) = @_;
+    $vm->pc($vm->reg($rs));
+    return 1;
+}
+
 # rt = $rs & $data
 sub i_andi {
     my ($class, $vm, $rs, $rt, $data) = @_;

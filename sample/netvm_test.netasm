@@ -50,8 +50,15 @@ t3:
   nop
 
 t4:
-  bgez $t2, end
+  bgez $t2, t5
   nop
+
+t5:
+  bgezal $t2, tsub
+  j end
+
+tsub:
+  jr $ra
 
 ;;;;;;;;;;;;;;;;
 end:

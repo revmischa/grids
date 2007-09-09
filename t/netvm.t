@@ -112,6 +112,19 @@ $vm->step; # nop
 is(op(), 'bgez', 'bgez');
 $vm->step; # bgez
 
+my $curpc = $vm->pc;
+is(op(), 'bgezal', 'bgez');
+
+$vm->step; # bgezal
+is($vm->reg('ra'), $curpc + 6, 'bgezal set $ra');
+is($vm->pc, $curpc + 12, 'bgezal branch');
+
+is(op_r(), 'jr', 'bgezal');
+
+$vm->step; # jr $ra
+is(op(), 'j', 'jr $ra');
+$vm->step; # j end
+
 $vm->step; # j beginning
 is($vm->pc, 0, 'j');
 
@@ -122,7 +135,7 @@ sub _u { return int(sprintf("%u", $_[0])); }
 sub op { NetCode->opcode_mnemonic($vm->current_instruction_opcode); }
 
 # get opcode mnemonic for r-type
-sub op_r { NetCode->r_function_mnemonic($vm->current_instruction_opcode); }
+sub op_r { NetCode->r_function_mnemonic($vm->current_instruction_r_func); }
 
 # read in a file
 sub slurp {

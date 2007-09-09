@@ -87,7 +87,7 @@ our @OFFSET_OPCODES = qw (
                           );
 
 # branch opcodes
-our @BRANCH_OPCODES = qw (bne beq bgez bgezal);
+our @BRANCH_OPCODES = qw (bne beq bgez bgezal jr);
 
 our %ALIASES = (
                 'nop' => 'sll 0, 0, 0',
@@ -122,6 +122,20 @@ sub r_function_mnemonic {
     }
 
     return undef;
+}
+
+# returns if this opcode is a branch instruction
+sub is_branch_opcode {
+    my ($self, $opcode) = @_;
+    my $mnemonic = NetCode->opcode_mnemonic($opcode);
+    return grep { $_ eq $mnemonic } @NetCode::BRANCH_OPCODES;
+}
+
+# returns if this R-type function is a branch instruction
+sub is_branch_r_func {
+    my ($self, $rfunc) = @_;
+    my $mnemonic = NetCode->r_function_mnemonic($rfunc);
+    return grep { $_ eq $mnemonic } @NetCode::BRANCH_OPCODES;
 }
 
 # takes a string of NetAsm and returns assembled bytecode
