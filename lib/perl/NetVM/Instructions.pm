@@ -90,13 +90,6 @@ sub r_and {
     $vm->set_reg($rd, $vm->regs->and($rs, $rt));
 }
 
-# pc = rs
-sub r_jr {
-    my ($class, $vm, $rs, $rt, $rd, $sa) = @_;
-    $vm->pc($vm->reg($rs));
-    return 1;
-}
-
 # rt = $rs & $data
 sub i_andi {
     my ($class, $vm, $rs, $rt, $data) = @_;
@@ -126,70 +119,60 @@ sub i_addiu {
     $vm->set_reg($rt, $vm->reg_u($rs) + _u($data));
 }
 
+my %branch_funcs = (
+
+                    # if $rs == $rt pc = data; else advance_pc (6);
+                    beq => sub {
+                        my $f = shift;
+                        $f->{rs} == $f->{rt} ? $f->{data} : undef;
+                    },
+
+                    # if $rs != $rt pc = data; else advance_pc (6);
+                    bne => sub {
+                        my $f = shift;
+                        $f->{rs} != $f->{rt} ? $f->{data} : undef;
+                    },
+
+                    # if $rs >= 0 pc = $data; else advance_pc (6);
+                    bgez => sub {
+                        my $f = shift;
+                        $f->{rs} >= 0 ? $f->{data} : undef;
+                    },
+
+                    # if $rs >= 0 { link; pc = $data; } else advance_pc (6);
+                    bgezal => sub {
+                        my $f = shift;                        
+                        $f->{rs} >= 0 ? $f->{data} : undef;
+                    },
+
+                    # pc = $rs
+                    jr => sub {
+                        my $f = shift;
+                        $f->{rs};
+                    },
+
+                    );
+
 sub branch {
-    my ($class, $vm, $rs, $rt, $data) = @_;
+    my ($class, $vm, $func, $fields) = @_;
 
+    my $brfunc = $branch_funcs{$func} or die "Unknown branch function $func";
 
-# if $rs == $rt pc = data; else advance_pc (6);
-sub i_beq {
-    my ($class, $vm, $rs, $rt, $data) = @_;
-    if ($vm->reg($rs) == $vm->reg($rt)) {
-        $vm->pc($data);
-        return 1;
+    # lookup register values
+    $fields->{$_} = $fields->{$_} ? $vm->reg($fields->{$_}) : $fields->{$_} for qw/ rs rt rd /;
+    my $res = $brfunc->($fields);
+
+    if (defined $res) {
+        # branching
+
+        # if this is an "and link" branch, link
+        $vm->link if $func =~ /al$/i;
+
+        return $res;
     }
-    return 0;
-}
 
-# if $rs != $rt pc = $data; else advance_pc (6);
-sub i_bne {
-    my ($class, $vm, $rs, $rt, $data) = @_;
-    if ($vm->reg($rs) != $vm->reg($rt)) {
-        $vm->pc($data);
-        return 1;
-    }
-    return 0;
-}
-
-# if $rs >= 0 pc = $data; else advance_pc (6);
-sub i_bgez {
-    my ($class, $vm, $rs, $rt, $data) = @_;
-    if ($vm->reg($rs) >= 0) {
-        $vm->pc($data);
-        return 1;
-    }
-    return 0;
-}
-
-# if $rs >= 0 { link; pc = $data; } else advance_pc (6);
-sub i_bgezal {
-    my ($class, $vm, $rs, $rt, $data) = @_;
-    if ($vm->reg($rs) >= 0) {
-        $vm->link;
-        $vm->pc($data);
-        return 1;
-    }
-    return 0;
-}
-
-# if $rs >= 0 pc = $data; else advance_pc (6);
-sub i_bgez {
-    my ($class, $vm, $rs, $rt, $data) = @_;
-    if ($vm->reg($rs) >= 0) {
-        $vm->pc($data);
-        return 1;
-    }
-    return 0;
-}
-
-# if $rs > 0 { link; pc = $data; } else advance_pc (6);
-sub i_bgtzal {
-    my ($class, $vm, $rs, $rt, $data) = @_;
-    if ($vm->reg($rs) > 0) {
-        $vm->link;
-        $vm->pc($data);
-        return 1;
-    }
-    return 0;
+    # don't branch
+    return undef;
 }
 
 1;

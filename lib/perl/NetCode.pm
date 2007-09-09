@@ -50,6 +50,11 @@ our %OPCODES = (
                 andi    => 0b001100,
                 );
 
+# branch opcodes
+our @BRANCH_OPCODES = qw /
+    beq bne bgez bgezal jr bgtz bgtzal
+/;
+
 # definition of R-type functions
 our %R_TYPE_FUNCS = (
                      add   => ["rd, rs, rt", 0b100000],
@@ -77,6 +82,9 @@ our %SPECIAL_FUNCS = (
                       0b111101 => 'assemble_l',
                       0b111111 => 'assemble_syscall',
                       );
+# branches get assembled specially as well
+@SPECIAL_FUNCS{map {$OPCODES{$_}} grep { $OPCODES{$_} }@BRANCH_OPCODES} =
+    map { 'assemble_branch' } @BRANCH_OPCODES;
 
 # opcode reverse lookup table
 our %OPCODES_REV;
@@ -87,10 +95,6 @@ our @OFFSET_OPCODES = qw (
                           lw
                           lb
                           );
-
-# branch opcodes
-our @BRANCH_OPCODES = qw (bne beq bgez bgezal jr
-                          bgtz bgtzal);
 
 our %ALIASES = (
                 'nop' => 'sll 0, 0, 0',
@@ -360,7 +364,7 @@ sub assemble_instruction {
 
     if ($assemble_func) {
         # special opcode with handler
-        $res = __PACKAGE__->$assemble_func(@args);
+        $res = __PACKAGE__->$assemble_func($opcode, @args);
     } elsif ($type eq 'R') {
         $res = $class->assemble_r($op, @args);
     } elsif ($type eq 'J') {
@@ -376,9 +380,27 @@ sub assemble_instruction {
     return $res;
 }
 
+# assemble branch instructions
+sub assemble_branch {
+    my ($class, $op, @args) = @_;
+
+    # some branch instructions have the same opcode but a different
+    # function coded into $rt
+    my %func_map = (
+                    bgez   => 0b00001,
+                    bgezal => 0b10001,
+                    bgtz   => 0b00000,
+                    blez   => 0b00000,
+                    bltz   => 0b00000,
+                    bltzal => 0b10000,
+                    ); # map of opcode => $rt func code
+
+    return $class->assemble_i($op, @args);
+}    
+
 # assemble syscall
 sub assemble_syscall {
-    my ($class, $syscall_name) = @_;
+    my ($class, $op, $syscall_name) = @_;
 
     my $syscall_num = $SYSCALLS{$syscall_name};
     die "Unknown syscall: $syscall_name\n" unless defined $syscall_num;
@@ -395,13 +417,13 @@ sub assemble_syscall {
 
 # assemble li as addi, $rt, $zero, data
 sub assemble_li {
-    my ($class, $rt, $data) = @_;
+    my ($class, $op, $rt, $data) = @_;
     return $class->assemble_i($OPCODES{addi}, $rt, 0, $data);
 }    
 
 # assemble l as add, $rd, $rs, $zero
 sub assemble_l {
-    my ($class, $rd, $rs) = @_;
+    my ($class, $op, $rd, $rs) = @_;
     return $class->assemble_r('add', $rd, $rs, 0);
 }    
 

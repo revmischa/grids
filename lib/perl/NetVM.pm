@@ -244,20 +244,28 @@ sub execute {
     my ($opcode, %fields) = NetCode->disassemble($inst);
     my $type = NetCode->opcode_type($opcode);
 
-    if ($type eq 'R') {
-        $self->execute_r(%fields);
-    } elsif ($type eq 'I') {
-        $self->execute_i($opcode, %fields);
-    } elsif ($type eq 'J') {
-        $self->execute_j($opcode, %fields);
-    } elsif ($type eq 'S') {
-        $self->syscall($fields{syscall});
-        $self->{pc} += 6;
+    # is this a branch opcode?
+    if (NetCode->is_branch_opcode($opcode)) {
+        # handle branching
+        $self->execute_branch($opcode, %fields);
+    } elsif ($type eq 'R' && NetCode->is_branch_r_func($fields{func})) {
+        $self->execute_branch_r(%fields);
     } else {
-        die "Unknown instruction type '$type'\n";
-    }
+        if ($type eq 'R') {
+            $self->execute_r(%fields);
+        } elsif ($type eq 'I') {
+            $self->execute_i($opcode, %fields);
+        } elsif ($type eq 'J') {
+            $self->execute_j($opcode, %fields);
+        } elsif ($type eq 'S') {
+            $self->syscall($fields{syscall});
+            $self->{pc} += 6;
+        } else {
+            die "Unknown instruction type '$type'\n";
+        }
 
-    return 0 if $self->pc >= $self->mem_size;
+        return 0 if $self->pc >= $self->mem_size;
+    }
 
     return 1;
 }
@@ -278,25 +286,58 @@ sub syscall {
     $method_name->($self);
 }
 
+sub execute_branch {
+    my ($self, $opcode, %fields) = @_;
+
+    my $func = NetCode->opcode_mnemonic($opcode)
+        or die "Unknown branch instruction $opcode";
+
+    $self->_execute_branch($func, \%fields);
+}
+
+sub execute_branch_r {
+    my ($self, %fields) = @_;
+
+    my $rfunc = $fields{func};
+
+    my $func = NetCode->r_function_mnemonic($rfunc)
+        or die "Unknown r-type branch function $fields{func}";
+
+    $self->_execute_branch($func, \%fields);
+}
+
+sub _execute_branch {
+    my ($self, $func, $fields) = @_;
+
+    my $handler_package = __PACKAGE__ . "::Instructions";
+    my $res = "$handler_package"->branch($self, $func, $fields);
+
+    if (defined $res) {
+        # branch function returned a location to branch to
+        $self->pc($res);
+    } else {
+        # branch function returned undef, which means advance PC like
+        # normal (do not branch)
+        $self->{pc} += 6;
+    }
+}
+
 sub execute_i {
     my ($self, $opcode, %fields) = @_;
 
     my $func = NetCode->opcode_mnemonic($opcode)
         or die "Unknown instruction $opcode";
 
-    $func = "i_$func";
+    my $i_sub = "i_$func";
+    my $handler_package = __PACKAGE__ . "::Instructions";
+
+    die "Undefined I-type handler $i_sub"
+        unless $handler_package->can($i_sub);
 
     my @args;
     push @args, $fields{$_} for qw(rs rt data);
 
-    my $handler_package = __PACKAGE__ . "::Instructions";
-    my $res = "$handler_package"->$func($self, @args);
-
-    if (NetCode->is_branch_opcode($opcode)) {
-        # this is a branch I-type instruction.
-        # don't touch PC if it returns true.
-        return if $res;
-    }
+    "$handler_package"->$i_sub($self, @args);
 
     # increment PC
     $self->{pc} += 6;
@@ -326,13 +367,7 @@ sub execute_r {
     push @args, $fields{$_} for qw(rs rt rd sa);
 
     my $handler_package = __PACKAGE__ . "::Instructions";
-    my $res = "$handler_package"->$func($self, @args);
-
-    if (NetCode->is_branch_r_func($rfunc)) {
-        # this is a branch I-type instruction.
-        # don't touch PC if it returns true.
-        return if $res;
-    }
+    "$handler_package"->$func($self, @args);
 
     # increment PC
     $self->{pc} += 6;
