@@ -85,48 +85,74 @@ is(op(), 'j', 'nop');
 $vm->step; # j testbranching
 is(op(), 'addi', 'jump ok');
 
-$vm->step; # li
-is($vm->reg('t1'), 0xf3d8, 'li');
-$vm->step; # li
-is($vm->reg('t2'), 0xf3d8, 'li');
-$vm->step; # beq
-is(op(), 'j', 'beq');
+# test branching
+{
 
-$vm->step; # j t2
-is(op(), 'addi', 'beq');
+    $vm->step; # li
+    is($vm->reg('t1'), 0xf3d8, 'li');
+    $vm->step; # li
+    is($vm->reg('t2'), 0xf3d8, 'li');
+    $vm->step; # beq
+    is(op(), 'j', 'beq');
 
-$vm->step; # li
-is(op(), 'bne', 'beq');
-$vm->step; # bne $t1, $t2, good2
-is(op(), 'j', 'bne');
+    $vm->step; # j t2
+    is(op(), 'addi', 'beq');
 
-$vm->step; # j
+    $vm->step; # li
+    is(op(), 'bne', 'beq');
+    $vm->step; # bne $t1, $t2, good2
+    is(op(), 'j', 'bne');
 
-# t3
-is(op(), 'addi', 'bne');
-$vm->step; # li
-$vm->step; # bgez
-is(op_r(), 'sll', 'bgez');
-$vm->step; # nop
+    $vm->step; # j
 
-is(op(), 'bgez', 'bgez');
-$vm->step; # bgez
+    # t3
+    is(op(), 'addi', 'bne');
+    $vm->step; # li
+    $vm->step; # bgez
+    is(op_r(), 'sll', 'bgez');
+    $vm->step; # nop
 
-my $curpc = $vm->pc;
-is(op(), 'bgezal', 'bgez');
+    is(op(), 'bgez', 'bgez');
+    $vm->step; # bgez
 
-$vm->step; # bgezal
-is($vm->reg('ra'), $curpc + 6, 'bgezal set $ra');
-is($vm->pc, $curpc + 12, 'bgezal branch');
+    my $curpc = $vm->pc;
+    is(op(), 'bgezal', 'bgez');
 
-is(op_r(), 'jr', 'bgezal');
+    $vm->step; # bgezal
+    is($vm->reg('ra'), $curpc + 6, 'bgezal set $ra');
+    is($vm->pc, $curpc + 12, 'bgezal branch');
 
-$vm->step; # jr $ra
-is(op(), 'j', 'jr $ra');
+    is(op_r(), 'jr', 'bgezal');
+
+    $vm->step; # jr $ra
+    is(op(), 'j', 'jr $ra');
+
+    # t6
+    $vm->step; # j t6
+    $vm->step; # xori
+    is($vm->reg('t0'), 0, 'xor');
+    $vm->step; # bltz $t0, end
+    is(op(), 'addi', 'bltz');
+
+    # t7
+    $vm->step; # addi $t0, $t0, -1
+    is($vm->reg('t0'), -1, 'addi subtract');
+    $vm->step; # bltz $t0, t8
+    is(op(), 'addi', 'bltz');
+
+    # t8
+    $vm->step; # addi $t0, $t0, 1
+    is($vm->reg('t0'), 0, 'addi');
+    $vm->step; # blez $t0, br_done
+    is(op(), 'j', 'blez');
+
+    #### end of branch tests
+}
+
 $vm->step; # j end
-
 $vm->step; # j beginning
 is($vm->pc, 0, 'j');
+
 
 # convert to unsigned
 sub _u { return int(sprintf("%u", $_[0])); }

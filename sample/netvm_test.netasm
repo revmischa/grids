@@ -55,10 +55,26 @@ t4:
 
 t5:
   bgezal $t2, tsub
-  j end
-
+  j t6
 tsub:
   jr $ra
+
+t6:
+  xor $t0, $t0, $t0
+  bltz $t0, end
+
+t7:
+  addi $t0, $t0, -1
+  bltz $t0, t8
+  nop
+
+t8:
+ addi $t0, $t0, 1
+ blez $t0, br_done
+ nop
+
+br_done:
+  j end
 
 ;;;;;;;;;;;;;;;;
 end:

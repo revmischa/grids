@@ -280,7 +280,7 @@ sub assemble {
             # process argument substitutions
             my @args;
             foreach my $arg (@pre_args) {
-                next unless $arg;
+                next unless defined $arg;
 
                 if ($arg =~ /^\$(\w+)/) {
                     # register name
@@ -457,7 +457,7 @@ sub assemble_i {
 
     my @arg_order;
 
-    if (@args == 2) {
+    if (scalar @args == 2) {
         # if we got two args and it is an I-type instruction, the
         # second arg is the immediate data
         @arg_order = qw /rs data/;
