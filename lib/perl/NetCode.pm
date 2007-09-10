@@ -172,14 +172,25 @@ sub is_branch_r_func {
 sub assemble_program {
     my ($class, $asm) = @_;
 
-    my $segment_map = $class->assemble($asm)
+    my $segment_map = $class->assemble_segment_map($asm)
         or return undef;
 
     return NetCode::Program->new(segments => $segment_map);
 }
 
+# just returns raw bytes of .text section
+sub assemble_simple {
+    my ($class, $asm) = @_;
+
+    my $segmap = $class->assemble_segment_map($asm);
+    return undef unless $segmap;
+
+    # return data at base of text segment
+    return $segmap->{0};
+}
+
 # takes a string of NetAsm and returns segment map in the form { addr => bytecode }
-sub assemble {
+sub assemble_segment_map {
     my ($class, $asm) = @_;
 
     my $ret = '';
