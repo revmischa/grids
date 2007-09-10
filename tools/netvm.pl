@@ -46,17 +46,18 @@ $con->run;
 sub load {
     my ($self, $filename) = @_;
 
-    my $contents = slurp($filename) or return undef;
-    my $bytecode = pack("C*", unpack("C*", $contents));
+    return "File $file does not exist" unless -e $filename;
+    my $program = NetCode::Program->load_from_file($filename)
+        or return "Unable to load $filename";
 
-    return vmload($bytecode);
+    return vmload($program->segments);
 }
 
 sub asld {
     my ($self, $filename) = @_;
     my $code = slurp($filename);
-    my $bytecode = NetCode->assemble($code);
-    return vmload($bytecode);
+    my $program = NetCode->assemble($code);
+    return vmload($program->segments);
 }
 sub regs {
     my @args = @_;
@@ -173,7 +174,7 @@ sub slurp {
 }
 
 sub vmload {
-    my $bytecode = shift;
+    my $segment_map = shift;
 
     $vm->load($bytecode);
 

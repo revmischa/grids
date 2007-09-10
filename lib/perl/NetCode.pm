@@ -3,7 +3,7 @@
 package NetCode;
 use strict;
 use bytes;
-use Data::Dumper;
+use Class::Autouse qw/NetCode::Program/;
 
 our $ASSEMBLE_BRANCH_FUNCS_SPECIAL;
 
@@ -168,14 +168,29 @@ sub is_branch_r_func {
     return grep { $_ eq $mnemonic } @NetCode::BRANCH_OPS;
 }
 
-# takes a string of NetAsm and returns assembled bytecode
+# takes a string of NetAsm and returns a Program or undef if assembly was unsuccessful
+sub assemble_program {
+    my ($class, $asm) = @_;
+
+    my $segment_map = $class->assemble($asm)
+        or return undef;
+
+    return NetCode::Program->new(segments => $segment_map);
+}
+
+# takes a string of NetAsm and returns segment map in the form { addr => bytecode }
 sub assemble {
     my ($class, $asm) = @_;
 
     my $ret = '';
-    my $base_address = 0;
-    my $line_num = 1;
-    my %labels;
+
+    my $base = 'text'; # what segment are we assembling?
+    my %segments = ( text => '', data => '' ); # segment => data
+    my %segments_inst = ( text => [], data => [] ); # segment => instructions
+    my %addr = ( text => 0, data => 0 ),
+
+    my $line_num = 1; # current source line
+    my %labels; # segment -> label -> addresses
 
     my @lines = split("\n", $asm);
 
@@ -199,6 +214,7 @@ sub assemble {
 
         # if this line begins with a label, break it into two lines
         if (my ($label, $other) = $line =~ /^\s*(\w+\s*:)\s*(.+)$/) {
+            # fixme: does this break $line_num
             push @pass1, ($label, $other);
             next;
         }
@@ -206,7 +222,6 @@ sub assemble {
         push @pass1, $line;
     }
 
-    my $addr = 0;
     my @pass2;
     # second pass, calculate label offsets and parse instructions
     foreach my $line (@pass1) {
@@ -216,35 +231,44 @@ sub assemble {
             return 0;
         };
 
-        if (my ($type, $data) = $line =~ /^\s*\.d([bwlsz])\s\"?([^"]+)\"?\s*$/i) { # " ) { emacs is dumb
+        if (my ($type, $data) = $line =~ /^\s*\.d([bwlsz])\s\"?([^"]+)\"?\s*$/i) { # "])/) { #emacs is dumb
             # data (.db .dl .dw .ds .dz)
             $type = lc $type;
                                                                  
             if ($type eq 'b') {
                 # byte
-                push @pass2, pack("C", $class->parse_value($data, 1));
-                $addr += 1;
+                push @{$segments_inst{$base}}, pack("C", $class->parse_value($data, 1));
+                $addr{$base} += 1;
             } elsif ($type eq 'w') {
                 # word
-                push @pass2, pack("s", $class->parse_value($data, 2));
-                $addr += 2;
+                push @{$segments_inst{$base}}, pack("s", $class->parse_value($data, 2));
+                $addr{$base} += 2;
             } elsif ($type eq 'l') {
                 # long
-                push @pass2, pack("l", $class->parse_value($data, 4));
-                $addr += 4;
+                push @{$segments_inst{$base}}, pack("l", $class->parse_value($data, 4));
+                $addr{$base} += 4;
             } elsif ($type eq 's') {
                 # char string
-                push @pass2, $data;
-                $addr += length($data);
+                push @{$segments_inst{$base}}, $data;
+                $addr{$base} += length($data);
             } elsif ($type eq 'z') {
                 # null-terminated char string
-                push @pass2, $data . "\0";
-                $addr += length($data) + 1;
+                push @{$segments_inst{$base}}, $data . "\0";
+                $addr{$base} += length($data) + 1;
+            }
+        } elsif (my ($directive) = $line =~ /\s*\.(\w+)\s*$/) {
+            # assembler directive
+            if ($directive eq 'text') {
+                $base = 'text';
+            } elsif ($directive eq 'data') {
+                $base = 'data';
+            } else {
+                return $err->("Unknown directive '.$directive'");
             }
         } elsif (my ($label) = $line =~ /\s*([\w\.\d]+)\s*:/) {
             # label definition
-            return $err->("label $label redefined") if exists $labels{$label};
-            $labels{$label} = $addr;
+            return $err->("label $label redefined") if exists $labels{$base}{$label};
+            $labels{$base}{$label} = $addr{$base};
         } else {
             # must be an instruction. try to parse it
             my $operation; # op mnemonic
@@ -311,45 +335,73 @@ sub assemble {
                 }
             }
 
-            push @pass2, [$line_num, $operation, @args];
-            $addr += 6;
+            push @{$segments_inst{$base}}, [$line_num, $operation, @args];
+            $addr{$base} += 6;
         }
 
         $line_num++;
     }
 
-    # third pass, assemble instructions
-    foreach my $inst (@pass2) {
-        if (! ref $inst) {
-            # just immediate data, don't need to assemble
-            $ret .= $inst;
-            next;
-        }
+    # get base address of data segment and lengths of text and data segments
+    my $data_base_addr = my $text_length = $addr{text}; # data segment starts after text segment
+    my $data_length = $addr{data};
 
-        my ($line_num, $operation, @args) = @$inst;
-
-        my $err = sub {
-            my $msg = shift;
-            print STDERR "Error at line $line_num: $msg (\"$operation\")\n";
-            return 0;
-        };
-
-        # replace label references with calculated label offsets
-        my @new_args;
-        foreach my $arg (@args) {
-            if ($arg !~ /^[\d\-]+$/ && $operation ne 'syscall') {
-                my $addr = $labels{$arg};
-                return $err->("unknown reference to \"$arg\"") unless defined $addr;
-                push @new_args, $addr;
-            } else {
-                push @new_args, $arg;
-            }
-        }
-
-        $ret .= $class->assemble_instruction($line_num, $operation, @new_args);
+    # offset all addresses in data segment by the size of the text segment
+    my $data_labels = $labels{data};
+    foreach my $data_label (keys %$data_labels) {
+        $labels{data}{$data_label} += $data_base_addr;
     }
 
-    return $ret;
+    # set %addr addresses to new base addresses
+    $addr{data} = $data_base_addr;
+    $addr{text} = 0;
+
+    # third pass, assemble instructions
+    foreach my $segment (keys %segments_inst) {
+        foreach my $inst (@{$segments_inst{$segment}}) {
+            if (! ref $inst) {
+                # just immediate data, don't need to assemble
+                $segments{$segment} .= $inst;
+                next;
+            }
+
+            my ($line_num, $operation, @args) = @$inst;
+
+            my $err = sub {
+                my $msg = shift;
+                print STDERR "Error at line $line_num: $msg (\"$operation\")\n";
+                return 0;
+            };
+
+            # replace label references with calculated label offsets
+            my @new_args;
+            foreach my $arg (@args) {
+                if ($arg !~ /^[\d\-]+$/ && $operation ne 'syscall') {
+                    # search for label in each segment
+                    my $addr;
+                    foreach my $label_seg (keys %labels) {
+                        foreach my $label (keys %{$labels{$label_seg}}) {
+                            if ($label eq $arg) {
+                                $addr = $labels{$label_seg}->{$label};
+                                last;
+                            }
+                        }
+                        last if $addr;
+                    }
+                    return $err->("unknown reference to \"$arg\"") unless defined $addr;
+                    push @new_args, $addr;
+                } else {
+                    push @new_args, $arg;
+                }
+            }
+
+            $segments{$segment} ||= '';
+            $segments{$segment} .= $class->assemble_instruction($line_num, $operation, @new_args);
+        }
+    }
+
+    my %ret = (map { $addr{$_} => $segments{$_} } keys %addr);
+    return \%ret;
 }
 
 # converts values such as "0x3F" and "0b11001100" to ints

@@ -3,16 +3,20 @@ use Test::More qw(no_plan);
 use lib 'lib/perl';
 use NetCode;
 use NetVM;
+use Data::Dumper;
 
 # sample program
 my $prog = slurp('sample/netvm_test.netasm');
 
-my $bytecode = NetCode->assemble($prog);
-ok($bytecode, "assembled program");
+my $program = NetCode->assemble_program($prog)
+    or die "Unable to assemble program";
+
+my $segments = $program->segments;
+ok(%$segments, "assembled program");
 
 my $vm = new NetVM;
 is($vm->pc, 0, "initted vm");
-$vm->load($bytecode);
+$vm->load_program($program);
 
 $vm->step;
 is($vm->reg('t0'), 0x12345678, 'li');

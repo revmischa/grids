@@ -1,4 +1,6 @@
-  beginning:
+.text
+        
+beginning:
   li $t0, 0x12345678
   addi $t1, $t0, 1
   addi $t1, $t1, -4
@@ -95,6 +97,9 @@ end:
 testjal:
   jr $ra
 
+
+.data
+        
  teststring:
   .dz "cody sux!"
 

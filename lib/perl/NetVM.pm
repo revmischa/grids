@@ -220,19 +220,59 @@ Returns current program counter
 
 =cut
 
-=item load($bytecode)
+=item load($bytecode[, %opts])
 
-Loads C<$bytecode> at 0x00000000
+Loads C<$bytecode> at C<$opts{offset}> || 0x00000000 and resizes memory unless C<$opts{no_resize}>
 
 =cut
 
 sub load {
-    my ($self, $bytecode) = @_;
+    my ($self, $bytecode, %opts) = @_;
 
-    $self->mem->resize(length $bytecode);
-    $self->mem->set(0, $bytecode);
+    my $offset = delete $opts{offset} || 0;
+
+    croak "Invalid offset $offset" if $offset < 0;
+    return 0 unless $bytecode;
+
+    my $mem_max = length($bytecode) + $offset;
+    $self->mem->resize($mem_max) unless $opts{no_resize};
+    $self->mem->set($offset, $bytecode);
 
     return 1;
+}
+
+=item load_segments(\%segment_map)
+
+Loads C<\%segment_map> as (address => data)
+
+=cut
+
+sub load_segments {
+    my ($self, $segment_map) = @_;
+
+    # calculate total length of program
+    my $prog_len = 0;
+    foreach my $base_addr (keys %$segment_map) {
+        $prog_len = $base_addr if $base_addr > $prog_len;
+        $prog_len += length $segment_map->{$base_addr};
+    }
+
+    $self->mem->resize($prog_len);
+
+    foreach my $base_addr (keys %$segment_map) {
+        $self->load($segment_map->{$base_addr}, offset => $base_addr, no_resize => 1);
+    }
+}
+
+=item load_program($program)
+
+Loads Program C<$program>
+
+=cut
+
+sub load_program {
+    my ($self, $program) = @_;
+    return $self->load($program->bytes);
 }
 
 =item link

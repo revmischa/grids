@@ -89,6 +89,9 @@ sub set {
 sub get {
     my ($self, $offset, $len) = @_;
 
+    $offset ||= 0;
+    $len = $self->size unless defined $len;
+
     croak "Tried to get memory outside bounds"
         if $offset + $len > $self->size;
 

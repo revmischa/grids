@@ -37,8 +37,10 @@ die "$infile does not exist\n" unless -e $infile;
             $code .= $addr . NetCode->disassemble_string($inst) . "\n";
         }
     } else {
-        $code = NetCode->assemble($contents);
-        print "Success.\n";
+        my $prog = NetCode->assemble_program($contents)
+            or die "Unable to assemble program\n";
+
+        my $code = $prog->raw_bytes;
     }
 
     unless ($code) {
