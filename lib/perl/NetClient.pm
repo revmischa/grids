@@ -68,8 +68,8 @@ sub do_next_event {
         or return 0;
 
     my $args = $event->args;
-    $self->dbg("Handling event " .
-               $event->event_name . ' (' . join(', ', map { $_ . ' = ' . $args->{$_} } keys %$args) . ')') if $args;
+    my $args_disp = %$args ? ' (' . join(', ', map { $_ . ' = ' . $args->{$_} } keys %$args) . ')' : '';
+    $self->dbg("Handling event " . $event->event_name . "$args_disp");
 
     my @hook_results = $self->run_event_hooks(event => $event->event_name,
                                               args => $args);
@@ -89,9 +89,9 @@ sub do_next_event {
     return 1;
 }
 
-# transmits a protocol request over the specified transport
+# transmits a protocol request
 sub do_request {
-    my ($self, $method, $argsref) = @_;
+    my ($self, $event_name, $argsref) = @_;
 
     # copy args so we don't modify anything
     my %args = $argsref ? %$argsref : ();
@@ -100,7 +100,7 @@ sub do_request {
         $args{_session_token} = $self->session_token;
     }
 
-    my $msg = $self->proto->encapsulate($method, \%args);
+    my $msg = $self->proto->encapsulate($event_name, \%args);
     return 0 unless $msg;
 
     $self->transport->write($msg);
@@ -122,6 +122,12 @@ sub connection_established {
 
     $self->dbg("Connection to node successful.");
     $self->transport->write($self->proto->initiation_string);
+}
+
+# initiates a login, call after ProtocolEstablished event
+sub login {
+    my $self = shift;
+    $self->do_request('Authentication.Login', { public_key => $self->id });
 }
 
 sub dbg {

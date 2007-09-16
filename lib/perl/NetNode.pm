@@ -26,7 +26,9 @@ sub new {
     my ($class, %opts) = @_;
 
     my $conf = $opts{conf};
-    my $debug = $opts{debug} || 0;
+    my $debug = $opts{debug};
+
+    $debug ||= $conf->get('debug') if $conf;
 
     # create default configuration if none specified
     unless ($conf) {

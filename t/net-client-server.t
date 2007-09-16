@@ -23,9 +23,10 @@ my $login_good = 0;
 
 c_req('Authentication.Login', { public_key => 'lolwtf' });
 
-$server->conf->set_conf('Node.AuthorizedKeys', { 'lolwtf' => 1 });
+$server->conf->set_conf('Node.AuthorizedKeys', { $client->id => 1 });
 $login_good = 1;
-c_req('Authentication.Login', { public_key => 'lolwtf' });
+$client->login;
+c_req();
 
 ok($client->session_token, "Got session token");
 
@@ -45,7 +46,7 @@ sub s_do {
 }
 
 sub c_req {
-    $client->do_request(@_);
+    $client->do_request(@_) if @_;
     s_do();
     $client->flush_event_queue;
 }

@@ -66,7 +66,7 @@ sub run {
         }
 
         $trans->close_all;
-        warn "accept thread finished";
+        warn "work thread finished";
     };
 
     my $finish = sub {
