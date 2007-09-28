@@ -109,7 +109,7 @@ sub run {
 # user didn't specify an id and there were none in the conf file
 sub create_id {
     my $name = $con->ask("What personal identifier would you like to give this identity? ") || 'default';
-    my $passphrase = $con->ask("Enter id passphrase (leave blank for no passphrase): ") || '';
+    my $passphrase = $con->ask("Enter id passphrase (leave blank for no passphrase): ");
     my $id = NetIdentity->create(passphrase => $passphrase, name => $name, verbose => 1);
 
     my $id_ser = $id->serialize;
