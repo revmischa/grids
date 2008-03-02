@@ -4,6 +4,8 @@
 #########################
 
 use Test::More qw(no_plan);
+use strict;
+use warnings;
 BEGIN { use_ok('GridsMem') };
 
 #########################
@@ -22,8 +24,9 @@ $val = $mem->get(5, 4);
 my @vals = unpack("c*", $val);
 is_deeply(\@vals, [12, 34, 56, 78], "retreived 4 bytes");
 
+$mem->set(5, pack("C", 88));
 $mem->resize(6);
-is(unpack("C", $mem->get(5, 1)), 12, "resize");
+is(unpack("C", $mem->get(5,1)), 88, "resize");
 
 my $bytes = pack("C*", 0xa1, 0xb2, 0xc3, 0xd4, 0xe5, 0xf6);
 $mem->load($bytes);
