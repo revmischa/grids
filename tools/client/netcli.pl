@@ -1,13 +1,13 @@
 #!/usr/bin/perl
 use strict;
 
-# Command-line interface to the Net client
+# Command-line interface to the Grids client
 
 use lib '../../lib/perl';
-use NetClient;
-use NetIdentity;
-use NetConsole;
-use NetConf;
+use Grids::Client;
+use Grids::Identity;
+use Grids::Console;
+use Grids::Conf;
 
 use Carp qw (croak);
 use Getopt::Long;
@@ -15,7 +15,7 @@ use Data::Dumper;
 
 ############
 
-my $conffile = 'netclient.conf';
+my $conffile = 'gridsclient.conf';
 my $id_name;
 my $help;
 my $dump;
@@ -29,7 +29,7 @@ my %prog_opts = (
 
 GetOptions(%prog_opts);
 
-my $conf = NetConf->new(conf_file => $conffile);
+my $conf = Grids::Conf->new(conf_file => $conffile);
 print "Loaded settings from $conffile\n" if $conf->load;
 
 die Dumper($conf) if $dump;
@@ -55,22 +55,22 @@ if (%$ids && ! $id) {
     }
 }
 
-my $con = NetConsole->new(
+my $con = Grids::Console->new(
                           conf => $conf,
-                          title => "Net",
-                          prompt => "Net> ",
+                          title => "Grids",
+                          prompt => "Grids> ",
                           handlers => {
                               newid => \&create_id,
                               help  => \&help,
-                              set   => \&NetConsole::set,
-                              save  => \&NetConsole::save,
-                              list  => \&NetConsole::list,
+                              set   => \&Grids::Console::set,
+                              save  => \&Grids::Console::save,
+                              list  => \&Grids::Console::list,
                           },
                           );
 
 if ($id) {
     # load serialized id
-    $id = NetIdentity->deserialize($id) or die "Error loading identity\n";
+    $id = Grids::Identity->deserialize($id) or die "Error loading identity\n";
     die "Invalid identity\n" unless $id->privkey->check;
 
     if ($encrypted) {
@@ -94,7 +94,7 @@ unless ($id) {
     die "You must have an identity to use this program.\n" unless $id;
 }
 
-my $client = NetClient->new(
+my $client = Grids::Client->new(
                             conf      => $conf,
                             id        => $id,
                             transport => 'TCP',
@@ -110,7 +110,7 @@ sub run {
 sub create_id {
     my $name = $con->ask("What personal identifier would you like to give this identity? ") || 'default';
     my $passphrase = $con->ask("Enter id passphrase (leave blank for no passphrase): ");
-    my $id = NetIdentity->create(passphrase => $passphrase, name => $name, verbose => 1);
+    my $id = Grids::Identity->create(passphrase => $passphrase, name => $name, verbose => 1);
 
     my $id_ser = $id->serialize;
     $name ||= 'default';
