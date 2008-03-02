@@ -1,7 +1,15 @@
+package Grids::Hookable;
+
 use strict;
+use warnings;
 use Class::Autouse;
+use Carp qw/croak/;
+
 # load all hooks for this module
-Class::Autouse->load_recursive(__PACKAGE__);
+sub load_hooks {
+	my $package = shift or croak "Need to pass in package to load hooks for";
+	Class::Autouse->load_recursive($package);
+}
 
 our $HOOKS;
 

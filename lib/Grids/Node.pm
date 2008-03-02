@@ -1,4 +1,4 @@
-# This is a class for a Node on Grids.  
+# This is a class for a Grids Node.  
 # It handles sending/receiving data over transports and handling requests
 
 use strict;
@@ -9,18 +9,16 @@ use Class::Autouse qw/
     Grids::Conf
     Grids::Protocol
     Grids::Protocol::EventQueue
-    /;
+/;
 
 use Grids::Transport;
 use Carp;
 
-use base qw/Class::Accessor::Fast/;
+use base qw/Class::Accessor::Fast Grids::Hookable/;
 __PACKAGE__->mk_accessors(qw/conf transports proto sessions debug event_queue/);
+__PACKAGE__->load_hooks;
 
 our $default_conf = { };
-
-# add hook support
-do 'gridshooks.pl' or die $@;
 
 sub new {
     my ($class, %opts) = @_;

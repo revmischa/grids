@@ -6,11 +6,9 @@ use Carp qw (croak);
 
 use Class::Autouse(qw/Grids::Protocol::EventQueue/);
 
-use base qw/Class::Accessor::Fast/;
+use base qw/Class::Accessor::Fast Grids::Hookable/;
 __PACKAGE__->mk_accessors(qw/transport id conf proto transport debug session_token event_queue/);
-
-# add hook support
-do 'gridshooks.pl' or die $@;
+__PACKAGE__->load_hooks;
 
 # opts: id, transport, conf
 # other opts passed to transport
