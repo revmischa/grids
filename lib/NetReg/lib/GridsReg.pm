@@ -1,4 +1,4 @@
-package NetReg;
+package GridsReg;
 
 use 5.008008;
 use strict;
@@ -14,7 +14,7 @@ our @ISA = qw(Exporter);
 # names by default without a very good reason. Use EXPORT_OK instead.
 # Do not simply export all your public functions/methods/constants.
 
-# This allows declaration	use NetReg ':all';
+# This allows declaration	use GridsReg ':all';
 # If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
 # will save memory.
 our %EXPORT_TAGS = ( 'all' => [ qw(
@@ -30,12 +30,12 @@ our @EXPORT = qw(
 our $VERSION = '0.01';
 
 require XSLoader;
-XSLoader::load('NetReg', $VERSION);
+XSLoader::load('GridsReg', $VERSION);
 
 sub new {
     my ($class, $size) = @_;
 
-    croak "No size for NetReg defined" unless $size;
+    croak "No size for GridsReg defined" unless $size;
 
     my $self = {};
     bless $self, $class;
@@ -49,7 +49,7 @@ sub init {
     my ($self, $size) = @_;
 
     $self->{size} = $size;
-    $self->{handle} = NetReg::alloc_regs($size);
+    $self->{handle} = GridsReg::alloc_regs($size);
 }
 
 sub size { $_[0]->{size} }
@@ -58,7 +58,7 @@ sub set {
     my ($self, $index, $data) = @_;
     croak "Trying to set register at index $index > " . $self->size
         if $index > $self->size;
-    NetReg::set_reg($self->h, $index, $data);
+    GridsReg::set_reg($self->h, $index, $data);
 }
 
 *set_u = \&set_unsigned;
@@ -66,14 +66,14 @@ sub set_unsigned {
     my ($self, $index, $data) = @_;
     croak "Trying to set register at index $index > " . $self->size
         if $index > $self->size;
-    NetReg::set_reg_u($self->h, $index, $data);
+    GridsReg::set_reg_u($self->h, $index, $data);
 }
 
 sub get {
     my ($self, $index) = @_;
     croak "Trying to get register at index $index > " . $self->size
         if $index > $self->size;
-    return NetReg::get_reg($self->h, $index);
+    return GridsReg::get_reg($self->h, $index);
 }
 
 *get_u = \&get_unsigned;
@@ -81,22 +81,22 @@ sub get_unsigned {
     my ($self, $index) = @_;
     croak "Trying to get register at index $index > " . $self->size
         if $index > $self->size;
-    return NetReg::get_reg_u($self->h, $index);
+    return GridsReg::get_reg_u($self->h, $index);
 }
 
 sub and {
     my ($self, $idx1, $idx2) = @_;
-    return NetReg::and_regs($self->h, $idx1, $idx2);
+    return GridsReg::and_regs($self->h, $idx1, $idx2);
 }
 
 sub or {
     my ($self, $idx1, $idx2) = @_;
-    return NetReg::or_regs($self->h, $idx1, $idx2);
+    return GridsReg::or_regs($self->h, $idx1, $idx2);
 }
 
 sub xor {
     my ($self, $idx1, $idx2) = @_;
-    return NetReg::xor_regs($self->h, $idx1, $idx2);
+    return GridsReg::xor_regs($self->h, $idx1, $idx2);
 }
 
 sub h { $_[0]->{handle} }
@@ -104,7 +104,7 @@ sub h { $_[0]->{handle} }
 sub DESTROY {
     my $self = shift;
     my $handle = $self->h or croak "null handle";
-    NetReg::dealloc_regs($handle);
+    GridsReg::dealloc_regs($handle);
 }
 
 1;
@@ -112,13 +112,13 @@ __END__
 
 =head1 NAME
 
-NetReg - Provide fast and reliable interface to a set of 32-bit registers
+GridsReg - Provide fast and reliable interface to a set of 32-bit registers
 
 =head1 SYNOPSIS
 
-  use NetReg;
+  use GridsReg;
 
-  my $regs = NetRegs->new(16); # create 16 32-bit registers
+  my $regs = GridsRegs->new(16); # create 16 32-bit registers
   $mem->set(3, 0xFFFFFFFF); # set register at index 4 to a 32-bit value
   $mem->get(3); # retrieve register value
   $mem->and(3, 6); # 0b00000110
@@ -134,7 +134,7 @@ None by default.
 
 =head1 SEE ALSO
 
-Net
+Grids
 
 =head1 AUTHOR
 
