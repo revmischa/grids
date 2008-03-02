@@ -1,4 +1,4 @@
-package NetMem;
+package GridsMem;
 
 use 5.008008;
 use strict;
@@ -14,7 +14,7 @@ our @ISA = qw(Exporter);
 # names by default without a very good reason. Use EXPORT_OK instead.
 # Do not simply export all your public functions/methods/constants.
 
-# This allows declaration	use NetMem ':all';
+# This allows declaration	use GridsMem ':all';
 # If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
 # will save memory.
 our %EXPORT_TAGS = ( 'all' => [ qw(
@@ -30,12 +30,12 @@ our @EXPORT = qw(
 our $VERSION = '0.01';
 
 require XSLoader;
-XSLoader::load('NetMem', $VERSION);
+XSLoader::load('GridsMem', $VERSION);
 
 sub new {
     my ($class, $size) = @_;
 
-    croak "No size for NetMem defined" unless $size;
+    croak "No size for GridsMem defined" unless $size;
 
     my $self = {
     };
@@ -58,7 +58,7 @@ sub init {
     my ($self, $size) = @_;
 
     $self->size($size);
-    $self->{handle} = NetMem::mem_new($size);
+    $self->{handle} = GridsMem::mem_new($size);
 }
 
 sub resize {
@@ -71,10 +71,10 @@ sub resize {
     my $copysize = $oldsize > $newsize ? $newsize : $oldsize;
 
     if ($oldsize && $copysize && ! $opts{nocopy}) {
-        NetMem::mem_copy($oldhandle, $self->h, $copysize);
+        GridsMem::mem_copy($oldhandle, $self->h, $copysize);
     }
 
-    NetMem::mem_destroy($oldhandle);
+    GridsMem::mem_destroy($oldhandle);
 }
 
 sub set {
@@ -83,7 +83,7 @@ sub set {
     croak "Tried to set memory outside bounds"
         if $offset + length $data > $self->size;
 
-    NetMem::mem_set($self->h, $offset, $data);
+    GridsMem::mem_set($self->h, $offset, $data);
 }
 
 sub get {
@@ -95,7 +95,7 @@ sub get {
     croak "Tried to get memory outside bounds"
         if $offset + $len > $self->size;
 
-    NetMem::mem_get($self->h, $offset, $len);
+    GridsMem::mem_get($self->h, $offset, $len);
 }
 
 # resize to new data size and set to new data
@@ -111,7 +111,7 @@ sub h { $_[0]->{handle} }
 sub DESTROY {
     my $self = shift;
     my $handle = $self->h or warn "null handle";
-    NetMem::mem_destroy($handle);
+    GridsMem::mem_destroy($handle);
 }
 
 1;
@@ -119,13 +119,13 @@ __END__
 
 =head1 NAME
 
-NetMem - Provide fast and reliable interface to a block of memory
+GridsMem - Provide fast and reliable interface to a block of memory
 
 =head1 SYNOPSIS
 
-  use NetMem;
+  use GridsMem;
 
-  my $mem = NetMem->new(1024 * 16); # 16 megs
+  my $mem = GridsMem->new(1024 * 16); # 16 megs
   $mem->set($offset, $data);
   $mem->resize(1024 * 32);
   $mem->get($offset, $len);
@@ -141,7 +141,7 @@ None by default.
 
 =head1 SEE ALSO
 
-Net
+Grids
 
 =head1 AUTHOR
 

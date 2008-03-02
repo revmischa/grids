@@ -1,15 +1,15 @@
 # Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl NetMem.t'
+# `make test'. After `make install' it should work as `perl GridsMem.t'
 
 #########################
 
 use Test::More qw(no_plan);
-BEGIN { use_ok('NetMem') };
+BEGIN { use_ok('GridsMem') };
 
 #########################
 
 # 16 bytes
-my $mem = NetMem->new(16);
+my $mem = GridsMem->new(16);
 ok($mem, "got handle");
 ok($mem->h, "mem handle is defined");
 

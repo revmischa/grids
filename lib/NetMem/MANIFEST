@@ -1,8 +1,8 @@
 Changes
 Makefile.PL
 MANIFEST
-NetMem.xs
+GridsMem.xs
 ppport.h
 README
-t/NetMem.t
-lib/NetMem.pm
+t/GridsMem.t
+lib/GridsMem.pm

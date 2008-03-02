@@ -33,7 +33,7 @@ void mem_destroy(memhandle_t handle) {
   free((char *)handle);
 }
 
-MODULE = NetMem		PACKAGE = NetMem
+MODULE = GridsMem		PACKAGE = GridsMem
 
 memhandle_t
 mem_new(size)

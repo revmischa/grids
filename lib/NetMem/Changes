@@ -1,6 +1,6 @@
-Revision history for Perl extension NetMem.
+Revision history for Perl extension GridsMem.
 
 0.01  Mon Jul  2 21:00:57 2007
 	- original version; created by h2xs 1.23 with options
-		-A -n NetMem
+		-A -n GridsMem
 
