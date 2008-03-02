@@ -7,7 +7,8 @@ __PACKAGE__->register_event_hooks(
                                   );
 
 sub hook_login {
-    my ($client, %info) = @_;
+	my Grids::Client $client = shift;
+	my %info = @_;
 
     my $args = $info{args};
 

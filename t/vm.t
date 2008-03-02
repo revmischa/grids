@@ -6,7 +6,7 @@ use Grids::VM;
 use Data::Dumper;
 
 # sample program
-my $prog = slurp('sample/gridsvm_test.gridsasm');
+my $prog = slurp('sample/vm_test.gridsasm') or die "Couldn't load vm_test.gridsasm";
 
 my $program = Grids::Code->assemble_program($prog)
     or die "Unable to assemble program";

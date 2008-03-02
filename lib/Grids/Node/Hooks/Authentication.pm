@@ -16,7 +16,8 @@ __PACKAGE__->register_hooks(
                             );
 
 sub hook_login {
-    my ($node, %info) = @_;
+	my Grids::Node $node = shift;
+	my %info = @_;
 
     if ($node->test_any_hook('Authentication.Login.AuthCheck', %info)) {
         # successful login, generate sessiont token

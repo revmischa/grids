@@ -9,8 +9,8 @@ use Scalar::Util qw / weaken /;
 
 use Grids::Code;
 use Grids::VM::Instructions;
-use Grids::Mem;
-use Grids::Reg;
+use GridsMem;
+use GridsReg;
 
 use base qw (Class::Accessor::Fast);
 __PACKAGE__->mk_accessors(qw/mem pc mem_limit/);
