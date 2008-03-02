@@ -5,13 +5,13 @@ use warnings;
 use Class::Autouse;
 use Carp qw/croak/;
 
+our %HOOKS; # package->hookname
+
 # load all hooks for this module
 sub load_hooks {
 	my $package = shift or croak "Need to pass in package to load hooks for";
 	Class::Autouse->load_recursive($package);
 }
-
-our $HOOKS;
 
 # run hooks and require them all to return true
 sub test_all_hooks {
@@ -43,9 +43,10 @@ sub run_hooks {
     }
 
     # find regex hooknames
-    my @package_hooks = keys %$HOOKS;
+	my $package = ref $self || $self;
+    my @package_hooks = keys %{$HOOKS{$package}};
     foreach my $re (@package_hooks) {
-        push @res, $self->_run_hooks($self, $HOOKS->{$re}, %info) if $hookname =~ $re;
+        push @res, $self->_run_hooks($self, $HOOKS{$package}->{$re}, %info) if $hookname =~ $re;
     }
 
     return @res;
@@ -110,10 +111,10 @@ sub register_hook {
 
         push @{$self->{hooks}->{$hookname}}, $cb;
     } else {
-        # add hooks to package
-        $HOOKS->{$hookname} ||= [];
+		# register package hooks
+        $HOOKS{$self}->{$hookname} ||= [];
 
-        push @{$HOOKS->{$hookname}}, $cb;
+        push @{$HOOKS{$self}->{$hookname}}, $cb;
     }
 }
 
