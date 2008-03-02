@@ -2,10 +2,10 @@
 use strict;
 
 use lib '../../lib/perl';
-use NetVM;
-use NetConsole;
-use NetConf;
-use NetNode;
+use Grids::VM;
+use Grids::Console;
+use Grids::Conf;
+use Grids::Node;
 
 use Getopt::Long;
 use Sys::Hostname;
@@ -13,7 +13,7 @@ use sigtrap qw(die normal-signals);
 use threads;
 use threads::shared;
 
-my $conffile = 'netnode.conf';
+my $conffile = 'gridsnode.conf';
 my $nodename = hostname;
 my ($help, $id, $debug);
 
@@ -29,25 +29,25 @@ GetOptions(%prog_opts);
 
 usage() and exit if $help;
 
-my $conf = NetConf->new(conf_file => $conffile);
+my $conf = Grids::Conf->new(conf_file => $conffile);
 
 my $node;
-my $con = NetConsole->new(
+my $con = Grids::Console->new(
                           conf => $conf,
-                          title => "NetNode",
-                          prompt => "NetNode [$nodename]> ",
+                          title => "GridsNode",
+                          prompt => "GridsNode [$nodename]> ",
                           handlers => {
                               help  => \&help,
-                              set   => \&NetConsole::set,
-                              save  => \&NetConsole::save,
-                              list  => \&NetConsole::list,
+                              set   => \&Grids::Console::set,
+                              save  => \&Grids::Console::save,
+                              list  => \&Grids::Console::list,
                           },
                           );
 
 run();
 
 sub run {
-    $node = NetNode->new(conf => $conf, debug => $debug);
+    $node = Grids::Node->new(conf => $conf, debug => $debug);
 
     $con->print("Loaded settings from $conffile") if $conf->load;
 
@@ -97,7 +97,7 @@ sub usage {
     my @args = @_;
     print qq {
 usage: $0 [-cnih]
- -c[onf]:  specify a configuration file. default is "netnode.conf"
+ -c[onf]:  specify a configuration file. default is "gridsnode.conf"
  -n[ame]:  specify node name
  -i[d]:    specify an identity to use
  -h[help]: print this help

@@ -1,8 +1,8 @@
 use inc::Module::Install;
     
 # Define metadata
-name            'NetNode';
-all_from        '../../lib/perl/NetNode.pm';
+name            'gridsnode';
+all_from        '../../lib/Grids/Node.pm';
     
 # Specific dependencies
 requires        'Carp'              => 0;
