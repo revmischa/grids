@@ -1,13 +1,13 @@
 #!/usr/bin/perl
 use strict;
 use lib 'lib/perl';
-use NetVM;
+use Grids::VM;
 
-use NetConsole;
+use Grids::Console;
 
 my $infile = shift;
 
-my $vm = NetVM->new(memory_limit => 16);
+my $vm = Grids::VM->new(memory_limit => 16);
 
 my %handlers = (
                 help  => \&help,
@@ -31,9 +31,9 @@ if ($infile) {
     $msg = dis_current_instruction();
 }
 
-my $con = NetConsole->new(
-                          title    => "NetVM",
-                          prompt   => "NetVM> ",
+my $con = Grids::Console->new(
+                          title    => "GridsVM",
+                          prompt   => "GridsVM> ",
                           handlers => \%handlers,
                           message  => $msg,
                           );
@@ -47,7 +47,7 @@ sub load {
     my ($self, $filename) = @_;
 
     return "File $file does not exist" unless -e $filename;
-    my $program = NetCode::Program->load_from_file($filename)
+    my $program = Grids::Code::Program->load_from_file($filename)
         or return "Unable to load $filename";
 
     return vmload($program->segments);
@@ -56,7 +56,7 @@ sub load {
 sub asld {
     my ($self, $filename) = @_;
     my $code = slurp($filename);
-    my $program = NetCode->assemble($code);
+    my $program = Grids::Code->assemble($code);
     return vmload($program->segments);
 }
 sub regs {
@@ -69,7 +69,7 @@ sub regs {
 
     $ret .= sprintf "PC: 0x%08X\n", $vm->pc;
 
-    my $regcount = @NetVM::REGS - 1;
+    my $regcount = @Grids::VM::REGS - 1;
     foreach my $reg (0 .. $regcount) {
         my $regname = $vm->reg_name($i);
         $ret .= sprintf "[%02d %4s]: 0x%08X   ", $i++, $regname, $vm->reg($reg);
@@ -108,7 +108,7 @@ sub step {
 
 # returns disassembly of current instruction
 sub dis_current_instruction {
-    return sprintf "0x%08X> %s\n", $vm->pc, NetCode->disassemble_string($vm->current_instruction);
+    return sprintf "0x%08X> %s\n", $vm->pc, Grids::Code->disassemble_string($vm->current_instruction);
 }
 
 sub mem {
@@ -134,8 +134,8 @@ sub help {
     my ($self) = @_;
 
     return q {
-load (filename) - loads a file containing NetCode
-asld (filename) - (assemble and load) assemble a NetAsm file and load it
+load (filename) - loads a file containing GridsCode
+asld (filename) - (assemble and load) assemble a GridsAsm file and load it
 mem - dump memory
 step - step program one instruction
 run - runs program

@@ -1,11 +1,11 @@
 #!/usr/bin/perl
 
-# This is a simple frontend to the NetCode assembler and disassembler
+# This is a simple frontend to the GridsCode assembler and disassembler
 # run with -d to produce disassembly
 
 use strict;
 use lib 'lib/perl';
-use NetCode;
+use Grids::Code;
 use Getopt::Long;
 
 my ($outfile, $dis);
@@ -34,10 +34,10 @@ die "$infile does not exist\n" unless -e $infile;
         for (my $i = 0; $i < length $contents; $i+=6) {
             my $inst = substr($contents, $i, 6);
             my $addr = sprintf("%08X: ", $i);
-            $code .= $addr . NetCode->disassemble_string($inst) . "\n";
+            $code .= $addr . Grids::Code->disassemble_string($inst) . "\n";
         }
     } else {
-        my $prog = NetCode->assemble_program($contents)
+        my $prog = Grids::Code->assemble_program($contents)
             or die "Unable to assemble program\n";
 
         my $code = $prog->raw_bytes;
