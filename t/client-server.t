@@ -1,7 +1,7 @@
 # tests for high-level Grids client/server functionality
 use strict;
 use Test::More qw(no_plan);
-use lib 'lib/perl';
+use lib 'lib';
 use Grids::Node;
 use Grids::Client;
 

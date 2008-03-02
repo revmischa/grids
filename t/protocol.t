@@ -1,6 +1,6 @@
 use strict;
 use Test::More qw(no_plan);
-use lib 'lib/perl';
+use lib 'lib';
 use Grids::Protocol;
 
 my %EVENTS; # holds event info received in Protocol event handler callback

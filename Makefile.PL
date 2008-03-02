@@ -2,8 +2,8 @@ use 5.008008;
 use ExtUtils::MakeMaker;
 
 WriteMakefile(
-    NAME              => 'Net',
-#    VERSION_FROM      => 'lib/NetReg.pm', # finds $VERSION
+    NAME              => 'Grids',
+#    VERSION_FROM      => 'lib/GridsReg.pm', # finds $VERSION
 
     # required modules
     PREREQ_PM         => {
@@ -13,7 +13,7 @@ WriteMakefile(
     },
 
 #    ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
-#      (ABSTRACT_FROM  => 'lib/NetReg.pm', # retrieve abstract from module
+#      (ABSTRACT_FROM  => 'lib/GridsReg.pm', # retrieve abstract from module
 #       AUTHOR         => 'mish <mspiegelmock@gmail.com>') : ()),
 
     LIBS              => [''],
