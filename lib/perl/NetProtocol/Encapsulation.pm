@@ -1,4 +1,4 @@
-package NetProtocol::Encapsulation::JSON;
+package Grids::Protocol::Encapsulation::JSON;
 use strict;
 use warnings;
 

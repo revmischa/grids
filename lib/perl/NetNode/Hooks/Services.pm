@@ -1,4 +1,4 @@
-package NetNode;
+package Grids::Node;
 use strict;
 use warnings;
 

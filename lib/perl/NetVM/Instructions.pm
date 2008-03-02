@@ -1,10 +1,10 @@
 # This module describes the actual implementation of the instructions
-# in the NetVM
+# in the GridsVM
 
 use strict;
-package NetVM::Instructions;
+package Grids::VM::Instructions;
 
-*dbg = \&NetVM::dbg;
+*dbg = \&Grids::VM::dbg;
 
 ### utility funcs
 

@@ -1,16 +1,16 @@
 use strict;
-package NetClient;
-use NetTransport;
-use NetProtocol;
+package Grids::Client;
+use Grids::Transport;
+use Grids::Protocol;
 use Carp qw (croak);
 
-use Class::Autouse(qw/NetProtocol::EventQueue/);
+use Class::Autouse(qw/Grids::Protocol::EventQueue/);
 
 use base qw/Class::Accessor::Fast/;
 __PACKAGE__->mk_accessors(qw/transport id conf proto transport debug session_token event_queue/);
 
 # add hook support
-do 'nethooks.pl' or die $@;
+do 'gridshooks.pl' or die $@;
 
 # opts: id, transport, conf
 # other opts passed to transport
@@ -21,7 +21,7 @@ sub new {
     my $trans_class = delete $opts{transport} || 'TCP';
     my $enc_class   = delete $opts{encapsulation} || 'JSON';
 
-    my $evt_queue   = NetProtocol::EventQueue->new;
+    my $evt_queue   = Grids::Protocol::EventQueue->new;
 
     my $self = {
         event_queue => $evt_queue,
@@ -33,10 +33,10 @@ sub new {
 
     bless $self, $class;
 
-    my $proto = NetProtocol->new(encapsulation => $enc_class);
+    my $proto = Grids::Protocol->new(encapsulation => $enc_class);
     $self->{proto} = $proto;
 
-    my $t = "NetTransport::$trans_class"->new($self, %opts);
+    my $t = "Grids::Transport::$trans_class"->new($self, %opts);
     $self->{transport} = $t;
 
     return $self;
@@ -133,12 +133,12 @@ sub login {
 sub dbg {
     my ($self, $msg) = @_;
     return unless $self->debug;
-    warn "NetClient: [Debug] $msg\n";
+    warn "Grids::Client: [Debug] $msg\n";
 }
 
 sub warn {
     my ($self, $msg) = @_;
-    warn "NetClient: [Warn] $msg\n";
+    warn "Grids::Client: [Warn] $msg\n";
 }
 
 1;

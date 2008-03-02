@@ -1,10 +1,10 @@
-# This package represents a Net Identity. All an identity needs is a
+# This package represents a Grids Identity. All an identity needs is a
 # public or private key, although other attributes may be associated
 # with an identity.
 
 use strict;
 
-package NetIdentity;
+package Grids::Identity;
 
 use Crypt::RSA;
 use Crypt::RSA::Key::Public;

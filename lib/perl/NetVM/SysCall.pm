@@ -1,4 +1,4 @@
 use strict;
-package NetVM::SysCall;
+package Grids::VM::SysCall;
 
 1;

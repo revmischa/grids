@@ -1,17 +1,17 @@
-# This is a class for a Node on the Net.  
+# This is a class for a Node on Grids.  
 # It handles sending/receiving data over transports and handling requests
 
 use strict;
-package NetNode;
+package Grids::Node;
 use Class::Autouse qw/
-    NetCode
-    NetVM
-    NetConf
-    NetProtocol
-    NetProtocol::EventQueue
+    Grids::Code
+    Grids::VM
+    Grids::Conf
+    Grids::Protocol
+    Grids::Protocol::EventQueue
     /;
 
-use NetTransport;
+use Grids::Transport;
 use Carp;
 
 use base qw/Class::Accessor::Fast/;
@@ -20,7 +20,7 @@ __PACKAGE__->mk_accessors(qw/conf transports proto sessions debug event_queue/);
 our $default_conf = { };
 
 # add hook support
-do 'nethooks.pl' or die $@;
+do 'gridshooks.pl' or die $@;
 
 sub new {
     my ($class, %opts) = @_;
@@ -32,11 +32,11 @@ sub new {
 
     # create default configuration if none specified
     unless ($conf) {
-        $conf = NetConf->new;
+        $conf = Grids::Conf->new;
     }
 
     # instantiate event queue
-    my $evt_queue = NetProtocol::EventQueue->new;
+    my $evt_queue = Grids::Protocol::EventQueue->new;
 
     my $self = {
         conf        => $conf,
@@ -44,7 +44,7 @@ sub new {
         debug       => $debug,
         sessions    => {},
         event_queue => $evt_queue,
-        proto       => {}, # mapping of Connection => NetProtocol
+        proto       => {}, # mapping of Connection => Grids::Protocol
     };
 
     bless $self, $class;
@@ -54,7 +54,7 @@ sub new {
 
 sub add_transport {
     my ($self, $trans_class, %opts) = @_;
-    my $trans = "NetTransport::$trans_class"->new($self, %opts);
+    my $trans = "Grids::Transport::$trans_class"->new($self, %opts);
     push @{$self->{transports}}, $trans;
     return $trans;
 }
@@ -76,7 +76,7 @@ sub initiate_node_protocol {
     my $transport = $info{_trans} or die "Got invalid Connected event";
     my $conn = $info{_conn} or die "Got invalid Connected event";
 
-    my $proto = new NetProtocol;
+    my $proto = new Grids::Protocol;
     my $init_string = $proto->initiation_string;
 
     # save protocol handler
@@ -111,7 +111,7 @@ sub data_received {
         # if we don't have a protocol handler set up yet, this should be
         # the first transmission containing an initiation string
         $self->dbg("initating protocol handler with session init string [$data]");
-        my $p = NetProtocol->new_from_initiation_string($data);
+        my $p = Grids::Protocol->new_from_initiation_string($data);
 
         unless ($p) {
             $self->warn("invalid initiation string [$data]");
@@ -223,12 +223,12 @@ sub authorized_keys {
 sub dbg {
     my ($self, $msg) = @_;
     return unless $self->debug;
-    warn "NetNode:   [Debug] $msg\n";
+    warn "Grids::Node:   [Debug] $msg\n";
 }
 
 sub warn {
     my ($self, $msg) = @_;
-    warn "NetNode:   [Warn] $msg\n";
+    warn "Grids::Node:   [Warn] $msg\n";
 }
 
 1;

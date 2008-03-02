@@ -1,7 +1,7 @@
 # This class represents a peer that is connected to a Node. It can be
 # a client or another Node.
 
-package NetNode::Remote;
+package Grids::Node::Remote;
 use strict;
 use warnings;
 use base qw/Class::Accessor::Fast/;

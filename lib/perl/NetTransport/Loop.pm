@@ -1,9 +1,9 @@
 # This is a very simple transport that can send data to other Loop
 # transports in memory
 
-package NetTransport::Loop;
+package Grids::Transport::Loop;
 use strict;
-use base 'NetTransport';
+use base 'Grids::Transport';
 
 sub new {
     my ($class, $parent, %opts) = @_;

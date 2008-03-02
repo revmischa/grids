@@ -1,5 +1,5 @@
 use strict;
-package NetVM::SysCall::Node;
+package Grids::VM::SysCall::Node;
 
 # prints value in $a0
 sub log {

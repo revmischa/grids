@@ -1,4 +1,4 @@
-package NetVM;
+package Grids::VM;
 use strict;
 use bytes;
 
@@ -7,25 +7,25 @@ use Class::Autouse;
 use Data::Dumper;
 use Scalar::Util qw / weaken /;
 
-use NetCode;
-use NetVM::Instructions;
-use NetMem;
-use NetReg;
+use Grids::Code;
+use Grids::VM::Instructions;
+use Grids::Mem;
+use Grids::Reg;
 
 use base qw (Class::Accessor::Fast);
 __PACKAGE__->mk_accessors(qw/mem pc mem_limit/);
 
-Class::Autouse->autouse_recursive('NetVM::SysCall');
+Class::Autouse->autouse_recursive('Grids::VM::SysCall');
 
 our $DEBUG = 1;
 
 =head1 NAME
 
-NetVM
+Grids::VM
 
 =head1 SYNOPSIS
 
-A NetVM instance in an object
+A Grids::VM instance in an object
 
 =head1 DESCRIPTION
 
@@ -33,8 +33,8 @@ blah blah
 
 =cut
 
-    our @REGS = @NetCode::REGS;
-    our %REGS = %NetCode::REGS;
+    our @REGS = @Grids::Code::REGS;
+    our %REGS = %Grids::Code::REGS;
 
 =head1 METHODS
 
@@ -42,7 +42,7 @@ blah blah
 
 =item new
 
-Returns a new L<NetVM>, ready to load and execute L<NetCode> bytecode.
+Returns a new L<Grids::VM>, ready to load and execute L<GridsCode> bytecode.
 
 =cut
 
@@ -53,7 +53,7 @@ sub new {
 
     croak "Unknown options: " . join(',', keys %opts) if %opts;
 
-    my $regs = new NetReg(scalar @REGS)
+    my $regs = new GridsReg(scalar @REGS)
         or die "couldn't create register storage";
 
     my $self = {
@@ -82,7 +82,7 @@ sub init {
     $self->regs->set(0, 0);
 
     # empty memory
-    $self->{mem} = new NetMem(1);
+    $self->{mem} = new GridsMem(1);
 
     # reset PC
     $self->{pc} = 0;
@@ -110,7 +110,7 @@ sub node { $_->{node} }
 
 =item regs
 
-Returns NetReg object containing registers
+Returns Grids::Reg object containing registers
 
 =cut
 
@@ -326,7 +326,7 @@ Returns opcode of current instruction
 sub current_instruction_opcode {
     my $self = shift;
     my $inst = $self->current_instruction;
-    return NetCode->instruction_opcode($inst);
+    return Grids::Code->instruction_opcode($inst);
 }
 
 =item current_instruction_opcode
@@ -338,7 +338,7 @@ Returns R-type function of current instruction
 sub current_instruction_r_func {
     my $self = shift;
     my $inst = $self->current_instruction;
-    my ($opcode, %fields) = NetCode->disassemble($inst);
+    my ($opcode, %fields) = Grids::Code->disassemble($inst);
     return $fields{func};
 }
 
@@ -351,14 +351,14 @@ Executes instruction $inst
 sub execute {
     my ($self, $inst) = @_;
 
-    my ($opcode, %fields) = NetCode->disassemble($inst);
-    my $type = NetCode->opcode_type($opcode);
+    my ($opcode, %fields) = Grids::Code->disassemble($inst);
+    my $type = Grids::Code->opcode_type($opcode);
 
     # is this a branch opcode?
-    if (NetCode->is_branch_opcode($opcode)) {
+    if (Grids::Code->is_branch_opcode($opcode)) {
         # handle branching
         $self->execute_branch($opcode, \%fields);
-    } elsif ($type eq 'R' && NetCode->is_branch_r_func($fields{func})) {
+    } elsif ($type eq 'R' && Grids::Code->is_branch_r_func($fields{func})) {
         $self->execute_branch_r(\%fields);
     } else {
         if ($type eq 'R') {
@@ -390,14 +390,14 @@ sub syscall {
     my ($self, $syscall) = @_;
 
     # lookup syscall name
-    my $sysc_name = $NetCode::SYSCALLS_REV{$syscall};
+    my $sysc_name = $Grids::Code::SYSCALLS_REV{$syscall};
     die "Unknown syscall $syscall" unless defined $sysc_name;
 
     # convert syscall to method call
     $sysc_name =~ s/\./::/g;
 
     no strict 'refs';
-    my $method_name = "NetVM::SysCall::$sysc_name";
+    my $method_name = "Grids::VM::SysCall::$sysc_name";
     $method_name->($self, $self->node);
 }
 
@@ -410,7 +410,7 @@ Executes a branch instruction
 sub execute_branch {
     my ($self, $opcode, $fields) = @_;
 
-    my $func = NetCode->opcode_mnemonic($opcode)
+    my $func = Grids::Code->opcode_mnemonic($opcode)
         or die "Unknown branch instruction $opcode";
 
     $self->_execute_branch($func, $fields);
@@ -427,7 +427,7 @@ sub execute_branch_r {
 
     my $rfunc = $fields->{func};
 
-    my $func = NetCode->r_function_mnemonic($rfunc)
+    my $func = Grids::Code->r_function_mnemonic($rfunc)
         or die "Unknown r-type branch function $fields->{func}";
 
     $self->_execute_branch($func, $fields);
@@ -458,7 +458,7 @@ Executes an I-type instruction
 sub execute_i {
     my ($self, $opcode, $fields) = @_;
 
-    my $func = NetCode->opcode_mnemonic($opcode)
+    my $func = Grids::Code->opcode_mnemonic($opcode)
         or die "Unknown instruction $opcode";
 
     my $i_sub = "i_$func";
@@ -487,7 +487,7 @@ sub execute_j {
 
     my $addr = $fields->{data};
 
-    my $func = 'j_' . NetCode->opcode_mnemonic($opcode)
+    my $func = 'j_' . Grids::Code->opcode_mnemonic($opcode)
         or die "Unknown instruction $opcode";
 
     my $handler_package = __PACKAGE__ . "::Instructions";
@@ -505,7 +505,7 @@ sub execute_r {
 
     my $rfunc = $fields->{func};
 
-    my $func = 'r_' . NetCode->r_function_mnemonic($rfunc)
+    my $func = 'r_' . Grids::Code->r_function_mnemonic($rfunc)
         or die "Unknown r-type function $fields->{func}";
 
     my @args;

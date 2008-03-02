@@ -1,4 +1,4 @@
-package NetNode;
+package Grids::Node;
 use strict;
 use warnings;
 
@@ -23,7 +23,7 @@ sub hook_login {
         my $session_token = time() . rand();
 
         # instantiate remote object representing this connection
-        my $remote = NetNode::Remote->new(trans => $info{trans},
+        my $remote = __PACKAGE__::Remote->new(trans => $info{trans},
                                           session_token => $session_token,
                                           public_key => $info{args}{public_key});
 

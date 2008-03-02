@@ -1,6 +1,6 @@
 use strict;
 
-package NetConsole;
+package Grids::Console;
 use Term::ReadLine;
 use Storable;
 use Carp qw (croak);
@@ -11,7 +11,7 @@ sub new {
     my $conf = $opts{conf};
     my $handlers = $opts{handlers} || {};
     my $prompt = $opts{prompt} || '>';
-    my $title = $opts{title} || 'Net';
+    my $title = $opts{title} || 'Grids';
     my $msg = $opts{message};
 
     my $term = new Term::ReadLine $title;

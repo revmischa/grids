@@ -1,4 +1,4 @@
-package NetProtocol;
+package Grids::Protocol;
 use strict;
 use warnings;
 
@@ -8,11 +8,11 @@ use base qw/Class::Accessor/;
 __PACKAGE__->mk_accessors(qw(encap encap_base encap_method));
 
 use Class::Autouse qw/
-    NetProtocol::Event
+    Grids::Protocol::Event
 /;
 
 # autouse all encapsulation methods
-Class::Autouse->autouse_recursive('NetProtocol::Encapsulation');
+Class::Autouse->autouse_recursive('Grids::Protocol::Encapsulation');
 
 sub new {
     my ($class, %opts) = @_;
@@ -31,7 +31,7 @@ sub set_encapsulation_method {
     my ($self, $enc) = @_;
 
     return undef if $enc =~ /\W/;
-    my $encap_method = "NetProtocol::Encapsulation::$enc";
+    my $encap_method = "Grids::Protocol::Encapsulation::$enc";
     my $encap = eval { $encap_method->new } or return undef;
 
     $self->encap_base($enc);
@@ -45,11 +45,11 @@ sub set_encapsulation_method {
 sub initiation_string {
     my ($self) = @_;
 
-    my @elements = ('Net', '1.0', $self->encap_base);
+    my @elements = ('Grids', '1.0', $self->encap_base);
     return '==' . join('/', @elements);
 }
 
-# returns a new NetProtocol instance from an initiation string
+# returns a new Grids::Protocol instance from an initiation string
 sub new_from_initiation_string {
     my ($class, $initstr, %params) = @_;
 
@@ -57,7 +57,7 @@ sub new_from_initiation_string {
 
     my ($prog, $ver, $encapsulation_classes) = split('/', $initstr);
 
-    return undef unless $prog eq 'Net' && $ver eq '1.0' && $encapsulation_classes;
+    return undef unless $prog eq 'Grids' && $ver eq '1.0' && $encapsulation_classes;
 
     my $p;
     # try each requested encapsulation method in listed order
@@ -131,19 +131,19 @@ sub parse_request {
 
     # instantiate Event record
     my $event_name = delete $args->{_method};
-    return NetProtocol::Event->new(event_name => $event_name, params => $args);
+    return Grids::Protocol::Event->new(event_name => $event_name, params => $args);
 }
 
 sub error_event {
     my ($self, $error_event, $params) = @_;
     $params ||= {};
     $params->{error} = 1;
-    return NetProtocol::Event->new(event_name => $error_event, params => $params);
+    return Grids::Protocol::Event->new(event_name => $error_event, params => $params);
 }
 
 sub event {
     my ($self, $event, $params) = @_;
-    return NetProtocol::Event->new(event_name => $event, params => $params);
+    return Grids::Protocol::Event->new(event_name => $event, params => $params);
 }
 
 1;

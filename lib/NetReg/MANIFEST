@@ -1,8 +1,8 @@
 Changes
 Makefile.PL
 MANIFEST
-NetReg.xs
+GridsReg.xs
 ppport.h
 README
-t/NetReg.t
-lib/NetReg.pm
+t/GridsReg.t
+lib/GridsReg.pm

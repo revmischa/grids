@@ -1,4 +1,4 @@
-package NetClient;
+package Grids::Client;
 use strict;
 use warnings;
 

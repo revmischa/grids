@@ -1,6 +1,6 @@
 use strict;
 
-package NetConf;
+package Grids::Conf;
 use Storable;
 use Carp qw (croak);
 use Data::Dumper;

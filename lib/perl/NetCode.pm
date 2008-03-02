@@ -1,9 +1,9 @@
-# This is a module to define the NetCode instruction set, handling
-# assembling and disassembling NetAsm and interperting NetCode
-package NetCode;
+# This is a module to define the GridsCode instruction set, handling
+# assembling and disassembling GridsAsm and interperting GridsCode
+package Grids::Code;
 use strict;
 use bytes;
-use Class::Autouse qw/NetCode::Program/;
+use Class::Autouse qw/Grids::Code::Program/;
 
 our $ASSEMBLE_BRANCH_FUNCS_SPECIAL;
 
@@ -157,25 +157,25 @@ sub r_function_mnemonic {
 # returns if this opcode is a branch instruction
 sub is_branch_opcode {
     my ($self, $opcode) = @_;
-    my $mnemonic = NetCode->opcode_mnemonic($opcode);
-    return grep { $_ eq $mnemonic } @NetCode::BRANCH_OPS;
+    my $mnemonic = Grids::Code->opcode_mnemonic($opcode);
+    return grep { $_ eq $mnemonic } @Grids::Code::BRANCH_OPS;
 }
 
 # returns if this R-type function is a branch instruction
 sub is_branch_r_func {
     my ($self, $rfunc) = @_;
-    my $mnemonic = NetCode->r_function_mnemonic($rfunc);
-    return grep { $_ eq $mnemonic } @NetCode::BRANCH_OPS;
+    my $mnemonic = Grids::Code->r_function_mnemonic($rfunc);
+    return grep { $_ eq $mnemonic } @Grids::Code::BRANCH_OPS;
 }
 
-# takes a string of NetAsm and returns a Program or undef if assembly was unsuccessful
+# takes a string of GridsAsm and returns a Program or undef if assembly was unsuccessful
 sub assemble_program {
     my ($class, $asm) = @_;
 
     my $segment_map = $class->assemble_segment_map($asm)
         or return undef;
 
-    return NetCode::Program->new(segments => $segment_map);
+    return Grids::Code::Program->new(segments => $segment_map);
 }
 
 # just returns raw bytes of .text section
@@ -189,7 +189,7 @@ sub assemble_simple {
     return $segmap->{0};
 }
 
-# takes a string of NetAsm and returns segment map in the form { addr => bytecode }
+# takes a string of GridsAsm and returns segment map in the form { addr => bytecode }
 sub assemble_segment_map {
     my ($class, $asm) = @_;
 

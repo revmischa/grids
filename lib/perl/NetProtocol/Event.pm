@@ -1,4 +1,4 @@
-package NetProtocol::Event;
+package Grids::Protocol::Event;
 use strict;
 use warnings;
 

@@ -1,8 +1,8 @@
-package NetProtocol::EventQueue;
+package Grids::Protocol::EventQueue;
 use strict;
 use warnings;
 use Carp;
-use Class::Autouse(qw/NetProtocol::Event/);
+use Class::Autouse(qw/Grids::Protocol::Event/);
 
 use base qw/Class::Accessor::Fast/;
 __PACKAGE__->mk_accessors(qw/queue/);

@@ -1,6 +1,6 @@
 use strict;
-package NetTransport::TCP;
-use base 'NetTransport';
+package Grids::Transport::TCP;
+use base 'Grids::Transport';
 use IO::Socket::INET;
 
 sub new {

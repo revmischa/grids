@@ -1,6 +1,6 @@
-# This package represents an executable NetCode-based Program
+# This package represents an executable GridsCode-based Program
 
-package NetCode::Program;
+package Grids::Code::Program;
 use strict;
 use warnings;
 use bytes;
@@ -46,7 +46,7 @@ sub bytes {
     }
 
     # load a memory image with the segments mapped
-    my $mem = NetMem->new($prog_len);
+    my $mem = GridsMem->new($prog_len);
     foreach my $base_addr (keys %$segment_map) {
         $mem->set($base_addr, $segment_map->{$base_addr}, offset => $base_addr);
     }
