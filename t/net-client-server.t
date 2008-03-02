@@ -1,16 +1,16 @@
-# tests for high-level Net client/server functionality
+# tests for high-level Grids client/server functionality
 use strict;
 use Test::More qw(no_plan);
 use lib 'lib/perl';
-use NetNode;
-use NetClient;
+use Grids::Node;
+use Grids::Client;
 
 my $debug = 0;
 
-my $server = NetNode->new(debug => $debug);
+my $server = Grids::Node->new(debug => $debug);
 my $server_trans = $server->add_transport('Loop');
 
-my $client = NetClient->new(id => '123456', transport => 'Loop', debug => $debug);
+my $client = Grids::Client->new(id => '123456', transport => 'Loop', debug => $debug);
 
 # connect client to server using Loop transport
 $client->connect($server_trans);
@@ -74,7 +74,7 @@ sub client_login_hook {
     if ($login_good) {
         is($args->{success}, 1, 'Login successful');
     } else {
-        is($args->{error}, NetNode::ERROR_LOGIN_INVALID, 'Login unsuccessful');
+        is($args->{error}, Grids::Node::ERROR_LOGIN_INVALID, 'Login unsuccessful');
     }
 
     return 1;

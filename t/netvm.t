@@ -1,20 +1,20 @@
 use strict;
 use Test::More qw(no_plan);
 use lib 'lib/perl';
-use NetCode;
-use NetVM;
+use Grids::Code;
+use Grids::VM;
 use Data::Dumper;
 
 # sample program
-my $prog = slurp('sample/netvm_test.netasm');
+my $prog = slurp('sample/gridsvm_test.gridsasm');
 
-my $program = NetCode->assemble_program($prog)
+my $program = Grids::Code->assemble_program($prog)
     or die "Unable to assemble program";
 
 my $segments = $program->segments;
 ok(%$segments, "assembled program");
 
-my $vm = new NetVM;
+my $vm = new Grids::VM;
 is($vm->pc, 0, "initted vm");
 $vm->load_program($program);
 
@@ -178,10 +178,10 @@ is($vm->pc, 0, 'j');
 sub _u { return int(sprintf("%u", $_[0])); }
 
 # get opcode mnemonic
-sub op { NetCode->opcode_mnemonic($vm->current_instruction_opcode); }
+sub op { Grids::Code->opcode_mnemonic($vm->current_instruction_opcode); }
 
 # get opcode mnemonic for r-type
-sub op_r { NetCode->r_function_mnemonic($vm->current_instruction_r_func); }
+sub op_r { Grids::Code->r_function_mnemonic($vm->current_instruction_r_func); }
 
 # read in a file
 sub slurp {

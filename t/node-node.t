@@ -7,7 +7,7 @@ use warnings;
 use Test::More qw/no_plan/;
 
 use lib 'lib/perl';
-use NetNode;
+use Grids::Node;
 
 my $debug = 0;
 
@@ -20,7 +20,7 @@ sub init_nodes {
     my %loopmap; # node -> loop
 
     for (1 .. $nodecount) {
-        my $node = NetNode->new(debug => $debug);
+        my $node = Grids::Node->new(debug => $debug);
         $node->conf->set_conf('Node.PrivateKey' => '123');
         $node->register_event_hook('ProtocolEstablished', \&node_connected);
         $node->register_node_protocol_handler;

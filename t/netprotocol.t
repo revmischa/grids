@@ -1,17 +1,17 @@
 use strict;
 use Test::More qw(no_plan);
 use lib 'lib/perl';
-use NetProtocol;
+use Grids::Protocol;
 
 my %EVENTS; # holds event info received in Protocol event handler callback
 
-my $p_cli = NetProtocol->new(encapsulation => 'JSON');
+my $p_cli = Grids::Protocol->new(encapsulation => 'JSON');
 
 my $initiation = $p_cli->initiation_string;
 
-my $p_srv = NetProtocol->new_from_initiation_string($initiation);
+my $p_srv = Grids::Protocol->new_from_initiation_string($initiation);
 
-ok($p_srv, "Created new NetProtocol from initiation string");
+ok($p_srv, "Created new Grids::Protocol from initiation string");
 
 # test encapsulation / parsing
 {

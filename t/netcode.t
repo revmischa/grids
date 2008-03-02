@@ -1,7 +1,7 @@
 use strict;
 use Test::More qw(no_plan);
 use lib 'lib/perl';
-use NetCode;
+use Grids::Code;
 
 # test assembler
 {
@@ -18,7 +18,7 @@ use NetCode;
 
 sub asm {
     my ($asm) = @_;
-    return NetCode->assemble_simple($asm);
+    return Grids::Code->assemble_simple($asm);
 }
 
 
