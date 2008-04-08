@@ -1,0 +1,3 @@
+TYPEMAP
+
+memhandle_t     T_UV
