@@ -84,4 +84,6 @@ sub login {
     my ($node, %info) = @_;
 
     ok(%info, "node-node login");
+
+    return;
 }

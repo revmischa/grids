@@ -38,7 +38,8 @@ sub run_hooks {
 
         # find regex hooknames
         foreach my $re (@instance_hooks) {
-            push @res, $self->_run_hooks($self, $self->{hooks}->{$re}, %info) if $hookname =~ $re;
+            push @res, $self->_run_hooks($self, $self->{hooks}->{$re}, %info)
+                if $self->hook_matches($hookname, $re);
         }
     }
 
@@ -46,10 +47,24 @@ sub run_hooks {
 	my $package = ref $self || $self;
     my @package_hooks = keys %{$HOOKS{$package}};
     foreach my $re (@package_hooks) {
-        push @res, $self->_run_hooks($self, $HOOKS{$package}->{$re}, %info) if $hookname =~ $re;
+        push @res, $self->_run_hooks($self, $HOOKS{$package}->{$re}, %info)
+            if $self->hook_matches($hookname, $re);
     }
 
     return @res;
+}
+
+sub hook_matches {
+    my ($pkg, $hookname, $match) = @_;
+    if (ref $match) {
+        if (ref $match eq 'Regexp') {
+            return $hookname =~ $match;
+        } else {
+            warn "Warning, there is a handler for hook named $match, this is probably a mistake";
+        }
+    }
+
+    return $hookname eq $match;
 }
 
 # actually runs hooks

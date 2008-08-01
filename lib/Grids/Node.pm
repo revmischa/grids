@@ -86,7 +86,7 @@ sub initiate_node_protocol {
 sub register_node_protocol_handler {
     my $self = shift;
 
-    $self->register_hook('^Connected', \&initiate_node_protocol);
+    $self->register_hook('Connected', \&initiate_node_protocol);
 }
 
 sub data_received {
