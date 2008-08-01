@@ -133,7 +133,8 @@ sub session_initiated {
 # processes everything in the event queue
 sub flush_event_queue {
     my ($self) = @_;
-    while ($self->do_next_event) {}
+    while ($self->do_next_event) {} 
+    return 0;
 }
 
 sub do_next_event {

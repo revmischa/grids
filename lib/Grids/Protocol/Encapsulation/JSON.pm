@@ -15,12 +15,12 @@ sub new {
 
 sub encapsulate {
     my ($self, $params) = @_;
-    return $self->{json}->objToJson($params);
+    return $self->{json}->encode($params);
 }
 
 sub decapsulate {
     my ($self, $data) = @_;
-    return $self->{json}->jsonToObj($data);
+    return $self->{json}->decode($data);
 }
 
 1;
