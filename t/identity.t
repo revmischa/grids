@@ -3,9 +3,10 @@ use Test::More qw(no_plan);
 use lib 'lib';
 use Grids::Identity;
 
+my $verbose = 0;
 my $keysize = 512;
 
-my $alice = Grids::Identity->create(name => "Alice", verbose => 1, size => $keysize, passphrase => 'alicepass');
+my $alice = Grids::Identity->create(name => "Alice", verbose => $verbose, size => $keysize, passphrase => 'alicepass');
 $alice->privkey->check;
 
 my $id_ser = $alice->serialize;
@@ -14,20 +15,13 @@ ok($alice->decrypt_privkey('alicepass'), 'passphrase');
 my $alice2 = Grids::Identity->deserialize($id_ser);
 ok($alice2->decrypt_privkey('alicepass'), 'passphrase');
 
-#ok($alice->check, "key ok");
-#ok($alice2->check, "key ok after serialization/deserialization/decryption");
+ok($alice->check, "key ok");
+ok($alice2->check, "key ok after serialization/deserialization/decryption");
 
-my $bob = Grids::Identity->create(name => "Bob", verbose => 1, size => $keysize);
+my $bob = Grids::Identity->create(name => "Bob", verbose => $verbose, size => $keysize);
 
 my $tongds = $bob->serialize;
-$bob->privkey->reveal;
-ok($bob->check, 'serialize ok');
-warn "serialized";
-#my $bob2 = Grids::Identity->deserialize($id_ser);
-#warn $id_ser;
-#is_deeply($bob2, $bob, "serialize/deserialize");
-
-#ok($bob2->check, "key ok after deserialization");
+ok($bob->check, 'no serialization side-effects');
 
 my $plaintext = 'lol dongues';
 
@@ -48,4 +42,5 @@ my $plaintext = 'lol dongues';
 {
     my $sig = $alice->sign($plaintext);
     ok(Grids::Identity->verify($plaintext, $sig, $alice), "signed message with pubkey");
+    ok(! Grids::Identity->verify("xx$plaintext", $sig, $alice), "message verification");
 }

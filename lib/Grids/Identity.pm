@@ -9,6 +9,7 @@ package Grids::Identity;
 use Crypt::RSA;
 use Crypt::RSA::Key::Public;
 use Crypt::RSA::Key::Private;
+use Crypt::RSA::ES::OAEP;
 
 use Carp qw(croak);
 use Data::Dumper;
@@ -103,9 +104,11 @@ sub verify {
 # decrypts private key with $passphrase, returns if successful
 sub decrypt_privkey {
     my ($self, $passphrase) = @_;
+
     $self->privkey->reveal(Password => $passphrase);
 
-    return $self->keys_match;
+    my $match = $self->keys_match;
+    return $match;
 }
 
 # returns true if the stored pubkey is correct for the privkey
@@ -144,23 +147,35 @@ sub name { $_[0]->{name} }
 
 # warning! this will have a side-effect of encrypting the private key!
 sub serialize {
-    my $self = shift;
+    my $self = shift;    
 
-    warn "encrypted" if $self->encrypted;
-    $self->priv->hide if $self->encrypted && $self->priv;
+    my $priv = $self->priv;
+    my $pub = $self->pub;
+
+    $priv->hide if $self->encrypted && $priv;
 
     my $store = {
         name => $self->name,
         encrypted => $self->encrypted,
     };
 
-    $store->{pubkey} = $self->pub->serialize if $self->pub;
-    $store->{privkey} = $self->priv->serialize if $self->priv;
+    $store->{pubkey}  = $pub->serialize if $pub;
+    $store->{privkey} = $priv->serialize if $priv;
 
     local $Data::Dumper::Purity = 1;         # fill in the holes for eval
     local $Data::Dumper::Deepcopy = 1;       # avoid cross-refs
 
     my $ser = Data::Dumper->Dump([$store], ['*store']); 
+
+
+    # Crypt::RSA is super annoying and will actually serialize the
+    # keys in-place. this means if you try to use the keys after
+    # calling this method they won't work, they have to be
+    # deserialized again.
+
+    $self->{pubkey} = $pub->deserialize(String => [$store->{pubkey}]) if $pub;
+    $self->{privkey} = $priv->deserialize(String => [$store->{privkey}]) if $priv;
+
     return $ser;
 }
 
@@ -172,8 +187,6 @@ sub deserialize {
 
     my $pubkey = delete $store{pubkey};
     my $privkey = delete $store{privkey};
-
-    warn "privkey: $privkey";
 
     $pubkey = Crypt::RSA::Key::Public->deserialize(String => [$pubkey]) if $pubkey;
     $privkey = Crypt::RSA::Key::Private->deserialize(String => [$privkey]) if $privkey;
