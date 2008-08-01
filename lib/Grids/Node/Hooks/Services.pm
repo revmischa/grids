@@ -2,9 +2,9 @@ package Grids::Node;
 use strict;
 use warnings;
 
-__PACKAGE__->register_event_hooks(
-                                  'Services.List' => \&hook_services_list,
-                                  );
+__PACKAGE__->register_hooks(
+                            'Services.List' => \&hook_services_list,
+                            );
 
 sub hook_services_list {
     my ($node, %info) = @_;

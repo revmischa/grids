@@ -57,13 +57,26 @@ sub add_transport {
     return $trans;
 }
 
-sub connection_established {
+# someone has connected to us
+sub incoming_connection_established {
     my ($self, $trans, $conn) = @_;
 
     $self->dbg("server transport $trans received connection: $conn\n");
 
     # fire 'Connected' event
     $self->run_hooks('Connected', _trans => $trans, _conn => $conn);
+    $self->run_hooks('Connected.Incoming', _trans => $trans, _conn => $conn);
+}
+
+# we have connected to a server
+sub outgoing_connection_established {
+    my ($self, $trans, $conn) = @_;
+
+    $self->dbg("client transport $trans connected: $conn\n");
+
+    # fire 'Connected' event
+    $self->run_hooks('Connected', _trans => $trans, _conn => $conn);
+    $self->run_hooks('Connected.Outgoing', _trans => $trans, _conn => $conn);
 }
 
 # called when a connection to another node is established to set up a
@@ -86,7 +99,8 @@ sub initiate_node_protocol {
 sub register_node_protocol_handler {
     my $self = shift;
 
-    $self->register_hook('Connected', \&initiate_node_protocol);
+    # initiate grids protocol if we connect to a server
+    $self->register_hook('Connected.Outgoing', \&initiate_node_protocol);
 }
 
 sub data_received {

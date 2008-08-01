@@ -29,10 +29,10 @@ sub init_nodes {
         $node->conf->set_conf('Node.PrivateKey' => '123');
 
         # handle connections and node-node communication
-        $node->register_event_hook('ProtocolEstablished', \&node_connected);
-        $node->register_event_hook('Login', \&login);
+        $node->register_hook('Connected', \&node_connected);
+        $node->register_hook('Login', \&login);
         $node->register_node_protocol_handler;
-        $node->register_event_hook('Error', \&node_error);
+        $node->register_hook('Error', \&node_error);
 
         my $loop = $node->add_transport('Loop');
         $loopmap{$node} = $loop;
@@ -40,11 +40,13 @@ sub init_nodes {
     }
 
     # connect all loops
-    foreach my $loop (values %loopmap) {
-        foreach my $node (@nodes) {
-            next if $loopmap{$node} eq $loop;
-            $loop->connect($loopmap{$node});
-        }
+    for (my $i = 0 ; $i < $nodecount ; $i++) {
+        my $nextnode = $i != $nodecount - 1 ? $nodes[$i + 1] : $nodes[0];
+
+        my $loop = $loopmap{$nodes[$i]};
+        my $nextloop = $loopmap{$nextnode};
+
+        $loop->connect($nextloop);
     }
 
     flush();
@@ -54,12 +56,15 @@ sub init_nodes {
 
 # process all waiting events
 sub flush {
-    my $flushed = 0;
-    do {
-        if (grep { $_->flush_event_queue } @nodes) {
-            $flushed = 1 unless grep { $_->flush_event_queue } @nodes;
-        }
-    } while (! $flushed);
+    $_->flush_event_queue foreach @nodes;
+    return;
+
+#    my $flushed = 0;
+#    do {
+#        if (grep { $_->flush_event_queue } @nodes) {
+#            $flushed = 1 unless grep { $_->flush_event_queue } @nodes;
+#        }
+#    } while (! $flushed);
 }
 
 # node got error

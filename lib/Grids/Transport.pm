@@ -52,11 +52,18 @@ sub error {
     return 0;
 }
 
-sub connection_established {
+sub outgoing_connection_established {
     my ($self, $con) = @_;
 
-    return unless $self->parent->can('connection_established');
-    $self->parent->connection_established($self, $con);
+    return unless $self->parent->can('outgoing_connection_established');
+    $self->parent->outgoing_connection_established($self, $con);
+}
+
+sub incoming_connection_established {
+    my ($self, $con) = @_;
+
+    return unless $self->parent->can('incoming_connection_established');
+    $self->parent->incoming_connection_established($self, $con);
 }
 
 sub data_received {

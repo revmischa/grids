@@ -3,9 +3,9 @@ use strict;
 use warnings;
 use Carp;
 
-__PACKAGE__->register_event_hooks(
-                                  'Authentication.Login' => \&hook_login,
-                                  );
+__PACKAGE__->register_hooks(
+                            'Authentication.Login' => \&hook_login,
+                            );
 
 sub hook_login {
 	my Grids::Client $client = shift;

@@ -113,16 +113,16 @@ sub parse_request {
             return $self->event('ProtocolEstablished');
         } elsif ($status eq 'ERROR') {
             if ($info eq 'Unauthorized') {
-                return $self->error_event('Protocol.Error.Unauthorized', {message => $extrainfo});
+                return $self->error_event('Error.Protocol.Unauthorized', {message => $extrainfo});
             } elsif ($info eq 'IncompatibleVersion') {
-                return $self->error_event('Protocol.Error.IncompatibleVersion', {min_version => $extrainfo});
+                return $self->error_event('Error.Protocol.IncompatibleVersion', {min_version => $extrainfo});
             } elsif ($info eq 'InvalidEncapsulations') {
-                return $self->error_event('Protocol.Error.InvalidEncapsulations');
+                return $self->error_event('Error.Protocol.InvalidEncapsulations');
             } else {
-                return $self->error_event('Protocol.Error.UnknownError', {msg => $info});
+                return $self->error_event('Error.Protocol.UnknownError', {msg => $info});
             }
         } else {
-            return $self->error_event('Protocol.Error.UnknownStatus', {status => $status});
+            return $self->error_event('Error.Protocol.UnknownStatus', {status => $status});
         }
     }
 

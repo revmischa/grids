@@ -28,7 +28,7 @@ sub connect {
 
     $self->add_socket($self->{sock});
 
-    $self->connection_established($self->{sock});
+    $self->outgoing_connection_established($self->{sock});
 }
 
 sub write {
@@ -115,7 +115,7 @@ sub select {
             # and add it to the read set
             my $ns = $rh->accept;
             $self->add_socket($ns);
-            $self->connection_established($ns);
+            $self->incoming_connection_established($ns);
         } else {
             # otherwise this is a normal socket reading for reading
 

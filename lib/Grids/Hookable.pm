@@ -32,23 +32,30 @@ sub run_hooks {
     my ($self, $hookname, %info) = @_;
 
     my @res;
-    if (ref $self) {
-        # this is an instance, instance hooks if any
-        my @instance_hooks = keys %{$self->{hooks}};
 
-        # find regex hooknames
-        foreach my $re (@instance_hooks) {
-            push @res, $self->_run_hooks($self, $self->{hooks}->{$re}, %info)
-                if $self->hook_matches($hookname, $re);
-        }
+    if (ref $self) {
+        # look for hooks registered on this instance
+        push @res, $self->run_hooks_on($self->{hooks}, $hookname, \%info);
     }
 
-    # find regex hooknames
-	my $package = ref $self || $self;
-    my @package_hooks = keys %{$HOOKS{$package}};
-    foreach my $re (@package_hooks) {
-        push @res, $self->_run_hooks($self, $HOOKS{$package}->{$re}, %info)
-            if $self->hook_matches($hookname, $re);
+    # look for hooks registered in this package
+    my $package = ref $self || $self;
+    push @res, $self->run_hooks_on($HOOKS{$package}, $hookname, \%info);
+
+    return @res;
+}
+
+# finds and runs hooks on all matching hooks stored in $hook_desc
+sub run_hooks_on {
+    my ($self, $hook_desc, $hookname, $info) = @_;
+
+    my @res;
+        
+    foreach my $hooks (values %$hook_desc) {
+        foreach my $hook_info (@$hooks) {
+            push @res, $self->_run_hook($self, $hook_info->{callback}, $info)
+                if $self->hook_matches($hookname, $hook_info->{hookname});
+        }
     }
 
     return @res;
@@ -56,6 +63,7 @@ sub run_hooks {
 
 sub hook_matches {
     my ($pkg, $hookname, $match) = @_;
+
     if (ref $match) {
         if (ref $match eq 'Regexp') {
             return $hookname =~ $match;
@@ -67,48 +75,28 @@ sub hook_matches {
     return $hookname eq $match;
 }
 
-# actually runs hooks
-sub _run_hooks {
-    my ($pkg, $self, $hooks, %info) = @_;
+# actually runs hook
+sub _run_hook {
+    my ($pkg, $self, $cb, $info) = @_;
 
-    return () unless $hooks && @$hooks;
-
-    my @res;
-
-    foreach my $hook (@$hooks) {
-        my $ret = $hook->($self, %info);
-        push @res, $ret;
-    }
-
-    return @res;
+    return unless $cb;
+    return $cb->($self, %$info);
 }
 
 sub run_event_hooks {
     my ($self, %info) = @_;
 
     my $event = $info{event};
-    my $hookname = "Event-$event";
-
-    return $self->run_hooks($hookname, %info);
+    return $self->run_hooks($event, %info);
 }
 
 sub register_hooks {
-    my ($self, %hooks) = @_;
+    my ($self, @hooks) = @_;
 
-    $self->register_hook($_, $hooks{$_}) foreach keys %hooks;
-}
-
-sub register_event_hooks {
-    my ($self, %hooks) = @_;
-
-    $self->register_event_hook($_, $hooks{$_}) foreach keys %hooks;
-}
-
-sub register_event_hook {
-    my ($self, $event, $cb, $cb_obj) = @_;
-
-    my $hookname = "Event-$event";
-    return $self->register_hook($hookname, $cb, $cb_obj);
+    # don't coerce args into hash because it will turn precompiled regexp's into strings
+    for (my $i = 0; $i < $#hooks ; $i += 2) {
+        $self->register_hook($hooks[$i], $hooks[$i + 1]);
+    }
 }
 
 sub register_hook {
@@ -119,17 +107,19 @@ sub register_hook {
         $cb = sub { $cb->($cb_obj, @_) };
     }
 
+    my $hook_save = { hookname => $hookname, callback => $cb };
+
     if (ref $self) {
         # adding hooks to an instance
         $self->{hooks} ||= {};
         $self->{hooks}->{$hookname} ||= [];
 
-        push @{$self->{hooks}->{$hookname}}, $cb;
+        push @{$self->{hooks}->{$hookname}}, $hook_save;
     } else {
 		# register package hooks
         $HOOKS{$self}->{$hookname} ||= [];
 
-        push @{$HOOKS{$self}->{$hookname}}, $cb;
+        push @{$HOOKS{$self}->{$hookname}}, $hook_save;
     }
 }
 

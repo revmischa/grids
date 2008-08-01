@@ -20,8 +20,8 @@ sub connect {
     $self->{peer} = $peer;
     $self->{peer}->{peer} = $self;
 
-    $self->{peer}->connection_established($self);
-    $self->connection_established($peer);
+    $self->{peer}->incoming_connection_established($self);
+    $self->outgoing_connection_established($peer);
 
     return 1;
 }

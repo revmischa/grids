@@ -8,12 +8,9 @@ use constant {
     ERROR_AUTHENTICATION_REQUIRED => -2,
 };
 
-__PACKAGE__->register_event_hooks(
-                                  'Authentication.Login' => \&hook_login,
-                                  );
-
 __PACKAGE__->register_hooks(
                             'Authentication.Login.AuthCheck' => \&hook_auth_check_pubkey,
+                            'Authentication.Login' => \&hook_login,
                             );
 
 sub hook_login {
