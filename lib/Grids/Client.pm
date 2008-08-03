@@ -111,11 +111,11 @@ sub connect {
     $self->transport->connect($address);
 }
 
-# Called when a connection with a Node has been established This
+# Called when a connection with a Node has been established. This
 # simply means there is a connection, but the protocol handler has not
 # been set up yet. Once the connection is set up peroperly, the
 # Connected event will be called
-sub connection_established {
+sub outgoing_connection_established {
     my ($self, $trans, $con) = @_;
 
     $self->dbg("Connection to node successful.");

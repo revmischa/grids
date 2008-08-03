@@ -15,9 +15,9 @@ my $client = Grids::Client->new(id => '123456', transport => 'Loop', debug => $d
 # connect client to server using Loop transport
 $client->connect($server_trans);
 
-$client->register_event_hook('Authentication.Login', \&client_login_hook);
-$client->register_event_hook('Services.List', \&client_service_list);
-$client->register_event_hook('Storage.List', \&client_storage_list);
+$client->register_hook('Authentication.Login', \&client_login_hook);
+$client->register_hook('Services.List', \&client_service_list);
+$client->register_hook('Storage.List', \&client_storage_list);
 
 my $login_good = 0;
 
