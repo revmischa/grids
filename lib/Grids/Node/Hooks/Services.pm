@@ -7,9 +7,9 @@ __PACKAGE__->register_hooks(
                             );
 
 sub hook_services_list {
-    my ($node, %info) = @_;
+    my ($node, $info) = @_;
 
-    return 0 unless $node->check_authentication(\%info);
+    return 0 unless $node->check_authentication($info);
 
     my @services = $node->services;
 

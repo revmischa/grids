@@ -15,17 +15,17 @@ __PACKAGE__->register_hooks(
 
 sub hook_login {
 	my Grids::Node $node = shift;
-	my %info = @_;
+	my $info = shift;
 
-    if ($node->test_any_hook('Authentication.Login.AuthCheck', %info)) {
+    if ($node->test_any_hook('Authentication.Login.AuthCheck', $info)) {
         # successful login, generate sessiont token
         my $session_token = time() . rand();
 
 		# instantiate remote object representing this connection
 		my $remote = Grids::Node::Remote->new(
-			trans => $info{trans},
+			trans => $info->{trans},
 			session_token => $session_token,
-			public_key => $info{args}{public_key}
+			public_key => $info->{args}{public_key}
 		);
 
         $node->sessions->{$session_token} = $remote;
@@ -38,12 +38,14 @@ sub hook_login {
 }
 
 sub hook_auth_check_pubkey {
-    my ($node, %info) = @_;
+    my ($node, $info) = @_;
 
-    my $pubkey = $info{args}{public_key} or return 0;
+    # get peer public key
+    my $peer_pubkey = $info->{proto}->peer_identity->pubkey;
+    my $pubkey_str = $peer_pubkey->serialize;
 
     my %authorized_keys = $node->authorized_keys;
-    return grep { $pubkey eq $_ } keys %authorized_keys;
+    return grep { $pubkey_str eq $_ } values %authorized_keys;
 }
 
 sub need_auth {

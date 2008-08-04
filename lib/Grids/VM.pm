@@ -9,6 +9,9 @@ use Scalar::Util qw / weaken /;
 
 use Grids::Code;
 use Grids::VM::Instructions;
+
+use FindBin;
+use lib "../GridsMem/lib";
 use GridsMem;
 use GridsReg;
 

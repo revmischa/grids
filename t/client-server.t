@@ -4,13 +4,16 @@ use Test::More qw(no_plan);
 use lib 'lib';
 use Grids::Node;
 use Grids::Client;
+use Grids::Identity;
 
 my $debug = 0;
 
-my $server = Grids::Node->new(debug => $debug);
+my $srv_id = Grids::Identity->create(size => 'TEST');
+my $server = Grids::Node->new(debug => $debug, id => $srv_id);
 my $server_trans = $server->add_transport('Loop');
 
-my $client = Grids::Client->new(id => '123456', transport => 'Loop', debug => $debug);
+my $id = Grids::Identity->create(size => 'TEST');
+my $client = Grids::Client->new(id => $id, transport => 'Loop', debug => $debug);
 
 # connect client to server using Loop transport
 $client->connect($server_trans);
@@ -21,9 +24,9 @@ $client->register_hook('Storage.List', \&client_storage_list);
 
 my $login_good = 0;
 
-c_req('Authentication.Login', { public_key => 'lolwtf' });
+c_req('Authentication.Login');
 
-$server->conf->set_conf('Node.AuthorizedKeys', { $client->id => 1 });
+$server->conf->set_conf('Node.AuthorizedKeys', { $client->id => $id->pubkey->serialize });
 $login_good = 1;
 $client->login;
 c_req();
@@ -52,24 +55,24 @@ sub c_req {
 }
 
 sub client_service_list {
-    my ($c, %info) = @_;
-    ok($info{args}{services}, "Services list");
+    my ($c, $info) = @_;
+    ok($info->{args}{services}, "Services list");
     return 0;
 }
 
 sub client_storage_list {
-    my ($c, %info) = @_;
+    my ($c, $info) = @_;
 
-    is_deeply($info{args}{storage}, $storage, "Storage list");
+    is_deeply($info->{args}{storage}, $storage, "Storage list");
     return 0;
 }
 
 sub client_login_hook {
-    my ($c, %info) = @_;
+    my ($c, $info) = @_;
 
-    my $args = $info{args};
+    my $args = $info->{args};
     is ($c, $client, "Got client in hook info");
-    is ($info{event}, 'Authentication.Login', "Got correct event in hook info");
+    is ($info->{event}, 'Authentication.Login', "Got correct event in hook info");
 
     if ($login_good) {
         is($args->{success}, 1, 'Login successful');

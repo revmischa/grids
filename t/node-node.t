@@ -9,6 +9,7 @@ use Data::Dumper;
 
 use lib 'lib';
 use Grids::Node;
+use Grids::Identity;
 
 my $debug = 0;
 
@@ -22,8 +23,11 @@ sub init_nodes {
     my %loopmap; # node -> loop
 
     for (1 .. $nodecount) {
+        # generate an identity for this new node
+        my $id = Grids::Identity->create(size => 'TEST');
+
         # create a new node
-        my $node = Grids::Node->new(debug => $debug);
+        my $node = Grids::Node->new(debug => $debug, id => $id);
 
         # set node-node private key
         $node->conf->set_conf('Node.PrivateKey' => '123');
@@ -69,15 +73,15 @@ sub flush {
 
 # node got error
 sub node_error {
-    my ($node, %info) = @_;
-    not_ok(Dumper(\%info));
+    my ($node, $info) = @_;
+    not_ok(Dumper($info));
 }
 
 # send node key (FIXME: make encrypted)
 sub node_connected {
-    my ($node, %info) = @_;
+    my ($node, $info) = @_;
 
-    ok(%info, "node $node connected");
+    ok(%$info, "node $node connected");
     $connections++;
 
     # try to log in with shared node privkey
@@ -86,9 +90,9 @@ sub node_connected {
     
 # node-node login
 sub login {
-    my ($node, %info) = @_;
+    my ($node, $info) = @_;
 
-    ok(%info, "node-node login");
+    ok(%$info, "node-node login");
 
     return;
 }

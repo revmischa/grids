@@ -4,7 +4,7 @@ use lib 'lib';
 use Grids::Identity;
 
 my $verbose = 0;
-my $keysize = 512;
+my $keysize = 'TEST';
 
 my $alice = Grids::Identity->create(name => "Alice", verbose => $verbose, size => $keysize, passphrase => 'alicepass');
 $alice->privkey->check;

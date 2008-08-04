@@ -15,6 +15,9 @@ sub new {
 
 sub encapsulate {
     my ($self, $params) = @_;
+    
+    eval { $self->{json}->encode($params) } or Carp::confess();
+
     return $self->{json}->encode($params);
 }
 

@@ -15,32 +15,32 @@ sub load_hooks {
 
 # run hooks and require them all to return true
 sub test_all_hooks {
-    my ($self, $hookname, %info) = @_;
+    my ($self, $hookname, $info) = @_;
 
-    return ! grep { ! $_ } $self->run_hooks($hookname, %info);
+    return ! grep { ! $_ } $self->run_hooks($hookname, $info);
 }
 
 # run hooks and require at least one to return true
 sub test_any_hook {
-    my ($self, $hookname, %info) = @_;
+    my ($self, $hookname, $info) = @_;
 
-    return grep { $_ } $self->run_hooks($hookname, %info);
+    return grep { $_ } $self->run_hooks($hookname, $info);
 }
 
 # find hooks on instance/package
-sub run_hooks {
-    my ($self, $hookname, %info) = @_;
+sub run_hooks($$$) {
+    my ($self, $hookname, $info) = @_;
 
     my @res;
 
     if (ref $self) {
         # look for hooks registered on this instance
-        push @res, $self->run_hooks_on($self->{hooks}, $hookname, \%info);
+        push @res, $self->run_hooks_on($self->{hooks}, $hookname, $info);
     }
 
     # look for hooks registered in this package
     my $package = ref $self || $self;
-    push @res, $self->run_hooks_on($HOOKS{$package}, $hookname, \%info);
+    push @res, $self->run_hooks_on($HOOKS{$package}, $hookname, $info);
 
     return @res;
 }
@@ -80,14 +80,14 @@ sub _run_hook {
     my ($pkg, $self, $cb, $info) = @_;
 
     return unless $cb;
-    return $cb->($self, %$info);
+    return $cb->($self, $info);
 }
 
-sub run_event_hooks {
-    my ($self, %info) = @_;
+sub run_event_hooks($$) {
+    my ($self, $info) = @_;
 
-    my $event = $info{event};
-    return $self->run_hooks($event, %info);
+    my $event = $info->{event};
+    return $self->run_hooks($event, $info);
 }
 
 sub register_hooks {

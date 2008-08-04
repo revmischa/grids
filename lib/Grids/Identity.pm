@@ -7,8 +7,8 @@ use strict;
 package Grids::Identity;
 
 use Crypt::RSA;
-use Crypt::RSA::Key::Public;
-use Crypt::RSA::Key::Private;
+use Grids::Identity::Public;
+use Grids::Identity::Private;
 use Crypt::RSA::ES::OAEP;
 
 use Carp qw(croak);
@@ -38,14 +38,18 @@ sub create {
     my ($class, %opts) = @_;
 
     my $verbose = delete $opts{verbose} ? 1 : 0;
-    my $size = delete $opts{size} || 512;
     my $passphrase = delete $opts{passphrase} || '';
+
+    my $size = delete $opts{size};
+    $size ||= 2048;
+    $size = 512 if $size eq 'TEST';
 
     print "\nGenerating public/private keypair, this may take a little while...\n\n" if $verbose;
 
     # generate a private key
     my $rsa = new Crypt::RSA;
     my ($pubkey, $privkey) = $rsa->keygen(
+                                          KF => 'SSH',
                                           Size   => $size,
                                           Cipher => 'Blowfish',
                                           Password => $passphrase,
@@ -57,6 +61,7 @@ sub create {
     print "\nGenerated identity keypair.\n\n" if $verbose;
 
     return $class->new(
+                       KF => 'SSH',
                        encrypted => $passphrase ? 1 : 0,
                        pubkey => $pubkey,
                        privkey => $privkey,
@@ -179,6 +184,13 @@ sub serialize {
     return $ser;
 }
 
+sub new_from_serialized_pubkey {
+    my ($class, $pubkey_serialized) = @_;
+
+    my $pubkey = Grids::Identity::Public->deserialize(String => [$pubkey_serialized]);
+    return $class->new(pubkey => $pubkey);
+}
+
 sub deserialize {
     my ($class, $serialized) = @_;
 
@@ -188,8 +200,8 @@ sub deserialize {
     my $pubkey = delete $store{pubkey};
     my $privkey = delete $store{privkey};
 
-    $pubkey = Crypt::RSA::Key::Public->deserialize(String => [$pubkey]) if $pubkey;
-    $privkey = Crypt::RSA::Key::Private->deserialize(String => [$privkey]) if $privkey;
+    $pubkey = Grids::Identity::Public->deserialize(String => [$pubkey]) if $pubkey;
+    $privkey = Grids::Identity::Private->deserialize(String => [$privkey]) if $privkey;
 
     return $class->new(%store, pubkey => $pubkey, privkey => $privkey);
 }

@@ -31,7 +31,7 @@ sub new {
 
     bless $self, $class;
 
-    my $proto = Grids::Protocol->new(encapsulation => $enc_class);
+    my $proto = Grids::Protocol->new(encapsulation => $enc_class, identity => $id);
     $self->{proto} = $proto;
 
     my $t = "Grids::Transport::$trans_class"->new($self, %opts);
@@ -69,8 +69,10 @@ sub do_next_event {
     my $args_disp = %$args ? ' (' . join(', ', map { $_ . ' = ' . $args->{$_} } keys %$args) . ')' : '';
     $self->dbg("Handling event " . $event->event_name . "$args_disp");
 
-    my @hook_results = $self->run_event_hooks(event => $event->event_name,
-                                              args => $args);
+    my @hook_results = $self->run_event_hooks({
+        event => $event->event_name,
+        args => $args,
+    });
 
     # were there any results?
     if (@hook_results) {
@@ -125,7 +127,7 @@ sub outgoing_connection_established {
 # initiates a login, call after ProtocolEstablished event
 sub login {
     my $self = shift;
-    $self->do_request('Authentication.Login', { public_key => $self->id });
+    $self->do_request('Authentication.Login');
 }
 
 sub dbg {

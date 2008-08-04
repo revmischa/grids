@@ -2,14 +2,19 @@ use strict;
 use Test::More qw(no_plan);
 use lib 'lib';
 use Grids::Protocol;
+use Grids::Identity;
 
 my %EVENTS; # holds event info received in Protocol event handler callback
 
-my $p_cli = Grids::Protocol->new(encapsulation => 'JSON');
+# create some identities
+my $cli_id = Grids::Identity->create(size => 'TEST');
+my $srv_id = Grids::Identity->create(size => 'TEST');
+
+my $p_cli = Grids::Protocol->new(encapsulation => 'JSON', identity => $cli_id);
 
 my $initiation = $p_cli->initiation_string;
 
-my $p_srv = Grids::Protocol->new_from_initiation_string($initiation);
+my $p_srv = Grids::Protocol->new_from_initiation_string($initiation, identity => $srv_id);
 
 ok($p_srv, "Created new Grids::Protocol from initiation string");
 

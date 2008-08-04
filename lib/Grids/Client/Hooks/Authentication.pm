@@ -9,14 +9,14 @@ __PACKAGE__->register_hooks(
 
 sub hook_login {
 	my Grids::Client $client = shift;
-	my %info = @_;
+    my $info = shift;
 
-    my $args = $info{args};
+    my $args = $info->{args};
 
     if ($args->{success}) {
         my $session = $args->{session_token} or $client->warn("Did not receive session token in login success");
         $client->session_token($session);
-        $client->dbg("Logged in successfully");
+        $client->dbg("Logged in successfully, session token: $session");
     } else {
         # invalid login, clear session
         $client->session_token('');

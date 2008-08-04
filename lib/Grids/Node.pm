@@ -12,10 +12,10 @@ use Class::Autouse qw/
 /;
 
 use Grids::Transport;
-use Carp;
+use Carp qw/croak/;
 
 use base qw/Class::Accessor::Fast Grids::Hookable/;
-__PACKAGE__->mk_accessors(qw/conf transports proto sessions debug event_queue/);
+__PACKAGE__->mk_accessors(qw/conf transports proto sessions debug event_queue id/);
 __PACKAGE__->load_hooks;
 
 our $default_conf = { };
@@ -25,6 +25,8 @@ sub new {
 
     my $conf = $opts{conf};
     my $debug = $opts{debug};
+
+    my $id = $opts{id} || $opts{identity} || croak "No identity passed to Grids::Node->new";
 
     $debug ||= $conf->get('debug') if $conf;
 
@@ -37,6 +39,7 @@ sub new {
     my $evt_queue = Grids::Protocol::EventQueue->new;
 
     my $self = {
+        id          => $id,
         conf        => $conf,
         transports  => [],
         debug       => $debug,
@@ -64,8 +67,8 @@ sub incoming_connection_established {
     $self->dbg("server transport $trans received connection: $conn\n");
 
     # fire 'Connected' event
-    $self->run_hooks('Connected', _trans => $trans, _conn => $conn);
-    $self->run_hooks('Connected.Incoming', _trans => $trans, _conn => $conn);
+    $self->run_hooks('Connected', { _trans => $trans, _conn => $conn });
+    $self->run_hooks('Connected.Incoming', { _trans => $trans, _conn => $conn });
 }
 
 # we have connected to a server
@@ -75,19 +78,21 @@ sub outgoing_connection_established {
     $self->dbg("client transport $trans connected: $conn\n");
 
     # fire 'Connected' event
-    $self->run_hooks('Connected', _trans => $trans, _conn => $conn);
-    $self->run_hooks('Connected.Outgoing', _trans => $trans, _conn => $conn);
+    $self->run_hooks('Connected', { _trans => $trans, _conn => $conn });
+    $self->run_hooks('Connected.Outgoing', { _trans => $trans, _conn => $conn });
 }
 
 # called when a connection to another node is established to set up a
 # protocol communication layer with the other node
 sub initiate_node_protocol {
-    my ($self, %info) = @_;
+    my ($self, $info) = @_;
 
-    my $transport = $info{_trans} or die "Got invalid Connected event";
-    my $conn = $info{_conn} or die "Got invalid Connected event";
+    my $transport = $info->{_trans} or die "Got invalid Connected event";
+    my $conn = $info->{_conn} or die "Got invalid Connected event";
 
-    my $proto = new Grids::Protocol;
+    croak "Trying to initate grids protocol on a node with no identity object set" unless $self->id;
+
+    my $proto = new Grids::Protocol(identity => $self->id);
     my $init_string = $proto->initiation_string;
 
     # save protocol handler
@@ -123,7 +128,7 @@ sub data_received {
         # if we don't have a protocol handler set up yet, this should be
         # the first transmission containing an initiation string
         $self->dbg("initating protocol handler with session init string [$data]");
-        my $p = Grids::Protocol->new_from_initiation_string($data);
+        my $p = Grids::Protocol->new_from_initiation_string($data, identity => $self->id);
 
         unless ($p) {
             $self->warn("invalid initiation string [$data]");
@@ -165,9 +170,12 @@ sub do_next_event {
 
     my $conn = delete $evt->args->{_conn};
 
-    my @hook_results = $self->run_event_hooks(event => $evt->event_name,
-                                              args => $evt->args,
-                                              trans => $trans);
+    my @hook_results = $self->run_event_hooks({
+        event => $evt->event_name,
+        args => $evt->args,
+        trans => $trans,
+        proto => $proto,
+    });
 
     # were there any results?
     if (@hook_results) {
