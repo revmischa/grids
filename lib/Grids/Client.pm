@@ -44,7 +44,7 @@ sub new {
 sub data_received {
     my ($self, $trans, $data) = @_;
 
-    #$self->dbg("received data [$data]");
+    $self->dbg("received data [$data]");
 
     my $evt = $self->proto->parse_request($data);
     $evt->{_trans} = $trans;

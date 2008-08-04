@@ -7,8 +7,8 @@ use Grids::Identity;
 my %EVENTS; # holds event info received in Protocol event handler callback
 
 # create some identities
-my $cli_id = Grids::Identity->create(size => 'TEST');
-my $srv_id = Grids::Identity->create(size => 'TEST');
+my $cli_id = Grids::Identity->create_for_test;
+my $srv_id = Grids::Identity->create_for_test;
 
 my $p_cli = Grids::Protocol->new(encapsulation => 'JSON', identity => $cli_id);
 

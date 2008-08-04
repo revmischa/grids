@@ -24,7 +24,7 @@ sub init_nodes {
 
     for (1 .. $nodecount) {
         # generate an identity for this new node
-        my $id = Grids::Identity->create(size => 'TEST');
+        my $id = Grids::Identity->create_for_test;
 
         # create a new node
         my $node = Grids::Node->new(debug => $debug, id => $id);

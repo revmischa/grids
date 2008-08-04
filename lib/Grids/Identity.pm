@@ -33,6 +33,13 @@ sub new {
     return $self;
 }
 
+sub create_for_test {
+    my ($class, %opts) = @_;
+
+    $opts{size} ||= 512;
+    return $class->create(%opts);
+}
+
 # generate a public/private keypair
 sub create {
     my ($class, %opts) = @_;
@@ -42,7 +49,6 @@ sub create {
 
     my $size = delete $opts{size};
     $size ||= 2048;
-    $size = 512 if $size eq 'TEST';
 
     print "\nGenerating public/private keypair, this may take a little while...\n\n" if $verbose;
 
@@ -81,6 +87,7 @@ sub encrypt {
 sub decrypt {
     my ($id, $ciphertext, %opts) = @_;
     my $rsa = new Crypt::RSA;
+
     return $rsa->decrypt(Cyphertext => $ciphertext, Key => $id->privkey, Armor => $opts{armor})
         or die $rsa->errstr;
 }

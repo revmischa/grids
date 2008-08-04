@@ -5,7 +5,7 @@ use warnings;
 use Carp qw/croak/;
 
 use base qw/Class::Accessor/;
-__PACKAGE__->mk_accessors(qw(encap encap_base encap_method id peer_identity));
+__PACKAGE__->mk_accessors(qw(encap encap_base encap_method id peer_id));
 
 use Class::Autouse qw/
     Grids::Protocol::Event
@@ -14,13 +14,18 @@ use Class::Autouse qw/
 # autouse all encapsulation methods
 Class::Autouse->autouse_recursive('Grids::Protocol::Encapsulation');
 
+use constant {
+    MSG_ENCRYPTED_PREFIX => '--',
+    MSG_PLAINTEXT_PREFIX => '==',
+};
+
 sub new {
     my ($class, %opts) = @_;
 
     my $enc = delete $opts{encapsulation} || 'JSON';
     my $id = delete $opts{identity} or croak "No identity passed to Grids::Protocol::New";
-    my $peer_identity = delete $opts{peer_identity};
-    my $self = bless { id => $id, peer_identity => $peer_identity }, $class;
+    my $peer_id = delete $opts{peer_id};
+    my $self = bless { id => $id, peer_id => $peer_id }, $class;
 
     if ($enc) {
         return undef unless $self->set_encapsulation_method($enc);
@@ -51,14 +56,43 @@ sub initiation_string {
     my $pubkey = $id->pubkey->serialize;
 
     my @elements = ('Grids', '1.0', $self->encap_base, "pubkey=\"$pubkey\"");
-    return '==' . join('/', @elements);
+    return MSG_PLAINTEXT_PREFIX . join('/', @elements);
+}
+
+# returns a string to respond to a protocol initiation
+sub protocol_init_response {
+    my ($self, %opts) = @_;
+
+    my $id = $self->id or croak "Tried to call protocol_init_response on a protocol with no identity defined";
+    my $pubkey = $id->pubkey->serialize;
+    
+    my @elements = ('OK', '1.0', $self->encap_base, "pubkey=\"$pubkey\"");
+    return MSG_PLAINTEXT_PREFIX . join('/', @elements);
+}
+
+sub set_peer_pubkey {
+    my ($self, %opts) = @_;
+
+    # only supports serialized pubkey for now
+    my $serialized = $opts{serialized_pubkey} or return undef;
+
+    my $peer_id = $self->deserialize_pubkey($serialized);
+    $self->{peer_id} = $peer_id;
+}
+
+sub deserialize_pubkey {
+    my ($class, $pubkey) = @_;
+
+    my $id = Grids::Identity->new_from_serialized_pubkey($pubkey);
+    return $id;
 }
 
 # returns a new Grids::Protocol instance from an initiation string
 sub new_from_initiation_string {
     my ($class, $initstr, %params) = @_;
 
-    return undef unless $initstr =~ s/^==//;
+    my $prefix = MSG_PLAINTEXT_PREFIX;
+    return undef unless $initstr =~ s/^$prefix//;
 
     my ($prog, $ver, $encapsulation_classes, $pubkey) = split('/', $initstr);
 
@@ -66,12 +100,13 @@ sub new_from_initiation_string {
 
     ($pubkey) = $pubkey =~ m/pubkey=\"([0-9 ]+)\"/i or return undef;
 
-    my $peer_id = Grids::Identity->new_from_serialized_pubkey($pubkey);
+    my $peer_id = $class->deserialize_pubkey($pubkey);
+    $params{peer_id} = $peer_id;
 
     my $p;
     # try each requested encapsulation method in listed order
     foreach my $enc (split(',', $encapsulation_classes)) {
-        $p = eval { $class->new(encapsulation => $enc, %params, peer_identity => $peer_id) };
+        $p = eval { $class->new(encapsulation => $enc, %params) };
         last if $p;
     }
 
@@ -88,9 +123,55 @@ sub encapsulate {
     $args ||= {};
     $args->{_method} = $event;
 
-    return $self->encap->encapsulate($args);
+    my $msg = $self->encap->encapsulate($args);
+
+    # do we have a public key for the other party? if so, encrypt this message for them
+    $msg = $self->encrypt_message($msg);
+
+    return $msg;
 }
 
+# encrypt this message for our peer, if we have their public key
+sub encrypt_message {
+    my ($self, $msg) = @_;
+
+    my $peer_id = $self->peer_id;
+    return $msg unless $peer_id && $self->id;
+
+    return MSG_ENCRYPTED_PREFIX . $self->id->encrypt($msg, $peer_id);
+}
+
+# takes a message and decrypts it using our privkey
+sub decrypt_message {
+    my ($self, $msg_orig) = @_;
+
+    my $msg = $msg_orig;
+
+    # is this message encrypted?
+    if (index($msg_orig, MSG_ENCRYPTED_PREFIX) == 0) {
+        $msg = substr($msg_orig, 2);
+
+        my $privkey = $self->id->privkey;
+        unless ($privkey) {
+            warn "No privkey set on protocol receiving encrypted message, cannot decrypt message";
+            return $msg;
+        }
+
+        # decrypt it
+        my $decrypted = $self->id->decrypt($msg);
+
+        unless ($decrypted) {
+            warn "Could not decrypt message";
+            return $msg;
+        }
+
+        $msg = $decrypted;
+    }
+
+    return $msg;
+}
+
+# take a received message string and parse it into a native data structure
 # should never need to be called directly
 sub decapsulate {
     my ($self, $data) = @_;
@@ -98,6 +179,7 @@ sub decapsulate {
     croak "Attempting to decapsulate message without an encapsulation method specified"
         unless $self->encap;
 
+    $data = $self->decrypt_message($data);
     my $args = $self->encap->decapsulate($data);
     return $args;
 }
@@ -108,10 +190,11 @@ sub parse_request {
 
     my $event;
 
-    if (index($data, '==') == 0) {
+    my $prefix = MSG_PLAINTEXT_PREFIX;
+    if (index($data, $prefix) == 0) {
         # this is an initiation string, handle it
-        # ==Grids/1.0/JSON/pubkey=abcdefg
-        my ($status, $info, $extrainfo, $pubkey) = $data =~ /^==(\w+)\/(\w+)(?:\/(\w*))?(?:\/pubkey="([\w\s]+)")?/i;
+        # ==Grids/1.0/JSON/pubkey=bitsize e n ident
+        my ($status, $version, $info, $pubkey) = $data =~ /^$prefix(\w+)\/([^\/]+)(?:\/(\w*))?(?:\/pubkey="([\w\s]+)")?/i;
 
         unless ($status) {
             warn "Got invalid request string: '$data'";
@@ -119,13 +202,17 @@ sub parse_request {
         }
 
         if ($status eq 'OK') {
-            $self->set_encapsulation_method($info) or die "Invalid encapsulation method \"$info\" specified by server";
-            return $self->event('ProtocolEstablished', {pubkey => $pubkey});
+            $self->set_peer_pubkey(serialized => $pubkey);
+
+            $self->set_encapsulation_method($info)
+                or return $self->error_event('Error.Protocol.UnsupportedEncapsulation', {encapsulation_method => $info});
+
+            return $self->event('ProtocolEstablished');
         } elsif ($status eq 'ERROR') {
             if ($info eq 'Unauthorized') {
-                return $self->error_event('Error.Protocol.Unauthorized', {message => $extrainfo});
+                return $self->error_event('Error.Protocol.Unauthorized', {message => $info});
             } elsif ($info eq 'IncompatibleVersion') {
-                return $self->error_event('Error.Protocol.IncompatibleVersion', {min_version => $extrainfo});
+                return $self->error_event('Error.Protocol.IncompatibleVersion', {min_version => $version});
             } elsif ($info eq 'InvalidEncapsulations') {
                 return $self->error_event('Error.Protocol.InvalidEncapsulations');
             } else {
@@ -138,6 +225,11 @@ sub parse_request {
 
     # decode message
     my $args = $self->decapsulate($data);
+
+    unless ($args) {
+        warn "Could not decapsulate protocol message";
+        return undef;
+    }
 
     # instantiate Event record
     my $event_name = delete $args->{_method};

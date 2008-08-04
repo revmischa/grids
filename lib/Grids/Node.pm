@@ -138,7 +138,8 @@ sub data_received {
 
         $self->proto->{$connection} = $p;
 
-        $trans->write("==OK/" . $p->encap_base, $connection) or $self->dbg("Unable to write session init response");
+        my $proto_init_resp = $p->protocol_init_response;
+        $trans->write($proto_init_resp, $connection) or $self->dbg("Unable to write session init response");
         $self->session_initiated($trans);
     }
 }
