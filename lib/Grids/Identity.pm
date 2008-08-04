@@ -74,6 +74,7 @@ sub create {
                          );
 
     # save an encrypted string as part of our identity. this can be used to check if decrypting the key was successful
+    $id->privkey->reveal(Password => $passphrase) if $passphrase;
     my $encrypted = $passphrase ? $id->encrypt("GRIDS", $id) : 0;
     $id->{encrypted} = $encrypted;
 

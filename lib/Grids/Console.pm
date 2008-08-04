@@ -234,9 +234,11 @@ sub interactively_generate_identity {
     return undef unless $create;
 
     $con->print_message('Generating new identity');
-    my $name = $con->ask("What personal identifier would you like to give this identity? ") || 'default';
+    my $name = $con->ask("What personal identifier would you like to give this identity? [default] ") || 'default';
     my $passphrase = $con->ask("Enter identity passphrase (leave blank for no passphrase): ");
-    my $id = Grids::Identity->create_for_test(passphrase => $passphrase, name => $name, verbose => 1);
+
+    # TODO: make passphrase work
+    my $id = Grids::Identity->create(passphrase => $passphrase, name => $name, verbose => 1);
 
     $name ||= 'default';
     
@@ -252,7 +254,6 @@ sub interactively_generate_identity {
     $conf->set('id', $ids);
 
     if ($con->yesorno("Identity generated and added to your configuration. Would you like to write your configuration to disk? ")) {
-        $id->hide;
         $conf->save;
         print "Saved\n";
     }
