@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use strict;
 
-use lib '../../lib/perl';
+use lib '../../lib';
 use Grids::VM;
 use Grids::Console;
 use Grids::Conf;
@@ -47,7 +47,14 @@ my $con = Grids::Console->new(
 run();
 
 sub run {
-    $node = Grids::Node->new(conf => $conf, debug => $debug);
+    # get identity
+    my $identity = $con->interactively_load_identity;
+    unless ($identity) {
+        $con->print_error("No identity specified");
+        exit 0;
+    }
+
+    $node = Grids::Node->new(conf => $conf, debug => $debug, identity => $identity);
 
     $con->print("Loaded settings from $conffile") if $conf->load;
 

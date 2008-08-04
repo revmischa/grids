@@ -1,8 +1,10 @@
 #!/usr/bin/perl
 use strict;
-use lib 'lib/perl';
-use Grids::VM;
 
+use FindBin;
+use lib "$FindBin::Bin/../lib";
+
+use Grids::VM;
 use Grids::Console;
 
 my $infile = shift;

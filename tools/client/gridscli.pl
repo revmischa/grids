@@ -3,7 +3,9 @@ use strict;
 
 # Command-line interface to the Grids client
 
-use lib '../../lib/perl';
+use FindBin;
+use lib "$FindBin::Bin/../../lib";
+
 use Grids::Client;
 use Grids::Identity;
 use Grids::Console;
@@ -34,27 +36,6 @@ print "Loaded settings from $conffile\n" if $conf->load;
 
 die Dumper($conf) if $dump;
 
-my $ids = $conf->get('id') || {};
-my $id;
-
-if ($id_name) {
-    die "There are no saved identities\n" unless %$ids;
-    $id = $ids->{$id_name} or die "There is no saved identity named \"$id_name\"\n";
-}
-
-if (%$ids && ! $id) {
-    # ids exist, but none specified
-    if ((scalar keys %$ids) == 1) {
-        # if only one id exists, use that
-        my $name;
-        ($name, $id) = %$ids;
-        print "Loaded identity '$name'\n";
-    } else {
-        # have user choose id
-        # TODO
-    }
-}
-
 my $con = Grids::Console->new(
                           conf => $conf,
                           title => "Grids",
@@ -68,35 +49,16 @@ my $con = Grids::Console->new(
                           },
                           );
 
-if ($id) {
-    # load serialized id
-    $id = Grids::Identity->deserialize($id) or die "Error loading identity\n";
-    die "Invalid identity\n" unless $id->privkey->check;
-
-    if ($encrypted) {
-        my $decrypted = decrypt($id);
-        if ($decrypted) {
-            print "Identity decrypted\n";
-        } else {
-            print "Incorrect passphrase. Identity not loaded\n";
-            $id = undef;
-        }
-    }
-}
-
-unless ($id) {
-    # no id specified, ask to create one
-    my $create = $con->yesorno("No identity specified and there are no saved identities. " .
-                               "Would you like to create one?");
-
-    $id = create_id() if $create;
-
-    die "You must have an identity to use this program.\n" unless $id;
+# load identity
+my $identity = $con->interactively_load_identity($id_name);
+unless ($identity) {
+    $con->print_error("No identity specified.");
+    exit 0;
 }
 
 my $client = Grids::Client->new(
                             conf      => $conf,
-                            id        => $id,
+                            id        => $identity,
                             transport => 'TCP',
                             );
 
@@ -104,46 +66,6 @@ run();
 
 sub run {
     $con->run;
-}
-
-# user didn't specify an id and there were none in the conf file
-sub create_id {
-    my $name = $con->ask("What personal identifier would you like to give this identity? ") || 'default';
-    my $passphrase = $con->ask("Enter id passphrase (leave blank for no passphrase): ");
-    my $id = Grids::Identity->create(passphrase => $passphrase, name => $name, verbose => 1);
-
-    my $id_ser = $id->serialize;
-    $name ||= 'default';
-    
-    my $ids = $conf->get('id') || {};
-
-    if ($ids->{$name}) {
-        my $overwrite = $con->ask("Identity '$name' already exists. Overwrite it?");
-        return unless $overwrite;
-    }
-
-    $ids->{$name} = $id_ser;
-    $conf->set('id', $ids);
-
-    if ($con->yesorno("Identity generated. Do you want to save it? ")) {
-        $conf->save;
-        print "Saved\n";
-    }
-
-    $id->decrypt_privkey($passphrase) if $passphrase; # is this necessary?
-
-    return $id;
-}
-
-sub decrypt {
-    my $id = shift;
-    
-    my $name = $id->name;
-
-    my $passphrase = $con->ask("Passphrase needed for identity '$name': ")
-        or return 0;
-
-    return $id->decrypt_privkey($passphrase);
 }
 
 sub help {

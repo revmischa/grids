@@ -11,7 +11,7 @@ use lib 'lib';
 use Grids::Node;
 use Grids::Identity;
 
-my $debug = 0;
+my $debug = 1;
 
 my $nodecount = 3;
 my $connections = 0;
@@ -56,6 +56,8 @@ sub init_nodes {
     flush();
 
     is($connections, $nodecount * 2, "all nodes connected");
+
+    flush();
 }
 
 # process all waiting events

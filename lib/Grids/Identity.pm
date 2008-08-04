@@ -10,6 +10,7 @@ use Crypt::RSA;
 use Grids::Identity::Public;
 use Grids::Identity::Private;
 use Crypt::RSA::ES::OAEP;
+use Crypt::Blowfish;
 
 use Carp qw(croak);
 use Data::Dumper;
@@ -55,10 +56,10 @@ sub create {
     # generate a private key
     my $rsa = new Crypt::RSA;
     my ($pubkey, $privkey) = $rsa->keygen(
-                                          KF => 'SSH',
-                                          Size   => $size,
-                                          Cipher => 'Blowfish',
-                                          Password => $passphrase,
+                                          KF        => 'SSH',
+                                          Size      => $size,
+                                          Cipher    => 'Blowfish',
+                                          Password  => $passphrase,
                                           Verbosity => $verbose,
                                           );
 
@@ -66,13 +67,17 @@ sub create {
 
     print "\nGenerated identity keypair.\n\n" if $verbose;
 
-    return $class->new(
-                       KF => 'SSH',
-                       encrypted => $passphrase ? 1 : 0,
-                       pubkey => $pubkey,
-                       privkey => $privkey,
-                       %opts,
-                       );
+    my $id = $class->new(
+                         pubkey => $pubkey,
+                         privkey => $privkey,
+                         %opts,
+                         );
+
+    # save an encrypted string as part of our identity. this can be used to check if decrypting the key was successful
+    my $encrypted = $passphrase ? $id->encrypt("GRIDS", $id) : 0;
+    $id->{encrypted} = $encrypted;
+
+    return $id;
 }
 
 # encrypt plaintext for $id
@@ -127,6 +132,11 @@ sub decrypt_privkey {
 sub keys_match {
     my $self = shift;
 
+    # we should be able to decrypt a message encrypted for our pubkey with our private key
+    # 'GRIDS' is stored encrypted for our pubkey in $self->{encrypted}
+    my $res = $self->decrypt($self->encrypted);
+    return $res && $res eq 'GRIDS';
+
     my $rsa = new Crypt::RSA;
 
     my $ciphertext = $rsa->encrypt(Message => 'plaintext', Key => $self->pubkey)
@@ -157,14 +167,20 @@ sub privkey { $_[0]->{privkey} }
 
 sub name { $_[0]->{name} }
 
-# warning! this will have a side-effect of encrypting the private key!
+# encrypt privkey
+sub hide {
+    my $self = shift;
+
+    $self->priv->hide if $self->encrypted && $self->priv;
+}
+
 sub serialize {
     my $self = shift;    
 
     my $priv = $self->priv;
     my $pub = $self->pub;
 
-    $priv->hide if $self->encrypted && $priv;
+    $self->hide;
 
     my $store = {
         name => $self->name,

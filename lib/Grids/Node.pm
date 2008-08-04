@@ -127,7 +127,7 @@ sub data_received {
     } else {
         # if we don't have a protocol handler set up yet, this should be
         # the first transmission containing an initiation string
-        $self->dbg("initating protocol handler with session init string [$data]");
+        $self->dbg("initating protocol handler");
         my $p = Grids::Protocol->new_from_initiation_string($data, identity => $self->id);
 
         unless ($p) {

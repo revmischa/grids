@@ -1,6 +1,8 @@
 use strict;
 
 package Grids::Console;
+
+use Grids::Identity;
 use Term::ReadLine;
 use Storable;
 use Carp qw (croak);
@@ -149,6 +151,113 @@ sub list {
     $ret .= '-' x 10;
 
     return $ret;
+}
+
+sub print_error {
+    my ($self, $err) = @_;
+
+    $self->print("Error: $err");
+}
+
+sub print_message {
+    my ($self, $msg) = @_;
+    
+    $self->print(" -- $msg --");
+}
+
+sub interactively_load_identity {
+    my ($self, $id_name) = @_;
+
+    my $conf = $self->conf;
+
+    my $ids = $conf->get('id') || {};
+    my $id;
+
+    if ($id_name) {
+        unless (%$ids) {
+            $self->print_error("There are no saved identities");
+            $id = $self->interactively_generate_identity;
+        }
+
+        unless ($id = $ids->{$id_name}) {
+            $self->print_error("There is no saved identity named \"$id_name\"");
+            $id = $self->interactively_generate_identity;
+        }
+    }
+
+    if (%$ids && ! $id) {
+        # ids exist, but none specified
+        if ((scalar keys %$ids) == 1) {
+            # if only one id exists, use that
+            my $name;
+            ($name, $id) = %$ids;
+            $self->print("Loaded identity '$name'");
+        } else {
+            $self->print_error("FIXME: let user choose identity");
+        }
+    }
+
+    if ($id) {
+        $id = Grids::Identity->deserialize($id) or die "Error loading identity\n";
+    }
+
+    if ($id && $id->encrypted) {
+        my $name = $id->name;
+
+        my $passphrase = $self->ask("Passphrase needed for identity '$name': ")
+            or return undef;
+
+        my $decrypted = $id->keys_match;
+#        my $decrypted = $id->decrypt_privkey($passphrase);
+
+        if ($decrypted) {
+            $self->print("Identity decrypted");
+        } else {
+            $self->print("Incorrect passphrase. Identity not loaded");
+            $id = undef;
+        }
+    }
+
+    # didn't find an id to load, ask if they want to generate one
+    $id = $self->interactively_generate_identity unless $id;
+
+    return $id;
+}
+
+sub interactively_generate_identity {
+    my $con = shift;
+    my $conf = $con->conf;
+
+    # no id specified, ask to create one
+    my $create = $con->yesorno("No identity specified and there are no saved identities. " .
+                               "Would you like to create one?");
+    return undef unless $create;
+
+    $con->print_message('Generating new identity');
+    my $name = $con->ask("What personal identifier would you like to give this identity? ") || 'default';
+    my $passphrase = $con->ask("Enter identity passphrase (leave blank for no passphrase): ");
+    my $id = Grids::Identity->create_for_test(passphrase => $passphrase, name => $name, verbose => 1);
+
+    $name ||= 'default';
+    
+    my $ids = $conf->get('id') || {};
+
+    if ($ids->{$name}) {
+        my $overwrite = $con->ask("Identity '$name' already exists. Overwrite it?");
+        return unless $overwrite;
+    }
+
+    my $id_ser = $id->serialize;
+    $ids->{$name} = $id_ser;
+    $conf->set('id', $ids);
+
+    if ($con->yesorno("Identity generated and added to your configuration. Would you like to write your configuration to disk? ")) {
+        $id->hide;
+        $conf->save;
+        print "Saved\n";
+    }
+
+    return $id;
 }
 
 sub save {
