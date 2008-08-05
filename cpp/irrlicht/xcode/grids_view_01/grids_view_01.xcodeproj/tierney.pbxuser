@@ -1,0 +1,141 @@
+// !$*UTF8*$!
+{
+	54273A5A0E48DA4C0055E326 /* Project object */ = {
+		activeArchitecture = i386;
+		activeBuildConfigurationName = Debug;
+		activeExecutable = 54273A6A0E48DA680055E326 /* grids_construct */;
+		activeTarget = 54273A670E48DA680055E326 /* grids_construct */;
+		addToTargets = (
+			54273A670E48DA680055E326 /* grids_construct */,
+		);
+		codeSenseManager = 54273A5F0E48DA4C0055E326 /* Code sense */;
+		executables = (
+			54273A6A0E48DA680055E326 /* grids_construct */,
+		);
+		ignoreBreakpointsInProjectsDict = {
+		};
+		perUserDictionary = {
+			PBXConfiguration.PBXFileTableDataSource3.PBXFileTableDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					20,
+					243,
+					20,
+					48.16259765625,
+					43,
+					43,
+					20,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXFileDataSource_FiletypeID,
+					PBXFileDataSource_Filename_ColumnID,
+					PBXFileDataSource_Built_ColumnID,
+					PBXFileDataSource_ObjectSize_ColumnID,
+					PBXFileDataSource_Errors_ColumnID,
+					PBXFileDataSource_Warnings_ColumnID,
+					PBXFileDataSource_Target_ColumnID,
+				);
+			};
+			PBXConfiguration.PBXTargetDataSource.PBXTargetDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					20,
+					203,
+					60,
+					20,
+					48.16259765625,
+					43,
+					43,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXFileDataSource_FiletypeID,
+					PBXFileDataSource_Filename_ColumnID,
+					PBXTargetDataSource_PrimaryAttribute,
+					PBXFileDataSource_Built_ColumnID,
+					PBXFileDataSource_ObjectSize_ColumnID,
+					PBXFileDataSource_Errors_ColumnID,
+					PBXFileDataSource_Warnings_ColumnID,
+				);
+			};
+			PBXPerProjectTemplateStateSaveDate = 239655500;
+			PBXWorkspaceStateSaveDate = 239655500;
+		};
+		perUserProjectItems = {
+			54273AA70E48DC550055E326 /* PBXTextBookmark */ = 54273AA70E48DC550055E326 /* PBXTextBookmark */;
+			54273AA80E48DC550055E326 /* PBXTextBookmark */ = 54273AA80E48DC550055E326 /* PBXTextBookmark */;
+		};
+		sourceControlManager = 54273A5E0E48DA4C0055E326 /* Source Control */;
+		userBuildSettings = {
+		};
+	};
+	54273A5E0E48DA4C0055E326 /* Source Control */ = {
+		isa = PBXSourceControlManager;
+		fallbackIsa = XCSourceControlManager;
+		isSCMEnabled = 0;
+		scmConfiguration = {
+			repositoryName = grids_svn;
+		};
+	};
+	54273A5F0E48DA4C0055E326 /* Code sense */ = {
+		isa = PBXCodeSenseManager;
+		indexTemplatePath = "";
+	};
+	54273A670E48DA680055E326 /* grids_construct */ = {
+		activeExec = 0;
+		executables = (
+			54273A6A0E48DA680055E326 /* grids_construct */,
+		);
+	};
+	54273A6A0E48DA680055E326 /* grids_construct */ = {
+		isa = PBXExecutable;
+		activeArgIndices = (
+		);
+		argumentStrings = (
+		);
+		autoAttachOnCrash = 1;
+		breakpointsEnabled = 0;
+		configStateDict = {
+		};
+		customDataFormattersEnabled = 1;
+		debuggerPlugin = GDBDebugging;
+		disassemblyDisplayState = 0;
+		dylibVariantSuffix = "";
+		enableDebugStr = 1;
+		environmentEntries = (
+		);
+		executableSystemSymbolLevel = 0;
+		executableUserSymbolLevel = 0;
+		libgmallocEnabled = 0;
+		name = grids_construct;
+		sourceDirectories = (
+		);
+	};
+	54273A950E48DBBB0055E326 /* GridsOcto.cpp */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {458, 1806}}";
+			sepNavSelRange = "{1, 22}";
+			sepNavVisRange = "{0, 344}";
+			sepNavWindowFrame = "{{15, 16}, {829, 857}}";
+		};
+	};
+	54273AA70E48DC550055E326 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		comments = "error: irrlicht.h: No such file or directory";
+		fRef = 54273A950E48DBBB0055E326 /* GridsOcto.cpp */;
+		rLen = 1;
+		rLoc = 1;
+		rType = 1;
+	};
+	54273AA80E48DC550055E326 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 54273A950E48DBBB0055E326 /* GridsOcto.cpp */;
+		name = "GridsOcto.cpp: 2";
+		rLen = 22;
+		rLoc = 1;
+		rType = 0;
+		vrLen = 98;
+		vrLoc = 0;
+	};
+}

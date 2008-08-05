@@ -1,0 +1,253 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 42;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		54273A7D0E48DB760055E326 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 54273A7A0E48DB760055E326 /* Carbon.framework */; };
+		54273A7E0E48DB760055E326 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 54273A7B0E48DB760055E326 /* Cocoa.framework */; };
+		54273A7F0E48DB760055E326 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 54273A7C0E48DB760055E326 /* OpenGL.framework */; };
+		54273A8B0E48DB8D0055E326 /* libIrrlicht.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 54273A890E48DB8D0055E326 /* libIrrlicht.a */; };
+		54273A8C0E48DB8D0055E326 /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = 54273A8A0E48DB8D0055E326 /* MainMenu.nib */; };
+		54273A9B0E48DBBB0055E326 /* GridsEvent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54273A900E48DBBB0055E326 /* GridsEvent.cpp */; };
+		54273A9C0E48DBBB0055E326 /* GridsOcto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54273A950E48DBBB0055E326 /* GridsOcto.cpp */; };
+		54273A9D0E48DBBB0055E326 /* GridsQueue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54273A960E48DBBB0055E326 /* GridsQueue.cpp */; };
+		54273A9E0E48DBBB0055E326 /* GridsQueueNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54273A980E48DBBB0055E326 /* GridsQueueNode.cpp */; };
+		54273A9F0E48DBBB0055E326 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54273A9A0E48DBBB0055E326 /* main.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		54273A680E48DA680055E326 /* grids_construct.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = grids_construct.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		54273A6B0E48DA680055E326 /* grids_construct-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "grids_construct-Info.plist"; sourceTree = "<group>"; };
+		54273A7A0E48DB760055E326 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
+		54273A7B0E48DB760055E326 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
+		54273A7C0E48DB760055E326 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
+		54273A890E48DB8D0055E326 /* libIrrlicht.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libIrrlicht.a; path = ../../lib_osx/libIrrlicht.a; sourceTree = SOURCE_ROOT; };
+		54273A8A0E48DB8D0055E326 /* MainMenu.nib */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = MainMenu.nib; path = ../../lib_osx/MainMenu.nib; sourceTree = SOURCE_ROOT; };
+		54273A8F0E48DBBB0055E326 /* GridsDefine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GridsDefine.h; sourceTree = "<group>"; };
+		54273A900E48DBBB0055E326 /* GridsEvent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GridsEvent.cpp; sourceTree = "<group>"; };
+		54273A910E48DBBB0055E326 /* GridsEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GridsEvent.h; sourceTree = "<group>"; };
+		54273A920E48DBBB0055E326 /* GridsHashList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GridsHashList.h; sourceTree = "<group>"; };
+		54273A930E48DBBB0055E326 /* GridsHashNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GridsHashNode.h; sourceTree = "<group>"; };
+		54273A940E48DBBB0055E326 /* GridsInQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GridsInQueue.h; sourceTree = "<group>"; };
+		54273A950E48DBBB0055E326 /* GridsOcto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GridsOcto.cpp; sourceTree = "<group>"; };
+		54273A960E48DBBB0055E326 /* GridsQueue.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GridsQueue.cpp; sourceTree = "<group>"; };
+		54273A970E48DBBB0055E326 /* GridsQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GridsQueue.h; sourceTree = "<group>"; };
+		54273A980E48DBBB0055E326 /* GridsQueueNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GridsQueueNode.cpp; sourceTree = "<group>"; };
+		54273A990E48DBBB0055E326 /* GridsQueueNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GridsQueueNode.h; sourceTree = "<group>"; };
+		54273A9A0E48DBBB0055E326 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		54273A660E48DA680055E326 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				54273A7D0E48DB760055E326 /* Carbon.framework in Frameworks */,
+				54273A7E0E48DB760055E326 /* Cocoa.framework in Frameworks */,
+				54273A7F0E48DB760055E326 /* OpenGL.framework in Frameworks */,
+				54273A8B0E48DB8D0055E326 /* libIrrlicht.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		54273A580E48DA4C0055E326 = {
+			isa = PBXGroup;
+			children = (
+				54273A8F0E48DBBB0055E326 /* GridsDefine.h */,
+				54273A900E48DBBB0055E326 /* GridsEvent.cpp */,
+				54273A910E48DBBB0055E326 /* GridsEvent.h */,
+				54273A920E48DBBB0055E326 /* GridsHashList.h */,
+				54273A930E48DBBB0055E326 /* GridsHashNode.h */,
+				54273A940E48DBBB0055E326 /* GridsInQueue.h */,
+				54273A950E48DBBB0055E326 /* GridsOcto.cpp */,
+				54273A960E48DBBB0055E326 /* GridsQueue.cpp */,
+				54273A970E48DBBB0055E326 /* GridsQueue.h */,
+				54273A980E48DBBB0055E326 /* GridsQueueNode.cpp */,
+				54273A990E48DBBB0055E326 /* GridsQueueNode.h */,
+				54273A9A0E48DBBB0055E326 /* main.cpp */,
+				54273A890E48DB8D0055E326 /* libIrrlicht.a */,
+				54273A8A0E48DB8D0055E326 /* MainMenu.nib */,
+				54273A7A0E48DB760055E326 /* Carbon.framework */,
+				54273A7B0E48DB760055E326 /* Cocoa.framework */,
+				54273A7C0E48DB760055E326 /* OpenGL.framework */,
+				54273A690E48DA680055E326 /* Products */,
+				54273A6B0E48DA680055E326 /* grids_construct-Info.plist */,
+			);
+			sourceTree = "<group>";
+		};
+		54273A690E48DA680055E326 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				54273A680E48DA680055E326 /* grids_construct.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		54273A670E48DA680055E326 /* grids_construct */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 54273A6E0E48DA680055E326 /* Build configuration list for PBXNativeTarget "grids_construct" */;
+			buildPhases = (
+				54273A640E48DA680055E326 /* Resources */,
+				54273A650E48DA680055E326 /* Sources */,
+				54273A660E48DA680055E326 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = grids_construct;
+			productName = grids_construct;
+			productReference = 54273A680E48DA680055E326 /* grids_construct.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		54273A5A0E48DA4C0055E326 /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = 54273A5D0E48DA4C0055E326 /* Build configuration list for PBXProject "grids_view_01" */;
+			compatibilityVersion = "Xcode 2.4";
+			hasScannedForEncodings = 0;
+			mainGroup = 54273A580E48DA4C0055E326;
+			productRefGroup = 54273A690E48DA680055E326 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				54273A670E48DA680055E326 /* grids_construct */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		54273A640E48DA680055E326 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				54273A8C0E48DB8D0055E326 /* MainMenu.nib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		54273A650E48DA680055E326 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				54273A9B0E48DBBB0055E326 /* GridsEvent.cpp in Sources */,
+				54273A9C0E48DBBB0055E326 /* GridsOcto.cpp in Sources */,
+				54273A9D0E48DBBB0055E326 /* GridsQueue.cpp in Sources */,
+				54273A9E0E48DBBB0055E326 /* GridsQueueNode.cpp in Sources */,
+				54273A9F0E48DBBB0055E326 /* main.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		54273A5B0E48DA4C0055E326 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				HEADER_SEARCH_PATHS = /Users/tierney/Xcode_Projects/irrlicht_1.4.1/include;
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
+			};
+			name = Debug;
+		};
+		54273A5C0E48DA4C0055E326 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
+			};
+			name = Release;
+		};
+		54273A6C0E48DA680055E326 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
+				INFOPLIST_FILE = "grids_construct-Info.plist";
+				INSTALL_PATH = "$(HOME)/Applications";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
+				);
+				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)/../../lib_osx\"";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Carbon,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = grids_construct;
+				WRAPPER_EXTENSION = app;
+				ZERO_LINK = YES;
+			};
+			name = Debug;
+		};
+		54273A6D0E48DA680055E326 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
+				INFOPLIST_FILE = "grids_construct-Info.plist";
+				INSTALL_PATH = "$(HOME)/Applications";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
+				);
+				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)/../../lib_osx\"";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Carbon,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = grids_construct;
+				WRAPPER_EXTENSION = app;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		54273A5D0E48DA4C0055E326 /* Build configuration list for PBXProject "grids_view_01" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				54273A5B0E48DA4C0055E326 /* Debug */,
+				54273A5C0E48DA4C0055E326 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		54273A6E0E48DA680055E326 /* Build configuration list for PBXNativeTarget "grids_construct" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				54273A6C0E48DA680055E326 /* Debug */,
+				54273A6D0E48DA680055E326 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 54273A5A0E48DA4C0055E326 /* Project object */;
+}
