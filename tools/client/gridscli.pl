@@ -41,11 +41,12 @@ my $con = Grids::Console->new(
                           title => "Grids",
                           prompt => "Grids> ",
                           handlers => {
-                              newid => \&create_id,
-                              help  => \&help,
-                              set   => \&Grids::Console::set,
-                              save  => \&Grids::Console::save,
-                              list  => \&Grids::Console::list,
+                              newid   => \&create_id,
+                              help    => \&help,
+                              set     => \&Grids::Console::set,
+                              save    => \&Grids::Console::save,
+                              list    => \&Grids::Console::list,
+                              connect => \&connect,
                           },
                           );
 
@@ -53,7 +54,7 @@ my $con = Grids::Console->new(
 my $identity = $con->interactively_load_identity($id_name);
 unless ($identity) {
     $con->print_error("No identity specified.");
-    exit 0;
+
 }
 
 my $client = Grids::Client->new(
@@ -64,8 +65,22 @@ my $client = Grids::Client->new(
 
 run();
 
+sub connect {
+    my ($con, $addr) = @_;
+
+    if ($client->connect($addr)) {
+        return "Connected to $addr";
+    } else {
+        return "Failed to connect to $addr";
+    }
+}
+
 sub run {
     $con->run;
+}
+
+sub create_id {
+    $con->interactively_generate_identity;
 }
 
 sub help {

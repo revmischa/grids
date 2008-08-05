@@ -19,16 +19,17 @@ sub connect {
     
     return undef unless $addr;
 
-    $self->{sock} = IO::Socket::INET->new(Proto     => "tcp",
-                                          Blocking  => 0,
-                                          Reuse     => 1,
-                                          PeerAddr  => $addr,
-                                          PeerPort  => 1488,
-                                          ) or return $self->error("Could not connect to host $addr: $!");
+    my $sock = IO::Socket::INET->new(Proto     => "tcp",
+                                     Blocking  => 1,
+                                     Reuse     => 1,
+                                     PeerAddr  => $addr,
+                                     PeerPort  => 1488,
+                                     ) or return $self->error("Could not connect to host $addr: $!");
 
-    $self->add_socket($self->{sock});
+    $self->{sock} = $sock;
+    $self->add_socket($sock);
 
-    $self->outgoing_connection_established($self->{sock});
+    $self->outgoing_connection_established($sock);
 }
 
 sub write {

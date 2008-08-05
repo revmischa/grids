@@ -219,7 +219,13 @@ sub interactively_load_identity {
     }
 
     # didn't find an id to load, ask if they want to generate one
-    $id = $self->interactively_generate_identity unless $id;
+    unless ($id) {
+        # no id specified, ask to create one
+        my $create = $self->yesorno("No identity specified and there are no saved identities. " .
+                                    "Would you like to create one?");
+
+        $id = $self->interactively_generate_identity if $create;
+    }
 
     return $id;
 }
@@ -227,11 +233,6 @@ sub interactively_load_identity {
 sub interactively_generate_identity {
     my $con = shift;
     my $conf = $con->conf;
-
-    # no id specified, ask to create one
-    my $create = $con->yesorno("No identity specified and there are no saved identities. " .
-                               "Would you like to create one?");
-    return undef unless $create;
 
     $con->print_message('Generating new identity');
     my $name = $con->ask("What personal identifier would you like to give this identity? [default] ") || 'default';

@@ -48,7 +48,7 @@ sub parent { $_[0]->{parent} }
 
 sub error {
     my ($self, $error) = @_;
-    warn "Transport error: $error";
+    croak "Transport error: $error";
     return 0;
 }
 
