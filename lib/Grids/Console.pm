@@ -159,7 +159,7 @@ sub print_error {
     $self->print("Error: $err");
 }
 
-sub print_message {
+sub print_title {
     my ($self, $msg) = @_;
     
     $self->print(" -- $msg --");
@@ -235,7 +235,7 @@ sub interactively_generate_identity {
     my $con = shift;
     my $conf = $con->conf;
 
-    $con->print_message('Generating new identity');
+    $con->print_title('Generating new identity');
     my $name = $con->ask("What personal identifier would you like to give this identity? [default] ") || 'default';
     my $passphrase = $con->ask("Enter identity passphrase (leave blank for no passphrase): ");
 
