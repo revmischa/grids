@@ -13,5 +13,5 @@ int main(int argc, char **argv) {
   m["lol"] = "1";
   m["dongs"] = "2";
 
-  std::cout << proto->stringifyMap(m);
+  std::cout << proto->stringifyMap(&m);
 }

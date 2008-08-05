@@ -12,12 +12,12 @@ namespace Grids {
   class Protocol {
   public:
     bool connectToNode(std::string address);
-    std::string stringifyMap(gridsmap_t m);
+    std::string stringifyMap(gridsmap_t *m);
     void sendRequest(std::string evt);
-    void sendRequest(std::string evt, gridsmap_t args);
+    void sendRequest(std::string evt, gridsmap_t *args);
 
   private:
-    Json::Value mapToJsonValue(gridsmap_t);
+    Json::Value mapToJsonValue(gridsmap_t *);
     
   };
 
