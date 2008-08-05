@@ -11,17 +11,16 @@
 
 namespace Grids {
   Protocol::Protocol() {
-    sock = NULL;
+    sock = 0;
   }
 
-  bool connectToNode(std::string address) {
-
+  bool Protocol::connectToNode(const char *address) {
     // look up host
     struct hostent *hp;
     struct sockaddr_in addr;
     int on = 1;
 
-    if ((hp = gethostbyname(host)) == NULL) {
+    if ((hp = gethostbyname(address)) == NULL) {
       herror("gethostbyname");
       return 0;
     }

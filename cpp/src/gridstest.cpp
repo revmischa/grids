@@ -13,7 +13,7 @@ int main(int argc, char **argv) {
   m["lol"] = "1";
   m["dongs"] = "2";
 
-  std::string addr = argv[1];
+  const char *addr = argv[1];
 
   if (proto->connectToNode(addr)) {
     std::cout << "Connected!\n";

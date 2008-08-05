@@ -15,7 +15,7 @@ namespace Grids {
   class Protocol {
   public:
     Protocol();
-    bool connectToNode(std::string address);
+    bool connectToNode(const char *address);
     std::string stringifyMap(gridsmap_t *m);
     void sendRequest(std::string evt);
     void sendRequest(std::string evt, gridsmap_t *args);
