@@ -4,7 +4,10 @@
 # run with -d to produce disassembly
 
 use strict;
-use lib 'lib/perl';
+
+use FindBin;
+use lib "$FindBin::Bin/../lib";
+
 use Grids::Code;
 use Getopt::Long;
 
@@ -40,7 +43,7 @@ die "$infile does not exist\n" unless -e $infile;
         my $prog = Grids::Code->assemble_program($contents)
             or die "Unable to assemble program\n";
 
-        my $code = $prog->raw_bytes;
+        $code = $prog->serialize;
     }
 
     unless ($code) {

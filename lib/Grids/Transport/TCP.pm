@@ -122,9 +122,10 @@ sub select {
 
             my $buf = '';
             my $read = 0;
+            my $bytes_read;
 
             do {
-                my $bytes_read = $rh->sysread($buf, 2048);
+                $bytes_read = $rh->sysread($buf, 2048);
                 $read += $bytes_read;
             } while ($bytes_read);
 

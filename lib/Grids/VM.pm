@@ -275,7 +275,7 @@ Loads Program C<$program>
 
 sub load_program {
     my ($self, $program) = @_;
-    return $self->load($program->bytes);
+    return $self->load_segments($program->segments);
 }
 
 =item link

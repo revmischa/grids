@@ -6,9 +6,11 @@ use warnings;
 use bytes;
 
 use Data::Dumper;
+use GridsMem;
 use Storable;
 use Carp;
 use base qw/ Class::Accessor /;
+
 __PACKAGE__->mk_accessors(qw/ segments /);
 
 sub new {
@@ -28,7 +30,7 @@ sub new {
 sub serialize {
     my ($self) = @_;
 
-    return Storable::nfreeze($self->bytes);
+    return Storable::nfreeze($self->segments);
 }
 
 # returns a byte array of a memory image with the segments mapped
@@ -58,7 +60,13 @@ sub bytes {
 sub load_from_file {
     my ($class, $filename) = @_;
 
-    my $segments = Storable::retrieve($filename)
+    my $file;
+    local $/;
+    open $file, $filename or croak "Could not read file $filename: $!";
+    my $contents = <$file>;
+    close $file;
+
+    my $segments = Storable::thaw($contents)
         or return undef;
 
     return $class->new(segments => $segments);

@@ -6,6 +6,7 @@ use lib "$FindBin::Bin/../lib";
 
 use Grids::VM;
 use Grids::Console;
+use Grids::Code::Program;
 
 my $infile = shift;
 
@@ -48,11 +49,13 @@ $con->run;
 sub load {
     my ($self, $filename) = @_;
 
-    return "File $file does not exist" unless -e $filename;
+    return "File $filename does not exist" unless -e $filename;
     my $program = Grids::Code::Program->load_from_file($filename)
         or return "Unable to load $filename";
 
-    return vmload($program->segments);
+    $vm->load_program($program);
+
+    return "Loaded program";
 }
 
 sub asld {
@@ -178,9 +181,10 @@ sub slurp {
 sub vmload {
     my $segment_map = shift;
 
-    $vm->load($bytecode);
+    my $prog = new Grids::Code::Program(segments => $segment_map);
+    $vm->load_program($prog);
 
-    printf "Loaded %i bytes\n", length $bytecode;
+    printf "Loaded %i bytes\n", length $prog->bytecode;
 
     return dis_current_instruction();
 }
