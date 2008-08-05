@@ -13,5 +13,12 @@ int main(int argc, char **argv) {
   m["lol"] = "1";
   m["dongs"] = "2";
 
-  std::cout << proto->stringifyMap(&m);
+  std::string addr = argv[1];
+
+  if (proto->connectToNode(addr)) {
+    std::cout << "Connected!\n";
+  } else {
+    std::cout << "Could not connect to " << addr << "\n";
+  }
+
 }

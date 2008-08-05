@@ -1,8 +1,45 @@
 #include <iostream>
 #include <json/writer.h>
+
+#include <netinet/tcp.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <netinet/in.h>
+#include <netdb.h>
+
 #include "GridsProtocol.h"
 
 namespace Grids {
+  Protocol::Protocol() {
+    sock = NULL;
+  }
+
+  bool connectToNode(std::string address) {
+
+    // look up host
+    struct hostent *hp;
+    struct sockaddr_in addr;
+    int on = 1;
+
+    if ((hp = gethostbyname(host)) == NULL) {
+      herror("gethostbyname");
+      return 0;
+    }
+
+    bcopy(hp->h_addr, &addr.sin_addr, hp->h_length);
+    addr.sin_port = htons(GRIDS_PORT);
+    addr.sin_family = AF_INET;
+
+    sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+
+    setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, (const char *)&on, sizeof(int));
+
+    if (connect(sock, (struct sockaddr *)&addr, sizeof(struct sockaddr_in)) == -1) {
+      return 0;
+    }
+
+    return 1;
+  }
 
   std::string Protocol::stringifyMap(gridsmap_t *m) {
     Json::FastWriter *writer = new Json::FastWriter();
