@@ -11,7 +11,7 @@ use lib 'lib';
 use Grids::Node;
 use Grids::Identity;
 
-my $debug = 1;
+my $debug = 0;
 
 my $nodecount = 3;
 my $connections = 0;

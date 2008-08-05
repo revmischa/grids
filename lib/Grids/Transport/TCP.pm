@@ -120,10 +120,13 @@ sub select {
         } else {
             # otherwise this is a normal socket reading for reading
 
-            # read up to 2048 bytes (FIXME: need to define max message size)
             my $buf = '';
             my $read = 0;
-            $read = $rh->sysread($buf, 2048);
+
+            do {
+                my $bytes_read = $rh->sysread($buf, 2048);
+                $read += $bytes_read;
+            } while ($bytes_read);
 
             if ($read) {
                 # got data, process it

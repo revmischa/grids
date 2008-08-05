@@ -204,17 +204,18 @@ sub interactively_load_identity {
     if ($id && $id->encrypted) {
         my $name = $id->name;
 
-        my $passphrase = $self->ask("Passphrase needed for identity '$name': ")
-            or return undef;
+        my $passphrase = $self->ask("Passphrase needed for identity '$name': ");
 
-        my $decrypted = $id->keys_match;
-#        my $decrypted = $id->decrypt_privkey($passphrase);
+        if ($passphrase) {
+            my $decrypted = $id->keys_match;
+            #my $decrypted = $id->decrypt_privkey($passphrase);
 
-        if ($decrypted) {
-            $self->print("Identity decrypted");
-        } else {
-            $self->print("Incorrect passphrase. Identity not loaded");
-            $id = undef;
+            if ($decrypted) {
+                $self->print("Identity decrypted");
+            } else {
+                $self->print("Incorrect passphrase. Identity not loaded");
+                $id = undef;
+            }
         }
     }
 

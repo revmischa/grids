@@ -47,6 +47,8 @@ my $con = Grids::Console->new(
 run();
 
 sub run {
+    $con->print("Loaded settings from $conffile") if $conf->load;
+
     # get identity
     my $identity = $con->interactively_load_identity;
     unless ($identity) {
@@ -54,16 +56,14 @@ sub run {
         exit 0;
     }
 
-    $node = Grids::Node->new(conf => $conf, debug => $debug, identity => $identity);
-
-    $con->print("Loaded settings from $conffile") if $conf->load;
-
     my $finished : shared;
 
-    my $trans = $node->add_transport("TCP");
-
     # run socket reading/event queue processing in seperate thread
-    my $work_thread = async {
+    my $work_thread = threads->create(sub {
+        $node = Grids::Node->new(conf => $conf, debug => $debug, identity => $identity);
+
+        my $trans = $node->add_transport("TCP");
+
         $trans->listen;
 
         while (! $finished) {
@@ -74,12 +74,14 @@ sub run {
 
         $trans->close_all;
         warn "work thread finished";
-    };
+    });
 
     my $finish = sub {
         return if $finished;
         $finished = 1;
+        warn "waiting for work thread to finish";
         $work_thread->join;
+        warn "work thread joined";
         exit 0;
     };
 
