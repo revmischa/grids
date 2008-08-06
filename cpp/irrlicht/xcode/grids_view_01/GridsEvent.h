@@ -12,8 +12,7 @@
  */
 
 
-#ifndef GRIDS_EVENT_INCLUDE
-#define GRIDS_EVENT_INCLUDE
+#pragma once
 
 #include <string>
 #include <map>
@@ -32,23 +31,21 @@ namespace Grids
 
 			void setEvent( std::string );
 			void setMap( gridsmap_t );
-
-			gridsmap_t getEvent();
+			
+			gridsmap_t getMap();
 			std::string getEventType();
 			
-			int getLength();
+			int size();
 			
-			std::vector<std::string> popEntry( );
+			std::vector<std::string> pop( );
 
 		private:
 			std::string event_type;
 			gridsmap_t event_map;
 			
-			gridsmap_t::iterator p;
 			int entry_position;
 	};
 
 }
 
 
-# endif

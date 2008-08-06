@@ -14,12 +14,13 @@ namespace Grids
 {
 	
 	GQueueNode::GQueueNode( )
+		: next( NULL )
 	{
 	
 	}
 	
 	GQueueNode::GQueueNode( GEvent in_event )
-		: stored_event( in_event )
+		: stored_event( in_event ), next( NULL )
 	{
 	
 	}

@@ -24,9 +24,10 @@ namespace Grids
 			void setNext( GQueueNode * );
 			
 			GEvent getEvent();
-		
-		private:
+			
 			GQueueNode * next;
+
+		private:
 			GEvent stored_event;
 	
 	};

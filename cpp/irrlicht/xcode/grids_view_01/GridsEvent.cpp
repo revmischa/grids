@@ -11,6 +11,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <iostream>
 
 #include "GridsEvent.h"
 #include "GridsDefine.h"
@@ -31,7 +32,7 @@ namespace Grids
     GEvent::GEvent( std::string in_event, gridsmap_t in_map )
 		: event_type( in_event ), event_map( in_map ), entry_position( 0 )
     {
-		p = event_map.begin();
+	
 	}
 
     void GEvent::setEvent( std::string in_event)
@@ -42,11 +43,9 @@ namespace Grids
     void GEvent::setMap( gridsmap_t in_map)
     {
         event_map = in_map;
-		
-		p = event_map.begin();
-    }
+	}
 
-    gridsmap_t GEvent::getEvent()
+    gridsmap_t GEvent::getMap()
     {
         return event_map;
     }
@@ -56,22 +55,31 @@ namespace Grids
         return event_type;
     }
 	
-	int GEvent::getLength()
+	int GEvent::size()
 	{
 		return event_map.size();
 	}
 	
-	std::vector<std::string> GEvent::popEntry( )
+	std::vector<std::string> GEvent::pop( )
 	{
-		std::vector<std::string> temp_vector( 2 );
-		
-		temp_vector.push_back( p->first );
-		temp_vector.push_back( p->second );
-		
-		p++;
-		entry_position++;
-		
-		return temp_vector;
+		if( entry_position < size() )
+		{
+			std::vector<std::string> temp_vector( 2 );
+			
+			giterator p = event_map.begin();
+			
+			for( int i = 0; i < entry_position; i++ )
+			{
+				p++;
+			}
+			
+			temp_vector[0] =  p->first;
+			temp_vector[1] =  p->second;
+			
+			entry_position++;
+			
+			return temp_vector;
+		}
 	}
 
 }

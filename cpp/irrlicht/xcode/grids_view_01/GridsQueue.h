@@ -27,9 +27,14 @@ namespace Grids
 			GEvent pop( );
 			void push( GEvent );
 			
+			int size();
+			
 		private:
 		
 			GQueueNode * first_node;
+			GQueueNode * last_node;
+			
+			int length;
 	
 	};
 }
