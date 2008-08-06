@@ -1,11 +1,12 @@
 #include <iostream>
-#include <json/writer.h>
-
+#include <unistd.h>
 #include <netinet/tcp.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <netdb.h>
+
+#include <json/writer.h>
 
 #include "GridsProtocol.h"
 
@@ -37,7 +38,34 @@ namespace Grids {
       return 0;
     }
 
+    // hooray we are connnected! initialize protocol
+    sendProtocolInitiationString();
+
     return 1;
+  }
+
+  void Protocol::sendProtocolInitiationString() {
+    protocolWrite("==Grids/1.0/JSON");
+  }
+
+  int Protocol::protocolWrite(const char *str) {
+    uint32_t len = strlen(str);
+    uint32_t len_net = htonl(len);
+
+    unsigned int outstr_len = len + 5;
+    char sep = ',';
+    char *outstr = (char *)malloc(outstr_len);
+
+    memcpy(outstr, &len_net, 4);
+    memcpy((outstr + 4), &sep, 1);
+    memcpy((outstr + 5), str, len);
+
+    return write(sock, outstr, outstr_len);
+  }
+
+  void Protocol::closeConnection() {
+    shutdown(sock, SHUT_RDWR); 
+    close(sock); 
   }
 
   std::string Protocol::stringifyMap(gridsmap_t *m) {
@@ -51,9 +79,17 @@ namespace Grids {
   }
   
   void Protocol::sendRequest(std::string evt, gridsmap_t *args) {
+    if (evt.empty())
+      return;
+
     if (args == NULL) {
       args = new gridsmap_t();
     }
+
+    (*args)["_method"] = evt.c_str();
+    std::string msg = stringifyMap(args);
+
+    protocolWrite(msg.c_str());
   }
 
   Json::Value Protocol::mapToJsonValue(gridsmap_t *m) {

@@ -35,6 +35,11 @@ sub connect {
 sub write {
     my ($self, $data, $sock) = @_;
 
+    my $datalen = length $data;
+    my $datalen_packed = pack("N", $datalen);
+
+    $data = $datalen_packed . ',' . $data;
+
     $sock ||= $self->{sock};
 
     if ($sock && $sock->connected) {
@@ -122,16 +127,24 @@ sub select {
 
             my $buf = '';
             my $read = 0;
-            my $bytes_read;
 
-            do {
-                $bytes_read = $rh->sysread($buf, 2048);
-                $read += $bytes_read;
-            } while ($bytes_read);
+            $read = $rh->sysread($buf, 4);
 
             if ($read) {
-                # got data, process it
-                $self->data_received($rh, $buf);
+                # $buf should contain a long in network byte order telling us how long the rest of 
+                # this message is, followed by a comma
+                my $incoming_len = unpack("N", $buf);
+                $read = $rh->sysread($buf, 1);
+
+                if ($read && $buf eq ',' && $incoming_len) {
+                    $read = $rh->sysread($buf, $incoming_len);
+                    if ($read != $incoming_len) { # o shit
+                        warn "Message received did not match expected length $incoming_len";
+                    } else {
+                        # chill, got out message, process it
+                        $self->data_received($rh, $buf);
+                    }
+                }
             } else {
                 # socket is closed
                 $self->remove_socket($rh);

@@ -16,9 +16,12 @@ namespace Grids {
   public:
     Protocol();
     bool connectToNode(const char *address);
+    void sendProtocolInitiationString();
+    int protocolWrite(const char *);
     std::string stringifyMap(gridsmap_t *m);
-    void sendRequest(std::string evt);
-    void sendRequest(std::string evt, gridsmap_t *args);
+    void sendRequest(std::string);
+    void sendRequest(std::string, gridsmap_t *args);
+    void closeConnection();
 
   private:
     Json::Value mapToJsonValue(gridsmap_t *);

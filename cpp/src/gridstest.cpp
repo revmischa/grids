@@ -10,8 +10,7 @@ int main(int argc, char **argv) {
   Grids::Protocol *proto = new Grids::Protocol();
 
   Grids::gridsmap_t m;
-  m["lol"] = "1";
-  m["dongs"] = "2";
+  m["message"] = "LOL HI";
 
   const char *addr = argv[1];
 
@@ -21,4 +20,8 @@ int main(int argc, char **argv) {
     std::cout << "Could not connect to " << addr << "\n";
   }
 
+  std::string evt = "Debug.Warn";
+  proto->sendRequest(evt, &m);
+
+  proto->closeConnection();
 }
