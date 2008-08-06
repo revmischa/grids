@@ -17,12 +17,17 @@ namespace Grids
 	class GQueueNode
 	{
 		public:
+			GQueueNode( );
+			GQueueNode( GEvent );
+			GQueueNode( GEvent, GQueueNode * );
 			
+			void setNext( GQueueNode * );
 			
 			GEvent getEvent();
 		
 		private:
 			GQueueNode * next;
+			GEvent stored_event;
 	
 	};
 }

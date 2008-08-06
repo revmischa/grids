@@ -17,12 +17,12 @@
 
 #include <string>
 #include <map>
+#include <vector>
 
 #include "GridsDefine.h"
 
 namespace Grids
 {
-
 	class GEvent
 	{
 		public:
@@ -31,14 +31,21 @@ namespace Grids
 			GEvent( std::string, gridsmap_t );
 
 			void setEvent( std::string );
-			void setHash( gridsmap_t );
+			void setMap( gridsmap_t );
 
 			gridsmap_t getEvent();
 			std::string getEventType();
+			
+			int getLength();
+			
+			std::vector<std::string> popEntry( );
 
 		private:
 			std::string event_type;
 			gridsmap_t event_map;
+			
+			gridsmap_t::iterator p;
+			int entry_position;
 	};
 
 }

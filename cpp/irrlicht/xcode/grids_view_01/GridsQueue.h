@@ -10,6 +10,8 @@
  *
  */
 
+#pragma once 
+
 #include "GridsQueueNode.h"
 
 namespace Grids
@@ -18,15 +20,16 @@ namespace Grids
 	class GQueue
 	{
 		public:
+		
 			GQueue(  );
-			GQueue( GQueueNode );
+			GQueue( GEvent );
 			
 			GEvent pop( );
+			void push( GEvent );
 			
 		private:
-			void push( GQueueNode );
-			
-			GQueueNode *first_node;
+		
+			GQueueNode * first_node;
 	
 	};
 }

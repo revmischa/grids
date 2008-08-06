@@ -10,14 +10,14 @@ using namespace irr;
 
 int main(int argc, char** argv)
 {
-	IrrlichtDevice *device =
-		createDevice(video::EDT_OPENGL, core::dimension2d<s32>(640, 480), 16, false);
+	IrrlichtDevice *device = createDevice(video::EDT_OPENGL, core::dimension2d<s32>(640, 480), 16, false);
 		
 	if (device == 0)
+	{
 		return 1; // could not create selected driver.
+	}
 
 	// create engine and camera
-
 	device->setWindowCaption(L"Grids Test");
 
 	video::IVideoDriver* driver = device->getVideoDriver();
@@ -28,8 +28,7 @@ int main(int argc, char** argv)
 		CSampleSceneNode *myNode = 
 		new CSampleSceneNode(smgr->getRootSceneNode(), smgr, 666);
 
-	scene::ISceneNodeAnimator* anim = 
-		smgr->createRotationAnimator(core::vector3df(0.8f, 0, 0.8f));
+	scene::ISceneNodeAnimator* anim = smgr->createRotationAnimator(core::vector3df(0.8f, 0, 0.8f));
 
 	if(anim)
 	{
@@ -43,6 +42,7 @@ int main(int argc, char** argv)
 	myNode = 0; // As I shouldn't refer to it again, ensure that I can't
 
 	u32 frames=0;
+	
 	while(device->run())
 	{
 		driver->beginScene(true, true, video::SColor(0,100,100,100));
@@ -50,6 +50,8 @@ int main(int argc, char** argv)
 		smgr->drawAll();
 
 		driver->endScene();
+		
+		
 		if (++frames==100)
 		{
 			core::stringw str = L"Grids Test [";

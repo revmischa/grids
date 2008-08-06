@@ -9,3 +9,28 @@
 
 #include "GridsQueue.h"
 
+
+namespace Grids
+{
+	GQueue::GQueue( ) 
+	{
+	
+	}
+	
+	GQueue::GQueue( GEvent initial_event )
+	{
+		push( initial_event );
+	}
+	
+	GEvent GQueue::pop( )
+	{
+	
+	}
+	
+	GEvent GQueue::push( GEvent in_event )
+	{
+	
+	}
+	
+	
+}
