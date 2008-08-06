@@ -96,12 +96,14 @@ sub new_from_initiation_string {
 
     my ($prog, $ver, $encapsulation_classes, $pubkey) = split('/', $initstr);
 
-    return undef unless $prog eq 'Grids' && $ver eq '1.0' && $encapsulation_classes && index($pubkey, 'pubkey=') != -1;
+    return undef unless $prog eq 'Grids' && $ver eq '1.0' && $encapsulation_classes;
 
-    ($pubkey) = $pubkey =~ m/pubkey=\"([0-9 ]+)\"/i or return undef;
+    if ($pubkey && index($pubkey, 'pubkey=') != -1) {
+        ($pubkey) = $pubkey =~ m/pubkey=\"([0-9 ]+)\"/i or return undef;
 
-    my $peer_id = $class->deserialize_pubkey($pubkey);
-    $params{peer_id} = $peer_id;
+        my $peer_id = $class->deserialize_pubkey($pubkey);
+        $params{peer_id} = $peer_id;
+    }
 
     my $p;
     # try each requested encapsulation method in listed order
