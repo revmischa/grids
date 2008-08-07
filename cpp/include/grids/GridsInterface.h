@@ -11,7 +11,7 @@
 
 #include "GridsObjectController.h"
 #include "GridsPersonController.h"
-#include "GridsMessageController.h"
+#include "GridsMessengerController.h"
 #include "GridsEvent.h"
 #include "GridsProtocol.h"
 #include "GridsDefine.h"
@@ -23,14 +23,14 @@ namespace Grids
 	{
 		public:
 			
-			GInterface( const char *, GObjectController *, GPersonController *, GMessageController * );
+			GInterface( const char *, GObjectController *, GPersonController *, GMessengeController * );
 			
 			void sendEvent( GEvent );
 			
 		private:
 			GObjectController * object_controller;
 			GPersonController * person_controller;
-			GMessageController * message_controller;
+			GMessengerController * messenger_controller;
 			
 			Protocol * protocol;
 			
