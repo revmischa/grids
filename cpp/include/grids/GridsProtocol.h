@@ -2,14 +2,16 @@
 
 #include <map>
 #include <string>
+#include <pthread.h>
 #include <json/value.h>
 #include <GridsEvent.h>
 #include <GridsDefine.h>
 
 namespace Grids {
+  void *runEventLoopThreadEntryPoint(void *);
 
   const unsigned int GRIDS_PORT = 1488;
-  typedef void (*gevent_callback_t)(Grids::GEvent *);
+  typedef void (*gevent_callback_t)(GEvent *);
 
   class Protocol {
   public:
@@ -23,13 +25,17 @@ namespace Grids {
     void closeConnection();
     void setEventCallback(gevent_callback_t);
     void runEventLoop();
-    void runEventLoopThreaded();
+    int runEventLoopThreaded();
+    void stopEventLoopThread();
 
   private:
     Json::Value mapToJsonValue(gridsmap_t *);
     void dispatchEvent(Grids::GEvent *);
     int sock;
-    
+    gevent_callback_t eventCallback;
+    pthread_mutex_t finishedMutex;
+    short finished;
+    pthread_t eventLoopThread;
   };
 
 }

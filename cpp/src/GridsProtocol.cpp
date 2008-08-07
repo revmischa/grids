@@ -5,6 +5,7 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include <pthread.h>
 
 #include <json/writer.h>
 
@@ -12,8 +13,21 @@
 #include <grids/GridsProtocol.h>
 
 namespace Grids {
+  void *runEventLoopThreadEntryPoint(void *arg) {
+    Protocol *gp = (Protocol *)arg;
+    gp->runEventLoop();
+  }
+  /*
+  void *dispatchEventEntryPoint(void *arg) {
+    Protocol *gp = (Protocol *)arg;
+    gp->dispatchEvent();
+  }
+  */
   Protocol::Protocol() {
     sock = 0;
+    finished = 0;
+    pthread_mutex_init(&finishedMutex, NULL);
+    eventLoopThread = (pthread_t)NULL;
   }
 
   bool Protocol::connectToNode(const char *address) {
@@ -65,7 +79,7 @@ namespace Grids {
   }
 
   void Protocol::closeConnection() {
-    shutdown(sock, SHUT_RDWR); 
+    ::shutdown(sock, SHUT_RDWR); 
     close(sock); 
   }
 
@@ -110,6 +124,69 @@ namespace Grids {
     }
 
     return jsonVal;
+  }
+
+  void Protocol::setEventCallback(gevent_callback_t cb) { eventCallback = cb; }
+
+  void Protocol::runEventLoop() {
+    int bytes_read;
+    uint32_t incomingLength;
+    char *buf;
+
+    while (! finished && sock) {
+      // read in 4 byte length of message
+      bytes_read = read(sock, &incomingLength, 4);
+      
+      if (bytes_read == -1) {
+        // uh oh, socket read error
+        break;
+      }
+
+      if (bytes_read != 4) {
+        // wtf? try reading again
+        continue;
+      }
+
+      if (incomingLength > 1024 * 1024 * 1024) {
+        // not going to read in more than a gig, f that
+        continue;
+      }
+
+      // ok time to read some shit in
+      bytes_read = read(sock, buf, incomingLength);
+
+      if (bytes_read == -1) {
+        // o snap read error
+        break;
+      }
+
+      if (bytes_read = 0) {
+        // not chill
+        std::cerr << "Didn't read any data when expecting message of " << incomingLength << " bytes\n";
+        continue;
+      }
+
+      if (bytes_read != incomingLength) {
+        std::cerr << "Only read " << bytes_read << " bytes when expecting message of "
+                  << incomingLength << " bytes\n";
+        continue;
+      }
+
+      std::cout << "Got message \"" << buf << "\"\n";
+    }
+  }
+
+  int Protocol::runEventLoopThreaded() {
+    return pthread_create(&eventLoopThread, NULL, runEventLoopThreadEntryPoint, this);
+  }
+
+  void Protocol::stopEventLoopThread() {
+    pthread_mutex_lock(&finishedMutex);
+    finished = 1;
+    pthread_mutex_unlock(&finishedMutex);
+
+    if (eventLoopThread)
+      pthread_join(eventLoopThread, NULL);
   }
 
 }
