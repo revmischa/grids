@@ -8,6 +8,7 @@
 
 #include <json/writer.h>
 
+#include <GridsDefine.h>
 #include <grids/GridsProtocol.h>
 
 namespace Grids {
@@ -86,14 +87,15 @@ namespace Grids {
       args = new gridsmap_t();
     }
 
-    (*args)["_method"] = evt.c_str();
+    const static std::string methodkey = "_method";
+    (*args)[methodkey] = evt;
     std::string msg = stringifyMap(args);
 
     protocolWrite(msg.c_str());
   }
 
   Json::Value Protocol::mapToJsonValue(gridsmap_t *m) {
-    std::map<gridskey_t, gridsval_t>::iterator mapIterator;
+    giterator mapIterator;
 
     Json::Value jsonVal;
 

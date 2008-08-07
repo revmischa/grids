@@ -1,5 +1,8 @@
 #include <iostream>
 #include <grids/GridsProtocol.h>
+#include <GridsEvent.h>
+
+void gotGridsEvent(Grids::GEvent *);
 
 int main(int argc, char **argv) {
   if (argc !=2) {
@@ -24,4 +27,8 @@ int main(int argc, char **argv) {
   proto->sendRequest(evt, &m);
 
   proto->closeConnection();
+}
+
+void gotGridsEvent(Grids::GEvent *evt) {
+  std::cout << "Received event " << evt->getEventType() << "\n";
 }
