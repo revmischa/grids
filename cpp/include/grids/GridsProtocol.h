@@ -4,8 +4,8 @@
 #include <string>
 #include <pthread.h>
 #include <json/value.h>
-#include <GridsEvent.h>
-#include <GridsDefine.h>
+#include <grids/GridsEvent.h>
+#include <grids/GridsDefine.h>
 
 namespace Grids {
   void *runEventLoopThreadEntryPoint(void *);

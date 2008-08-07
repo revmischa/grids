@@ -3,7 +3,7 @@
 #include <string.h>
 #include <iostream>
 #include <grids/GridsProtocol.h>
-#include <GridsEvent.h>
+#include <grids/GridsEvent.h>
 
 using namespace Grids;
 

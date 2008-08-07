@@ -13,8 +13,8 @@
 #include <vector>
 #include <iostream>
 
-#include "GridsEvent.h"
-#include "GridsDefine.h"
+#include "grids/GridsEvent.h"
+#include "grids/GridsDefine.h"
 
 namespace Grids
 {

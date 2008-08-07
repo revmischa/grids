@@ -10,7 +10,7 @@
 
 #include <json/writer.h>
 
-#include <GridsDefine.h>
+#include <grids/GridsDefine.h>
 #include <grids/GridsProtocol.h>
 
 namespace Grids {
