@@ -46,6 +46,13 @@ int main(int argc, char **argv) {
 
     if (strncasecmp(buf, "q", 1) == 0 || strncasecmp(buf, "quit", 4) == 0)
       finished = 1;
+
+    if (strncasecmp(buf, "echo", 4) == 0 && strlen(buf) > 5) {
+      char *echo = (char *)(buf + 5);
+      m.clear();
+      m["message"] = echo;
+      proto->sendRequest("Debug.Echo", &m);
+    }
   }
 
   proto->stopEventLoopThread();

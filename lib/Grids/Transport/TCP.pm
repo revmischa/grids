@@ -38,12 +38,10 @@ sub write {
     my $datalen = length $data;
     my $datalen_packed = pack("N", $datalen);
 
-    $data = $datalen_packed . ',' . $data;
-
     $sock ||= $self->{sock};
 
     if ($sock && $sock->connected) {
-        my $byte_count = $sock->syswrite($data);
+        my $byte_count = $sock->syswrite($datalen_packed . $data);
     } else {
         $self->error("Tried to send data [$data] to unconnected transport");
         return 0;
@@ -134,9 +132,8 @@ sub select {
                 # $buf should contain a long in network byte order telling us how long the rest of 
                 # this message is, followed by a comma
                 my $incoming_len = unpack("N", $buf);
-                $read = $rh->sysread($buf, 1);
 
-                if ($read && $buf eq ',' && $incoming_len) {
+                if ($read && $incoming_len) {
                     $read = $rh->sysread($buf, $incoming_len);
                     if ($read != $incoming_len) { # o shit
                         warn "Message received did not match expected length $incoming_len";
