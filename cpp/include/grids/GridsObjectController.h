@@ -12,6 +12,8 @@
 
 #include "GridsEvent.h"
 #include "GridsObject.h"
+#include <vector>
+#include <map>
 
 namespace Grids
 {
@@ -20,14 +22,21 @@ namespace Grids
 		public:
 			GObjectController();
 			
-			addObject( GObject );
+			addObject( GObject *);
 			
-			sendEvent( GEvent ); // sends an event to the GInterface
+			sendEvent( GEvent *); // sends an event to the GInterface
 			
-			giveEvent( GEvent ); // The GInterface passes messages using this
+			giveEvent( GEvent *); // The GInterface passes messages using this
 			
 		private:
 			GInterface * interface;
+			
+			map< std::string, int > uuid_map;
+			
+			vector< GObject * > objects;
+			
+			
+			
 			
 	};
 	

@@ -16,8 +16,6 @@
 #include "GridsProtocol.h"
 #include "GridsDefine.h"
 
-
-
 namespace Grids
 {
 	
@@ -34,9 +32,12 @@ namespace Grids
 			GPersonController * person_controller;
 			GMessageController * message_controller;
 			
-			Protocol gprotocol;
+			Protocol * protocol;
 			
 			char * node_address;
+			
+			void receiveEvent( Protocol *, GEvent * );
+			void parseEventType( GEvent *);
 			
 	};
 
