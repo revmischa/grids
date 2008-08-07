@@ -8,7 +8,7 @@
 
 #include <json/writer.h>
 
-#include "GridsProtocol.h"
+#include <grids/GridsProtocol.h>
 
 namespace Grids {
   Protocol::Protocol() {

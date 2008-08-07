@@ -1,5 +1,5 @@
 #include <iostream>
-#include "GridsProtocol.h"
+#include <grids/GridsProtocol.h>
 
 int main(int argc, char **argv) {
   if (argc !=2) {
