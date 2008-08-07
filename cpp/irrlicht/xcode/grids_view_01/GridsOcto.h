@@ -3,7 +3,7 @@
 
 using namespace irr;
 
-class CSampleSceneNode : public scene::ISceneNode
+class GOcto : public scene::ISceneNode
 {
 
 	/*
@@ -26,7 +26,7 @@ class CSampleSceneNode : public scene::ISceneNode
 
 public:
 
-	CSampleSceneNode(scene::ISceneNode* parent, scene::ISceneManager* mgr, s32 id)
+	GOcto(scene::ISceneNode* parent, scene::ISceneManager* mgr, s32 id)
 		: scene::ISceneNode(parent, mgr, id)
 	{
 		Material.Wireframe = false;
