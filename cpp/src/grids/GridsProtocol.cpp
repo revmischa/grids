@@ -131,6 +131,7 @@ namespace Grids {
     int bytesRead;
     uint32_t incomingLength;
     char *buf;
+    char *bufIncoming;
 
     /*    buf = (char*)malloc(100000);
     read(sock, buf, sizeof(buf));
@@ -142,7 +143,7 @@ namespace Grids {
       bytesRead = read(sock, &incomingLength, 4);
       incomingLength = ntohl(incomingLength);
 
-      std::cout << "bytesRead: " << bytesRead << " incoming: " << incomingLength << "\n";
+      //std::cout << "bytesRead: " << bytesRead << " incoming: " << incomingLength << "\n";
       
       if (bytesRead == -1) {
         // uh oh, socket read error
@@ -163,9 +164,11 @@ namespace Grids {
 
       // ok time to read some shit in
       buf = (char *)malloc(incomingLength);
-      std::cout << "incoming: " << incomingLength << "\n";
+
+      //std::cout << "incoming: " << incomingLength << "\n";
       uint32_t bytesRemaining = incomingLength;
-      char *bufIncoming = buf;
+      bufIncoming = buf;
+
       do {
         bytesRead = read(sock, bufIncoming, bytesRemaining);
 
@@ -173,9 +176,11 @@ namespace Grids {
           bytesRemaining -= bytesRead;
           bufIncoming += bytesRead;
         }
-        std::cout << "read: " << bytesRead << "\n";
+
+        //std::cout << "read: " << bytesRead << " remaining: " << bytesRemaining << "\n";
+
       } while ((bytesRead > 0 || bytesRead != EAGAIN) && bytesRemaining);
-      buf = bufIncoming;
+      buf[incomingLength] = '\0';
 
       if (bytesRead == -1) {
         // o snap read error
@@ -184,7 +189,7 @@ namespace Grids {
         break;
       }
 
-      if (bytesRead = 0) {
+      if (bytesRead == 0) {
         // not chill
         std::cerr << "Didn't read any data when expecting message of " << incomingLength << " bytes\n";
         free(buf);
@@ -199,7 +204,7 @@ namespace Grids {
       }
 
       std::cout << "Got message \"" << buf << "\"\n";
-
+      
       free(buf);
     }
 
