@@ -9,9 +9,10 @@
 
 namespace Grids {
   void *runEventLoopThreadEntryPoint(void *);
-
   const unsigned int GRIDS_PORT = 1488;
-  typedef void (*gevent_callback_t)(GEvent *);
+
+  class Protocol;
+  typedef void (*gevent_callback_t)(Protocol *, GEvent *);
 
   class Protocol {
   public:
@@ -37,6 +38,5 @@ namespace Grids {
     short finished;
     pthread_t eventLoopThread;
   };
-
 }
 

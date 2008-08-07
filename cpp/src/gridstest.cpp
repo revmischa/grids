@@ -5,7 +5,9 @@
 #include <grids/GridsProtocol.h>
 #include <GridsEvent.h>
 
-void gotGridsEvent(Grids::GEvent *);
+using namespace Grids;
+
+void gotEvent(Protocol *, GEvent *);
 
 int main(int argc, char **argv) {
   short finished = 0;
@@ -16,9 +18,9 @@ int main(int argc, char **argv) {
     return -1;
   }
 
-  Grids::Protocol *proto = new Grids::Protocol();
+  Protocol *proto = new Protocol();
 
-  Grids::gridsmap_t m;
+  gridsmap_t m;
   m["message"] = "LOL HI";
 
   const char *addr = argv[1];
@@ -32,6 +34,7 @@ int main(int argc, char **argv) {
   std::string evt = "Debug.Warn";
   proto->sendRequest(evt, &m);
 
+  proto->setEventCallback(gotEvent);
   proto->runEventLoopThreaded();
 
   std::cout << "Type quit to exit\n";
@@ -49,6 +52,6 @@ int main(int argc, char **argv) {
   proto->closeConnection();
 }
 
-void gotGridsEvent(Grids::GEvent *evt) {
+void gotEvent(Protocol *proto, GEvent *evt) {
   std::cout << "Received event " << evt->getEventType() << "\n";
 }
