@@ -7,36 +7,36 @@
  *
  */
 
-#include "GridsQueueNode.h"
+#include "queueNode.h"
 
 
 namespace Grids
 {
 	
-	GQueueNode::GQueueNode( )
+	QueueNode::QueueNode( )
 		: next( NULL )
 	{
 	
 	}
 	
-	GQueueNode::GQueueNode( GEvent in_event )
+	QueueNode::QueueNode( Event in_event )
 		: stored_event( in_event ), next( NULL )
 	{
 	
 	}
 	
-	GQueueNode::GQueueNode( GEvent in_event, GQueueNode * next_node )
+	QueueNode::QueueNode( Event in_event, QueueNode * next_node )
 		: stored_event( in_event ), next( next_node )
 	{
 	
 	}
 	
-	void GQueueNode::setNext( GQueueNode * next_node )
+	void QueueNode::setNext( QueueNode * next_node )
 	{
 		next = next_node;
 	}
 	
-	GEvent GQueueNode::getEvent( )
+	Event QueueNode::getEvent( )
 	// Returns the stored event of the queue node
 	{
 		return stored_event;

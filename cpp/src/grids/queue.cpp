@@ -7,36 +7,36 @@
  *
  */
 
-#include "GridsQueue.h"
+#include "Queue.h"
 
 
 namespace Grids
 {
-	GQueue::GQueue( ) 
+	Queue::Queue( ) 
 		: length( 0 ), first_node( NULL ), last_node( NULL )
 	{
 	
 	}
 	
-	GQueue::GQueue( GEvent initial_event )
+	Queue::Queue( event initial_event )
 		: length( 0 ), first_node( NULL ), last_node( NULL )
 	{
 		push( initial_event );
 	}
 	
 	
-	GEvent GQueue::pop( )
+	event Queue::pop( )
 	{
 		if( first_node == NULL )
 		{
 			// I dont know what to put here, I'd like it to return NULL
 			// or something else signfying that the list is empty
-			return GEvent();
+			return event();
 		}
 		else
 		{
-			GQueueNode * temp_node;
-			GEvent temp_event = first_node->getEvent();
+			QueueNode * temp_node;
+			event temp_event = first_node->getEvent();
 			
 			temp_node = first_node;
 			first_node = first_node->next;
@@ -49,10 +49,10 @@ namespace Grids
 	}
 	
 	
-	void GQueue::push( GEvent in_event )
+	void Queue::push( Event in_event )
 	{
-		GQueueNode * temp_node;
-		temp_node = new GQueueNode( in_event );
+		QueueNode * temp_node;
+		temp_node = new QueueNode( in_event );
 	
 		if( first_node == NULL )
 		{
@@ -69,7 +69,7 @@ namespace Grids
 	}
 	
 	
-	int GQueue::size()
+	int Queue::size()
 	{
 		return length;
 	}

@@ -7,13 +7,13 @@
  *
  */
 
-#include "GridsInterface.h"
+#include "interface.h"
 
 
 namespace Grids
 {
 	
-	GInterface::GInterface( const char * address, GObjectController * o_c_in, GPersonController * p_c_in, GMessengerController * m_c_in )
+	Interface::Interface( const char * address, ObjectController * o_c_in, PersonController * p_c_in, MessengerController * m_c_in )
 		: node_address( address), object_controller( o_c_in ), person_controller( p_c_in ), messenger_controller( m_c_in )
 	{
 		object_controller->interface = &this;
@@ -30,17 +30,17 @@ namespace Grids
 		protocol->setEventCallback( receiveEvent );
 	}
 	
-	GInterface::sendEvent( GEvent * evt )
+	Interface::sendEvent( GEvent * evt )
 	{
 		sendRequest( evt->getEventType(), evt->getMap() );
 	}
 	
-	GInterface::receiveEvent( Protocol * proto, GEvent * evt )
+	Interface::receiveEvent( Protocol * proto, Event * evt )
 	{
 		parseEventType( evt );
 	}
 	
-	GInterface::parseEventType(  GEvent * evt )
+	Interface::parseEventType(  Event * evt )
 	// This will be modified, person objects may need object information...
 	// mayme all items need all information??
 	{

@@ -1,5 +1,5 @@
 /*
- *  GridsQueue.cpp
+ *  Event.cpp
  *  test_01
  *
  *  Created by Patrick Tierney on 8/5/08.
@@ -13,54 +13,54 @@
 #include <vector>
 #include <iostream>
 
-#include "grids/GridsEvent.h"
-#include "grids/GridsDefine.h"
+#include "grids/Event.h"
+#include "grids/define.h"
 
 namespace Grids
 {
-    GEvent::GEvent()
+    Event::Event()
     {
-        GEvent( "NULL_EVENT" );
+        Event( "NULL_EVENT" );
     }
 
-    GEvent::GEvent( std::string in_event )
+    Event::Event( std::string in_event )
 		: event_type( in_event ), entry_position( 0 )
     {		
 	
     }
 
-    GEvent::GEvent( std::string in_event, gridsmap_t in_map )
+    Event::Event( std::string in_event, gridsmap_t in_map )
 		: event_type( in_event ), event_map( in_map ), entry_position( 0 )
     {
 	
 	}
 
-    void GEvent::setEvent( std::string in_event)
+    void Event::setEvent( std::string in_event)
     {
         event_type = in_event;
     }
 
-    void GEvent::setMap( gridsmap_t in_map)
+    void Event::setMap( gridsmap_t in_map)
     {
         event_map = in_map;
 	}
 
-    gridsmap_t GEvent::getMap()
-    {
-        return event_map;
-    }
+    gridsmap_t Event::getMap()
+	{
+		return event_map;
+	}
 
-    std::string GEvent::getEventType()
+    std::string Event::getEventType()
     {
         return event_type;
     }
 	
-	int GEvent::size()
+	int Event::size()
 	{
 		return event_map.size();
 	}
 	
-	std::vector<std::string> GEvent::pop( )
+	std::vector<std::string> Event::pop( )
 	{
 		if( entry_position < size() )
 		{
