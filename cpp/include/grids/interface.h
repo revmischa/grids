@@ -13,11 +13,13 @@
 #include "personController.h"
 #include "messengerController.h"
 #include "event.h"
-#include "Protocol.h"
+#include "protocol.h"
 #include "define.h"
 
 namespace Grids
 {
+	
+	//typedef void (*gevent_callback_t)(Protocol *, Event *);
 	
 	class Interface
 	{
@@ -27,11 +29,13 @@ namespace Grids
 			
 			Interface( const char *, ObjectController *, PersonController *, MessengerController * );
 			
+			~Interface( );
 			
 			void sendEvent( Event *); // Sends an event upstream with the grids protocol
-			
+			void receiveEvent( Protocol *, Event * ); // Grids protocol object hooks into this
+
 			ObjectController * getObjectController();
-			PersonController * getPersenController();
+			PersonController * getPersonController();
 			MessengerController * getMessengerController();
 			
 		private:
@@ -44,7 +48,6 @@ namespace Grids
 			
 			const char * node_address;
 			
-			void receiveEvent( Protocol *, Event * );
 			void parseEventType( Event *);
 			
 	};
