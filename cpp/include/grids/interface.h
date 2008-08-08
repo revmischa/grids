@@ -13,7 +13,7 @@
 #include "personController.h"
 #include "messengerController.h"
 #include "event.h"
-#include "GridsProtocol.h"
+#include "Protocol.h"
 #include "define.h"
 
 namespace Grids
