@@ -74,12 +74,15 @@ namespace Grids {
     memcpy(outstr, &len_net, 4);
     memcpy((outstr + 4), str, len);
 
-    return write(sock, outstr, outstr_len);
+    int ret = write(sock, outstr, outstr_len);
+    free(outstr);
+
+    return ret;
   }
 
   void Protocol::closeConnection() {
     ::shutdown(sock, SHUT_RDWR); 
-    close(sock); 
+    ::close(sock); 
   }
 
   std::string Protocol::stringifyMap(gridsmap_t *m) {
@@ -133,11 +136,6 @@ namespace Grids {
     char *buf;
     char *bufIncoming;
 
-    /*    buf = (char*)malloc(100000);
-    read(sock, buf, sizeof(buf));
-    read(sock, buf, sizeof(buf));
-    std::cout << "buf: " << buf;
-    */
     while (! finished && sock) {
       // read in 4 byte length of message
       bytesRead = read(sock, &incomingLength, 4);
@@ -162,8 +160,8 @@ namespace Grids {
         continue;
       }
 
-      // ok time to read some shit in
-      buf = (char *)malloc(incomingLength);
+      // allocate space for incoming message + null byte
+      buf = (char *)malloc(incomingLength + 1);
 
       //std::cout << "incoming: " << incomingLength << "\n";
       uint32_t bytesRemaining = incomingLength;
