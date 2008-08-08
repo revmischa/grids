@@ -10,8 +10,8 @@
 
 #include <json/writer.h>
 
-#include <grids/GridsDefine.h>
-#include <grids/GridsProtocol.h>
+#include <grids/define.h>
+#include <grids/protocol.h>
 
 namespace Grids {
   void *runEventLoopThreadEntryPoint(void *arg) {
