@@ -23,19 +23,26 @@ namespace Grids
 	{
 		public:
 			
-			Interface( const char *, ObjectController *, PersonController *, MessengeController * );
+			Interface( const char * );
+			
+			Interface( const char *, ObjectController *, PersonController *, MessengerController * );
 			
 			
-			void sendEvent( Event ); // Sends an event upstream with the grids protocol
+			void sendEvent( Event *); // Sends an event upstream with the grids protocol
+			
+			ObjectController * getObjectController();
+			PersonController * getPersenController();
+			MessengerController * getMessengerController();
 			
 		private:
+		
 			ObjectController * object_controller;
 			PersonController * person_controller;
 			MessengerController * messenger_controller;
 			
 			Protocol * protocol;
 			
-			char * node_address;
+			const char * node_address;
 			
 			void receiveEvent( Protocol *, Event * );
 			void parseEventType( Event *);

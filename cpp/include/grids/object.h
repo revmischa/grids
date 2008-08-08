@@ -14,6 +14,8 @@
  
  namespace Grids
  {
+	class ObjectController;
+	
 	class Object
 	{
 		public:

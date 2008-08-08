@@ -22,18 +22,20 @@ namespace Grids
 		public:
 			MessengerController( );
 			
-			addMessenger( Messenger * );
+			void setInterface( Interface * );
 			
-			sendEvent( Event * );
+			void addMessenger( Messenger * );
 			
-			giveEvent( Event * );
+			void sendEvent( Event * );
+			
+			void giveEvent( Event * );
 			
 		private:
 			Interface * interface;
 			
-			map< std::string, int > uuid_map;
+			std::map< std::string, int > uuid_map;
 			
-			vector< Messenger * >  messengers;
+			std::vector< Messenger * >  messengers;
 	};
 	
 } // end namespace Grids

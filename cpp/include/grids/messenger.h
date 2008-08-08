@@ -16,6 +16,7 @@
  
  namespace Grids
  {
+	class MessengerController;
 	
 	class Messenger
 	{

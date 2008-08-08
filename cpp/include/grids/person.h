@@ -15,6 +15,8 @@
  
  namespace Grids
  {
+	class PersonController;
+	
 	class Person
 	{
 		public:

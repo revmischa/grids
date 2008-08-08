@@ -23,19 +23,22 @@ namespace Grids
 			
 			PersonController();
 			
-			addPerson( Person * );
+			void setInterface( Interface * );
+ 
 			
-			sendEvent( Event * );
+			void addPerson( Person * );
 			
-			giveEvent( Event * );
+			void sendEvent( Event * );
+			
+			void giveEvent( Event * );
 			
 		private:
 			
 			Interface * interface;
 			
-			map< std::string, int > uuid_map;
+			std::map< std::string, int > uuid_map;
 			
-			vector< Object * > people;
+			std::vector< Object * > people;
 			
 	};
 	

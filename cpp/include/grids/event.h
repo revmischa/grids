@@ -18,7 +18,7 @@
 #include <map>
 #include <vector>
 
-#include "GridsDefine.h"
+#include "define.h"
 
 namespace Grids
 {
@@ -33,6 +33,7 @@ namespace Grids
 			void setMap( gridsmap_t );
 			
 			gridsmap_t getMap();
+			gridsmap_t * getMapPtr();
 			std::string getEventType();
 			
 			int size();

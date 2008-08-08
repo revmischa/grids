@@ -18,23 +18,27 @@
 
 namespace Grids
 {
+	class Interface; // C++ lame-ness
+	
 	class ObjectController
 	{
 		public:
 			ObjectController();
 			
-			addObject( Object *);
+			void setInterface( Interface * );
 			
-			sendEvent( Event *); // sends an event to the GInterface
+			void addObject( Object *);
 			
-			giveEvent( Event *); // The GInterface passes messages using this
+			void sendEvent( Event *); // sends an event to the GInterface
+			
+			void giveEvent( Event *); // The GInterface passes messages using this
 			
 		private:
 			Interface * interface;
 			
-			map< std::string, int > uuid_map;
+			std::map< std::string, int > uuid_map;
 			
-			vector< Object * > objects;
+			std::vector< Object * > objects;
 			
 	};
 	
