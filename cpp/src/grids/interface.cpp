@@ -31,8 +31,9 @@ namespace Grids
 	}
 	
 	Interface::sendEvent( GEvent * evt )
+	// Sends an event upstream
 	{
-		sendRequest( evt->getEventType(), evt->getMap() );
+		protocol->sendRequest( evt->getEventType(), evt->getMap() );
 	}
 	
 	Interface::receiveEvent( Protocol * proto, Event * evt )
