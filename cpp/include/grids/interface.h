@@ -25,7 +25,8 @@ namespace Grids
 			
 			Interface( const char *, ObjectController *, PersonController *, MessengeController * );
 			
-			void sendEvent( Event );
+			
+			void sendEvent( Event ); // Sends an event upstream with the grids protocol
 			
 		private:
 			ObjectController * object_controller;

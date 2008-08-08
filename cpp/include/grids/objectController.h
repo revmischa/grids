@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include "interface.h"
 #include "event.h"
 #include "object.h"
 #include <vector>

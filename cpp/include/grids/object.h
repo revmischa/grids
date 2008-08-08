@@ -20,11 +20,17 @@
 			
 			Object( );
 			
+			void giveEvent( Event * );	// ObjectController uses this
+										// to pass messages
+			
+			void sendEvent( Event * );  // Used to send a message 
+										// upstream
+			
 		private:
 			
 			ObjectController * controller;
 	
 	};
 	
- }
+ } // end namespace Grids
 
