@@ -9,20 +9,20 @@
  
  #pragma once
  
- #include "GridsEvent.h"
- #include "GridsObjectController.h"
+ #include "event.h"
+ #include "objectController.h"
  
  namespace Grids
  {
-	class GObject
+	class Object
 	{
 		public:
 			
-			GObject( );
+			Object( );
 			
 		private:
 			
-			GObjectController * controller;
+			ObjectController * controller;
 	
 	};
 	

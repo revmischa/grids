@@ -9,26 +9,26 @@
 
 #pragma once
 
-#include "GridsEvent.h"
+#include "event.h"
 
 namespace Grids
 {
 	
-	class GQueueNode
+	class QueueNode
 	{
 		public:
-			GQueueNode( );
-			GQueueNode( GEvent );
-			GQueueNode( GEvent, GQueueNode * );
+			QueueNode( );
+			QueueNode( Event );
+			QueueNode( Event, QueueNode * );
 			
-			void setNext( GQueueNode * );
+			void setNext( QueueNode * );
 			
-			GEvent getEvent();
+			Event getEvent();
 			
-			GQueueNode * next;
+			QueueNode * next;
 
 		private:
-			GEvent stored_event;
+			Event stored_event;
 	
 	};
 }

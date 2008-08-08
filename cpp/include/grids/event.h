@@ -22,12 +22,12 @@
 
 namespace Grids
 {
-	class GEvent
+	class Event
 	{
 		public:
-			GEvent( );
-			GEvent( std::string );
-			GEvent( std::string, gridsmap_t );
+			Event( );
+			Event( std::string );
+			Event( std::string, gridsmap_t );
 
 			void setEvent( std::string );
 			void setMap( gridsmap_t );

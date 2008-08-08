@@ -10,33 +10,30 @@
 
 #pragma once
 
-#include "GridsEvent.h"
-#include "GridsObject.h"
+#include "event.h"
+#include "object.h"
 #include <vector>
 #include <map>
 
 namespace Grids
 {
-	class GObjectController
+	class ObjectController
 	{
 		public:
-			GObjectController();
+			ObjectController();
 			
-			addObject( GObject *);
+			addObject( Object *);
 			
-			sendEvent( GEvent *); // sends an event to the GInterface
+			sendEvent( Event *); // sends an event to the GInterface
 			
-			giveEvent( GEvent *); // The GInterface passes messages using this
+			giveEvent( Event *); // The GInterface passes messages using this
 			
 		private:
-			GInterface * interface;
+			Interface * interface;
 			
 			map< std::string, int > uuid_map;
 			
-			vector< GObject * > objects;
-			
-			
-			
+			vector< Object * > objects;
 			
 	};
 	

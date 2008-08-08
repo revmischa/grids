@@ -12,27 +12,27 @@
 
 #pragma once 
 
-#include "GridsQueueNode.h"
+#include "queueNode.h"
 
 namespace Grids
 {
 	
-	class GQueue
+	class Queue
 	{
 		public:
 		
-			GQueue(  );
-			GQueue( GEvent );
+			Queue(  );
+			Queue( Event );
 			
-			GEvent pop( );
-			void push( GEvent );
+			Event pop( );
+			void push( Event );
 			
 			int size();
 			
 		private:
 		
-			GQueueNode * first_node;
-			GQueueNode * last_node;
+			QueueNode * first_node;
+			QueueNode * last_node;
 			
 			int length;
 	

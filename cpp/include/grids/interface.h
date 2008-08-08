@@ -9,35 +9,35 @@
 
 #pragma once
 
-#include "GridsObjectController.h"
-#include "GridsPersonController.h"
-#include "GridsMessengerController.h"
-#include "GridsEvent.h"
+#include "objectController.h"
+#include "personController.h"
+#include "messengerController.h"
+#include "event.h"
 #include "GridsProtocol.h"
-#include "GridsDefine.h"
+#include "define.h"
 
 namespace Grids
 {
 	
-	class GInterface
+	class Interface
 	{
 		public:
 			
-			GInterface( const char *, GObjectController *, GPersonController *, GMessengeController * );
+			Interface( const char *, ObjectController *, PersonController *, MessengeController * );
 			
-			void sendEvent( GEvent );
+			void sendEvent( Event );
 			
 		private:
-			GObjectController * object_controller;
-			GPersonController * person_controller;
-			GMessengerController * messenger_controller;
+			ObjectController * object_controller;
+			PersonController * person_controller;
+			MessengerController * messenger_controller;
 			
 			Protocol * protocol;
 			
 			char * node_address;
 			
-			void receiveEvent( Protocol *, GEvent * );
-			void parseEventType( GEvent *);
+			void receiveEvent( Protocol *, Event * );
+			void parseEventType( Event *);
 			
 	};
 
