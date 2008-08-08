@@ -25,6 +25,12 @@ namespace Grids
 		psn->person_controller = &this;
 	}
 	
+	void PersonController::setInterface( Interface * intr )
+	{
+		interface = intr;
+	}
+	
+	
 	PersonController::sendEvent( Event * evt )
 	{
 		interface->sendEvent( evt );

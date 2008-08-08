@@ -28,6 +28,11 @@ namespace Grids
 		// Public key / private key
 	}
 	
+	void ObjectController::setInterface( Interface * intr )
+	{
+		interface = intr;
+	}
+	
 	void ObjectController::sendEvent( Event * evt )
 	{
 		interface->sendEvent( evt );

@@ -29,6 +29,12 @@ namespace Grids
 		// Public key / private key
 	}
 	
+	void MessengerController::setInterface( Interface * intr )
+	{
+		interface = intr;
+	}
+	
+	
 	void MessengerController::sendEvent( Event * evt )
 	{
 		interface->sendEvent( evt );

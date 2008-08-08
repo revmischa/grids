@@ -49,6 +49,11 @@ namespace Grids
 	{
 		return event_map;
 	}
+	
+	gridsmap_t * Event::getMapPtr( )
+	{
+		return &event_map;
+	}
 
     std::string Event::getEventType()
     {

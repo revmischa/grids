@@ -12,13 +12,17 @@
 
 namespace Grids
 {
+	Interface::Interface( const char * address )
+	{
+		Interface( address, new ObjectController(), new PersonController(), new MessengerController() ); 
+	}
 	
 	Interface::Interface( const char * address, ObjectController * o_c_in, PersonController * p_c_in, MessengerController * m_c_in )
 		: node_address( address), object_controller( o_c_in ), person_controller( p_c_in ), messenger_controller( m_c_in )
 	{
-		object_controller->interface = &this;
-		person_controller->interface = &this;
-		messenger_controller->interface = &this;
+		object_controller->setInterface( this );
+		person_controller->setInterface( this );
+		messenger_controller->setInterface( this );
 		
 		protocol = new Protocol();
 		
@@ -30,18 +34,18 @@ namespace Grids
 		protocol->setEventCallback( receiveEvent );
 	}
 	
-	Interface::sendEvent( GEvent * evt )
+	void Interface::sendEvent( Event * evt )
 	// Sends an event upstream
 	{
-		protocol->sendRequest( evt->getEventType(), evt->getMap() );
+		protocol->sendRequest( evt->getEventType(), evt->getMapPtr() );
 	}
 	
-	Interface::receiveEvent( Protocol * proto, Event * evt )
+	void Interface::receiveEvent( Protocol * proto, Event * evt )
 	{
 		parseEventType( evt );
 	}
 	
-	Interface::parseEventType(  Event * evt )
+	void Interface::parseEventType(  Event * evt )
 	// This will be modified, person objects may need object information...
 	// mayme all items need all information??
 	{
@@ -60,7 +64,11 @@ namespace Grids
 			messenger_controller->giveEvent( evt );
 		}
 	}
-		
+	
+	ObjectController * Interface::getObjectController() { return object_controller; }
+	PersonController * Interface::getPersenController() { return person_controller; }
+	MessengerController * Interface::getMessengerController() { return messenger_controller; }
+					
 
 
 } // end namespace Grids
