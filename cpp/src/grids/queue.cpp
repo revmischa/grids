@@ -18,25 +18,25 @@ namespace Grids
 	
 	}
 	
-	Queue::Queue( event initial_event )
+	Queue::Queue( Event initial_event )
 		: length( 0 ), first_node( NULL ), last_node( NULL )
 	{
 		push( initial_event );
 	}
 	
 	
-	event Queue::pop( )
+	Event Queue::pop( )
 	{
 		if( first_node == NULL )
 		{
 			// I dont know what to put here, I'd like it to return NULL
 			// or something else signfying that the list is empty
-			return event();
+			return Event();
 		}
 		else
 		{
 			QueueNode * temp_node;
-			event temp_event = first_node->getEvent();
+			Event temp_event = first_node->getEvent();
 			
 			temp_node = first_node;
 			first_node = first_node->next;

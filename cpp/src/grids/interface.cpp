@@ -31,7 +31,14 @@ namespace Grids
 			// This should probably be threaded in the future
 		}
 		
-		protocol->setEventCallback( receiveEvent );
+		protocol->setEventCallback( Interface::receiveEvent );
+		protocol->runEventLoopThreaded();
+	}
+	
+	Interface::~Interface()
+	{
+		protocol->stopEventLoopThread();
+		protocol->closeConnection();
 	}
 	
 	void Interface::sendEvent( Event * evt )
@@ -47,7 +54,7 @@ namespace Grids
 	
 	void Interface::parseEventType(  Event * evt )
 	// This will be modified, person objects may need object information...
-	// mayme all items need all information??
+	// maybe all items need all information??
 	{
 		std::string event_type = evt->getEventType();
 		
@@ -66,7 +73,7 @@ namespace Grids
 	}
 	
 	ObjectController * Interface::getObjectController() { return object_controller; }
-	PersonController * Interface::getPersenController() { return person_controller; }
+	PersonController * Interface::getPersonController() { return person_controller; }
 	MessengerController * Interface::getMessengerController() { return messenger_controller; }
 					
 
