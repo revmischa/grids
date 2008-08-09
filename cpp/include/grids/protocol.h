@@ -12,7 +12,7 @@ namespace Grids {
   const unsigned int GRIDS_PORT = 1488;
 
   class Protocol;
-  typedef void (*gevent_callback_t)(Protocol *, Event *);
+  typedef void (*gevent_callback_t)(Protocol *, Event *, void *userData);
 
   class Protocol {
   public:
@@ -24,16 +24,19 @@ namespace Grids {
     void sendRequest(std::string);
     void sendRequest(std::string, gridsmap_t *args);
     void closeConnection();
-    void setEventCallback(gevent_callback_t);
+    void setEventCallback(gevent_callback_t, void *userData);
     void runEventLoop();
     int runEventLoopThreaded();
     void stopEventLoopThread();
+    void handleMessage(std::string msg);
+    short isFinished();
 
   private:
     Json::Value mapToJsonValue(gridsmap_t *);
     void dispatchEvent(Grids::Event *);
     int sock;
     gevent_callback_t eventCallback;
+    void *eventCallbackUserData;
     pthread_mutex_t finishedMutex;
     short finished;
     pthread_t eventLoopThread;

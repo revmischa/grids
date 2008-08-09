@@ -128,7 +128,7 @@ namespace Grids {
     return jsonVal;
   }
 
-  void Protocol::setEventCallback(gevent_callback_t cb) { eventCallback = cb; }
+  void Protocol::setEventCallback(gevent_callback_t cb, void *userData) { eventCallback = cb; eventCallbackUserData = userData; }
 
   void Protocol::runEventLoop() {
     int bytesRead;
@@ -136,7 +136,7 @@ namespace Grids {
     char *buf;
     char *bufIncoming;
 
-    while (! finished && sock) {
+    while (! isFinished() && sock) {
       // read in 4 byte length of message
       bytesRead = read(sock, &incomingLength, 4);
       incomingLength = ntohl(incomingLength);
@@ -159,6 +159,8 @@ namespace Grids {
         std::cerr << "Got incoming message size: " << incomingLength << ". Skipping\n";
         continue;
       }
+
+      // TODO: run in seperate thread
 
       // allocate space for incoming message + null byte
       buf = (char *)malloc(incomingLength + 1);
@@ -201,7 +203,9 @@ namespace Grids {
         continue;
       }
 
-      std::cout << "Got message \"" << buf << "\"\n";
+      // TODO: run in seperate thread
+      std::string msg = buf;
+      handleMessage(msg);
       
       free(buf);
     }
@@ -209,17 +213,43 @@ namespace Grids {
     std::cout << "ended read thread\n";
   }
 
+  void Protocol::handleMessage(std::string msg) {
+    std::cout << "Got message \"" << msg << "\"\n";
+    if (msg.size() < 2) return; // obv. bogus
+
+    /*
+    if (strncmp(msg, "==", 2) == 0) {
+      // protocol initiation message
+    } else if (strncmp(buf, "--", 2) == 0) {
+      // encrypted protocol message
+    } else {
+      // assume this is json for nowx
+      }*/
+  }
+
   int Protocol::runEventLoopThreaded() {
     return pthread_create(&eventLoopThread, NULL, runEventLoopThreadEntryPoint, this);
   }
 
   void Protocol::stopEventLoopThread() {
+    std::cout << "stopping event loop thread\n";
     pthread_mutex_lock(&finishedMutex);
     finished = 1;
     pthread_mutex_unlock(&finishedMutex);
 
     if (eventLoopThread)
       pthread_join(eventLoopThread, NULL);
+
+    std::cout << "event loop thread stopped\n";
   }
 
+
+  short Protocol::isFinished() {
+    int isFinished;
+    pthread_mutex_lock(&finishedMutex);
+    isFinished = finished;
+    pthread_mutex_unlock(&finishedMutex);
+    
+    return isFinished;
+  }    
 }

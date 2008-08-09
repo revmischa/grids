@@ -2,12 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <iostream>
-#include <grids/GridsProtocol.h>
-#include <grids/GridsEvent.h>
+#include <grids/protocol.h>
+#include <grids/event.h>
 
 using namespace Grids;
 
-void gotEvent(Protocol *, GEvent *);
+void gotEvent(Protocol *, Event *, void *);
 
 int main(int argc, char **argv) {
   short finished = 0;
@@ -34,7 +34,7 @@ int main(int argc, char **argv) {
   std::string evt = "Debug.Warn";
   proto->sendRequest(evt, &m);
 
-  proto->setEventCallback(gotEvent);
+  proto->setEventCallback(gotEvent, NULL);
   proto->runEventLoopThreaded();
 
   std::cout << "Type quit to exit\n";
@@ -59,6 +59,6 @@ int main(int argc, char **argv) {
   proto->closeConnection();
 }
 
-void gotEvent(Protocol *proto, GEvent *evt) {
+void gotEvent(Protocol *proto, Event *evt, void *userData) {
   std::cout << "Received event " << evt->getEventType() << "\n";
 }
