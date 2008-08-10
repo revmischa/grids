@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 #include <unistd.h>
 #include <netinet/tcp.h>
 #include <sys/socket.h>
@@ -256,10 +257,17 @@ namespace Grids {
   gridsmap_t Protocol::jsonToMap(Json::Value &root) {
     // ghetto, should fix in the future
     Json::Value::Members memberList = root.getMemberNames();
+    std::vector<std::string>::iterator iter;
+
     gridsmap_t outMap;
 
-    for( memberList = memberList.begin(); memberList != memberList.end(); memberList++ ) {
-      outMap[*memberList] = root[*memberList];
+    for (iter = memberList.begin(); iter != memberList.end(); iter++) {
+      Json::Value val = root[*iter];
+
+      std::stringstream outVal;
+      outVal << val;
+
+      outMap[*iter] = outVal.str();
     }
 
     return outMap;
