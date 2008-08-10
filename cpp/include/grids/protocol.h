@@ -28,8 +28,10 @@ namespace Grids {
     void runEventLoop();
     int runEventLoopThreaded();
     void stopEventLoopThread();
-    void handleMessage(std::string msg);
+    void handleMessage(std::string &msg);
     short isFinished();
+    gridsmap_t jsonToMap(Json::Value &);
+    Json::Value parseJson(std::string &msg);
 
   private:
     Json::Value mapToJsonValue(gridsmap_t *);

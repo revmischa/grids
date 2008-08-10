@@ -236,15 +236,35 @@ namespace Grids {
     std::cout << "Got message \"" << msg << "\"\n";
     if (msg.size() < 2) return; // obv. bogus
 
-    if (strncmp(msg, "==", 2) == 0) {
+    if (msg.find("==", 0, 2) == 0) {
       // protocol initiation message
-    } else if (strncmp(buf, "--", 2) == 0) {
+    } else if (msg.find("--", 0, 2) == 0) {
       // encrypted protocol message
     } else {
       // assume this is json for now
-      Json::Value root = parseJson(&msg);
+      Json::Value root = parseJson(msg);
+
+      // FIXME: this is slow and lame
+      gridsmap_t rootMap = jsonToMap(root);
+
+      Event *evt = new Event(rootMap["_method"], rootMap);
+      eventCallback(this, evt, eventCallbackUserData);
+      delete evt;
     }
   }
+
+  gridsmap_t Protocol::jsonToMap(Json::Value &root) {
+    // ghetto, should fix in the future
+    Json::Value::Members memberList = root.getMemberNames();
+    gridsmap_t outMap;
+
+    for( memberList = memberList.begin(); memberList != memberList.end(); memberList++ ) {
+      outMap[*memberList] = root[*memberList];
+    }
+
+    return outMap;
+  }
+
 
   Json::Value Protocol::parseJson(std::string &msg) {
     Json::Value root;
@@ -254,7 +274,7 @@ namespace Grids {
       return root;
 
     std::cerr << "Could not parse JSON: " << msg << "\n";
-    return null;
+    return Json::Value(0);
   }
 
   int Protocol::runEventLoopThreaded() {
