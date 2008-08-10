@@ -44,11 +44,19 @@ int main(int argc, char **argv) {
 
     fgets(buf, sizeof(buf), stdin);
 
+    // remove trailing \n
+    buf[strlen(buf) - 1] = '\0';
+
     if (strncasecmp(buf, "q", 1) == 0 || strncasecmp(buf, "quit", 4) == 0)
       finished = 1;
 
-    if (strncasecmp(buf, "q", 1) == 0)
+    if (strncasecmp(buf, "create", 6) == 0)
       proto->sendRequest("Room.Create", NULL);
+
+    if (strncasecmp(buf, "evt", 3) == 0 && strlen(buf) > 4) {
+      char *event = (char *)(buf + 4);
+      proto->sendRequest(event, NULL);
+    }
 
     if (strncasecmp(buf, "echo", 4) == 0 && strlen(buf) > 5) {
       char *echo = (char *)(buf + 5);

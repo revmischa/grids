@@ -20,6 +20,8 @@ sub create {
 
     my $room = Grids::Room->create;
 
+    $ROOMS{$room->id} = $room;
+
     return $node->event_hook_success(id => $room->id);
 }
 

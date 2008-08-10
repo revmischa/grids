@@ -168,9 +168,9 @@ namespace Grids {
       }
 
       if (bytesRead != 4) {
-        std::cerr << "read zero bytes\n";
-        // wtf? try reading again
-        continue;
+        // socket broken most likely
+        std::cerr << "failed to read from socket\n";
+        break;
       }
 
       if (incomingLength > 1024 * 1024 * 1024) {
