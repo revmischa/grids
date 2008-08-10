@@ -228,8 +228,6 @@ namespace Grids {
       
       free(buf);
     }
-
-    std::cout << "ended read thread\n";
   }
 
   void Protocol::handleMessage(std::string &msg) {
