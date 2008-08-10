@@ -35,7 +35,11 @@ namespace Grids {
     // look up host
     struct hostent *hp;
     struct sockaddr_in addr;
+    struct timeval timeout;
     int on = 1;
+
+    timeout.tv_sec = 1;
+    timeout.tv_usec = 0;
 
     if ((hp = gethostbyname(address)) == NULL) {
       herror("gethostbyname");
@@ -48,7 +52,14 @@ namespace Grids {
 
     sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 
-    setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, (const char *)&on, sizeof(int));
+    if (setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, (const char *)&on, sizeof(int)) != 0) {
+      std::cerr << "Could not setsockopt TCP_NODELAY: " << strerror(errno) << "\n";
+      return -1;
+    }
+    if (setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(struct timeval)) != 0) {
+      std::cerr << "Could not setsockopt SO_RCVTIMEO: " << strerror(errno) << "\n";
+      return -1;
+    }
 
     if (connect(sock, (struct sockaddr *)&addr, sizeof(struct sockaddr_in)) == -1) {
       return 0;
@@ -144,12 +155,18 @@ namespace Grids {
       //std::cout << "bytesRead: " << bytesRead << " incoming: " << incomingLength << "\n";
       
       if (bytesRead == -1) {
+        if (errno == EAGAIN) {
+          // nothing to read, do it again
+          continue;
+        }
+
         // uh oh, socket read error
-        std::cerr << "Socket read error: " << bytesRead << "\n";
+        std::cerr << "Socket read error: " << strerror(errno) << "\n";
         break;
       }
 
       if (bytesRead != 4) {
+        std::cerr << "read zero bytes\n";
         // wtf? try reading again
         continue;
       }
@@ -178,8 +195,8 @@ namespace Grids {
         }
 
         //std::cout << "read: " << bytesRead << " remaining: " << bytesRemaining << "\n";
-
-      } while ((bytesRead > 0 || bytesRead != EAGAIN) && bytesRemaining);
+        
+      } while ((bytesRead > 0 || errno != EAGAIN) && bytesRemaining && ! isFinished());
       buf[incomingLength] = '\0';
 
       if (bytesRead == -1) {
@@ -232,15 +249,12 @@ namespace Grids {
   }
 
   void Protocol::stopEventLoopThread() {
-    std::cout << "stopping event loop thread\n";
     pthread_mutex_lock(&finishedMutex);
     finished = 1;
     pthread_mutex_unlock(&finishedMutex);
 
     if (eventLoopThread)
       pthread_join(eventLoopThread, NULL);
-
-    std::cout << "event loop thread stopped\n";
   }
 
 
