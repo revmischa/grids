@@ -9,6 +9,8 @@
 #include <errno.h>
 
 #include <json/writer.h>
+#include <json/reader.h>
+#include <json/value.h>
 
 #include <grids/define.h>
 #include <grids/protocol.h>
@@ -230,18 +232,29 @@ namespace Grids {
     std::cout << "ended read thread\n";
   }
 
-  void Protocol::handleMessage(std::string msg) {
+  void Protocol::handleMessage(std::string &msg) {
     std::cout << "Got message \"" << msg << "\"\n";
     if (msg.size() < 2) return; // obv. bogus
 
-    /*
     if (strncmp(msg, "==", 2) == 0) {
       // protocol initiation message
     } else if (strncmp(buf, "--", 2) == 0) {
       // encrypted protocol message
     } else {
-      // assume this is json for nowx
-      }*/
+      // assume this is json for now
+      Json::Value root = parseJson(&msg);
+    }
+  }
+
+  Json::Value Protocol::parseJson(std::string &msg) {
+    Json::Value root;
+    Json::Reader reader;
+
+    if (reader.parse(msg, root))
+      return root;
+
+    std::cerr << "Could not parse JSON: " << msg << "\n";
+    return null;
   }
 
   int Protocol::runEventLoopThreaded() {
