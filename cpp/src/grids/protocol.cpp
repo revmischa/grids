@@ -248,7 +248,7 @@ namespace Grids {
       // FIXME: this is slow and lame
       gridsmap_t rootMap = jsonToMap(root);
 
-      Event *evt = new Event(rootMap["_method"], rootMap);
+      Event *evt = new Event(rootMap["_method"].asString(), rootMap);
       eventCallback(this, evt, eventCallbackUserData);
       delete evt;
     }
@@ -263,11 +263,7 @@ namespace Grids {
 
     for (iter = memberList.begin(); iter != memberList.end(); iter++) {
       Json::Value val = root[*iter];
-
-      std::stringstream outVal;
-      outVal << val;
-
-      outMap[*iter] = outVal.str();
+      outMap[*iter] = val;
     }
 
     return outMap;
