@@ -28,6 +28,8 @@
 			
 			void sendEvent( Event * );
 			
+			void setController( MessengerController * );
+			
 		private:
 			
 			MessengerController * controller;

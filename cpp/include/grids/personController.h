@@ -17,6 +17,10 @@
 
 namespace Grids
 {
+	class Interface;
+	class Object;
+	class Person;
+	
 	class PersonController
 	{
 		public:
@@ -38,7 +42,7 @@ namespace Grids
 			
 			std::map< std::string, int > uuid_map;
 			
-			std::vector< Object * > people;
+			std::vector< Person * > people;
 			
 	};
 	

@@ -27,6 +27,8 @@
 			
 			void sendEvent( Event * );  // Used to send a message 
 										// upstream
+										
+			void setController( ObjectController * );
 			
 		private:
 			

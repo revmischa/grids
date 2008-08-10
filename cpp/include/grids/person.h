@@ -27,6 +27,8 @@
 			
 			void sendEvent( Event * );
 			
+			void setController( PersonController * );
+			
 		private:
 			
 			PersonController * controller;

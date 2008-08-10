@@ -9,17 +9,21 @@
 
 #pragma once
 
+#include "define.h"
 #include "objectController.h"
 #include "personController.h"
 #include "messengerController.h"
 #include "event.h"
 #include "protocol.h"
-#include "define.h"
+
 
 namespace Grids
 {
 	
 	//typedef void (*gevent_callback_t)(Protocol *, Event *);
+	class ObjectController;
+	class MessengerController;
+	class PersonController;
 	
 	class Interface
 	{
@@ -32,7 +36,7 @@ namespace Grids
 			~Interface( );
 			
 			void sendEvent( Event *); // Sends an event upstream with the grids protocol
-			void receiveEvent( Protocol *, Event * ); // Grids protocol object hooks into this
+			void receiveEvent( Protocol *, Event *, void * userData ); // Grids protocol object hooks into this
 
 			ObjectController * getObjectController();
 			PersonController * getPersonController();
