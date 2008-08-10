@@ -29,7 +29,6 @@ namespace Grids {
   */
   Protocol::Protocol() {
     sock = 0;
-    finished = 0;
     pthread_mutex_init(&finishedMutex, NULL);
     eventLoopThread = (pthread_t)NULL;
   }
@@ -260,7 +259,7 @@ namespace Grids {
     std::vector<std::string>::iterator iter;
 
     gridsmap_t outMap;
-
+    
     for (iter = memberList.begin(); iter != memberList.end(); iter++) {
       Json::Value val = root[*iter];
       outMap[*iter] = val;
@@ -282,12 +281,17 @@ namespace Grids {
   }
 
   int Protocol::runEventLoopThreaded() {
-    return pthread_create(&eventLoopThread, NULL, runEventLoopThreadEntryPoint, this);
+    pthread_mutex_lock(&finishedMutex);
+
+    int tid = pthread_create(&eventLoopThread, NULL, runEventLoopThreadEntryPoint, this);
+
+    finished[tid] = 0;
+    pthread_mutex_unlock(&finishedMutex);
   }
 
   void Protocol::stopEventLoopThread() {
+    setFinished(1);
     pthread_mutex_lock(&finishedMutex);
-    finished = 1;
     pthread_mutex_unlock(&finishedMutex);
 
     if (eventLoopThread)
@@ -295,12 +299,19 @@ namespace Grids {
   }
 
 
-  short Protocol::isFinished() {
-    int isFinished;
+  bool Protocol::isFinished() {
+    bool isFinished;
     pthread_mutex_lock(&finishedMutex);
-    isFinished = finished;
+    isFinished = finished[threadid];
     pthread_mutex_unlock(&finishedMutex);
     
     return isFinished;
   }    
+
+  void Protocol::setFinished(bool fin) {
+    pthread_mutex_lock(&finishedMutex);
+    finished[threadid] = fin;
+    pthread_mutex_unlock(&finishedMutex);
+  }    
+
 }
