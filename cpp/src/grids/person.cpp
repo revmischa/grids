@@ -23,9 +23,14 @@ namespace Grids
 		
 	}
 	
-	void sendEvent( Event * evt )
+	void Person::sendEvent( Event * evt )
 	{
 		controller->sendEvent( evt );
+	}
+	
+	void Person::setController( PersonController * psn )
+	{
+		controller = psn;
 	}
 
 } // end namespace Grids

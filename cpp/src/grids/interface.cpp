@@ -30,8 +30,8 @@ namespace Grids
 		{
 			// This should probably be threaded in the future
 		}
-		
-		protocol->setEventCallback( Interface::receiveEvent );
+				
+		//protocol->setEventCallback( receiveEvent, this );
 		protocol->runEventLoopThreaded();
 	}
 	
@@ -47,7 +47,7 @@ namespace Grids
 		protocol->sendRequest( evt->getEventType(), evt->getMapPtr() );
 	}
 	
-	void Interface::receiveEvent( Protocol * proto, Event * evt )
+	void Interface::receiveEvent( Protocol * proto, Event * evt, void * userData )
 	{
 		parseEventType( evt );
 	}

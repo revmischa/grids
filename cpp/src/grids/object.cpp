@@ -29,6 +29,11 @@ namespace Grids
 	{
 		controller->sendEvent( evt );
 	}
+	
+	void Object::setController( ObjectController * cont )
+	{
+		controller = cont ;
+	}
 
 
 

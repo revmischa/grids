@@ -21,7 +21,7 @@ namespace Grids
 	{
 		objects.push_back( obj );
 		
-		obj->object_controller = &this;
+		obj->setController( this );
 		
 		// Add the item's uuid to a lookup table
 		
@@ -40,7 +40,7 @@ namespace Grids
 	
 	void ObjectController::giveEvent( Event * evt )
 	{
-		for( vector< Object * >::size_type i = 0; i < objects.size(); i++ )
+		for( std::vector< Object * >::size_type i = 0; i < objects.size(); i++ )
 		{
 			objects[i]->giveEvent( evt );
 		}

@@ -64,7 +64,7 @@ namespace Grids
 	{
 		return event_map.size();
 	}
-	
+  /*	
 	std::vector<std::string> Event::pop( )
 	{
 		if( entry_position < size() )
@@ -86,6 +86,7 @@ namespace Grids
 			return temp_vector;
 		}
 	}
+  */
 
 }
 

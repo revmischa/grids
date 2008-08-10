@@ -28,6 +28,10 @@ namespace Grids
 	{
 		controller->sendEvent( evt );
 	}
-
+	
+	void Messenger::setController( MessengerController *cont )
+	{
+		controller = cont;
+	}
 
 } // end namespace Grids

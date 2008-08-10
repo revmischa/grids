@@ -18,11 +18,11 @@ namespace Grids
 	
 	}
 	
-	PersonController::addPerson( Person * psn )
+	void PersonController::addPerson( Person * psn )
 	{
 		people.push_back( psn );
 		
-		psn->person_controller = &this;
+		psn->setController( this );
 	}
 	
 	void PersonController::setInterface( Interface * intr )
@@ -31,15 +31,15 @@ namespace Grids
 	}
 	
 	
-	PersonController::sendEvent( Event * evt )
+	void PersonController::sendEvent( Event * evt )
 	{
 		interface->sendEvent( evt );
 	
 	}
 	
-	PersonController::giveEvent( Event * evt )
+	void PersonController::giveEvent( Event * evt )
 	{
-		for( vector< Person * >::size_type i = 0; i < people.size(); i++ )
+		for( std::vector< Person * >::size_type i = 0; i < people.size(); i++ )
 		{
 			people[i]->giveEvent( evt );
 		}

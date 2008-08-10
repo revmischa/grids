@@ -22,7 +22,7 @@ namespace Grids
 	{
 		messengers.push_back( msg );
 		
-		msg->messenger_controller = &this;
+		msg->setController( this );
 		
 		// Add the item's uuid to a lookup table
 		
@@ -42,7 +42,7 @@ namespace Grids
 	
 	void MessengerController::giveEvent( Event * evt )
 	{
-		for( vector< Messenger * >::size_type i = 0; i < messengers.size(); i++ )
+		for( std::vector< Messenger * >::size_type i = 0; i < messengers.size(); i++ )
 		{
 			messengers[i]->giveEvent( evt );
 		}
