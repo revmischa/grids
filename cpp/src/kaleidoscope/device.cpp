@@ -17,7 +17,7 @@ namespace Kaleidoscope
 	
 	Device::Device( )
 	{
-	
+		
 	}
 			
 	Renderer * Device::getRenderer()

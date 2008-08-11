@@ -13,12 +13,27 @@
 namespace Kaleidoscope
 {
 	Renderer::Renderer( Device * in_device, int window_width, int window_height)
-		:	device( in_device ), width( window_width), height( window_height ), 
-			Texture_On( false) , Light_On( false), Alpha_Add( false ), Blend_On( false ), Filtering_On( false )
 	{
+		device = in_device;
+		
+		device->width = window_width;
+		device->height = window_height;
+		
+		device->Texture_On = false;
+		device->Light_On = false;
+		device->Alpha_Add = false;
+		device->Blend_On = true;
+		device->Filtering_On = false;
+		
 		loadLights();
 		loadTextModes();
 	}
+	
+	void Renderer::setDevice( Device * in_device )
+	{
+		device = in_device;
+	}
+	
 	
 	void Renderer::drawBox()
 	{
@@ -26,28 +41,28 @@ namespace Kaleidoscope
 
 		
 		
-		if (Texture_On)
+		if (device->Texture_On)
 		  glEnable(GL_TEXTURE_2D);
 	   else
 		  glDisable(GL_TEXTURE_2D);
 
-	   if (Light_On) 
+	   if (device->Light_On) 
 		  glEnable(GL_LIGHTING);
 	   else 
 		  glDisable(GL_LIGHTING);
 
-		if (Alpha_Add)
+		if (device->Alpha_Add)
 		   glBlendFunc(GL_SRC_ALPHA,GL_ONE); 
 		else
 		   glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
 		// If we're blending, we don't want z-buffering.
-		if (Blend_On)
+		if (device->Blend_On)
 		   glDisable(GL_DEPTH_TEST); 
 		else
 		   glEnable(GL_DEPTH_TEST); 
 
-		if (Filtering_On) {
+		if (device->Filtering_On) {
 		   glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,
 											   GL_LINEAR_MIPMAP_LINEAR);
 		   glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
@@ -63,12 +78,14 @@ namespace Kaleidoscope
 
 	   // Reset to 0,0,0; no rotation, no scaling.
 	   glLoadIdentity(); 
+	   
+		device->getCamera()->callgluLookAt();
+
 
 	   // Move the object back from the screen.
 	   //glTranslatef(0.0f,0.0f, -5.0f);
 	   
-	   device->getCamera()->callgluLookAt();
-
+	   
 	   // Rotate the calculated amount.
 	   //glRotatef(X_Rot,1.0f,0.0f,0.0f);
 	   //glRotatef(Y_Rot,0.0f,1.0f,0.0f);
@@ -153,6 +170,20 @@ namespace Kaleidoscope
 
 	   // All polygons have been drawn.
 	   glEnd();
+	   
+		glBegin(GL_LINES); 
+
+	    glColor4f(0.9,0.9,1.0,1.0);
+		glVertex3f( -10000, 0, 0);
+		glVertex3f( 10000, 0, 0 );
+		glVertex3f( 0, -10000, 0);
+		glVertex3f(0, 10000, 0 );
+		glVertex3f( 0, 0, -10000 );
+		glVertex3f( 0, 0, 10000 );
+		
+		glEnd();
+	   
+	   
 
 	   // Move back to the origin (for the text, below).
 	   glLoadIdentity();
@@ -165,7 +196,7 @@ namespace Kaleidoscope
 
 	   // Now we set up a new projection for the text.
 	   glLoadIdentity();
-	   glOrtho(0, width ,0, height, -1.0, 1.0);
+	   glOrtho(0, device->width ,0, device->height, -1.0, 1.0);
 
 	   // Lit or textured text looks awful.
 	   glDisable(GL_TEXTURE_2D);
@@ -178,7 +209,7 @@ namespace Kaleidoscope
 	   glColor4f(0.6,1.0,0.6,.75);
 
 	   // Render our various display mode settings.
-	   sprintf(buf,"Mode: %s", text_mode_string[current_text_mode]);
+	   sprintf(buf,"Mode: %s", device->text_mode_string[ device->current_text_mode]);
 	   glRasterPos2i(2,2); printString(GLUT_BITMAP_HELVETICA_10,buf);
 
 	  // sprintf(buf,"AAdd: %d", Alpha_Add);
@@ -202,7 +233,7 @@ namespace Kaleidoscope
 	   // To ease, simply translate up.  Note we're working in screen
 	   // pixels in this projection.
 	   
-	   glTranslatef(6.0f, height - 14,0.0f);
+	   glTranslatef(6.0f, device->height - 14,0.0f);
 
 	   // Make sure we can read the FPS section by first placing a 
 	   // dark, mostly opaque backdrop rectangle.
@@ -234,18 +265,37 @@ namespace Kaleidoscope
 	
 	int Renderer::getWidth()
 	{
-		return width;
+		return device->width;
 	}
 	
 	int Renderer::getHeight()
 	{
-		return height;
+		return device->height;
+	}
+	
+	void Renderer::setWidth(int in_width )
+	{
+		device->width = in_width;
+	}
+	
+	void Renderer::setHeight( int in_height )
+	{
+		device->height = in_height;
 	}
 	
 	void Renderer::renderAll()
 	{
-		device->getCamera()->doMovementFPS();
+		// WHAH-WHAH-WHAAAAAAT? WTF is wrong with computers
+		//
+		// device->getCamera()->device == 0x0 at this point
+		
+		device->getCamera()->setDevice( device );
+		
+		device->getCamera()->doMovementFPS( device );
+		
 		drawBox();
+		
+
 	}
 	
 	void Renderer::prepare()
@@ -263,12 +313,12 @@ namespace Kaleidoscope
 	   glShadeModel(GL_SMOOTH);
 
 	   // Load up the correct perspective matrix; using a callback directly.
-	   resizeScene(width , height);
+	   resizeScene(device->width , device->height);
 
 	   // Set up a light, turn it on.
-	   glLightfv(GL_LIGHT1, GL_POSITION, Light_Position);
-	   glLightfv(GL_LIGHT1, GL_AMBIENT,  Light_Ambient);
-	   glLightfv(GL_LIGHT1, GL_DIFFUSE,  Light_Diffuse); 
+	   glLightfv(GL_LIGHT1, GL_POSITION, device->Light_Position);
+	   glLightfv(GL_LIGHT1, GL_AMBIENT,  device->Light_Ambient);
+	   glLightfv(GL_LIGHT1, GL_DIFFUSE,  device->Light_Diffuse); 
 	   glEnable (GL_LIGHT1); 
 
 	   // A handy trick -- have surface material mirror the color.
@@ -288,8 +338,8 @@ namespace Kaleidoscope
 		int hole_size = 3300; // ~ == 57.45 ^ 2.
 
 		// Generate a texture index, then bind it for future operations.
-		glGenTextures(1, (GLuint*)&texture_id);
-		glBindTexture(GL_TEXTURE_2D,texture_id);
+		glGenTextures(1, (GLuint*)&(device->texture_id));
+		glBindTexture(GL_TEXTURE_2D,device->texture_id);
 
 		// Iterate across the texture array.
 
@@ -354,13 +404,13 @@ namespace Kaleidoscope
 
 	   glMatrixMode(GL_MODELVIEW);
 
-	   width  = new_width;
-	   height = new_height;
+	   device->width  = new_width;
+	   device->height = new_height;
 	}
 	
 	void Renderer::setWindowID( int id )
 	{
-		window_id = id;
+		device->window_id = id;
 	}
 	
 	void Renderer::printString( void * font, char * str )
@@ -376,35 +426,35 @@ namespace Kaleidoscope
 	
 	void Renderer::loadLights()
 	{
-		Light_Ambient[0] =  0.1f;
-		Light_Ambient[1] =  0.1f;
-		Light_Ambient[2] =  0.1f;
-		Light_Ambient[3] =  1.0f;
+		device->Light_Ambient[0] =  0.1f;
+		device->Light_Ambient[1] =  0.1f;
+		device->Light_Ambient[2] =  0.1f;
+		device->Light_Ambient[3] =  1.0f;
 		
-		Light_Diffuse[0] =  1.2f;
-		Light_Diffuse[1] =  1.2f;
-		Light_Diffuse[2] =  1.2f;
-		Light_Diffuse[3] =  1.0f;
+		device->Light_Diffuse[0] =  1.2f;
+		device->Light_Diffuse[1] =  1.2f;
+		device->Light_Diffuse[2] =  1.2f;
+		device->Light_Diffuse[3] =  1.0f;
 		
-		Light_Position[0] = 2.0f;
-		Light_Position[1] = 2.0f;
-		Light_Position[2] = 0.0f;
-		Light_Position[3] = 1.0f;
+		device->Light_Position[0] = 2.0f;
+		device->Light_Position[1] = 2.0f;
+		device->Light_Position[2] = 0.0f;
+		device->Light_Position[3] = 1.0f;
 	}
 	
 	
 	void Renderer::loadTextModes()
 	{
-		current_text_mode = 0;
-		text_mode_string[0] = "GL_DECAL";
-		text_mode_string[1] = "GL_MODULATE";
-		text_mode_string[2] = "GL_BLEND";
-		text_mode_string[3] = "GL_REPLACE";
+		device->current_text_mode = 0;
+		device->text_mode_string[0] = "GL_DECAL";
+		device->text_mode_string[1] = "GL_MODULATE";
+		device->text_mode_string[2] = "GL_BLEND";
+		device->text_mode_string[3] = "GL_REPLACE";
 		
-		text_modes[0] = GL_DECAL;
-		text_modes[1] = GL_MODULATE;
-		text_modes[2] = GL_BLEND;
-		text_modes[3] = GL_REPLACE;
+		device->text_modes[0] = GL_DECAL;
+		device->text_modes[1] = GL_MODULATE;
+		device->text_modes[2] = GL_BLEND;
+		device->text_modes[3] = GL_REPLACE;
 	}
 
 	

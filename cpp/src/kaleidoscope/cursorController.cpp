@@ -8,6 +8,7 @@
  */
 
 #include "cursorController.h"
+#include <iostream>
 
 
 namespace Kaleidoscope
@@ -18,9 +19,20 @@ namespace Kaleidoscope
 	
 	}
 	
+	void CursorController::setDevice( Device * dvc )
+	{
+		device = dvc;
+	}
+	
 	void CursorController::setPosition( float xScale, float yScale )
 	{
-		glutWarpPointer( (int)( xScale * device->getRenderer()->getWidth() ), (int)( yScale * device->getRenderer()->getHeight() ) );
+		glutWarpPointer( (int)( xScale * glutGet( GLUT_WINDOW_WIDTH ) )  , (int)( yScale * glutGet( GLUT_WINDOW_HEIGHT ) ));
+		
+		 //std::cout <<  glutGet( GLUT_WINDOW_WIDTH )  <<  " : " <<  glutGet( GLUT_WINDOW_HEIGHT ) << std::endl;
+		 //std::cout <<  glutGet( GLUT_WINDOW_X )  <<  " : " <<  glutGet( GLUT_WINDOW_Y ) << std::endl;
+		 //std::cout <<  device->mouseX  <<  " : " <<  device->mouseY << std::endl;
+		 
+		//glutWarpPointer( 375, 275 );
 	}
 	
 	void CursorController::setToCenter( )
@@ -28,9 +40,17 @@ namespace Kaleidoscope
 		setPosition( 0.5f, 0.5f );
 	}
 	
-	Vec2D CursorController::getRelativePosition()
+	Vec2D CursorController::getRelativePosition( Device * d )
 	{
-		return Vec2D( (float)( device->getEventController()->getMouseX() / device->getRenderer()->getWidth() ), (float)( device->getEventController()->getMouseY() / device->getRenderer()->getHeight() ) );	
+		//std::cout <<  d->mouseX  <<  " : " <<  d->mouseY << std::endl;
+		if( d->firstUpdate )
+		{
+			return Vec2D( 0.5f, 0.5f );
+		}
+		else
+		{
+			return Vec2D( (float)( d->mouseX ) / (float) glutGet( GLUT_WINDOW_WIDTH ) , (float)(  d->mouseY ) / (float) glutGet( GLUT_WINDOW_HEIGHT )   );	
+		}
 	}
 	
 
