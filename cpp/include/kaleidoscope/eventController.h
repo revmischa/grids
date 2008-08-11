@@ -12,19 +12,24 @@
 
 #include <GLUT/glut.h>
 #include <grids/define.h>
+#include <kaleidoscope/device.h>
 
 
 namespace Kaleidoscope
 {
+	class Device;
 	
 	class EventController
 	{
 		public:
 			
-			EventController( );
+			EventController( Device *);
+			
+			void setDevice( Device * );
 			
 			void mousePressedCall( int, int, int, int );
 			void mouseMovedCall( int, int );
+			void mouseDraggedCall( int, int );
 			
 			void keyPressedCall( unsigned char, int, int );
 			void specialKeyPressedCall( int, int, int );
@@ -42,16 +47,7 @@ namespace Kaleidoscope
 		
 		private:
 			
-			int mouseX;
-			int mouseY;
-			
-			unsigned char stored_key;
-			int special_key;
-			
-			int mouseButton;
-			int mouseState;
-			
-			bool key_pressed;
+			Device * device;
 	
 	};
 	

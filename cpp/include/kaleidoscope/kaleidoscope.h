@@ -25,19 +25,14 @@ namespace Kaleidoscope
 	class CursorController;
 	class EventController;
 	class Renderer;
+	class Device;
 
 	void createDevice( Device * new_device, int width, int height )
 	{
 		new_device->setCursorController( new Kaleidoscope::CursorController( new_device ) );
 		new_device->setRenderer( new Kaleidoscope::Renderer( new_device, width, height) ) ;
-		new_device->setEventController( new Kaleidoscope::EventController( ) );
+		new_device->setEventController( new Kaleidoscope::EventController( new_device ) );
 		new_device->setCamera( new Kaleidoscope::Camera( new_device ) );
-		
-		new_device->getCursorController()->setDevice( new_device );
-		new_device->getRenderer()->setDevice( new_device );
-		new_device->getEventController()->setDevice( new_device );
-		new_device->getCamera()->setDevice( new_device );
-
 		
 		std::cout << "Created Device" << std::endl;
 	}

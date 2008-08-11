@@ -72,50 +72,54 @@ namespace Kaleidoscope
 			void setCameraToMaya();
 			void swapCameraType();
 			
+			int getType();
+			void setType( int );
 			
 			
-			void doMovementFPS();
+			
+			void doMovementFPS(Device *);
 			void callgluLookAt();
 			
 			
 			
 		private:
 			
-			int type;
-			
-			Vec3D Position;
-			Vec3D Rotation;
-			Vec3D Target;
-			
-			Vec3D TargetNormal;
-			
-			Vec3D UpVector;
-			
-			float RotateSpeed;
-			float MoveSpeed;
-			float TranslateSpeed;
-			float ZoomSpeed;
-			
-			Vec3D CenterOfRotation;
-			
-			float FOV;
-			float Aspect;
-			float Near;
-			float Far;
-			
-			// forward, back, left, right, and escape
-			int keyMap[5];
-			
-			float MAX_VERTICAL_ANGLE;
-			
-			time_t LastAnimationTime;
-			Vec2D CenterCursor;
-			bool firstUpdate;
-			bool cursorPos;
+			//int type;
+//			
+//			Vec3D Position;
+//			Vec3D Rotation;
+//			Vec3D Target;
+//			
+//			Vec3D TargetNormal;
+//			
+//			Vec3D UpVector;
+//			
+//			float RotateSpeed;
+//			float MoveSpeed;
+//			float TranslateSpeed;
+//			float ZoomSpeed;
+//			
+//			Vec3D CenterOfRotation;
+//			
+//			float FOV;
+//			float Aspect;
+//			float Near;
+//			float Far;
+//			
+//			// forward, back, left, right, and escape
+//			int keyMap[5];
+//			
+//			float MAX_VERTICAL_ANGLE;
+//			
+//			time_t LastAnimationTime;
+//			Vec2D CenterCursor;
+//			bool firstUpdate;
+//			bool cursorPos;
 			
 			Device * device;
 			
 			Vec3D findRotationFromVector( Vec3D );
+			bool Equals( float, float );
 	
 	
 	};
