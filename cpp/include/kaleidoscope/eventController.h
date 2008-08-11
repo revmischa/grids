@@ -41,6 +41,7 @@ namespace Kaleidoscope
 			int getMouseY();
 			
 			bool keyPressed(); // Returns true if a key is held down
+			bool specialKeyPressed();
 			
 			unsigned char key();
 			int specialKey();

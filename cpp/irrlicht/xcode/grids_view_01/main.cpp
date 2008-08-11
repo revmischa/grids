@@ -2,20 +2,21 @@
 #include <irrlicht.h>
 #include <iostream>
 #include "GridsOcto.h"
-#include "GridsQueue.h"
+#include <grids/queue.h>
+#include <grids/interface.h>
 
 using namespace irr;
-using namespace Grids;
+//using namespace Grids;
 using namespace std;
 
 #pragma comment(lib, "libMacOSX.a")
 
+void drawGL();
 
 int main(int argc, char** argv)
 {
-		
-	cout << "Arg  " << argv[0] << endl << endl;	
-		
+	//Interface * interface = new Interface( "1234" ); // "1234" is the address of the Grids node
+	
 	IrrlichtDevice *device = createDevice(video::EDT_OPENGL, core::dimension2d<s32>(640, 480), 16, false);
 		
 	if (device == 0)
@@ -43,6 +44,8 @@ int main(int argc, char** argv)
 		driver->beginScene(true, true, video::SColor(0,100,100,100));
 
 		smgr->drawAll();
+		
+		drawGL();
 
 		driver->endScene();
 		
@@ -64,3 +67,13 @@ int main(int argc, char** argv)
 	return 0;
 }
 
+
+void drawGL( )
+{
+	
+
+
+
+
+
+}

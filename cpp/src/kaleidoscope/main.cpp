@@ -17,7 +17,7 @@
 
 #include <grids/protocol.h>
 #include <grids/vector3d.h>
-#include <grids/interface.h> // Contains objects, people, messengers, and their controllers
+//#include <grids/interface.h> // Contains objects, people, messengers, and their controllers
 
 #include <kaleidoscope/kaleidoscope.h>
 
@@ -28,11 +28,12 @@ Kaleidoscope::Renderer * main_renderer = new Kaleidoscope::Renderer( main_device
 Kaleidoscope::EventController * main_event = new Kaleidoscope::EventController( main_device );
 Kaleidoscope::Camera * main_camera = new Kaleidoscope::Camera( main_device );
 
-#include <kaleidoscope/render.h> 
 #include <kaleidoscope/glutCallbacks.h>
-#include <kaleidoscope/glutInit.h>
 
 const char * PROGRAM_TITLE = "Kaleidescope -- Grids Visualizer";
+const char * CONNECTION = "happiland.net";
+
+//Grids::Interface * grids_interface = new Grids::Interface( CONNECTION );
  
 int main( int argc, char **argv )
 {
@@ -59,7 +60,8 @@ int main( int argc, char **argv )
 	glutDisplayFunc( &cbRenderScene );
 
 	// If there's nothing to do, draw.
-	glutIdleFunc( &cbRenderScene);
+	//glutIdleFunc( &cbRenderScene);
+	glutIdleFunc( &cbRenderScene );
 
 	// It's a good idea to know when our window's resized.
 	glutReshapeFunc( &cbResizeScene);
@@ -71,7 +73,8 @@ int main( int argc, char **argv )
 	glutKeyboardUpFunc( &cbKeyUp );
 	glutSpecialUpFunc( &cbSpecialKeyUp );
 	
-	glutMotionFunc ( &cbMouseDragged);
+	//glutMotionFunc ( &cbMouseDragged);
+	glutMotionFunc( NULL );
 	glutPassiveMotionFunc( &cbMouseMoved );
     glutMouseFunc ( &cbMousePressed);
 

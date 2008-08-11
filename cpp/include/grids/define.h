@@ -5,6 +5,7 @@
 #include <map>
 #include <iterator>
 #include "vector3d.h"
+#include "vector2d.h"
 #include <json/value.h>
 
 namespace Grids
@@ -15,6 +16,7 @@ namespace Grids
 	typedef gridsmap_t::iterator giterator;
   
 	typedef irr::core::vector3df Vec3D;
+	typedef irr::core::vector2df Vec2D;
 }
 
 

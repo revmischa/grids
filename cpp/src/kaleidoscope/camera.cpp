@@ -273,7 +273,7 @@ namespace Kaleidoscope
 		
 		//std::cout << Target.X << " : " << Target.Y << " : " << Target.Z << std::endl;
 		
-		if( d->getEventController()->keyPressed() )
+		if( d->getEventController()->specialKeyPressed() )
 		{
 			int special_key = d->getEventController()->specialKey();
 			

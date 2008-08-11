@@ -119,6 +119,7 @@ namespace Kaleidoscope
 			int mouseState;
 			
 			bool key_pressed;
+			bool special_key_pressed;
 			
 			
 						
