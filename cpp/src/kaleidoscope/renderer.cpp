@@ -12,16 +12,20 @@
 
 namespace Kaleidoscope
 {
-	Renderer::Renderer( int window_width, int window_height)
-		:	width( window_width), height( window_height ), 
+	Renderer::Renderer( Device * in_device, int window_width, int window_height)
+		:	device( in_device ), width( window_width), height( window_height ), 
 			Texture_On( false) , Light_On( false), Alpha_Add( false ), Blend_On( false ), Filtering_On( false )
 	{
-		
-	
+		loadLights();
+		loadTextModes();
 	}
 	
 	void Renderer::drawBox()
 	{
+		char buf[80]; // For our strings.
+
+		
+		
 		if (Texture_On)
 		  glEnable(GL_TEXTURE_2D);
 	   else
@@ -61,7 +65,9 @@ namespace Kaleidoscope
 	   glLoadIdentity(); 
 
 	   // Move the object back from the screen.
-	   //glTranslatef(0.0f,0.0f,Z_Off);
+	   //glTranslatef(0.0f,0.0f, -5.0f);
+	   
+	   device->getCamera()->callgluLookAt();
 
 	   // Rotate the calculated amount.
 	   //glRotatef(X_Rot,1.0f,0.0f,0.0f);
@@ -159,7 +165,7 @@ namespace Kaleidoscope
 
 	   // Now we set up a new projection for the text.
 	   glLoadIdentity();
-	 //  glOrtho(0,Window_Width,0,Window_Height,-1.0,1.0);
+	   glOrtho(0, width ,0, height, -1.0, 1.0);
 
 	   // Lit or textured text looks awful.
 	   glDisable(GL_TEXTURE_2D);
@@ -172,8 +178,8 @@ namespace Kaleidoscope
 	   glColor4f(0.6,1.0,0.6,.75);
 
 	   // Render our various display mode settings.
-	  // sprintf(buf,"Mode: %s", TexModesStr[Curr_TexMode]);
-	  // glRasterPos2i(2,2); ourPrintString(GLUT_BITMAP_HELVETICA_12,buf);
+	   sprintf(buf,"Mode: %s", text_mode_string[current_text_mode]);
+	   glRasterPos2i(2,2); printString(GLUT_BITMAP_HELVETICA_10,buf);
 
 	  // sprintf(buf,"AAdd: %d", Alpha_Add);
 	//   glRasterPos2i(2,14); ourPrintString(GLUT_BITMAP_HELVETICA_12,buf);
@@ -196,7 +202,7 @@ namespace Kaleidoscope
 	   // To ease, simply translate up.  Note we're working in screen
 	   // pixels in this projection.
 	   
-	  // glTranslatef(6.0f,Window_Height - 14,0.0f);
+	   glTranslatef(6.0f, height - 14,0.0f);
 
 	   // Make sure we can read the FPS section by first placing a 
 	   // dark, mostly opaque backdrop rectangle.
@@ -238,7 +244,8 @@ namespace Kaleidoscope
 	
 	void Renderer::renderAll()
 	{
-	
+		device->getCamera()->doMovementFPS();
+		drawBox();
 	}
 	
 	void Renderer::prepare()
@@ -268,6 +275,9 @@ namespace Kaleidoscope
 	   glColorMaterial(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE);
 	   glEnable(GL_COLOR_MATERIAL);
 	}
+	
+	
+	
 	
 	void Renderer::buildTextures()
 	{
@@ -327,6 +337,9 @@ namespace Kaleidoscope
 		glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_DECAL);
 	}
 	
+	
+	
+	
 	void Renderer::resizeScene( int new_width, int new_height )
 	{
 		// Let's not core dump, no matter what.
@@ -349,6 +362,51 @@ namespace Kaleidoscope
 	{
 		window_id = id;
 	}
+	
+	void Renderer::printString( void * font, char * str )
+	{
+		int i, l = strlen( str );
+		
+		for( i = 0; i < l; i++ )
+		{
+			glutBitmapCharacter( font, *str++ );
+		}
+	}
+	
+	
+	void Renderer::loadLights()
+	{
+		Light_Ambient[0] =  0.1f;
+		Light_Ambient[1] =  0.1f;
+		Light_Ambient[2] =  0.1f;
+		Light_Ambient[3] =  1.0f;
+		
+		Light_Diffuse[0] =  1.2f;
+		Light_Diffuse[1] =  1.2f;
+		Light_Diffuse[2] =  1.2f;
+		Light_Diffuse[3] =  1.0f;
+		
+		Light_Position[0] = 2.0f;
+		Light_Position[1] = 2.0f;
+		Light_Position[2] = 0.0f;
+		Light_Position[3] = 1.0f;
+	}
+	
+	
+	void Renderer::loadTextModes()
+	{
+		current_text_mode = 0;
+		text_mode_string[0] = "GL_DECAL";
+		text_mode_string[1] = "GL_MODULATE";
+		text_mode_string[2] = "GL_BLEND";
+		text_mode_string[3] = "GL_REPLACE";
+		
+		text_modes[0] = GL_DECAL;
+		text_modes[1] = GL_MODULATE;
+		text_modes[2] = GL_BLEND;
+		text_modes[3] = GL_REPLACE;
+	}
+
 	
 	
 }

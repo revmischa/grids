@@ -17,10 +17,11 @@
 
 #include <grids/protocol.h>
 #include <grids/vector3d.h>
+#include <grids/interface.h> // Contains objects, people, messengers, and their controllers
 
-#include <kaleidoscope/renderer.h>
+#include <kaleidoscope/kaleidoscope.h>
 
-Kaleidoscope::Renderer * renderer = new Kaleidoscope::Renderer(600, 400);
+Kaleidoscope::Device * main_device = new Kaleidoscope::Device( );
 
 #include <kaleidoscope/render.h> 
 #include <kaleidoscope/glutCallbacks.h>
@@ -30,14 +31,16 @@ const char * PROGRAM_TITLE = "Kaleidescope -- Grids Visualizer";
  
 int main( int argc, char **argv )
 {
+	Kaleidoscope::createDevice( main_device, 600, 400 );
+	
 	glutInit( &argc, argv);
 	
 	// To see OpenGL drawing, take out the GLUT_DOUBLE request.
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
-	glutInitWindowSize( renderer->getWidth(), renderer->getHeight() );
+	glutInitWindowSize( main_device->getRenderer()->getWidth(), main_device->getRenderer()->getHeight() );
 	
 	// Open a window 
-	renderer->setWindowID( glutCreateWindow( PROGRAM_TITLE ) );
+	 main_device->getRenderer()->setWindowID( glutCreateWindow( PROGRAM_TITLE ) );
 
 	// Register the callback function to do the drawing. 
 	// Public static Foo etc
@@ -51,11 +54,17 @@ int main( int argc, char **argv )
 	glutReshapeFunc( &cbResizeScene);
 
 	// And let's get some keyboard input.
-	glutKeyboardFunc(&cbKeyPressed);
-	glutSpecialFunc(&cbSpecialKeyPressed);
+	//glutKeyboardFunc(&cbKeyPressed);
+	//glutSpecialFunc(&cbSpecialKeyPressed);
 	
+	//glutKeyboardUpFunc( &cbKeyUp );
+	//glutSpecialUpFunc( &cbSpecialKeyUp );
+	
+	//glutMotionFunc ( &cbMouseMoved);
+    //glutMouseFunc ( &cbMousePressed);
+
 	// OK, OpenGL's ready to go.  Let's call our own init function.
-	renderer->prepare();
+	 main_device->getRenderer()->prepare();
 	
 	glutMainLoop();
 
