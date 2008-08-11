@@ -30,9 +30,9 @@
 //float Z_Off   =-5.0f;
 //
 // Settings for our light.  Try playing with these (or add more lights).
-float Light_Ambient[]=  { 0.1f, 0.1f, 0.1f, 1.0f };
-float Light_Diffuse[]=  { 1.2f, 1.2f, 1.2f, 1.0f }; 
-float Light_Position[]= { 2.0f, 2.0f, 0.0f, 1.0f };
+//float Light_Ambient[]=  { 0.1f, 0.1f, 0.1f, 1.0f };
+//float Light_Diffuse[]=  { 1.2f, 1.2f, 1.2f, 1.0f }; 
+//float Light_Position[]= { 2.0f, 2.0f, 0.0f, 1.0f };
 
 
 // ------
