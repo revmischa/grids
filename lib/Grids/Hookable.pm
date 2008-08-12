@@ -44,7 +44,8 @@ sub run_hooks($$$) {
 
     # look for hooks registered in this package
     my $package = ref $self || $self;
-    push @res, $self->run_hooks_on($HOOKS{$package}, $hookname, $info);
+    push @res, $self->run_hooks_on($HOOKS{$package}, $hookname, $info)
+        if (! ref $package && $package ne 'Grids::Hooks');
 
     # look for global hooks
     push @res, $self->run_hooks_on(\%Grids::Hooks::HOOKS, $hookname, $info);
