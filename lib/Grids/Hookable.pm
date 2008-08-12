@@ -47,9 +47,7 @@ sub run_hooks($$$) {
     push @res, $self->run_hooks_on($HOOKS{$package}, $hookname, $info);
 
     # look for global hooks
-    if (ref $package || $package ne 'Grids::Hooks') {
-        push @res, $self->run_hooks_on(\%Grids::Hooks::HOOKS, $hookname, $info);
-    }
+    push @res, $self->run_hooks_on(\%Grids::Hooks::HOOKS, $hookname, $info);
 
     return @res;
 }
