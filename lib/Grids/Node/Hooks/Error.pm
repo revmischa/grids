@@ -7,11 +7,11 @@ __PACKAGE__->register_hooks(
                             );
 
 sub error {
-    my ($client, %info) = @_;
+    my ($client, $info) = @_;
 
-    my $evt = delete $info{event};
+    my $evt = delete $info->{event};
 
-    die "Caught error: " . join "\n", map { "$_ = $info{args}{$_}\n" } keys %{$info{args}};
+    die "Caught error: " . join "\n", map { "$_ = $info->{args}{$_}\n" } keys %{$info->{args}};
 
     return 0;
 }

@@ -11,6 +11,9 @@ our %HOOKS; # package->hookname
 sub load_hooks {
 	my $package = shift or croak "Need to pass in package to load hooks for";
 	Class::Autouse->load_recursive($package);
+
+    # load global hooks too
+	Class::Autouse->load_recursive("Grids::Hooks");
 }
 
 # run hooks and require them all to return true
