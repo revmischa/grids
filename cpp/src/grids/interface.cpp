@@ -8,6 +8,7 @@
  */
 
 #include "interface.h"
+#include <iostream>
 
 
 namespace Grids
@@ -30,9 +31,17 @@ namespace Grids
 		{
 			// This should probably be threaded in the future
 		}
+		
+		std::cout << "Connected!" << std::endl;
+		
+		gridsmap_t m;
+		m["message"] = "LOL HI";
+		
+		std::string evt = "Debug.Warn";
+		protocol->sendRequest(evt, &m);
 				
-		//protocol->setEventCallback( receiveEvent, this );
-		protocol->runEventLoopThreaded();
+		//protocol->setEventCallback( &Grids::Interface::receiveEvent, this );
+		//protocol->runEventLoopThreaded();
 	}
 	
 	Interface::~Interface()
@@ -49,7 +58,7 @@ namespace Grids
 	
 	void Interface::receiveEvent( Protocol * proto, Event * evt, void * userData )
 	{
-		parseEventType( evt );
+		( (Interface*)userData)->parseEventType( evt );
 	}
 	
 	void Interface::parseEventType(  Event * evt )

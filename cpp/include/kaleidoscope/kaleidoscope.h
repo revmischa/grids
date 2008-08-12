@@ -11,11 +11,19 @@
 
 #pragma once
 
+#include <stdlib.h>    // For malloc() etc.
+#include <stdio.h>     // For printf(), fopen() etc.
+#include <math.h>      // For sin(), cos() etc.
+#include <GL/glfw.h>   // For GLFW, OpenGL and GLU
+
 #include <kaleidoscope/device.h>
 #include <kaleidoscope/renderer.h>
 #include <kaleidoscope/eventController.h>
 #include <kaleidoscope/camera.h>
 #include <kaleidoscope/cursorController.h>
+#include <kaleidoscope/room.h>
+
+
 #include <iostream>
 
 

@@ -36,7 +36,7 @@ namespace Grids
 			~Interface( );
 			
 			void sendEvent( Event *); // Sends an event upstream with the grids protocol
-			void receiveEvent( Protocol *, Event *, void * userData ); // Grids protocol object hooks into this
+			static void receiveEvent( Protocol *, Event *, void * userData ); // Grids protocol object hooks into this
 
 			ObjectController * getObjectController();
 			PersonController * getPersonController();
