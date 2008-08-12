@@ -1,4 +1,4 @@
-package Grids::Node::Hooks::Debug;
+package Grids::Hooks::Debug;
 
 use strict;
 use warnings;

@@ -3,6 +3,7 @@ package Grids::Hookable;
 use strict;
 use warnings;
 use Class::Autouse;
+use Grids::Hooks;
 use Carp qw/croak/;
 
 our %HOOKS; # package->hookname
@@ -44,6 +45,11 @@ sub run_hooks($$$) {
     # look for hooks registered in this package
     my $package = ref $self || $self;
     push @res, $self->run_hooks_on($HOOKS{$package}, $hookname, $info);
+
+    # look for global hooks
+    if (ref $package || $package ne 'Grids::Hooks') {
+        push @res, $self->run_hooks_on(\%Grids::Hooks::HOOKS, $hookname, $info);
+    }
 
     return @res;
 }
@@ -105,12 +111,7 @@ sub register_hooks {
 sub register_hook {
     my ($self, $hookname, $cb, $cb_obj) = @_;
 
-    if ($cb_obj) {
-        my $_cb = $cb;
-        $cb = sub { $cb->($cb_obj, @_) };
-    }
-
-    my $hook_save = { hookname => $hookname, callback => $cb };
+    my $hook_save = $self->hook_save($hookname, $cb, $cb_obj);
 
     if (ref $self) {
         # adding hooks to an instance
@@ -124,6 +125,17 @@ sub register_hook {
 
         push @{$HOOKS{$self}->{$hookname}}, $hook_save;
     }
+}
+
+sub hook_save {
+    my ($class, $hookname, $cb, $cb_obj) = @_;
+
+    if ($cb_obj) {
+        my $_cb = $cb;
+        $cb = sub { $cb->($cb_obj, @_) };
+    }
+
+    return { hookname => $hookname, callback => $cb };
 }
 
 *hook_ok = \&event_hook_success;
