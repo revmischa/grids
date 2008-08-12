@@ -28,20 +28,18 @@ namespace Kaleidoscope
 			
 			void setDevice( Device * );
 			
-			void renderAll();
-			void resizeScene( int, int );
+			void renderAll( Device *);
+			void resizeScene( Device *, int, int );
 			
-			void drawBox();
+			void drawBox(Device *);
 			
 			void printString( void *, char *);
 			
 			int getWidth();
 			int getHeight();
-			
-			void setWindowID( int );
-			
-			void prepare();
-			void buildTextures();
+						
+			void prepare( Device *);
+			//void buildTextures();
 			
 			// still needed: access interface / object controller etc
 			// get the positions, ect of all the objects, use that to render all
@@ -53,8 +51,8 @@ namespace Kaleidoscope
 			void setWidth( int );
 			void setHeight( int );
 			
-			void loadLights();
-			void loadTextModes();
+			void loadLights( Device *);
+			void loadTextModes( Device *);
 			
 	};
 	

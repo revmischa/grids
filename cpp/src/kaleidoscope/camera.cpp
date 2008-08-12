@@ -8,51 +8,49 @@
  */
 
 #include "camera.h"
-#include <math.h>
+
 #include <OPENGL/glu.h>
+#include <GL/glfw.h>
 #include <kaleidoscope/define.h> // for vector3df lameness 
+
 #include <iostream>
-#include <pthread.h>
+#include <math.h>
+
+
 
 namespace Kaleidoscope
 {
 	
-	Camera::Camera(Device * dvc )
+	Camera::Camera(Device * d )
 	{
-		Camera(  dvc, FPS );
+		Camera(  d, FPS );
 	}
 	
-	Camera::Camera( Device * dvc, int in_type )
+	Camera::Camera( Device * d, int in_type )
 	{
-		Camera(  dvc, in_type, Vec3D( 10.0f, 0.0f, 10.0f ), Vec3D( 1.0f, 0.0f, 1.0f ), Vec3D( 0.0f, 1.0f, 0.0f ) );
+		Camera(  d, in_type, Vec3D( 10.0f, 0.0f, 10.0f ), Vec3D( 1.0f, 0.0f, 1.0f ), Vec3D( 0.0f, 1.0f, 0.0f ) );
 	}
 	
-	Camera::Camera( Device * dvc, int in_type, Vec3D position, Vec3D target, Vec3D up )
+	Camera::Camera( Device * d, int in_type, Vec3D position, Vec3D target, Vec3D up )
 	{
-		Camera( dvc, in_type, position, target, up, 20.0f, 0.04f );
+		Camera( d, in_type, position, target, up, 30.0f, 0.01f );
 	}
 	
-	Camera::Camera( Device * dvc, int in_type, Vec3D position, Vec3D target, Vec3D up, float rotate_speed, float translate_speed )
+	Camera::Camera( Device * d, int in_type, Vec3D position, Vec3D target, Vec3D up, float rotate_speed, float translate_speed )
 	{
-		device = dvc;
 		
-		device->type = in_type;
-		device->Position = position;
-		device->Target = target;
-		device->UpVector = up;
-		device->RotateSpeed = rotate_speed;
-		device->TranslateSpeed = translate_speed;
+		d->type = in_type;
+		d->Position = position;
+		d->Target = target;
+		d->UpVector = up;
+		d->RotateSpeed = rotate_speed;
+		d->TranslateSpeed = translate_speed;
 			
-		device->firstUpdate = true;
+		d->firstUpdate = true;
 		
-		device->Rotation = Vec3D(10, 10, 0);
+		d->Rotation = Vec3D(10, 10, 0);
 		
-		device->MAX_VERTICAL_ANGLE = 89.0f;
-	}
-	
-	void Camera::setDevice( Device * dvc )
-	{
-		device = dvc;
+		d->MAX_VERTICAL_ANGLE = 89.0f;
 	}
 	
 	Vec3D Camera::getPosition()
@@ -80,7 +78,6 @@ namespace Kaleidoscope
 		return device->Rotation;
 	}
 	
-	
 	void Camera::setPosition( Vec3D vec )
 	{
 		device->Position.set( vec );
@@ -91,51 +88,51 @@ namespace Kaleidoscope
 		setPosition( Vec3D( x, y, z ) );
 	}
 	
-	void Camera::setTarget( Vec3D vec )
+	void Camera::setTarget( Device * d, Vec3D vec )
 	{
-		device->Target.set( vec );
+		d->Target.set( vec );
 	}
 	
-	void Camera::setTarget( float x, float y, float z )
+	void Camera::setTarget(Device * d, float x, float y, float z )
 	{
-		setTarget( Vec3D( x, y, z ) );
+		setTarget( d, Vec3D( x, y, z ) );
 	}
 	
-	void Camera::setLook( Vec3D vec )
+	void Camera::setLook( Device * d, Vec3D vec )
 	{
-		if( getType() == MAYA )
+		if( getType( d ) == MAYA )
 		{
-			device->Target = device->Position + vec ;
+			d->Target = d->Position + vec ;
 		}
-		else if( getType() == FPS )
+		else if( getType(d ) == FPS )
 		{
-			setRotation( findRotationFromVector( vec ) );
+			setRotation( d, findRotationFromVector( vec ) );
 		}
 	}
 	
-	void Camera::setLook( float x, float y, float z )
+	void Camera::setLook( Device * d, float x, float y, float z )
 	{
-		setLook( Vec3D( x, y, z ) );
+		setLook( d, Vec3D( x, y, z ) );
 	}
 	
-	void Camera::setRotation( Vec3D vec )
+	void Camera::setRotation( Device * d, Vec3D vec )
 	{
-		device->Rotation.set( vec );
+		d->Rotation.set( vec );
 	}
 	
-	void Camera::setRotation(  float x, float y, float z  )
+	void Camera::setRotation(  Device * d, float x, float y, float z  )
 	{
-		setRotation( Vec3D( x, y, z ) );
+		setRotation( d, Vec3D( x, y, z ) );
 	}
 	
-	void Camera::lookAtPoint( Vec3D vec )
+	void Camera::lookAtPoint( Device * d,  Vec3D vec )
 	{
-		setLook( vec - getPosition() );
+		setLook( d, vec - d->Position );
 	}
 	
-	void Camera::lookAtPoint( float x, float y, float z )
+	void Camera::lookAtPoint( Device * d,  float x, float y, float z )
 	{
-		lookAtPoint( Vec3D( x, y, z ) );
+		lookAtPoint( d, Vec3D( x, y, z ) );
 	}
 	
 	void Camera::setRotateSpeed( float rot )
@@ -173,57 +170,51 @@ namespace Kaleidoscope
 		device->type = MAYA;
 	}
 	
-	void Camera::swapCameraType()
+	void Camera::swapCameraType( Device * d)
 	{
-		if( getType() == FPS )
+		if( getType( d ) == FPS )
 		{
-		  setType( MAYA );
+		  setType( d, MAYA );
 		}
-		else if ( getType() == MAYA )
+		else if ( getType( d ) == MAYA )
 		{
-		  setType( FPS );
-		  device->UpVector.set( 0.0f, 1.0f, 0.0f);
+		  setType( d, FPS );
+		  d->UpVector.set( 0.0f, 1.0f, 0.0f);
 		} 
 	}
 	
-	int Camera::getType()
+	int Camera::getType(Device * d)
 	{
-		return device->type;
+		return d->type;
 	}
 	
-	void Camera::setType( int in_type )
+	void Camera::setType( Device * d, int in_type )
 	{
-		device->type = in_type;
+		d->type = in_type;
 	}
-		
 	
-	
-	void Camera::callgluLookAt()
+	void Camera::callgluLookAt( Device * d)
 	// This is where the magic happens
 	{
-		gluLookAt( device->Target.X, device->Target.Y, device->Target.Z, // eyex, eyey, eyez
-			device->Position.X, device->Position.Y, device->Position.Z, // centerx, centery, centerz
-			device->UpVector.X, device->UpVector.Y, device->UpVector.Z); 	
+		gluLookAt( d->Target.X, d->Target.Y, d->Target.Z, // eyex, eyey, eyez
+			d->Position.X, d->Position.Y, d->Position.Z, // centerx, centery, centerz
+			d->UpVector.X, d->UpVector.Y, d->UpVector.Z); 	
 	}
 	
 	void Camera::doMovementFPS( Device * d)
-	// this is called on mouseMoved
 	{
 		
 		if( d->firstUpdate )
 		{
 			if( d->getCursorController() )
 			{
-				d->getCursorController()->setPosition( 0.5f, 0.5f );
-				d->CenterCursor = Vec2D( 0.5f, 0.5f );
+				d->getCursorController()->setPosition( 0.5f, 0.5f, d );
 			}
 			
 			d->LastAnimationTime = glutGet(GLUT_ELAPSED_TIME);
 			d->firstUpdate = false;
 		}
-		
-		d->getCursorController()->setDevice( d );
-				
+						
 		int now = glutGet(GLUT_ELAPSED_TIME); // get the current time
 		int timeDiff =  now - d->LastAnimationTime;
 		d->LastAnimationTime = now;
@@ -231,31 +222,24 @@ namespace Kaleidoscope
 		if( timeDiff == 0 ) // if framerate > 1000 fps you cannot move...
 			timeDiff = 1;
 			
-		Vec3D temp_rotation = Vec3D( device->Rotation );
-		
+		Vec3D temp_rotation = Vec3D( d->Rotation );
 		
 		temp_rotation.X *= -1.0f;
 		temp_rotation.Y *= -1.0f;
 		
-		setTarget( 0.0f, 0.0f, 1.0f );
+		d->Target.set( 0.0f, 0.0f, 1.0f );
 		
 		Vec2D cursorpos = d->getCursorController()->getRelativePosition( d );
-		
-		//std::cout << "cur  "<<  cursorpos.X << " : " << cursorpos.Y <<std::endl;
-
 		
 		// if mouseX != lastMouseX, though this is called in the 
 		// GLUT event mouseMoved, so we can skip the step
 		
-		if(  !Equals( cursorpos.X, 0.5f) || !Equals( cursorpos.Y, 0.5f )  )
+		if(   !Equals( cursorpos.X, 0.5f) ||  !Equals( cursorpos.Y, 0.5f)  )
 		{
 			temp_rotation.Y += ( 0.5f - cursorpos.X) * d->RotateSpeed * timeDiff;
 			temp_rotation.X -= ( 0.5f - cursorpos.Y) * d->RotateSpeed * timeDiff;
-			
-			// std::cout << "FUCK " <<  cursorpos.X <<std::endl;
-			//std::cout << "cur  "<<  cursorpos.X << " : " << cursorpos.Y <<std::endl;
 						
-			device->getCursorController()->setPosition( 0.5f, 0.5f );
+			d->getCursorController()->setPosition( 0.5f, 0.5f, d );
 			
 			if( temp_rotation.X > d->MAX_VERTICAL_ANGLE) temp_rotation.X = d->MAX_VERTICAL_ANGLE;
 			if( temp_rotation.X < -( d->MAX_VERTICAL_ANGLE ) ) temp_rotation.X = -( d->MAX_VERTICAL_ANGLE );
@@ -267,40 +251,31 @@ namespace Kaleidoscope
 		
 		irr::core::vector3df temp_irr_target = irr::core::vector3df( d->Target );
 		mat.transformVect( temp_irr_target );
+		
+		temp_irr_target.normalize();
+		
 		d->Target.set( temp_irr_target );
-		
-		d->Target.normalize();
-		
-		//std::cout << Target.X << " : " << Target.Y << " : " << Target.Z << std::endl;
-		
-		if( d->getEventController()->specialKeyPressed() )
+						
+		if( glfwGetKey( GLFW_KEY_UP) == GLFW_PRESS )
 		{
-			int special_key = d->getEventController()->specialKey();
+			d->Position -= d->Target * ( timeDiff * d->TranslateSpeed );				
+		}
+		else if( glfwGetKey( GLFW_KEY_DOWN ) == GLFW_PRESS )
+		{
+			d->Position += d->Target * ( timeDiff * d->TranslateSpeed );
+		}
 			
-			if( special_key == GLUT_KEY_UP )
-			{
-				d->Position -= d->Target * ( timeDiff * d->TranslateSpeed );				
-			}
-			else if( special_key == GLUT_KEY_DOWN )
-			{
-				d->Position += d->Target * ( timeDiff * d->TranslateSpeed );
-			}
+		Vec3D strafevect = Vec3D( d->Target );
+		strafevect = strafevect.crossProduct( d->UpVector );
+		strafevect.normalize();
 			
-			Vec3D strafevect = Vec3D( d->Target );
-			strafevect = strafevect.crossProduct( d->UpVector );
-			strafevect.normalize();
-			
-			if( special_key == GLUT_KEY_LEFT )
-			{
-				d->Position += strafevect * ( timeDiff * d->TranslateSpeed );
-				//std::cout << "Left: " << Position.X << " : " << Position.Y << " : " << Position.Z << std::endl;
-			}
-			else if( special_key == GLUT_KEY_RIGHT )
-			{
-				d->Position -= strafevect * ( timeDiff * d->TranslateSpeed );	
-				//std::cout << "Right: " << Position.X << " : " << Position.Y << " : " << Position.Z << std::endl;		
-			}
-		
+		if( glfwGetKey( GLFW_KEY_LEFT) == GLFW_PRESS )
+		{
+			d->Position += strafevect * ( timeDiff * d->TranslateSpeed );
+		}
+		else if(  glfwGetKey( GLFW_KEY_RIGHT) == GLFW_PRESS )
+		{
+			d->Position -= strafevect * ( timeDiff * d->TranslateSpeed );	
 		}
 		
 		d->Target += d->Position;
@@ -325,7 +300,7 @@ namespace Kaleidoscope
 	
 	bool Camera::Equals( float a, float b )
 	{
-		return ( a + 0.0001f > b ) && ( a - 0.0001f < b );    
+		return ( a + 0.001f > b ) && ( a - 0.001f < b );    
 	}
 	
 	Vec3D Camera::findRotationFromVector( Vec3D VecIn )

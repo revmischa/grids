@@ -9,6 +9,9 @@
 
 #include "eventController.h"
 
+#include <GL/glfw.h>
+#include <grids/define.h> // for Vec3D
+#include <iostream>
 
 namespace Kaleidoscope
 {
@@ -23,6 +26,77 @@ namespace Kaleidoscope
 	void EventController::setDevice( Device * in_device)
 	{
 		device = in_device ;
+	}
+	
+	void EventController::checkEvents( Device * d )
+	{
+		
+		if( glfwGetKey( '1' ) )
+		{
+			d->Texture_On = !(d->Texture_On);
+			std::cout << "Texture: " << d->Texture_On << std::endl;
+		}
+		
+		if( glfwGetKey( '2' ) )
+		{
+			d->Light_On = !(d->Light_On);
+			std::cout << "Light: " << d->Light_On << std::endl;
+		}
+		
+		if( glfwGetKey( '3' ) )
+		{
+			d->Alpha_Add = !(d->Alpha_Add);
+			std::cout << "Alpha: " << d->Alpha_Add << std::endl;
+		}
+		
+		if( glfwGetKey( '4' ) )
+		{
+			d->Blend_On = !(d->Blend_On);
+			std::cout << "Blend: " << d->Blend_On << std::endl;
+		}
+		
+		if( glfwGetKey( '5' ) )
+		{
+			d->Filtering_On = !(d->Filtering_On );
+			std::cout << "Filternig: " << d->Filtering_On << std::endl;
+		}
+
+		
+		/*
+		
+		if( glfwGetMouseButton( GLFW_MOUSE_BUTTON_LEFT ) )
+		{
+			d->leftPressed = true;
+		}
+		else
+		{
+			d->leftPressed = false;
+		}
+		
+		if( glfwGetMouseButton( GLFW_MOUSE_BUTTON_RIGHT ) )
+		{
+			d->rightPressed = true;
+		}
+		else
+		{
+			d->rightPressed = false;
+		}
+		
+		if( glfwGetMouseButton( GLFW_MOUSE_BUTTON_MIDDLE ) )
+		{
+			d->middlePressed = true;
+		}
+		else
+		{
+			d->middlePressed = false;
+		}
+		
+		d->mouseWheelPosition = glfwGet
+		*/
+			
+	
+	
+	
 	}
 	
 	void EventController::mousePressedCall( int button, int state, int x, int y )

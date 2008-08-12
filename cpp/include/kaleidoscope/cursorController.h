@@ -26,7 +26,7 @@ namespace Kaleidoscope
 			void setDevice( Device * );
 			
 			// 0.5f, 0.5f sets the cursor the the center of the window
-			void setPosition( float, float );
+			void setPosition( float, float, Device * );
 			void setToCenter();
 			
 			Vec2D getRelativePosition( Device *);

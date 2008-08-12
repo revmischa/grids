@@ -86,6 +86,8 @@ namespace Kaleidoscope
 			
 			int width;
 			int height;
+			int x_pos; // stores the window's upper left x position
+			int y_pos; // stores the window's upper right y position
 			
 			int current_text_mode;
 			char *text_mode_string[4];
@@ -118,8 +120,21 @@ namespace Kaleidoscope
 			int mouseButton;
 			int mouseState;
 			
+			bool leftPressed;
+			bool rightPressed;
+			bool middlePressed;
+			
 			bool key_pressed;
 			bool special_key_pressed;
+			
+			/////////////////
+			//  Cursor Variables
+			///////////////
+			
+			int last_x;
+			int last_y;
+			
+			
 			
 			
 						

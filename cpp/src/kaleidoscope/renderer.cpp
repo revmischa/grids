@@ -12,21 +12,19 @@
 
 namespace Kaleidoscope
 {
-	Renderer::Renderer( Device * in_device, int window_width, int window_height)
-	{
-		device = in_device;
+	Renderer::Renderer( Device * d, int window_width, int window_height)
+	{		
+		d->width = window_width;
+		d->height = window_height;
 		
-		device->width = window_width;
-		device->height = window_height;
+		d->Texture_On = false;
+		d->Light_On = false;
+		d->Alpha_Add = false;
+		d->Blend_On = false;
+		d->Filtering_On = false;
 		
-		device->Texture_On = false;
-		device->Light_On = false;
-		device->Alpha_Add = false;
-		device->Blend_On = true;
-		device->Filtering_On = false;
-		
-		loadLights();
-		loadTextModes();
+		loadLights(d);
+		loadTextModes(d);
 	}
 	
 	void Renderer::setDevice( Device * in_device )
@@ -35,34 +33,34 @@ namespace Kaleidoscope
 	}
 	
 	
-	void Renderer::drawBox()
+	void Renderer::drawBox( Device * d)
 	{
 		char buf[80]; // For our strings.
 
 		
 		
-		if (device->Texture_On)
+		if (d->Texture_On)
 		  glEnable(GL_TEXTURE_2D);
 	   else
 		  glDisable(GL_TEXTURE_2D);
 
-	   if (device->Light_On) 
+	   if (d->Light_On) 
 		  glEnable(GL_LIGHTING);
 	   else 
 		  glDisable(GL_LIGHTING);
 
-		if (device->Alpha_Add)
+		if (d->Alpha_Add)
 		   glBlendFunc(GL_SRC_ALPHA,GL_ONE); 
 		else
 		   glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
 		// If we're blending, we don't want z-buffering.
-		if (device->Blend_On)
+		if (d->Blend_On)
 		   glDisable(GL_DEPTH_TEST); 
 		else
 		   glEnable(GL_DEPTH_TEST); 
 
-		if (device->Filtering_On) {
+		if (d->Filtering_On) {
 		   glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,
 											   GL_LINEAR_MIPMAP_LINEAR);
 		   glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
@@ -79,7 +77,7 @@ namespace Kaleidoscope
 	   // Reset to 0,0,0; no rotation, no scaling.
 	   glLoadIdentity(); 
 	   
-		device->getCamera()->callgluLookAt();
+		d->getCamera()->callgluLookAt( d );
 
 
 	   // Move the object back from the screen.
@@ -196,7 +194,7 @@ namespace Kaleidoscope
 
 	   // Now we set up a new projection for the text.
 	   glLoadIdentity();
-	   glOrtho(0, device->width ,0, device->height, -1.0, 1.0);
+	   glOrtho(0, d->width ,0, d->height, -1.0, 1.0);
 
 	   // Lit or textured text looks awful.
 	   glDisable(GL_TEXTURE_2D);
@@ -209,7 +207,7 @@ namespace Kaleidoscope
 	   glColor4f(0.6,1.0,0.6,.75);
 
 	   // Render our various display mode settings.
-	   sprintf(buf,"Mode: %s", device->text_mode_string[ device->current_text_mode]);
+	   sprintf(buf,"Mode: %s", d->text_mode_string[ d->current_text_mode]);
 	   glRasterPos2i(2,2); printString(GLUT_BITMAP_HELVETICA_10,buf);
 
 	  // sprintf(buf,"AAdd: %d", Alpha_Add);
@@ -233,7 +231,7 @@ namespace Kaleidoscope
 	   // To ease, simply translate up.  Note we're working in screen
 	   // pixels in this projection.
 	   
-	   glTranslatef(6.0f, device->height - 14,0.0f);
+	   glTranslatef(6.0f, d->height - 14,0.0f);
 
 	   // Make sure we can read the FPS section by first placing a 
 	   // dark, mostly opaque backdrop rectangle.
@@ -255,7 +253,7 @@ namespace Kaleidoscope
 	   glPopMatrix();
 
 	   // All done drawing.  Let's show it.
-	   glutSwapBuffers();
+	 //  glutSwapBuffers();
 
 	   // Now let's do the motion calculations.
 	  // X_Rot+=X_Speed; 
@@ -283,24 +281,14 @@ namespace Kaleidoscope
 		device->height = in_height;
 	}
 	
-	void Renderer::renderAll()
+	void Renderer::renderAll( Device * d)
 	{
-		// WHAH-WHAH-WHAAAAAAT? WTF is wrong with computers
-		//
-		// device->getCamera()->device == 0x0 at this point
-		
-		device->getCamera()->setDevice( device );
-		
-		device->getCamera()->doMovementFPS( device );
-		
-		drawBox();
-		
-
+		drawBox( d );
 	}
 	
-	void Renderer::prepare()
+	void Renderer::prepare( Device * d)
 	{
-		buildTextures();   
+		//buildTextures();   
 
 	   // Color to clear color buffer to.
 	   glClearColor(0.1f, 0.1f, 0.1f, 0.0f);
@@ -311,14 +299,16 @@ namespace Kaleidoscope
 
 	   // Enables Smooth Color Shading; try GL_FLAT for (lack of) fun.
 	   glShadeModel(GL_SMOOTH);
+	   
+		glEnable(GL_BLEND);
 
 	   // Load up the correct perspective matrix; using a callback directly.
-	   resizeScene(device->width , device->height);
+	   resizeScene(d, d->width , d->height);
 
 	   // Set up a light, turn it on.
-	   glLightfv(GL_LIGHT1, GL_POSITION, device->Light_Position);
-	   glLightfv(GL_LIGHT1, GL_AMBIENT,  device->Light_Ambient);
-	   glLightfv(GL_LIGHT1, GL_DIFFUSE,  device->Light_Diffuse); 
+	   glLightfv(GL_LIGHT1, GL_POSITION, d->Light_Position);
+	   glLightfv(GL_LIGHT1, GL_AMBIENT,  d->Light_Ambient);
+	   glLightfv(GL_LIGHT1, GL_DIFFUSE,  d->Light_Diffuse); 
 	   glEnable (GL_LIGHT1); 
 
 	   // A handy trick -- have surface material mirror the color.
@@ -329,69 +319,70 @@ namespace Kaleidoscope
 	
 	
 	
-	void Renderer::buildTextures()
+	//void Renderer::buildTextures()
+//	{
+//		
+//		GLenum gluerr;
+//		GLubyte tex[128][128][4];
+//		int x,y,t;
+//		int hole_size = 3300; // ~ == 57.45 ^ 2.
+//
+//		// Generate a texture index, then bind it for future operations.
+//		glGenTextures(1, (GLuint*)&(device->texture_id));
+//		glBindTexture(GL_TEXTURE_2D,device->texture_id);
+//
+//		// Iterate across the texture array.
+//
+//		for(y=0;y<128;y++) {
+//		  for(x=0;x<128;x++) {
+//
+//			 // A simple repeating squares pattern.
+//			 // Dark blue on white.
+//
+//			 if ( ( (x+4)%32 < 8 ) && ( (y+4)%32 < 8)) {
+//				tex[x][y][0]=tex[x][y][1]=0; tex[x][y][2]=120;
+//			 } else {
+//				tex[x][y][0]=tex[x][y][1]=tex[x][y][2]=240;
+//			 }
+//
+//					 // Make a round dot in the texture's alpha-channel.
+//
+//					 // Calculate distance to center (squared).
+//			 t = (x-64)*(x-64) + (y-64)*(y-64) ;
+//
+//			 if ( t < hole_size) // Don't take square root; compare squared.
+//				tex[x][y][3]=255; // The dot itself is opaque.
+//			 else if (t < hole_size + 100)
+//				tex[x][y][3]=128; // Give our dot an anti-aliased edge.
+//			 else
+//				tex[x][y][3]=0;   // Outside of the dot, it's transparent.
+//
+//		  }
+//		}
+//
+//		// The GLU library helps us build MipMaps for our texture.
+//
+//		if ((gluerr=gluBuild2DMipmaps(GL_TEXTURE_2D, 4, 128, 128, GL_RGBA,
+//					 GL_UNSIGNED_BYTE, (void *)tex))) {
+//
+//		  fprintf(stderr,"GLULib%s\n",gluErrorString(gluerr));
+//		  exit(-1);
+//		}
+//
+//		// Some pretty standard settings for wrapping and filtering.
+//		glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
+//		glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
+//
+//		// We start with GL_DECAL mode.
+//		glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_DECAL);
+//	}
+	
+	
+	
+	
+	void Renderer::resizeScene( Device * d, int new_width, int new_height )
 	{
-		
-		GLenum gluerr;
-		GLubyte tex[128][128][4];
-		int x,y,t;
-		int hole_size = 3300; // ~ == 57.45 ^ 2.
-
-		// Generate a texture index, then bind it for future operations.
-		glGenTextures(1, (GLuint*)&(device->texture_id));
-		glBindTexture(GL_TEXTURE_2D,device->texture_id);
-
-		// Iterate across the texture array.
-
-		for(y=0;y<128;y++) {
-		  for(x=0;x<128;x++) {
-
-			 // A simple repeating squares pattern.
-			 // Dark blue on white.
-
-			 if ( ( (x+4)%32 < 8 ) && ( (y+4)%32 < 8)) {
-				tex[x][y][0]=tex[x][y][1]=0; tex[x][y][2]=120;
-			 } else {
-				tex[x][y][0]=tex[x][y][1]=tex[x][y][2]=240;
-			 }
-
-					 // Make a round dot in the texture's alpha-channel.
-
-					 // Calculate distance to center (squared).
-			 t = (x-64)*(x-64) + (y-64)*(y-64) ;
-
-			 if ( t < hole_size) // Don't take square root; compare squared.
-				tex[x][y][3]=255; // The dot itself is opaque.
-			 else if (t < hole_size + 100)
-				tex[x][y][3]=128; // Give our dot an anti-aliased edge.
-			 else
-				tex[x][y][3]=0;   // Outside of the dot, it's transparent.
-
-		  }
-		}
-
-		// The GLU library helps us build MipMaps for our texture.
-
-		if ((gluerr=gluBuild2DMipmaps(GL_TEXTURE_2D, 4, 128, 128, GL_RGBA,
-					 GL_UNSIGNED_BYTE, (void *)tex))) {
-
-		  fprintf(stderr,"GLULib%s\n",gluErrorString(gluerr));
-		  exit(-1);
-		}
-
-		// Some pretty standard settings for wrapping and filtering.
-		glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
-		glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
-
-		// We start with GL_DECAL mode.
-		glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_DECAL);
-	}
 	
-	
-	
-	
-	void Renderer::resizeScene( int new_width, int new_height )
-	{
 		// Let's not core dump, no matter what.
 	   if (new_height == 0)
 		  new_height = 1;
@@ -404,13 +395,10 @@ namespace Kaleidoscope
 
 	   glMatrixMode(GL_MODELVIEW);
 
-	   device->width  = new_width;
-	   device->height = new_height;
-	}
-	
-	void Renderer::setWindowID( int id )
-	{
-		device->window_id = id;
+	   d->width  = new_width;
+	   d->height = new_height;
+	   
+	   
 	}
 	
 	void Renderer::printString( void * font, char * str )
@@ -424,37 +412,37 @@ namespace Kaleidoscope
 	}
 	
 	
-	void Renderer::loadLights()
+	void Renderer::loadLights( Device * d)
 	{
-		device->Light_Ambient[0] =  0.1f;
-		device->Light_Ambient[1] =  0.1f;
-		device->Light_Ambient[2] =  0.1f;
-		device->Light_Ambient[3] =  1.0f;
+		d->Light_Ambient[0] =  0.1f;
+		d->Light_Ambient[1] =  0.1f;
+		d->Light_Ambient[2] =  0.1f;
+		d->Light_Ambient[3] =  1.0f;
 		
-		device->Light_Diffuse[0] =  1.2f;
-		device->Light_Diffuse[1] =  1.2f;
-		device->Light_Diffuse[2] =  1.2f;
-		device->Light_Diffuse[3] =  1.0f;
+		d->Light_Diffuse[0] =  1.2f;
+		d->Light_Diffuse[1] =  1.2f;
+		d->Light_Diffuse[2] =  1.2f;
+		d->Light_Diffuse[3] =  1.0f;
 		
-		device->Light_Position[0] = 2.0f;
-		device->Light_Position[1] = 2.0f;
-		device->Light_Position[2] = 0.0f;
-		device->Light_Position[3] = 1.0f;
+		d->Light_Position[0] = 2.0f;
+		d->Light_Position[1] = 2.0f;
+		d->Light_Position[2] = 0.0f;
+		d->Light_Position[3] = 1.0f;
 	}
 	
 	
-	void Renderer::loadTextModes()
+	void Renderer::loadTextModes( Device * d)
 	{
-		device->current_text_mode = 0;
-		device->text_mode_string[0] = "GL_DECAL";
-		device->text_mode_string[1] = "GL_MODULATE";
-		device->text_mode_string[2] = "GL_BLEND";
-		device->text_mode_string[3] = "GL_REPLACE";
+		d->current_text_mode = 0;
+		d->text_mode_string[0] = "GL_DECAL";
+		d->text_mode_string[1] = "GL_MODULATE";
+		d->text_mode_string[2] = "GL_BLEND";
+		d->text_mode_string[3] = "GL_REPLACE";
 		
-		device->text_modes[0] = GL_DECAL;
-		device->text_modes[1] = GL_MODULATE;
-		device->text_modes[2] = GL_BLEND;
-		device->text_modes[3] = GL_REPLACE;
+		d->text_modes[0] = GL_DECAL;
+		d->text_modes[1] = GL_MODULATE;
+		d->text_modes[2] = GL_BLEND;
+		d->text_modes[3] = GL_REPLACE;
 	}
 
 	

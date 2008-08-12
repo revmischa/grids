@@ -40,7 +40,6 @@ namespace Kaleidoscope
 			// type, position, target, up, rotate speed, move speed
 			Camera( Device *, int, Vec3D, Vec3D, Vec3D, float, float);
 			
-			void setDevice( Device * );
 			
 			void mouseUpdate( int, int );
 			void mouseUpdate( int, int, int, int );
@@ -53,14 +52,14 @@ namespace Kaleidoscope
 			
 			void setPosition( Vec3D );
 			void setPosition( float, float, float );
-			void setTarget( Vec3D );
-			void setTarget( float, float, float );
-			void setLook( Vec3D );
-			void setLook( float, float, float );
-			void setRotation( Vec3D );
-			void setRotation( float, float, float );
-			void lookAtPoint( Vec3D );
-			void lookAtPoint( float, float, float );
+			void setTarget( Device *, Vec3D );
+			void setTarget( Device *, float, float, float );
+			void setLook( Device *, Vec3D );
+			void setLook( Device *, float, float, float );
+			void setRotation( Device *, Vec3D );
+			void setRotation( Device *, float, float, float );
+			void lookAtPoint( Device *, Vec3D );
+			void lookAtPoint( Device *, float, float, float );
 			void setUp( Vec3D );
 			void setUp( float, float, float );
 			void setRotateSpeed( float );
@@ -70,15 +69,14 @@ namespace Kaleidoscope
 			void setMaxVerticalAngle( float );
 			void setCameraToFPS();
 			void setCameraToMaya();
-			void swapCameraType();
+			void swapCameraType(Device *);
 			
-			int getType();
-			void setType( int );
-			
+			int getType(Device *);
+			void setType( Device *, int );
 			
 			
 			void doMovementFPS(Device *);
-			void callgluLookAt();
+			void callgluLookAt( Device *);
 			
 			
 			

@@ -27,6 +27,8 @@ namespace Kaleidoscope
 			
 			void setDevice( Device * );
 			
+			void checkEvents( Device * );
+			
 			void mousePressedCall( int, int, int, int );
 			void mouseMovedCall( int, int );
 			void mouseDraggedCall( int, int );
