@@ -34,7 +34,7 @@ namespace Grids
 			void giveEvent( Event *); // The GInterface passes messages using this
 			
 		private:
-			Interface * interface;
+			Interface * controller_interface;
 			
 			std::map< std::string, int > uuid_map;
 			

@@ -31,13 +31,13 @@ namespace Grids
 	
 	void MessengerController::setInterface( Interface * intr )
 	{
-		interface = intr;
+		controller_interface = intr;
 	}
 	
 	
 	void MessengerController::sendEvent( Event * evt )
 	{
-		interface->sendEvent( evt );
+		controller_interface->sendEvent( evt );
 	}
 	
 	void MessengerController::giveEvent( Event * evt )

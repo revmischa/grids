@@ -33,7 +33,7 @@ namespace Grids
 			void giveEvent( Event * );
 			
 		private:
-			Interface * interface;
+			Interface * controller_interface;
 			
 			std::map< std::string, int > uuid_map;
 			

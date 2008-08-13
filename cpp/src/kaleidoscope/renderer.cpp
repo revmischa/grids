@@ -297,17 +297,21 @@ namespace Kaleidoscope
 		int num_rooms = temp_rooms.size();
 		int num_objects = 0;
 		
+		std::map< RenderObject *, std::vector< float > > object_vertex;
+		std::map< RenderObject *, std::vector< float > >::iterator object_iterator;
 		
 		
-		for( int i = 0; i < num_rooms; i++ )
+		for( int i = 0; i < num_rooms; i++ ) // Iterate through every stored room
 		{
-			Room * temp_room = temp_rooms.at( i );
+			Room * temp_room = temp_rooms.at( i ); // Get one room
+						
+			object_vertex = vertex_hash[ temp_room ]; // get a map: Object => vetices of all objects in room
+		
+			 // start an iterator to go through the hash
 			
-			num_objects = vertex_hash[ temp_room ];
-			
-			for( int g = 0; g < num_objects; g++)
+			for( object_iterator = object_vertex.begin(); object_iterator != object_vertex.end(); object_iterator++ ) // Iterate though each object in the room
 			{
-				 ( vectex_hash[ temp_room ].at( g ) )->renderQuads( d );
+				ob
 			}
 		}
 		
@@ -316,6 +320,7 @@ namespace Kaleidoscope
 		finishRender();
 		
 		*/
+		
 		
 		
 	}

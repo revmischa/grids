@@ -30,12 +30,12 @@ namespace Grids
 	
 	void ObjectController::setInterface( Interface * intr )
 	{
-		interface = intr;
+		controller_interface = intr;
 	}
 	
 	void ObjectController::sendEvent( Event * evt )
 	{
-		interface->sendEvent( evt );
+		controller_interface->sendEvent( evt );
 	}
 	
 	void ObjectController::giveEvent( Event * evt )

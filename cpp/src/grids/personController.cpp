@@ -27,13 +27,13 @@ namespace Grids
 	
 	void PersonController::setInterface( Interface * intr )
 	{
-		interface = intr;
+		controller_interface = intr;
 	}
 	
 	
 	void PersonController::sendEvent( Event * evt )
 	{
-		interface->sendEvent( evt );
+		controller_interface->sendEvent( evt );
 	
 	}
 	
