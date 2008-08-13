@@ -20,7 +20,6 @@ namespace Kaleidoscope
 	// Object should be in the form std::map< RenderObject *, std::vector< float > >
 	// where the floats
 	{
-		// add the user input to some vector / hash that
 		d->vertex_hash[ this ] =  user_input ;
 	}
 	

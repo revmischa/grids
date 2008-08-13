@@ -21,7 +21,7 @@ Kaleidoscope::EventController * main_event = new Kaleidoscope::EventController( 
 Kaleidoscope::Camera * main_camera = new Kaleidoscope::Camera( main_device );
 
 // Interface doesn't work
-Grids::Interface * main_interface = new Grids::Interface( "happiland.net" );
+//Grids::Interface * main_interface = new Grids::Interface( "happiland.net" );
 
 Kaleidoscope::Room * main_room = new Kaleidoscope::Room( );
 
