@@ -7,17 +7,24 @@
  *
  */
 
+#include <kaleidoscope/kaleidoscope.h>
 #include "kaleidoscope/camera.h"
 
+#ifdef MAC_OS_X
+#include <OpenGL/glu.h>
+#else
 #include <GL/glu.h>
+#endif
+
 #include <GL/glfw.h>
+
 #include <kaleidoscope/define.h> // for vector3df lameness 
 
 #include <iostream>
 #include <math.h>
 #include <time.h> // for clock
 
-#include <SDL/SDL_opengl.h>
+#include <SDL/SDL_opengl.h> // Attempting to remove gluLookAt error
 
 
 

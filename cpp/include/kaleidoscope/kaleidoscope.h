@@ -7,7 +7,11 @@
  *
  */
 
+/////////////////////
+//  define MAC_OS_X if compiling on OS X
+///////////////////
 
+#define MAC_OS_X
 
 #pragma once
 
@@ -39,14 +43,14 @@ namespace Kaleidoscope
 	class Renderer;
 	class Device;
 
-	void createDevice( Device * new_device, int width, int height )
-	{
-		new_device->setCursorController( new Kaleidoscope::CursorController( new_device ) );
-		new_device->setRenderer( new Kaleidoscope::Renderer( new_device, width, height) ) ;
-		new_device->setEventController( new Kaleidoscope::EventController( new_device ) );
-		new_device->setCamera( new Kaleidoscope::Camera( new_device ) );
-		
-		std::cout << "Created Device" << std::endl;
-	}
+	//void createDevice( Device * new_device, int width, int height )
+//	{
+//		new_device->setCursorController( new Kaleidoscope::CursorController( new_device ) );
+//		new_device->setRenderer( new Kaleidoscope::Renderer( new_device, width, height) ) ;
+//		new_device->setEventController( new Kaleidoscope::EventController( new_device ) );
+//		new_device->setCamera( new Kaleidoscope::Camera( new_device ) );
+//		
+//		std::cout << "Created Device" << std::endl;
+//	}
 
 } // end namespace Kaleidoscope

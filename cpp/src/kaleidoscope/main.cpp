@@ -12,6 +12,9 @@
 #include <grids/interface.h>
 //#include <JSON/JSON.h>
 
+#import "SDL.h"
+#import "SDLMain.h"
+
 
 Kaleidoscope::Device * main_device = new Kaleidoscope::Device( );
 

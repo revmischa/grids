@@ -1,7 +1,7 @@
 #include <iostream>
 #include <pthread.h>
 
-#include <SDL.h>
+#include <SDL/SDL.h>
 #include <SDL_net.h>
 
 #include <json/writer.h>
