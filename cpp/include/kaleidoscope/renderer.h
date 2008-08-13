@@ -31,9 +31,7 @@ namespace Kaleidoscope
 			void resizeScene( Device *, int, int );
 			
 			void drawBox(Device *);
-			
-			void printString( void *, char *);
-			
+						
 			int getWidth();
 			int getHeight();
 						
