@@ -17,6 +17,8 @@
 #include <math.h>
 #include <time.h> // for clock
 
+#include <SDL/SDL_opengl.h>
+
 
 
 namespace Kaleidoscope
