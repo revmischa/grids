@@ -213,18 +213,18 @@ namespace Kaleidoscope
 	
 	void Camera::doMovementFPS( Device * d)
 	{
+
+if( d->firstUpdate )
+    {
+        if( d->getCursorController() )
+        {
+            d->getCursorController()->setPosition( 0.5f, 0.5f, d );
+        }
+        
+        d->LastAnimationTime = clock();
+        d->firstUpdate = false;
+    }
 		
-		if( d->firstUpdate )
-		{
-			if( d->getCursorController() )
-			{
-				d->getCursorController()->setPosition( 0.5f, 0.5f, d );
-			}
-			
-			d->LastAnimationTime = clock();
-			d->firstUpdate = false;
-		}
-						
 		int now = clock(); // get the current time
 		int timeDiff =  now - d->LastAnimationTime;
 		d->LastAnimationTime = now;
@@ -265,12 +265,18 @@ namespace Kaleidoscope
 		temp_irr_target.normalize();
 		
 		d->Target.set( temp_irr_target );
-						
-		if( glfwGetKey( GLFW_KEY_UP) == GLFW_PRESS )
+		
+		Uint8* keys;		
+		
+		keys = SDL_GetKeyState( NULL );
+		
+		
+		
+		if( keys[SDLK_UP] )
 		{
 			d->Position -= d->Target * ( timeDiff * d->TranslateSpeed );				
 		}
-		else if( glfwGetKey( GLFW_KEY_DOWN ) == GLFW_PRESS )
+		else if( keys[SDLK_DOWN] )
 		{
 			d->Position += d->Target * ( timeDiff * d->TranslateSpeed );
 		}
@@ -279,11 +285,11 @@ namespace Kaleidoscope
 		strafevect = strafevect.crossProduct( d->UpVector );
 		strafevect.normalize();
 			
-		if( glfwGetKey( GLFW_KEY_LEFT) == GLFW_PRESS )
+		if( keys[SDLK_LEFT] )
 		{
 			d->Position += strafevect * ( timeDiff * d->TranslateSpeed );
 		}
-		else if(  glfwGetKey( GLFW_KEY_RIGHT) == GLFW_PRESS )
+		else if(  keys[SDLK_RIGHT] )
 		{
 			d->Position -= strafevect * ( timeDiff * d->TranslateSpeed );	
 		}

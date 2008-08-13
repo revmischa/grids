@@ -13,7 +13,7 @@
 //#include <JSON/JSON.h>
 
 #import "SDL/SDL.h"
-#import "SDL/SDL_main.h"
+
 
 
 Kaleidoscope::Device * main_device = new Kaleidoscope::Device( );
