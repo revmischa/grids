@@ -27,7 +27,6 @@
 #include <kaleidoscope/cursorController.h>
 #include <kaleidoscope/RenderObject.h>
 #include <kaleidoscope/room.h>
-#include <kaleidoscope/table.h>
 #include <kaleidoscope/roomWalls.h>
 
 
