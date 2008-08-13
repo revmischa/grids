@@ -7,21 +7,30 @@
  *
  */
 
+#pragma once
 
 #include <grids/object.h>
 #include <kaleidoscope/RenderObject.h>
 
+namespace Grids
+{
+	class Object;
+}
+
 namespace Kaleidoscope
 {
-	class Room : public RenderObject, public Grids::Object
+	class RenderObject;
+	
+	class Room : public Grids::Object
 	{
 		public:
 			
-			Room();
+			Room( );
+			
+			void addObject( Device *, void * );
 			
 		private:
 		
-	
 	};
 
-}
+} // end namespace Kaleidoscope

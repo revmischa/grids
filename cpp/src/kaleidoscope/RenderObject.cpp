@@ -21,8 +21,7 @@ namespace Kaleidoscope
 	
 	void RenderObject::renderQuads( Device * d )
 	{
-	
-		// Bottom Face.  Red, 75% opaque, magnified texture
+		//Bottom Face.  Red, 75% opaque, magnified texture
 	 
 	   glNormal3f( 0.0f, -1.0f, 0.0f); // Needed for lighting
 	   glColor4f(0.9,0.2,0.2,.75); // Basic polygon color
@@ -92,12 +91,15 @@ namespace Kaleidoscope
 		
 		
 	}
-
-
-
-
-
-
-
+	
+	void RenderObject::renderTriangles( Device * d)
+	{
+	
+	}
+	
+	void RenderObject::renderLines( Device * d )
+	{
+	
+	}
 
 }

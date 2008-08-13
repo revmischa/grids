@@ -15,6 +15,11 @@
 #include <kaleidoscope/eventController.h>
 #include <kaleidoscope/camera.h>
 #include <kaleidoscope/cursorController.h>
+#include <kaleidoscope/room.h>
+#include <kaleidoscope/RenderObject.h>
+
+#include <vector>
+#include <map>
 
 
 namespace Kaleidoscope
@@ -23,6 +28,8 @@ namespace Kaleidoscope
 	class Camera;
 	class CursorController;
 	class EventController;
+	class Room;
+	class RenderObject;
 	
 	class Device
 	{
@@ -40,6 +47,17 @@ namespace Kaleidoscope
 			void setCamera( Camera * );
 			void setCursorController( CursorController * );
 			
+			
+			
+			std::vector< Room * > rooms;
+			
+			// room_hash - Room => objects
+			std::map< Room *, std::vector< void * > > room_hash;
+			
+			// Room =>  < vectex_hash - Object => quad_vectices >
+			std::map< Room *, std::map< RenderObject *, std::vector< float > > > vertex_hash;
+			
+			void addRoom( Room * );
 			
 			
 			///////////

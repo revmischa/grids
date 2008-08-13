@@ -59,6 +59,11 @@ namespace Kaleidoscope
 	{
 		cursor_controller = crs_control;
 	}
+	
+	void Device::addRoom( Room * r )
+	{
+		rooms.push_back( r );
+	}
 
 
 }

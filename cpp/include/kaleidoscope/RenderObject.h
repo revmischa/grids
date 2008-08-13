@@ -7,11 +7,15 @@
  *
  */
  
+ #pragma once
+ 
  #include <GL/glfw.h>
  #include <kaleidoscope/device.h>
  
  namespace Kaleidoscope
  {
+	
+	
 	class RenderObject
 	{
 		public:
@@ -26,5 +30,5 @@
 		
 	};
 	
- }
+ } // end namespace Kaleidoscope
 

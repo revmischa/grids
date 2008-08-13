@@ -16,4 +16,13 @@ namespace Kaleidoscope
 	
 	}
 	
-}
+	void Room::addObject( Device * d, void * user_input)
+	// Can either take a Render Object, an Grids Object
+	{
+		// add the user input to some vector / hash that
+		d->room_hash[ this ].push_back( user_input );
+	}
+		
+		
+		
+} // end namespace Kaleidoscope

@@ -20,10 +20,14 @@ Kaleidoscope::Renderer * main_renderer = new Kaleidoscope::Renderer( main_device
 Kaleidoscope::EventController * main_event = new Kaleidoscope::EventController( main_device );
 Kaleidoscope::Camera * main_camera = new Kaleidoscope::Camera( main_device );
 
+// Interface doesn't work
 Grids::Interface * main_interface = new Grids::Interface( "happiland.net" );
 
-
 Kaleidoscope::Room * main_room = new Kaleidoscope::Room( );
+
+Kaleidoscope::RoomWalls * main_walls = new Kaleidoscope::RoomWalls();
+
+Kaleidoscope::Table * main_table = new Kaleidoscope::Table( );
 
 
 int main( int argc, char **argv )
@@ -36,6 +40,12 @@ int main( int argc, char **argv )
 	main_device->setRenderer( main_renderer );
 	main_device->setEventController( main_event );
 	main_device->setCamera( main_camera );
+	
+	main_device->addRoom( main_room );
+	
+	main_room->addObject( main_device, main_walls );
+	
+	main_room->addObject( main_device, main_table );
 	
 	
 	main_device->x_pos = 200;

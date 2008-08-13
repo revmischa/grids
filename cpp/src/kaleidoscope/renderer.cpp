@@ -8,7 +8,7 @@
  */
 
 #include "renderer.h"
-
+#include <kaleidoscope/RenderObject.h>
 
 namespace Kaleidoscope
 {
@@ -284,7 +284,102 @@ namespace Kaleidoscope
 	void Renderer::renderAll( Device * d)
 	{
 		drawBox( d );
+		
+		/*
+		prepareRender( d );
+		
+		prepareQuads();
+		
+		std::vector< Room * > temp_rooms = d->rooms; // Check out vector from device
+		
+		std::map< Room *, std::vector< void * > > temp_hash = d->room_hash; // Check out hash from device
+		
+		int num_rooms = temp_rooms.size();
+		int num_objects = 0;
+		
+		
+		
+		for( int i = 0; i < num_rooms; i++ )
+		{
+			Room * temp_room = temp_rooms.at( i );
+			
+			num_objects = vertex_hash[ temp_room ];
+			
+			for( int g = 0; g < num_objects; g++)
+			{
+				 ( vectex_hash[ temp_room ].at( g ) )->renderQuads( d );
+			}
+		}
+		
+		finishQuads();
+		
+		finishRender();
+		
+		*/
+		
+		
 	}
+	
+	void Renderer::prepareRender( Device * d)
+	{
+		if (d->Texture_On)
+		  glEnable(GL_TEXTURE_2D);
+	   else
+		  glDisable(GL_TEXTURE_2D);
+
+	   if (d->Light_On) 
+		  glEnable(GL_LIGHTING);
+	   else 
+		  glDisable(GL_LIGHTING);
+
+		if (d->Alpha_Add)
+		   glBlendFunc(GL_SRC_ALPHA,GL_ONE); 
+		else
+		   glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+
+		// If we're blending, we don't want z-buffering.
+		if (d->Blend_On)
+		   glDisable(GL_DEPTH_TEST); 
+		else
+		   glEnable(GL_DEPTH_TEST); 
+
+		if (d->Filtering_On) {
+		   glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,
+											   GL_LINEAR_MIPMAP_LINEAR);
+		   glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+		} else {
+		   glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,
+											   GL_NEAREST_MIPMAP_NEAREST);
+		   glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+		}
+
+
+	   // Need to manipulate the ModelView matrix to move our model around.
+	   glMatrixMode(GL_MODELVIEW);
+
+	   // Reset to 0,0,0; no rotation, no scaling.
+	   glLoadIdentity(); 
+	   
+		d->getCamera()->callgluLookAt( d );
+
+	   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
+	}
+	
+	void Renderer::prepareQuads()
+	{
+		glBegin(GL_QUADS); 
+	}
+	
+	void Renderer::finishQuads()
+	{
+		glEnd();
+	}
+	
+	void Renderer::finishRender()
+	{
+	}
+	
 	
 	void Renderer::prepare( Device * d)
 	{

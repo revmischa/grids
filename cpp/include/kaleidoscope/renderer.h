@@ -54,6 +54,11 @@ namespace Kaleidoscope
 			void loadLights( Device *);
 			void loadTextModes( Device *);
 			
+			void prepareRender( Device *);
+			void prepareQuads();
+			void finishQuads();
+			void finishRender();
+			
 	};
 	
 }
