@@ -7,10 +7,9 @@
  *
  */
 
-#include "kaleidoscope/cursorController.h"
+#include <kaleidoscope/cursorController.h>
 #include <iostream>
-#include <GL/glfw.h>
-
+#include <SDL/SDL.h>
 
 namespace Kaleidoscope
 {
@@ -27,7 +26,7 @@ namespace Kaleidoscope
 	
 	void CursorController::setPosition( float xScale, float yScale, Device * d )
 	{
-		glfwSetMousePos( (int)( xScale * d->width), (int)(  yScale * device->height ) ) ;
+		SDL_WarpMouse( (int)( xScale * d->width), (int)(  yScale * device->height ) ) ;
 	}
 	
 	void CursorController::setToCenter( )
@@ -44,7 +43,7 @@ namespace Kaleidoscope
 		else
 		{
 			int x, y;
-			glfwGetMousePos( &x, &y );
+			SDL_GetMouseState( &x, &y );
 			d->mouseX = x;
 			d->mouseY = y;
 							

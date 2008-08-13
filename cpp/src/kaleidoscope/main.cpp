@@ -33,11 +33,13 @@ Kaleidoscope::RoomWalls * main_walls = new Kaleidoscope::RoomWalls();
 Kaleidoscope::RenderObject * main_table = new Kaleidoscope::RenderObject( );
 
 
+static SDL_Surface *gScreen;
+
 int main( int argc, char **argv )
 {
     
 	int    ok;             // Flag telling if the window was opened
-    int    running;        // Flag telling if the program is running
+    int    running = 1;        // Flag telling if the program is running
 	
 	main_device->setCursorController( main_cursor );
 	main_device->setRenderer( main_renderer );
@@ -70,37 +72,45 @@ int main( int argc, char **argv )
 	main_device->x_pos = 200;
 	main_device->y_pos = 100; 
 
-    // Initialize GLFW
-    glfwInit();
-
-    // Open window
-    ok = glfwOpenWindow(
-        main_device->width, main_device->height,          // Width and height of window
-        8, 8, 8,           // Number of red, green, and blue bits for color buffer
-        8,                 // Number of bits for alpha buffer
-        24,                // Number of bits for depth buffer (Z-buffer)
-        0,                 // Number of bits for stencil buffer
-        GLFW_WINDOW        // We want a desktop window (could be GLFW_FULLSCREEN)
-    );
+    // Initialize SDL
 	
-	glfwSetWindowPos( main_device->x_pos, main_device->y_pos );
+	if( SDL_Init(SDL_INIT_VIDEO) < 0 )
+	{
+	  printf("Unable to init SDL: %s\n", SDL_GetError());
+	  return 1;
+	}
 	
-    // If we could not open a window, exit now
-    if( !ok )
-    {
-        glfwTerminate();
-        return 0;
-    }
+	int value;
+    
+    // Don't set color bit sizes (SDL_GL_RED_SIZE, etc)
+    //    Mac OS X will always use 8-8-8-8 ARGB for 32-bit screens and
+    //    5-5-5 RGB for 16-bit screens
+    
+    // Request a 16-bit depth buffer (without this, there is no depth buffer)
+    value = 16;
+    SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, value);
+    
+    
+    // Request double-buffered OpenGL
+    //     The fact that windows are double-buffered on Mac OS X has no effect
+    //     on OpenGL double buffering.
+    value = 1;
+    SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, value);
 
-    // Set window title
-    glfwSetWindowTitle( "Kaleidoscope -- Grids Visualizer" );
-
-    // Enable sticky keys
-    glfwEnable( GLFW_STICKY_KEYS );
-	// Disable the cursor, allows for smooth mouselook
-	glfwDisable( GLFW_MOUSE_CURSOR ); 
+	gScreen = SDL_SetVideoMode(main_device->width, main_device->height, 0, 
+		SDL_OPENGL); 
+	// 0 automatically selects the best availible BPP
+	// SDL_HWSURFACE : use hardware rendering
 	
-	main_renderer->prepare( main_device);
+	if ( gScreen == NULL )
+	{
+	  printf("Unable to create window: %s\n", SDL_GetError());
+	  return 1;
+	}
+		
+	main_renderer->prepare( main_device );
+	
+	SDL_Event event;
 	
     // Main rendering loop
     do
@@ -110,15 +120,19 @@ int main( int argc, char **argv )
 		main_renderer->renderAll( main_device );
 
         // Swap front and back buffers (we use a double buffered display)
-        glfwSwapBuffers();
-
-        // Check if the escape key was pressed, or if the window was closed
-        running = !glfwGetKey( GLFW_KEY_ESC ) && glfwGetWindowParam( GLFW_OPENED );
-    }
+		SDL_GL_SwapBuffers ();
+		
+		SDL_PollEvent (&event);
+		
+		if( event.type == SDL_QUIT )
+		{
+			running = 0;
+		}
+	}
     while( running );
 
-    // Terminate GLFW
-    glfwTerminate();
+    // Cleanup
+    SDL_Quit();
 
     // Exit program
     return 0;

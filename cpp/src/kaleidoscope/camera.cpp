@@ -16,8 +16,7 @@
 #include <GL/glu.h>
 #endif
 
-#include <GL/glfw.h>
-
+#include <SDL/SDL.h>
 #include <kaleidoscope/define.h> // for vector3df lameness 
 
 #include <iostream>
