@@ -283,23 +283,24 @@ namespace Kaleidoscope
 	
 	void Renderer::renderAll( Device * d)
 	{
-		drawBox( d );
+		//drawBox( d );
 		
-		/*
+		
 		prepareRender( d );
 		
 		prepareQuads();
 		
+		glColor4f(0.9,0.2,0.2,.75); // set the color
+		
 		std::vector< Room * > temp_rooms = d->rooms; // Check out vector from device
 		
-		std::map< Room *, std::vector< void * > > temp_hash = d->room_hash; // Check out hash from device
-		
+		std::map< Room *, std::map< RenderObject *, std::vector< float > > > vertex_hash = d->vertex_hash;
+						
 		int num_rooms = temp_rooms.size();
 		int num_objects = 0;
 		
 		std::map< RenderObject *, std::vector< float > > object_vertex;
 		std::map< RenderObject *, std::vector< float > >::iterator object_iterator;
-		
 		
 		for( int i = 0; i < num_rooms; i++ ) // Iterate through every stored room
 		{
@@ -308,21 +309,24 @@ namespace Kaleidoscope
 			object_vertex = vertex_hash[ temp_room ]; // get a map: Object => vetices of all objects in room
 		
 			 // start an iterator to go through the hash
-			
+			 
 			for( object_iterator = object_vertex.begin(); object_iterator != object_vertex.end(); object_iterator++ ) // Iterate though each object in the room
 			{
-				ob
+				std::vector< float > temp_vector = object_iterator->second;
+				int num_vertices = temp_vector.size();
+				
+				for( int h = 0; h < num_vertices; h += 3  )
+				{
+					glVertex3f( temp_vector.at( h ), temp_vector.at( h + 1 ), temp_vector.at( h + 2 ) );
+				}
 			}
+			
 		}
 		
 		finishQuads();
 		
 		finishRender();
-		
-		*/
-		
-		
-		
+
 	}
 	
 	void Renderer::prepareRender( Device * d)

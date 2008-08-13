@@ -16,12 +16,15 @@ namespace Kaleidoscope
 	
 	}
 	
-	void Room::addObject( Device * d, void * user_input)
-	// Can either take a Render Object, an Grids Object
+	void Room::addObject( Device * d, std::map< RenderObject *, std::vector< float > > user_input )
+	// Object should be in the form std::map< RenderObject *, std::vector< float > >
+	// where the floats
 	{
 		// add the user input to some vector / hash that
-		d->room_hash[ this ].push_back( user_input );
+		d->vertex_hash[ this ] =  user_input ;
 	}
+	
+	
 		
 		
 		

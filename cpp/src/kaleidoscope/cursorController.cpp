@@ -9,7 +9,6 @@
 
 #include "cursorController.h"
 #include <iostream>
-#include <GLUT/glut.h>
 #include <GL/glfw.h>
 
 

@@ -40,12 +40,28 @@ int main( int argc, char **argv )
 	main_device->setRenderer( main_renderer );
 	main_device->setEventController( main_event );
 	main_device->setCamera( main_camera );
-	
+		
 	main_device->addRoom( main_room );
 	
-	main_room->addObject( main_device, main_walls );
+	std::map< Kaleidoscope::RenderObject *, std::vector< float > > a_table;
 	
-	main_room->addObject( main_device, main_table );
+	std::vector< float > a_vector;
+	
+	a_vector.push_back( -1.0f); a_vector.push_back( -1.0f); a_vector.push_back( -1.0f);
+	a_vector.push_back( 1.0f); a_vector.push_back( -1.0f); a_vector.push_back( -1.0f);
+	a_vector.push_back( 1.0f); a_vector.push_back( -1.0f); a_vector.push_back( 1.0f);
+	a_vector.push_back( -1.0f); a_vector.push_back( -1.0f); a_vector.push_back( 1.0f);
+	
+	a_vector.push_back( -1.0f); a_vector.push_back( -1.0f); a_vector.push_back( -1.3f);
+	a_vector.push_back( -1.0f); a_vector.push_back( 1.0f); a_vector.push_back( -1.3f);
+	a_vector.push_back( 1.0f); a_vector.push_back( 1.0f); a_vector.push_back( -1.3f);
+	a_vector.push_back( 1.0f); a_vector.push_back( -1.0f); a_vector.push_back( -1.3f);
+	
+	a_table[ main_table ] = a_vector;
+	
+	//main_room->addObject( main_device, main_walls );
+	
+	main_room->addObject( main_device, a_table );
 	
 	
 	main_device->x_pos = 200;

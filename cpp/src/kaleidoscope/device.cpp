@@ -14,7 +14,6 @@
 namespace Kaleidoscope
 {
 	
-	
 	Device::Device( )
 	{
 		

@@ -27,7 +27,7 @@ namespace Kaleidoscope
 			
 			Room( );
 			
-			void addObject( Device *, void * );
+			void addObject( Device *, std::map< Kaleidoscope::RenderObject *, std::vector< float > > );
 			
 		private:
 		
