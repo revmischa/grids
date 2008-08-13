@@ -11,7 +11,7 @@
 //  define MAC_OS_X if compiling on OS X
 ///////////////////
 
-#define MAC_OS_X
+//#define MAC_OS_X
 
 #pragma once
 
