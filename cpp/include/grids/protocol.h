@@ -2,7 +2,9 @@
 
 #include <map>
 #include <string>
+
 #include <pthread.h>
+#include <SDL_net.h>
 #include <json/value.h>
 #include <grids/event.h>
 #include <grids/define.h>
@@ -38,16 +40,18 @@ namespace Grids {
     void setFinished(bool);
     gridsmap_t jsonToMap(Json::Value &);
     Json::Value parseJson(std::string &msg);
+    void initProtocol();
 
   private:
     Json::Value mapToJsonValue(gridsmap_t *);
     int threadid;
     void dispatchEvent(Grids::Event *);
-    int sock;
+    TCPsocket sock;
     gevent_callback_t eventCallback;
     void *eventCallbackUserData;
     pthread_mutex_t finishedMutex;
     pthread_t eventLoopThread;
+    bool running;
   };
 }
 

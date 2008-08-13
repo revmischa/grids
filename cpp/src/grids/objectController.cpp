@@ -7,7 +7,7 @@
  *
  */
 
-#include "objectController.h"
+#include "grids/objectController.h"
 
 
 namespace Grids

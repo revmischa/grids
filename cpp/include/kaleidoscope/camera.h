@@ -9,9 +9,8 @@
 
 #pragma once
 
-#include <OpenGL/OpenGL.h>
-#include <OpenGL/glu.h>
-#include <GLUT/glut.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
 #include <time.h>
 
 #include <grids/vector3d.h>

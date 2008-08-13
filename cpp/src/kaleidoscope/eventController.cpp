@@ -7,7 +7,7 @@
  *
  */
 
-#include "eventController.h"
+#include "kaleidoscope/eventController.h"
 
 #include <GL/glfw.h>
 #include <grids/define.h> // for Vec3D

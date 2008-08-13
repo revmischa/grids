@@ -7,7 +7,7 @@
  *
  */
 
-#include "interface.h"
+#include "grids/interface.h"
 #include <iostream>
 
 

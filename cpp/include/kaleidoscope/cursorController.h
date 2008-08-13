@@ -9,7 +9,6 @@
 
 #pragma once
 
-#include <GLUT/glut.h>
 #include <kaleidoscope/define.h> // for Vec2D
 #include <kaleidoscope/device.h>
 

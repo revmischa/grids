@@ -10,9 +10,8 @@
 
 #pragma once
 
-#include <OpenGL/OpenGL.h>
-#include <OpenGL/glu.h>
-#include <GLUT/glut.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
 #include <kaleidoscope/device.h>
 
 namespace Kaleidoscope

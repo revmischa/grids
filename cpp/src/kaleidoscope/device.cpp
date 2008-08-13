@@ -7,7 +7,7 @@
  *
  */
 
-#include "device.h"
+#include "kaleidoscope/device.h"
 
 
 

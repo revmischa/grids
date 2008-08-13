@@ -7,9 +7,9 @@
  *
  */
 
-#include "camera.h"
+#include "kaleidoscope/camera.h"
 
-#include <OPENGL/glu.h>
+#include <GL/glu.h>
 #include <GL/glfw.h>
 #include <kaleidoscope/define.h> // for vector3df lameness 
 
@@ -211,11 +211,11 @@ namespace Kaleidoscope
 				d->getCursorController()->setPosition( 0.5f, 0.5f, d );
 			}
 			
-			d->LastAnimationTime = glutGet(GLUT_ELAPSED_TIME);
+			d->LastAnimationTime = 0;
 			d->firstUpdate = false;
 		}
 						
-		int now = glutGet(GLUT_ELAPSED_TIME); // get the current time
+		int now = 0; // get the current time
 		int timeDiff =  now - d->LastAnimationTime;
 		d->LastAnimationTime = now;
 				

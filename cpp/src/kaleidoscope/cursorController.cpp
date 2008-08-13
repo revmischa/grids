@@ -7,7 +7,7 @@
  *
  */
 
-#include "cursorController.h"
+#include "kaleidoscope/cursorController.h"
 #include <iostream>
 #include <GL/glfw.h>
 

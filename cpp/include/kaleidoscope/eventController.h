@@ -10,7 +10,6 @@
 
 #pragma once
 
-#include <GLUT/glut.h>
 #include <grids/define.h>
 #include <kaleidoscope/device.h>
 

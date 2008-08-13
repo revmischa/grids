@@ -8,7 +8,7 @@
  */
 
 
-#include <kaleidoscope/kaleidoscope.h>
+#include "kaleidoscope/kaleidoscope.h"
 #include <grids/interface.h>
 //#include <JSON/JSON.h>
 

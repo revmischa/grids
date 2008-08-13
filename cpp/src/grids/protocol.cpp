@@ -1,13 +1,8 @@
 #include <iostream>
-#include <sstream>
-#include <unistd.h>
-#include <netinet/tcp.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <netinet/in.h>
-#include <netdb.h>
 #include <pthread.h>
-#include <errno.h>
+
+#include <SDL.h>
+#include <SDL_net.h>
 
 #include <json/writer.h>
 #include <json/reader.h>
@@ -30,30 +25,29 @@ namespace Grids {
   Protocol::Protocol() {
     sock = 0;
     pthread_mutex_init(&finishedMutex, NULL);
-    eventLoopThread = (pthread_t)NULL;
+    running = 0;
+  }
+  
+  static void initProtocol() {
+    if(SDL_Init(0)==-1) {
+        printf("SDL_Init: %s\n", SDL_GetError());
+        exit(1);
+    }
+    if(SDLNet_Init()==-1) {
+        printf("SDLNet_Init: %s\n", SDLNet_GetError());
+        exit(2);
+    }
   }
 
   bool Protocol::connectToNode(const char *address) {
-    // look up host
-    struct hostent *hp;
-    struct sockaddr_in addr;
-    struct timeval timeout;
-    int on = 1;
+   IPaddress ip;
 
-    timeout.tv_sec = 1;
-    timeout.tv_usec = 0;
+   if(SDLNet_ResolveHost(&ip, address, GRIDS_PORT) == -1) {
+     printf("SDLNet_ResolveHost: %s\n", SDLNet_GetError());
+     exit(1);
+   }
 
-    if ((hp = gethostbyname(address)) == NULL) {
-      herror("gethostbyname");
-      return 0;
-    }
-
-    bcopy(hp->h_addr, &addr.sin_addr, hp->h_length);
-    addr.sin_port = htons(GRIDS_PORT);
-    addr.sin_family = AF_INET;
-
-    sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-
+/*
     if (setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, (const char *)&on, sizeof(int)) != 0) {
       std::cerr << "Could not setsockopt TCP_NODELAY: " << strerror(errno) << "\n";
       return -1;
@@ -66,6 +60,9 @@ namespace Grids {
     if (connect(sock, (struct sockaddr *)&addr, sizeof(struct sockaddr_in)) == -1) {
       return 0;
     }
+*/
+
+  
 
     // hooray we are connnected! initialize protocol
     sendProtocolInitiationString();
@@ -87,15 +84,14 @@ namespace Grids {
     memcpy(outstr, &len_net, 4);
     memcpy((outstr + 4), str, len);
 
-    int ret = write(sock, outstr, outstr_len);
+    int ret = SDLNet_TCP_Send(sock, outstr, outstr_len);
     free(outstr);
 
     return ret;
   }
 
   void Protocol::closeConnection() {
-    ::shutdown(sock, SHUT_RDWR); 
-    ::close(sock); 
+    SDLNet_TCP_Close(sock);
   }
 
   std::string Protocol::stringifyMap(gridsmap_t *m) {
@@ -151,7 +147,7 @@ namespace Grids {
 
     while (! isFinished() && sock) {
       // read in 4 byte length of message
-      bytesRead = read(sock, &incomingLength, 4);
+      bytesRead = SDLNet_TCP_Recv(sock, &incomingLength, 4);
       incomingLength = ntohl(incomingLength);
 
       //std::cout << "bytesRead: " << bytesRead << " incoming: " << incomingLength << "\n";
@@ -189,7 +185,7 @@ namespace Grids {
       bufIncoming = buf;
 
       do {
-        bytesRead = read(sock, bufIncoming, bytesRemaining);
+        bytesRead = SDLNet_TCP_Recv(sock, bufIncoming, bytesRemaining);
 
         if (bytesRead > 0) {
           bytesRemaining -= bytesRead;
@@ -292,8 +288,10 @@ namespace Grids {
     pthread_mutex_lock(&finishedMutex);
     pthread_mutex_unlock(&finishedMutex);
 
-    if (eventLoopThread)
+    if (running)
       pthread_join(eventLoopThread, NULL);
+      
+    running = 0;
   }
 
 
