@@ -12,8 +12,8 @@
 #include <grids/interface.h>
 //#include <JSON/JSON.h>
 
-#import "SDL.h"
-#import "SDLMain.h"
+#import "SDL/SDL.h"
+#import "SDL/SDL_main.h"
 
 
 Kaleidoscope::Device * main_device = new Kaleidoscope::Device( );
@@ -30,7 +30,7 @@ Kaleidoscope::Room * main_room = new Kaleidoscope::Room( );
 
 Kaleidoscope::RoomWalls * main_walls = new Kaleidoscope::RoomWalls();
 
-Kaleidoscope::Table * main_table = new Kaleidoscope::Table( );
+Kaleidoscope::RenderObject * main_table = new Kaleidoscope::RenderObject( );
 
 
 int main( int argc, char **argv )

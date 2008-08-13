@@ -8,21 +8,3 @@
  */
  
  
- namespace Kaleidoscope
- {
-	
-	class Table : public Grids::Object
-	{
-		public:
-			
-			Table();
-			
-			void renderQuads( Device * );
-			
-		private:
-			
-	};
- 
- 
- }
-
