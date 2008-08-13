@@ -7,9 +7,9 @@
  *
  */
 
-#include "kaleidoscope/eventController.h"
+#include <kaleidoscope/eventController.h>
 
-#include <GL/glfw.h>
+#include <SDL/SDL.h>
 #include <grids/define.h> // for Vec3D
 #include <iostream>
 
@@ -31,31 +31,35 @@ namespace Kaleidoscope
 	void EventController::checkEvents( Device * d )
 	{
 		
-		if( glfwGetKey( '1' ) )
+		Uint8* keys;		
+		
+		keys = SDL_GetKeyState( NULL );
+		
+		if(  keys[SDLK_1] )
 		{
 			d->Texture_On = !(d->Texture_On);
 			std::cout << "Texture: " << d->Texture_On << std::endl;
 		}
 		
-		if( glfwGetKey( '2' ) )
+		if( keys[SDLK_2] )
 		{
 			d->Light_On = !(d->Light_On);
 			std::cout << "Light: " << d->Light_On << std::endl;
 		}
 		
-		if( glfwGetKey( '3' ) )
+		if( keys[SDLK_3] )
 		{
 			d->Alpha_Add = !(d->Alpha_Add);
 			std::cout << "Alpha: " << d->Alpha_Add << std::endl;
 		}
 		
-		if( glfwGetKey( '4' ) )
+		if( keys[SDLK_4] )
 		{
 			d->Blend_On = !(d->Blend_On);
 			std::cout << "Blend: " << d->Blend_On << std::endl;
 		}
 		
-		if( glfwGetKey( '5' ) )
+		if( keys[SDLK_5] )
 		{
 			d->Filtering_On = !(d->Filtering_On );
 			std::cout << "Filternig: " << d->Filtering_On << std::endl;

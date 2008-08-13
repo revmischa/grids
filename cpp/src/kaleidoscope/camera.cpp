@@ -269,8 +269,6 @@ if( d->firstUpdate )
 		
 		keys = SDL_GetKeyState( NULL );
 		
-		
-		
 		if( keys[SDLK_UP] )
 		{
 			d->Position -= d->Target * ( timeDiff * d->TranslateSpeed );				
