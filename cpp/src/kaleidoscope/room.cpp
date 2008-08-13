@@ -7,7 +7,7 @@
  *
  */
 
-#include "room.h"
+#include "kaleidoscope/room.h"
 
 namespace Kaleidoscope
 {

@@ -7,7 +7,7 @@
  *
  */
 
-#include "renderer.h"
+#include "kaleidoscope/renderer.h"
 #include <kaleidoscope/RenderObject.h>
 
 namespace Kaleidoscope

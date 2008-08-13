@@ -7,7 +7,7 @@
  *
  */
 
-#include "roomWalls.h"
+#include "kaleidoscope/roomWalls.h"
 
 
 

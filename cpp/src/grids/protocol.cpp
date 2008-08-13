@@ -76,12 +76,11 @@ namespace Grids {
 
   int Protocol::protocolWrite(const char *str) {
     uint32_t len = strlen(str);
-    uint32_t len_net = htonl(len);
 
     unsigned int outstr_len = len + 4;
     char *outstr = (char *)malloc(outstr_len);
 
-    memcpy(outstr, &len_net, 4);
+    SDLNet_Write32(len, outstr);
     memcpy((outstr + 4), str, len);
 
     int ret = SDLNet_TCP_Send(sock, outstr, outstr_len);
@@ -148,10 +147,12 @@ namespace Grids {
     while (! isFinished() && sock) {
       // read in 4 byte length of message
       bytesRead = SDLNet_TCP_Recv(sock, &incomingLength, 4);
-      incomingLength = ntohl(incomingLength);
+
+      incomingLength = SDLNet_Read32(&incomingLength);
 
       //std::cout << "bytesRead: " << bytesRead << " incoming: " << incomingLength << "\n";
       
+      /*
       if (bytesRead == -1) {
         if (errno == EAGAIN) {
           // nothing to read, do it again
@@ -162,6 +163,7 @@ namespace Grids {
         std::cerr << "Socket read error: " << strerror(errno) << "\n";
         break;
       }
+      */
 
       if (bytesRead != 4) {
         // socket broken most likely
@@ -194,7 +196,7 @@ namespace Grids {
 
         //std::cout << "read: " << bytesRead << " remaining: " << bytesRemaining << "\n";
         
-      } while ((bytesRead > 0 || errno != EAGAIN) && bytesRemaining && ! isFinished());
+      } while ((bytesRead > 0) && bytesRemaining && ! isFinished());
       buf[incomingLength] = '\0';
 
       if (bytesRead == -1) {

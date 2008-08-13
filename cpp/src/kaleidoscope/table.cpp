@@ -7,7 +7,7 @@
  *
  */
 
-#include "table.h"
+#include "kaleidoscope/table.h"
 
 
 namespace Kaleidoscope
