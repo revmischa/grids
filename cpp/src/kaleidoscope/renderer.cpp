@@ -473,7 +473,9 @@ namespace Kaleidoscope
 
 	   glMatrixMode(GL_PROJECTION);
 	   glLoadIdentity();
-	   gluPerspective(45.0f,(GLfloat)new_width/(GLfloat)new_height,0.1f,100.0f);
+	   
+	   //***** Removed temporarily for happiland
+	   //gluPerspective(45.0f,(GLfloat)new_width/(GLfloat)new_height,0.1f,100.0f);
 
 	   glMatrixMode(GL_MODELVIEW);
 

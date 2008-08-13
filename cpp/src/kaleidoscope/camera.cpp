@@ -205,10 +205,10 @@ namespace Kaleidoscope
 	
 	void Camera::callgluLookAt( Device * d)
 	// This is where the magic happens
-	{
-		gluLookAt( d->Target.X, d->Target.Y, d->Target.Z, // eyex, eyey, eyez
-			d->Position.X, d->Position.Y, d->Position.Z, // centerx, centery, centerz
-			d->UpVector.X, d->UpVector.Y, d->UpVector.Z); 	
+	{ // Removed for happiland
+		////gluLookAt( d->Target.X, d->Target.Y, d->Target.Z, // eyex, eyey, eyez
+			//d->Position.X, d->Position.Y, d->Position.Z, // centerx, centery, centerz
+			//d->UpVector.X, d->UpVector.Y, d->UpVector.Z); 	
 	}
 	
 	void Camera::doMovementFPS( Device * d)
