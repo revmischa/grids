@@ -7,13 +7,11 @@
  *
  */
  
- #include <kaleidoscope/RenderObject.h>
  
  namespace Kaleidoscope
  {
-	class RenderObject;
 	
-	class Table : public RenderObject, public Grids::Object
+	class Table : public Grids::Object
 	{
 		public:
 			

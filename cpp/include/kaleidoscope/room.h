@@ -19,8 +19,8 @@ namespace Grids
 
 namespace Kaleidoscope
 {
-	class RenderObject;
-	
+
+class RenderObject;	
 	class Room : public Grids::Object
 	{
 		public:
