@@ -10,7 +10,7 @@
  
  #pragma once
  
- #include <kaleidoscope/renderObject.h>
+ #include <kaleidoscope/RenderObject.h>
  #include <kaleidoscope/device.h>
  
  

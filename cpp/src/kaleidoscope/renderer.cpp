@@ -206,28 +206,6 @@ namespace Kaleidoscope
 	   // But, for fun, let's make the text partially transparent too.
 	   glColor4f(0.6,1.0,0.6,.75);
 
-	   // Render our various display mode settings.
-	   sprintf(buf,"Mode: %s", d->text_mode_string[ d->current_text_mode]);
-	   glRasterPos2i(2,2); printString(GLUT_BITMAP_HELVETICA_10,buf);
-
-	  // sprintf(buf,"AAdd: %d", Alpha_Add);
-	//   glRasterPos2i(2,14); ourPrintString(GLUT_BITMAP_HELVETICA_12,buf);
-	//
-	//   sprintf(buf,"Blend: %d", Blend_On);
-	//   glRasterPos2i(2,26); ourPrintString(GLUT_BITMAP_HELVETICA_12,buf);
-	//
-	//   sprintf(buf,"Light: %d", Light_On);
-	//   glRasterPos2i(2,38); ourPrintString(GLUT_BITMAP_HELVETICA_12,buf);
-	//
-	//   sprintf(buf,"Tex: %d", Texture_On);
-	//   glRasterPos2i(2,50); ourPrintString(GLUT_BITMAP_HELVETICA_12,buf);
-	//
-	//   sprintf(buf,"Filt: %d", Filtering_On);
-	//   glRasterPos2i(2,62); ourPrintString(GLUT_BITMAP_HELVETICA_12,buf);
-	//
-
-	   // Now we want to render the calulated FPS at the top.
-	   
 	   // To ease, simply translate up.  Note we're working in screen
 	   // pixels in this projection.
 	   
@@ -501,21 +479,8 @@ namespace Kaleidoscope
 
 	   d->width  = new_width;
 	   d->height = new_height;
-	   
-	   
 	}
-	
-	void Renderer::printString( void * font, char * str )
-	{
-		int i, l = strlen( str );
 		
-		for( i = 0; i < l; i++ )
-		{
-			glutBitmapCharacter( font, *str++ );
-		}
-	}
-	
-	
 	void Renderer::loadLights( Device * d)
 	{
 		d->Light_Ambient[0] =  0.1f;

@@ -15,6 +15,7 @@
 
 #include <iostream>
 #include <math.h>
+#include <time.h> // for clock
 
 
 
@@ -211,11 +212,11 @@ namespace Kaleidoscope
 				d->getCursorController()->setPosition( 0.5f, 0.5f, d );
 			}
 			
-			d->LastAnimationTime = 0;
+			d->LastAnimationTime = clock();
 			d->firstUpdate = false;
 		}
 						
-		int now = 0; // get the current time
+		int now = clock(); // get the current time
 		int timeDiff =  now - d->LastAnimationTime;
 		d->LastAnimationTime = now;
 				
