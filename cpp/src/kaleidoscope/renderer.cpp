@@ -38,7 +38,6 @@ namespace Kaleidoscope
 		char buf[80]; // For our strings.
 
 		
-		
 		if (d->Texture_On)
 		  glEnable(GL_TEXTURE_2D);
 	   else
@@ -261,10 +260,10 @@ namespace Kaleidoscope
 	
 	void Renderer::renderAll( Device * d)
 	{
-		drawBox( d );
+		//drawBox( d );
 		
 		
-		/*
+		
 		prepareRender( d );
 		
 		prepareQuads();
@@ -316,7 +315,7 @@ namespace Kaleidoscope
 		
 		finishRender();
 		
-		*/
+		
 
 	}
 	

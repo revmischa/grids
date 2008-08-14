@@ -9,9 +9,9 @@
 
 
 #include <kaleidoscope/kaleidoscope.h>
-//#include <grids/interface.h>
+#include <grids/interface.h>
 //#include <JSON/JSON.h>
-//#include <grids/protocol.h>
+#include <grids/protocol.h>
 
 Kaleidoscope::Device * main_device = new Kaleidoscope::Device( );
 
@@ -21,13 +21,13 @@ Kaleidoscope::EventController * main_event = new Kaleidoscope::EventController( 
 Kaleidoscope::Camera * main_camera = new Kaleidoscope::Camera( main_device );
 
 // Interface doesn't work
-//Grids::Interface * main_interface = new Grids::Interface( "happiland.net" );
+Grids::Interface * main_interface = new Grids::Interface( "happiland.net" );
 
-//Kaleidoscope::Room * main_room = new Kaleidoscope::Room( );
+Kaleidoscope::Room * main_room = new Kaleidoscope::Room( );
 
 //Kaleidoscope::RoomWalls * main_walls = new Kaleidoscope::RoomWalls();
 
-//Kaleidoscope::RenderObject * main_table = new Kaleidoscope::RenderObject( );
+Kaleidoscope::RenderObject * main_table = new Kaleidoscope::RenderObject( );
 
 
 static SDL_Surface *gScreen;
@@ -35,17 +35,15 @@ static SDL_Surface *gScreen;
 int main( int argc, char **argv )
 {
 
-	int    ok;             // Flag telling if the window was opened
-    int    running = 1;        // Flag telling if the program is running
+	main_device->running = 1;        // Flag telling if the program is running
 
 	main_device->setCursorController( main_cursor );
 	main_device->setRenderer( main_renderer );
 	main_device->setEventController( main_event );
 	main_device->setCamera( main_camera );
 
-	//main_device->addRoom( main_room );
+	main_device->addRoom( main_room );
 
-	/*
 	std::map< Kaleidoscope::RenderObject *, std::vector< float > > a_table;
 
 
@@ -67,7 +65,7 @@ int main( int argc, char **argv )
 	//main_room->addObject( main_device, main_walls );
 
 	main_room->addObject( main_device, a_table );
-	*/
+	
 
 
 	main_device->x_pos = 200;
@@ -113,7 +111,7 @@ int main( int argc, char **argv )
 	  return 1;
 	}
 
-	//SDL_ShowCursor( SDL_DISABLE );
+	SDL_ShowCursor( SDL_DISABLE );
 
 	main_renderer->prepare( main_device );
 
@@ -133,10 +131,10 @@ int main( int argc, char **argv )
 
 		if( event.type == SDL_QUIT )
 		{
-			running = 0;
+			main_device->running = 0;
 		}
 	}
-    while( running );
+    while( main_device->running );
 
     // Cleanup
     SDL_Quit();

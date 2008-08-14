@@ -56,6 +56,8 @@ namespace Kaleidoscope
 			
 			void addRoom( Room * );
 			
+			int running;
+			
 			
 			///////////
 			// Camera Variables

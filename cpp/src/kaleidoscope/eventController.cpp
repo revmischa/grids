@@ -70,6 +70,11 @@ namespace Kaleidoscope
 			d->getCamera()->lookAtPoint( d, 0.0f, 0.0f, 0.0f );
 		}
 		
+		if( keys[SDLK_ESCAPE] )
+		{
+			d->running = 0;
+		}
+		
 		/*
 		
 		if( glfwGetMouseButton( GLFW_MOUSE_BUTTON_LEFT ) )
