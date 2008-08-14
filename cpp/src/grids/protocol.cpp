@@ -32,8 +32,8 @@ namespace Grids {
   bool Protocol::connectToNode(const char *address) {
     IPaddress ip;
 
-    if(SDLNet_ResolveHost(&ip, address, GRIDS_PORT) == -1) {
-      printf("SDLNet_ResolveHost: %s\n", SDLNet_GetError());
+    if (SDLNet_ResolveHost(&ip, address, GRIDS_PORT) == -1) {
+      printf("Could not resolve hostname %s: %s\n", address, SDLNet_GetError());
       exit(1);
     }
 
@@ -86,7 +86,7 @@ namespace Grids {
   void Protocol::sendRequest(std::string evt) {
     sendRequest(evt, NULL);
   }
-  
+
   void Protocol::sendRequest(std::string evt, gridsmap_t *args) {
     if (evt.empty())
       return;
@@ -107,7 +107,7 @@ namespace Grids {
 
     Json::Value jsonVal;
 
-    for(mapIterator = m->begin(); 
+    for(mapIterator = m->begin();
         mapIterator != m->end();
         mapIterator++) {
 
@@ -135,19 +135,11 @@ namespace Grids {
       incomingLength = SDLNet_Read32(&incomingLength);
 
       //std::cout << "bytesRead: " << bytesRead << " incoming: " << incomingLength << "\n";
-      
-      /*
-      if (bytesRead == -1) {
-        if (errno == EAGAIN) {
-          // nothing to read, do it again
-          continue;
-        }
 
-        // uh oh, socket read error
-        std::cerr << "Socket read error: " << strerror(errno) << "\n";
-        break;
-      }
-      */
+        if (bytesRead < 0) {
+            std::cerr << "Socket read error: " << SDLNet_GetError() << "\n";
+            break;
+        }
 
       if (bytesRead != 4) {
         // socket broken most likely
@@ -179,7 +171,7 @@ namespace Grids {
         }
 
         //std::cout << "read: " << bytesRead << " remaining: " << bytesRemaining << "\n";
-        
+
       } while ((bytesRead > 0) && bytesRemaining && ! isFinished());
       buf[incomingLength] = '\0';
 
@@ -207,7 +199,7 @@ namespace Grids {
       // TODO: run in seperate thread
       std::string msg = buf;
       handleMessage(msg);
-      
+
       free(buf);
     }
   }
@@ -239,7 +231,7 @@ namespace Grids {
     std::vector<std::string>::iterator iter;
 
     gridsmap_t outMap;
-    
+
     for (iter = memberList.begin(); iter != memberList.end(); iter++) {
       Json::Value val = root[*iter];
       outMap[*iter] = val;
@@ -287,18 +279,18 @@ namespace Grids {
 
   bool Protocol::isFinished() {
     bool isFinished;
-    
+
     SDL_mutexP(finishedMutex);
     isFinished = finished[getThreadId()];
     SDL_mutexV(finishedMutex);
-    
+
     return isFinished;
-  }    
+  }
 
   void Protocol::setFinished(bool fin) {
     SDL_mutexP(finishedMutex);
     finished[getThreadId()] = fin;
     SDL_mutexV(finishedMutex);
-  }    
+  }
 
 }
