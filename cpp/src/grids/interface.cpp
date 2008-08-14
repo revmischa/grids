@@ -9,6 +9,8 @@
 
 #include <grids/interface.h>
 #include <json/value.h>
+
+#include <time.h>
 #include <iostream>
 #include <map>
 
@@ -45,7 +47,9 @@ namespace Grids
 		
 		std::cout << "Connected" << std::endl;
 		
-		for( double i = 0; i < 1000000000; i++ )
+		double start_time = clock();
+		
+		while( clock() - start_time < 300 )
 		{
 		
 		}
