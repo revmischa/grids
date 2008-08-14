@@ -64,7 +64,11 @@ namespace Kaleidoscope
 			d->Filtering_On = !(d->Filtering_On );
 			std::cout << "Filternig: " << d->Filtering_On << std::endl;
 		}
-
+		
+		if( keys[SDLK_SPACE] )
+		{
+			d->getCamera()->lookAtPoint( d, 0.0f, 0.0f, 0.0f );
+		}
 		
 		/*
 		
