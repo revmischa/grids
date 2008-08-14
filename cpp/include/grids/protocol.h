@@ -29,33 +29,37 @@ namespace Grids {
     Protocol();
     void setEventCallback(gevent_callback_t, void *userData);
     void setConnectedCallback(gevent_callback_t, void *userData);
+
+    int runEventLoopThreaded();
+    void stopEventLoopThread();
+    void runEventLoop();
+    Uint32 getThreadId();
+
     bool connectToNode(const char *address);
     void sendProtocolInitiationString();
     int protocolWrite(const char *);
-    std::string stringifyMap(gridsmap_t *m);
     void sendRequest(std::string);
     void sendRequest(std::string, gridsmap_t *args);
     void closeConnection();
-    void runEventLoop();
-    int runEventLoopThreaded();
-    void stopEventLoopThread();
-    void handleMessage(std::string &msg);
+
     bool isFinished();
     void setFinished(bool);
     gridsmap_t jsonToMap(Json::Value &);
     Json::Value parseJson(std::string &msg);
-    Uint32 getThreadId();
+    std::string stringifyMap(gridsmap_t *m);
+    void handleMessage(std::string &msg);
 
   private:
     Json::Value mapToJsonValue(gridsmap_t *);
     void dispatchEvent(Grids::Event *);
-    TCPsocket sock;
 
+    // callback storage
     gevent_callback_t eventCallback;
     gevent_callback_t connectedCallback;
     void *connectedCallbackUserData;
     void *eventCallbackUserData;
 
+    TCPsocket sock;
     SDL_mutex *finishedMutex;
     SDL_Thread *eventLoopThread;
     bool running;
