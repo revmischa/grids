@@ -27,6 +27,8 @@ namespace Grids {
   class Protocol {
   public:
     Protocol();
+    void setEventCallback(gevent_callback_t, void *userData);
+    void setConnectedCallback(gevent_callback_t, void *userData);
     bool connectToNode(const char *address);
     void sendProtocolInitiationString();
     int protocolWrite(const char *);
@@ -34,7 +36,6 @@ namespace Grids {
     void sendRequest(std::string);
     void sendRequest(std::string, gridsmap_t *args);
     void closeConnection();
-    void setEventCallback(gevent_callback_t, void *userData);
     void runEventLoop();
     int runEventLoopThreaded();
     void stopEventLoopThread();
@@ -49,8 +50,12 @@ namespace Grids {
     Json::Value mapToJsonValue(gridsmap_t *);
     void dispatchEvent(Grids::Event *);
     TCPsocket sock;
+
     gevent_callback_t eventCallback;
+    gevent_callback_t connectedCallback;
+    void *connectedCallbackUserData;
     void *eventCallbackUserData;
+
     SDL_mutex *finishedMutex;
     SDL_Thread *eventLoopThread;
     bool running;

@@ -12,6 +12,9 @@
 #include <grids/protocol.h>
 
 namespace Grids {
+  void Protocol::setEventCallback(gevent_callback_t cb, void *userData) { eventCallback = cb; eventCallbackUserData = userData; }
+  void Protocol::setConnectedCallback(gevent_callback_t cb, void *userData) { eventCallback = cb; eventCallbackUserData = userData; }
+
   int runEventLoopThreadEntryPoint(void *arg) {
     Protocol *gp = (Protocol *)arg;
     gp->runEventLoop();
@@ -27,6 +30,7 @@ namespace Grids {
     sock = 0;
     finishedMutex = SDL_CreateMutex();
     running = 0;
+    connectedCallback = NULL;
   }
 
   bool Protocol::connectToNode(const char *address) {
@@ -120,8 +124,6 @@ namespace Grids {
     return jsonVal;
   }
 
-  void Protocol::setEventCallback(gevent_callback_t cb, void *userData) { eventCallback = cb; eventCallbackUserData = userData; }
-
   void Protocol::runEventLoop() {
     int bytesRead;
     uint32_t incomingLength;
@@ -133,8 +135,6 @@ namespace Grids {
       bytesRead = SDLNet_TCP_Recv(sock, &incomingLength, 4);
 
       incomingLength = SDLNet_Read32(&incomingLength);
-
-      std::cout << "bytesRead: " << bytesRead << " incoming: " << incomingLength << "\n";
 
         if (bytesRead < 0) {
             std::cerr << "Socket read error: " << SDLNet_GetError() << "\n";
@@ -211,6 +211,8 @@ namespace Grids {
 
     if (msg.find("==", 0, 2) == 0) {
       // protocol initiation message
+      if (connectedCallback)
+        connectedCallback(this, NULL, connectedCallbackUserData);
     } else if (msg.find("--", 0, 2) == 0) {
       // encrypted protocol message
     } else {
