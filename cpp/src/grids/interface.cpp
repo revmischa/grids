@@ -21,8 +21,13 @@ namespace Grids
 	}
 
 	Interface::Interface(char * address, ObjectController * o_c_in, PersonController * p_c_in, MessengerController * m_c_in )
-		: node_address( address), object_controller( o_c_in ), person_controller( p_c_in ), messenger_controller( m_c_in )
+	//	: node_address( address), object_controller( o_c_in ), person_controller( p_c_in ), messenger_controller( m_c_in )
 	{
+		node_address = address;
+		object_controller = o_c_in;
+		person_controller = p_c_in;
+		messenger_controller = m_c_in;
+		
 		object_controller->setInterface( this );
 		person_controller->setInterface( this );
 		messenger_controller->setInterface( this );
