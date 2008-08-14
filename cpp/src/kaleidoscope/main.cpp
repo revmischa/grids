@@ -44,11 +44,11 @@ int main( int argc, char **argv )
 	main_device->setCamera( main_camera );
 
 	//main_device->addRoom( main_room );
-	
+
 	/*
 	std::map< Kaleidoscope::RenderObject *, std::vector< float > > a_table;
-	
-	
+
+
 	std::vector< float > a_vector;
 
 	a_vector.push_back( -1.0f); a_vector.push_back( -1.0f); a_vector.push_back( -1.0f);
@@ -75,12 +75,12 @@ int main( int argc, char **argv )
 
     // Initialize SDL
 
-	if( SDL_Init(SDL_INIT_VIDEO|SDL_INIT_EVENTTHREAD) < 0 ) {
+	if( SDL_Init(SDL_INIT_VIDEO) < 0 ) {
 	  printf("Unable to init SDL: %s\n", SDL_GetError());
 	  return 1;
 	}
 
-    if(SDLNet_Init()==-1) {
+    if(SDLNet_Init() == -1) {
         printf("SDLNet_Init: %s\n", SDLNet_GetError());
         exit(2);
     }
