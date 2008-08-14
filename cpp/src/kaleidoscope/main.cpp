@@ -23,11 +23,11 @@ Kaleidoscope::Camera * main_camera = new Kaleidoscope::Camera( main_device );
 // Interface doesn't work
 //Grids::Interface * main_interface = new Grids::Interface( "happiland.net" );
 
-Kaleidoscope::Room * main_room = new Kaleidoscope::Room( );
+//Kaleidoscope::Room * main_room = new Kaleidoscope::Room( );
 
-Kaleidoscope::RoomWalls * main_walls = new Kaleidoscope::RoomWalls();
+//Kaleidoscope::RoomWalls * main_walls = new Kaleidoscope::RoomWalls();
 
-Kaleidoscope::RenderObject * main_table = new Kaleidoscope::RenderObject( );
+//Kaleidoscope::RenderObject * main_table = new Kaleidoscope::RenderObject( );
 
 
 static SDL_Surface *gScreen;
@@ -43,10 +43,12 @@ int main( int argc, char **argv )
 	main_device->setEventController( main_event );
 	main_device->setCamera( main_camera );
 
-	main_device->addRoom( main_room );
-
+	//main_device->addRoom( main_room );
+	
+	/*
 	std::map< Kaleidoscope::RenderObject *, std::vector< float > > a_table;
-
+	
+	
 	std::vector< float > a_vector;
 
 	a_vector.push_back( -1.0f); a_vector.push_back( -1.0f); a_vector.push_back( -1.0f);
@@ -65,6 +67,7 @@ int main( int argc, char **argv )
 	//main_room->addObject( main_device, main_walls );
 
 	main_room->addObject( main_device, a_table );
+	*/
 
 
 	main_device->x_pos = 200;
