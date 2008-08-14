@@ -3,7 +3,9 @@
 #include <map>
 #include <string>
 
-#include <pthread.h>
+#include <SDL/SDL.h>
+#include <SDL/SDL_thread.h>
+#include <SDL/SDL_mutex.h>
 #include <SDL_net.h>
 #include <json/value.h>
 #include <grids/event.h>
@@ -19,7 +21,7 @@ namespace Grids {
   typedef void (*gevent_callback_t)(Protocol *, Event *, void *userData);
 
   // class method
-  void *runEventLoopThreadEntryPoint(void *);
+  int runEventLoopThreadEntryPoint(void *);
 
   class Protocol {
   public:
@@ -40,16 +42,16 @@ namespace Grids {
     void setFinished(bool);
     gridsmap_t jsonToMap(Json::Value &);
     Json::Value parseJson(std::string &msg);
+    Uint32 getThreadId();
 
   private:
     Json::Value mapToJsonValue(gridsmap_t *);
-    int threadid;
     void dispatchEvent(Grids::Event *);
     TCPsocket sock;
     gevent_callback_t eventCallback;
     void *eventCallbackUserData;
-    pthread_mutex_t finishedMutex;
-    pthread_t eventLoopThread;
+    SDL_mutex *finishedMutex;
+    SDL_Thread *eventLoopThread;
     bool running;
   };
 }

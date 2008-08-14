@@ -1,7 +1,7 @@
 #include <iostream>
-#include <pthread.h>
 
 #include <SDL/SDL.h>
+#include <SDL/SDL_thread.h>
 #include <SDL_net.h>
 
 #include <json/writer.h>
@@ -12,7 +12,7 @@
 #include <grids/protocol.h>
 
 namespace Grids {
-  void *runEventLoopThreadEntryPoint(void *arg) {
+  int runEventLoopThreadEntryPoint(void *arg) {
     Protocol *gp = (Protocol *)arg;
     gp->runEventLoop();
   }
@@ -24,7 +24,7 @@ namespace Grids {
   */
   Protocol::Protocol() {
     sock = 0;
-    pthread_mutex_init(&finishedMutex, NULL);
+    finishedMutex = SDL_CreateMutex();
     running = 0;
   }
 
@@ -260,39 +260,43 @@ namespace Grids {
   }
 
   int Protocol::runEventLoopThreaded() {
-    pthread_mutex_lock(&finishedMutex);
+    SDL_mutexP(finishedMutex);
 
-    int tid = pthread_create(&eventLoopThread, NULL, runEventLoopThreadEntryPoint, this);
+    eventLoopThread = SDL_CreateThread(runEventLoopThreadEntryPoint, this);
 
-    finished[tid] = 0;
-    pthread_mutex_unlock(&finishedMutex);
+    finished[getThreadId()] = 0;
+    SDL_mutexV(finishedMutex);
   }
 
   void Protocol::stopEventLoopThread() {
+    SDL_mutexP(finishedMutex);
     setFinished(1);
-    pthread_mutex_lock(&finishedMutex);
-    pthread_mutex_unlock(&finishedMutex);
+    SDL_mutexV(finishedMutex);
 
-    if (running)
-      pthread_join(eventLoopThread, NULL);
-      
-    running = 0;
+    if (running) {
+      SDL_WaitThread(eventLoopThread, NULL);
+      running = 0;
+    }
   }
 
+  Uint32 Protocol::getThreadId() {
+    return SDL_GetThreadID(eventLoopThread);
+  }
 
   bool Protocol::isFinished() {
     bool isFinished;
-    pthread_mutex_lock(&finishedMutex);
-    isFinished = finished[threadid];
-    pthread_mutex_unlock(&finishedMutex);
+    
+    SDL_mutexP(finishedMutex);
+    isFinished = finished[getThreadId()];
+    SDL_mutexV(finishedMutex);
     
     return isFinished;
   }    
 
   void Protocol::setFinished(bool fin) {
-    pthread_mutex_lock(&finishedMutex);
-    finished[threadid] = fin;
-    pthread_mutex_unlock(&finishedMutex);
+    SDL_mutexP(finishedMutex);
+    finished[getThreadId()] = fin;
+    SDL_mutexV(finishedMutex);
   }    
 
 }
