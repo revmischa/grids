@@ -61,7 +61,7 @@ namespace Kaleidoscope
 	
 	void Device::addRoom( Room * r )
 	{
-		rooms.push_back( r );
+		//rooms.push_back( r );
 	}
 
 

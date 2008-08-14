@@ -47,7 +47,9 @@ namespace Kaleidoscope
 			void setCamera( Camera * );
 			void setCursorController( CursorController * );
 			
-			std::vector< Room * > rooms;
+			
+			// Stores a vector of all known rooms
+			std::vector< std::string > rooms;
 						
 			std::map< Room *, std::map< RenderObject *, std::vector< float > > > vertex_hash;
 			

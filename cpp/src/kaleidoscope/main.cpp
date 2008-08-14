@@ -21,7 +21,6 @@ Kaleidoscope::EventController * main_event = new Kaleidoscope::EventController( 
 Kaleidoscope::Camera * main_camera = new Kaleidoscope::Camera( main_device );
 
 // Interface doesn't work
-Grids::Interface * main_interface = new Grids::Interface( "happiland.net" );
 
 Kaleidoscope::Room * main_room = new Kaleidoscope::Room( );
 
@@ -79,6 +78,10 @@ int main( int argc, char **argv )
         printf("SDLNet_Init: %s\n", SDLNet_GetError());
         exit(2);
     }
+
+	
+	Grids::Interface * main_interface = new Grids::Interface( "happiland.net" );
+
 
 	int value;
 

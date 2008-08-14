@@ -38,8 +38,6 @@ namespace Grids
 			
 			int size();
 			
-			std::vector<std::string> pop( );
-
 		private:
 			std::string event_type;
 			gridsmap_t event_map;

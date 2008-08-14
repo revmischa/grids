@@ -64,29 +64,6 @@ namespace Grids
 	{
 		return event_map.size();
 	}
-  /*	
-	std::vector<std::string> Event::pop( )
-	{
-		if( entry_position < size() )
-		{
-			std::vector<std::string> temp_vector( 2 );
-			
-			giterator p = event_map.begin();
-			
-			for( int i = 0; i < entry_position; i++ )
-			{
-				p++;
-			}
-			
-			temp_vector[0] =  p->first;
-			temp_vector[1] =  p->second;
-			
-			entry_position++;
-			
-			return temp_vector;
-		}
-	}
-  */
-
+ 
 }
 

@@ -72,6 +72,8 @@ namespace Grids
 		
 		std::cout << event_type << std::endl;
 		
+		
+		
 		if( event_type == "PERSON" )
 		{
 			person_controller->giveEvent( evt );
