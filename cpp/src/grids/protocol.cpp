@@ -15,6 +15,7 @@ namespace Grids {
   int runEventLoopThreadEntryPoint(void *arg) {
     Protocol *gp = (Protocol *)arg;
     gp->runEventLoop();
+	return 0;
   }
   /*
   void *dispatchEventEntryPoint(void *arg) {
@@ -253,7 +254,6 @@ namespace Grids {
     Json::Reader reader;
 
     if (reader.parse(msg, root))
-      return root;
 
     std::cerr << "Could not parse JSON: " << msg << "\n";
     return Json::Value(0);
@@ -266,6 +266,8 @@ namespace Grids {
 
     finished[getThreadId()] = 0;
     SDL_mutexV(finishedMutex);
+
+	return 0;
   }
 
   void Protocol::stopEventLoopThread() {

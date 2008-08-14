@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="Grids" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin\Debug\Grids" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\Debug\" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="bin\Release\Grids" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\Release\" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add directory="C:\Documents and Settings\Administrator.SOUTHBERKELEY\My Documents\Grids\cpp\SDL-win32\include" />
+			<Add directory="..\include" />
+		</Compiler>
+		<Linker>
+			<Add library="mingw32" />
+			<Add library="user32" />
+			<Add library="gdi32" />
+			<Add library="winmm" />
+			<Add library="dxguid" />
+			<Add library="..\lib\win32\libjson_win32.lib" />
+			<Add library="..\lib\win32\SDL_net.lib" />
+			<Add library="opengl32" />
+			<Add library="glu32" />
+			<Add library="ole32" />
+			<Add library="..\SDL-mingw\lib\libSDLmain.a" />
+			<Add library="..\SDL-mingw\lib\libSDL.dll.a" />
+			<Add library="..\lib\win32\SDL_net.dll" />
+			<Add directory="C:\Documents and Settings\Administrator.SOUTHBERKELEY\My Documents\Grids\cpp\SDL-win32\lib" />
+		</Linker>
+		<Unit filename="cb.bmp" />
+		<Unit filename="..\src\grids\event.cpp" />
+		<Unit filename="..\src\grids\interface.cpp" />
+		<Unit filename="..\src\grids\messenger.cpp" />
+		<Unit filename="..\src\grids\messengerController.cpp" />
+		<Unit filename="..\src\grids\object.cpp" />
+		<Unit filename="..\src\grids\objectController.cpp" />
+		<Unit filename="..\src\grids\person.cpp" />
+		<Unit filename="..\src\grids\personController.cpp" />
+		<Unit filename="..\src\grids\protocol.cpp" />
+		<Unit filename="..\src\grids\queue.cpp" />
+		<Unit filename="..\src\grids\queueNode.cpp" />
+		<Unit filename="..\src\kaleidoscope\RenderObject.cpp" />
+		<Unit filename="..\src\kaleidoscope\camera.cpp" />
+		<Unit filename="..\src\kaleidoscope\cursorController.cpp" />
+		<Unit filename="..\src\kaleidoscope\device.cpp" />
+		<Unit filename="..\src\kaleidoscope\eventController.cpp" />
+		<Unit filename="..\src\kaleidoscope\main.cpp" />
+		<Unit filename="..\src\kaleidoscope\renderer.cpp" />
+		<Unit filename="..\src\kaleidoscope\room.cpp" />
+		<Unit filename="..\src\kaleidoscope\roomWalls.cpp" />
+		<Unit filename="..\src\kaleidoscope\table.cpp" />
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
