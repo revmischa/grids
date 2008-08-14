@@ -261,9 +261,10 @@ namespace Kaleidoscope
 	
 	void Renderer::renderAll( Device * d)
 	{
-		//drawBox( d );
+		drawBox( d );
 		
 		
+		/*
 		prepareRender( d );
 		
 		prepareQuads();
@@ -314,6 +315,8 @@ namespace Kaleidoscope
 		glEnd();
 		
 		finishRender();
+		
+		*/
 
 	}
 	

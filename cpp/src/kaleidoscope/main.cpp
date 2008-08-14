@@ -9,9 +9,9 @@
 
 
 #include <kaleidoscope/kaleidoscope.h>
-#include <grids/interface.h>
+//#include <grids/interface.h>
 //#include <JSON/JSON.h>
-#include <grids/protocol.h>
+//#include <grids/protocol.h>
 
 Kaleidoscope::Device * main_device = new Kaleidoscope::Device( );
 
