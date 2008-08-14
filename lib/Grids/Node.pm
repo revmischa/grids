@@ -8,6 +8,7 @@ use Class::Autouse qw/
     Grids::VM
     Grids::Conf
     Grids::Protocol
+    Grids::Protocol::Event
     Grids::Protocol::EventQueue
 /;
 
@@ -67,8 +68,7 @@ sub incoming_connection_established {
     $self->dbg("server transport $trans received connection: $conn\n");
 
     # fire 'Connected' event
-    $self->run_hooks('Connected', { _trans => $trans, _conn => $conn });
-    $self->run_hooks('Connected.Incoming', { _trans => $trans, _conn => $conn });
+#    $self->enqueue_event('Connected.Incoming', { _trans => $trans, _conn => $conn });
 }
 
 # we have connected to a server
@@ -77,19 +77,17 @@ sub outgoing_connection_established {
 
     $self->dbg("client transport $trans connected: $conn\n");
 
+    $self->initiate_node_protocol($trans, $conn);
     # fire 'Connected' event
-    $self->run_hooks('Connected', { _trans => $trans, _conn => $conn });
-    $self->run_hooks('Connected.Outgoing', { _trans => $trans, _conn => $conn });
+#    $self->enqueue_event('Connected.Outgoing', { _trans => $trans, _conn => $conn });
 }
 
 # called when a connection to another node is established to set up a
 # protocol communication layer with the other node
 sub initiate_node_protocol {
-    my ($self, $info) = @_;
+    my ($self, $transport, $conn) = @_;
 
-    my $transport = $info->{_trans} or die "Got invalid Connected event";
-    my $conn = $info->{_conn} or die "Got invalid Connected event";
-
+    croak "Got invalid Connected event" unless $transport && $conn;
     croak "Trying to initate grids protocol on a node with no identity object set" unless $self->id;
 
     my $proto = new Grids::Protocol(identity => $self->id);
@@ -101,11 +99,17 @@ sub initiate_node_protocol {
     $transport->write($init_string, $conn);
 }
 
-sub register_node_protocol_handler {
-    my $self = shift;
+sub enqueue_event {
+    my ($self, $event_name, $args) = @_;
 
-    # initiate grids protocol if we connect to a server
-    $self->register_hook('Connected.Outgoing', \&initiate_node_protocol);
+    # construct event record
+    $args->{_proto} ||= $self->proto->{$args->{_conn}};
+    my $evt = new Grids::Protocol::Event(
+                                         params => $args, 
+                                         event_name => $event_name,
+                                         );
+
+    return $self->event_queue->add($evt);
 }
 
 sub data_received {
@@ -122,6 +126,7 @@ sub data_received {
             $event->args->{_trans} = $trans;
             $event->args->{_proto} = $protocol_handler;
             $event->args->{_conn} = $connection;
+
             $self->event_queue->add($event) or $self->warn("Could not enqueue event $event");
         }
     } else {
@@ -147,6 +152,7 @@ sub data_received {
 sub session_initiated {
     my ($self, $trans) = @_;
 
+    $self->enqueue_event('Connected', { _trans => $trans, _conn => $trans->conn });
     $self->dbg("initiated session");
 }
 
@@ -171,7 +177,7 @@ sub do_next_event {
 
     my $conn = delete $evt->args->{_conn};
 
-    my @hook_results = $self->run_event_hooks({
+    my $hook_results = $self->run_event_hooks({
         event => $evt->event_name,
         args => $evt->args,
         trans => $trans,
@@ -179,9 +185,9 @@ sub do_next_event {
     });
 
     # were there any results?
-    if (@hook_results) {
+    if ($hook_results && @$hook_results) {
         # if any hooks returned hashrefs of request arguments, do those requests
-        foreach my $res (@hook_results) {
+        foreach my $res (@$hook_results) {
             next unless ref $res && ref $res eq 'HASH';
 
             # default the return request to be of the same method

@@ -35,7 +35,6 @@ sub init_nodes {
         # handle connections and node-node communication
         $node->register_hook('Connected', \&node_connected);
         $node->register_hook('Login', \&login);
-        $node->register_node_protocol_handler;
         $node->register_hook('Error', \&node_error);
 
         my $loop = $node->add_transport('Loop');
@@ -57,6 +56,7 @@ sub init_nodes {
 
     is($connections, $nodecount * 2, "all nodes connected");
 
+    flush();
     flush();
     flush();
 }

@@ -10,7 +10,7 @@ sub new {
     my ($class, %opts) = @_;
 
     my $time = delete $opts{time} || time();
-    my $args = delete $opts{params} || {};
+    my $args = delete $opts{params} || delete $opts{args} || {};
     my $expires = delete $opts{expires};
     my $evt_name = delete $opts{event_name} or return undef;
 

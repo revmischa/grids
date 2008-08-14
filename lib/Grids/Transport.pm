@@ -4,6 +4,9 @@ use warnings;
 use Carp;
 use IO::Select;
 
+use base qw/Class::Accessor::Fast/;
+__PACKAGE__->mk_accessors(qw/conn/);
+
 # use all subclasses
 use Class::Autouse;
 Class::Autouse->autouse_recursive('Grids::Transport');
@@ -53,17 +56,21 @@ sub error {
 }
 
 sub outgoing_connection_established {
-    my ($self, $con) = @_;
+    my ($self, $conn) = @_;
+
+    $self->{conn} ||= $conn;
 
     return unless $self->parent->can('outgoing_connection_established');
-    $self->parent->outgoing_connection_established($self, $con);
+    $self->parent->outgoing_connection_established($self, $conn);
 }
 
 sub incoming_connection_established {
-    my ($self, $con) = @_;
+    my ($self, $conn) = @_;
+
+    $self->{conn} ||= $conn;
 
     return unless $self->parent->can('incoming_connection_established');
-    $self->parent->incoming_connection_established($self, $con);
+    $self->parent->incoming_connection_established($self, $conn);
 }
 
 sub data_received {

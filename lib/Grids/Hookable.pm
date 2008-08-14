@@ -21,14 +21,16 @@ sub load_hooks {
 sub test_all_hooks {
     my ($self, $hookname, $info) = @_;
 
-    return ! grep { ! $_ } $self->run_hooks($hookname, $info);
+    my $res = $self->run_hooks($hookname, $info);
+    return ! grep { ! $_ } @$res;
 }
 
 # run hooks and require at least one to return true
 sub test_any_hook {
     my ($self, $hookname, $info) = @_;
 
-    return grep { $_ } $self->run_hooks($hookname, $info);
+    my $res = $self->run_hooks($hookname, $info);
+    return grep { $_ } @$res;
 }
 
 # find hooks on instance/package
@@ -50,7 +52,9 @@ sub run_hooks {
     # look for global hooks
     push @res, $self->run_hooks_on(\%Grids::Hooks::HOOKS, $hookname, $info);
 
-    return @res;
+    @res = grep { $_ } @res;
+
+    return \@res;
 }
 
 # finds and runs hooks on all matching hooks stored in $hook_desc
@@ -83,21 +87,22 @@ sub hook_matches {
     return $hookname eq $match;
 }
 
+
+sub run_event_hooks {
+    my ($self, $info) = @_;
+
+    my $event = $info->{event};
+    my $r = $self->run_hooks($event, $info);
+
+    return $self->run_hooks($event, $info);
+}
+
 # actually runs hook
 sub _run_hook {
     my ($pkg, $self, $cb, $info) = @_;
 
     return unless $cb;
     return $cb->($self, $info);
-}
-
-sub run_event_hooks {
-    my ($self, $info) = @_;
-
-    my $event = $info->{event};
-    my @res = $self->run_hooks($event, $info);
-
-    return @res;
 }
 
 sub register_hooks {
