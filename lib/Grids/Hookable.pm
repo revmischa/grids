@@ -32,7 +32,7 @@ sub test_any_hook {
 }
 
 # find hooks on instance/package
-sub run_hooks($$$) {
+sub run_hooks {
     my ($self, $hookname, $info) = @_;
 
     my @res;
@@ -91,10 +91,14 @@ sub _run_hook {
     return $cb->($self, $info);
 }
 
-sub run_event_hooks($$) {
+sub run_event_hooks {
     my ($self, $info) = @_;
 
     my $event = $info->{event};
+    my @res = $self->run_hooks($event, $info);;
+    use Data::Dumper;
+    warn Dumper(\@res);
+    return @res;
     return $self->run_hooks($event, $info);
 }
 

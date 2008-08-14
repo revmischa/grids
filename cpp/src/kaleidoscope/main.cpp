@@ -11,10 +11,8 @@
 #include "kaleidoscope/kaleidoscope.h"
 #include <grids/interface.h>
 //#include <JSON/JSON.h>
-
-#import "SDL/SDL.h"
-
-
+#include <SDL/SDL.h>
+#include <grids/protocol.h>
 
 Kaleidoscope::Device * main_device = new Kaleidoscope::Device( );
 
@@ -40,7 +38,7 @@ int main( int argc, char **argv )
     
 	int    ok;             // Flag telling if the window was opened
     int    running = 1;        // Flag telling if the program is running
-	
+
 	main_device->setCursorController( main_cursor );
 	main_device->setRenderer( main_renderer );
 	main_device->setEventController( main_event );
@@ -74,11 +72,15 @@ int main( int argc, char **argv )
 
     // Initialize SDL
 	
-	if( SDL_Init(SDL_INIT_VIDEO) < 0 )
-	{
+	if( SDL_Init(SDL_INIT_VIDEO|SDL_INIT_EVENTTHREAD) < 0 ) {
 	  printf("Unable to init SDL: %s\n", SDL_GetError());
 	  return 1;
 	}
+
+    if(SDLNet_Init()==-1) {
+        printf("SDLNet_Init: %s\n", SDLNet_GetError());
+        exit(2);
+    }
 	
 	int value;
     

@@ -27,17 +27,6 @@ namespace Grids {
     pthread_mutex_init(&finishedMutex, NULL);
     running = 0;
   }
-  
-  static void initProtocol() {
-    if(SDL_Init(0)==-1) {
-        printf("SDL_Init: %s\n", SDL_GetError());
-        exit(1);
-    }
-    if(SDLNet_Init()==-1) {
-        printf("SDLNet_Init: %s\n", SDLNet_GetError());
-        exit(2);
-    }
-  }
 
   bool Protocol::connectToNode(const char *address) {
    IPaddress ip;

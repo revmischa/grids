@@ -40,7 +40,6 @@ namespace Grids {
     void setFinished(bool);
     gridsmap_t jsonToMap(Json::Value &);
     Json::Value parseJson(std::string &msg);
-    void initProtocol();
 
   private:
     Json::Value mapToJsonValue(gridsmap_t *);

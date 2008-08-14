@@ -58,6 +58,7 @@ sub init_nodes {
     is($connections, $nodecount * 2, "all nodes connected");
 
     flush();
+    flush();
 }
 
 # process all waiting events
