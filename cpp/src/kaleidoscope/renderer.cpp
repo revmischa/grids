@@ -303,6 +303,16 @@ namespace Kaleidoscope
 		
 		finishQuads();
 		
+		glBegin(GL_LINES);
+		for(int i=-10;i<=10;++i) {
+			glVertex3f(i,0,-10);
+			glVertex3f(i,0,10);
+
+			glVertex3f(10,0,i);
+			glVertex3f(-10,0,i);
+		}
+		glEnd();
+		
 		finishRender();
 
 	}

@@ -60,6 +60,7 @@ int main( int argc, char **argv )
 	a_vector.push_back( 1.0f); a_vector.push_back( 1.0f); a_vector.push_back( -1.3f);
 	a_vector.push_back( 1.0f); a_vector.push_back( -1.0f); a_vector.push_back( -1.3f);
 	
+	
 	a_table[ main_table ] = a_vector;
 	
 	//main_room->addObject( main_device, main_walls );
