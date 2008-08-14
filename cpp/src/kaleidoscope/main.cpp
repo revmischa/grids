@@ -113,7 +113,7 @@ int main( int argc, char **argv )
 	  return 1;
 	}
 
-	SDL_ShowCursor( SDL_DISABLE );
+	//SDL_ShowCursor( SDL_DISABLE );
 
 	main_renderer->prepare( main_device );
 
