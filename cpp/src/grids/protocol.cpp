@@ -38,13 +38,13 @@ namespace Grids {
 
     if (SDLNet_ResolveHost(&ip, (char *)address, GRIDS_PORT) == -1) {
       printf("Could not resolve hostname %s: %s\n", address, SDLNet_GetError());
-      exit(1);
+      return 0;
     }
 
     sock = SDLNet_TCP_Open(&ip);
     if (! sock) {
       printf("Failed to connect to host %s: %s\n", address, SDLNet_GetError());
-      exit(2);
+      return 0;
     }
 
     // hooray we are connnected! initialize protocol
@@ -138,7 +138,7 @@ namespace Grids {
 
       if (bytesRead < 0) {
         std::cerr << "Socket read error: " << SDLNet_GetError() << "\n";
-        break;
+        continue;
       }
 
       if (bytesRead != 4) {
@@ -159,7 +159,7 @@ namespace Grids {
       // allocate space for incoming message + null byte
       buf = (char *)malloc(incomingLength + 1);
 
-      //std::cout << "incoming: " << incomingLength << "\n";
+      std::cout << "incoming: " << incomingLength << "\n";
       uint32_t bytesRemaining = incomingLength;
       bufIncoming = buf;
 
@@ -171,7 +171,7 @@ namespace Grids {
           bufIncoming += bytesRead;
         }
 
-        //std::cout << "read: " << bytesRead << " remaining: " << bytesRemaining << "\n";
+        std::cout << "read: " << bytesRead << " remaining: " << bytesRemaining << "\n";
 
       } while ((bytesRead > 0) && bytesRemaining && ! isFinished());
       buf[incomingLength] = '\0';

@@ -30,7 +30,7 @@ namespace Grids
 		object_controller = o_c_in;
 		person_controller = p_c_in;
 		messenger_controller = m_c_in;
-		
+
 		object_controller->setInterface( this );
 		person_controller->setInterface( this );
 		messenger_controller->setInterface( this );
@@ -40,9 +40,10 @@ namespace Grids
 		protocol->setConnectedCallback( &connectionCallback, this );
 		protocol->setEventCallback( &receiveEvent, this );
 
-		while( !protocol->connectToNode( node_address ) )
+		if (! protocol->connectToNode( node_address ) )
 		{
-			// This should probably be threaded in the future
+			std::cerr << "Could not connect to " << node_address << "\n";
+			return;
 		}
 		
 		std::cout << "Connected to " << node_address << std::endl;
