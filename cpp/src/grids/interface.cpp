@@ -55,10 +55,10 @@ namespace Grids
 		protocol->closeConnection();
 	}
 	
-	void Interface::sendEvent( Event * evt )
+	void Interface::sendEvent( std::string type, std::map< std::string, std::string > request)
 	// Sends an event upstream
 	{
-		protocol->sendRequest( evt->getEventType(), evt->getComplexTypePointer() );
+		protocol->sendRequest( type );
 	}
 	
 	void Interface::receiveEvent( Protocol * proto, Event * evt, void * userData )
@@ -82,7 +82,7 @@ namespace Grids
 		
 		std::cout << event_type << std::endl;
 		
-		if( evt->getMap()[ "_method" ] == "Room.Create" )
+		if( evt->getComplexType()[ "_method" ] == "Room.Create" )
 		{
 			std::cout << "Created Room" << std::endl;
 		}

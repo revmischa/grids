@@ -25,8 +25,7 @@
 			void giveEvent( Event * );	// ObjectController uses this
 										// to pass messages
 			
-			void sendEvent( Event * );  // Used to send a message 
-										// upstream
+			void sendEvent( std::string , std::map< std::string, std::string >  );									// upstream
 										
 			void setController( ObjectController * );
 			

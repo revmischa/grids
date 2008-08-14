@@ -32,7 +32,7 @@ namespace Grids
 			
 			void addPerson( Person * );
 			
-			void sendEvent( Event * );
+			void sendEvent( std::string , std::map< std::string, std::string >   );
 			
 			void giveEvent( Event * );
 			

@@ -25,7 +25,7 @@
 			
 			void giveEvent( Event * );
 			
-			void sendEvent( Event * );
+			void sendEvent( std::string , std::map< std::string, std::string >   );
 			
 			void setController( PersonController * );
 			

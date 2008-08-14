@@ -26,8 +26,8 @@
 			
 			void giveEvent( Event * );
 			
-			void sendEvent( Event * );
-			
+			void sendEvent( std::string in_type, std::map< std::string, std::string > complex_value );
+						
 			void setController( MessengerController * );
 			
 		private:

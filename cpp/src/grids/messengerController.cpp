@@ -35,9 +35,10 @@ namespace Grids
 	}
 	
 	
-	void MessengerController::sendEvent( Event * evt )
+	void MessengerController::sendEvent( std::string in_type, std::map< std::string, std::string > complex_value)
+
 	{
-		controller_interface->sendEvent( evt );
+		controller_interface->sendEvent( in_type, complex_value );
 	}
 	
 	void MessengerController::giveEvent( Event * evt )

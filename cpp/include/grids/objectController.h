@@ -29,7 +29,7 @@ namespace Grids
 			
 			void addObject( Object *);
 			
-			void sendEvent( Event *); // sends an event to the GInterface
+			void sendEvent( std::string type, std::map< std::string, std::string > );
 			
 			void giveEvent( Event *); // The GInterface passes messages using this
 			

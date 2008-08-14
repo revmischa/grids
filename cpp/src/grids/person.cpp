@@ -23,9 +23,9 @@ namespace Grids
 		
 	}
 	
-	void Person::sendEvent( Event * evt )
+	void Person::sendEvent(  std::string in_type, std::map< std::string, std::string > value_map  )
 	{
-		controller->sendEvent( evt );
+		controller->sendEvent( in_type, value_map );
 	}
 	
 	void Person::setController( PersonController * psn )
