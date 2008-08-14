@@ -29,6 +29,9 @@ namespace Grids
 		
 		protocol = new Protocol();
 		
+		protocol->setConnectedCallback( &Grids::Interface::connectionCallback, this );
+		protocol->setEventCallback( &Grids::Interface::receiveEvent, this );
+		
 		while( !protocol->connectToNode( node_address ) )
 		{
 			// This should probably be threaded in the future
@@ -36,7 +39,6 @@ namespace Grids
 		
 		std::cout << "Connected!" << std::endl;
 		
-		protocol->setEventCallback( &Grids::Interface::receiveEvent, this );
 		protocol->runEventLoopThreaded();
 		
 		gridsmap_t m;
@@ -45,7 +47,6 @@ namespace Grids
 		std::string evt = "Debug.Warn";
 		protocol->sendRequest(evt, &m);		
 		
-		addRoom();
 	}
 	
 	Interface::~Interface()
@@ -57,7 +58,7 @@ namespace Grids
 	void Interface::sendEvent( Event * evt )
 	// Sends an event upstream
 	{
-		protocol->sendRequest( evt->getEventType(), evt->getMapPtr() );
+		protocol->sendRequest( evt->getEventType(), evt->getComplexTypePointer() );
 	}
 	
 	void Interface::receiveEvent( Protocol * proto, Event * evt, void * userData )
@@ -65,15 +66,18 @@ namespace Grids
 		( (Interface*)userData)->parseEventType( evt );
 	}
 	
-	void Interface::connectionEstablishedCallback(  Protocol * proto, Event * evt, void * userData )
+	void Interface::connectionCallback(  Protocol * proto, Event * evt, void * userData )
 	{
-	
+		std::cout << "callback";
+		((Interface*)userData)->addRoom();
 	}
 	
 	void Interface::parseEventType(  Event * evt )
 	// This will be modified, person objects may need object information...
 	// maybe all items need all information??
 	{
+		std::cout << "callback";
+
 		std::string event_type = evt->getEventType();
 		
 		std::cout << event_type << std::endl;

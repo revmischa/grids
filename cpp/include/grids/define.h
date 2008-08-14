@@ -12,6 +12,9 @@ namespace Grids
 {
 	typedef std::string gridskey_t;
 	typedef Json::Value gridsval_t;
+	
+	typedef Json::Value complex_type;
+	
 	typedef std::map<gridskey_t, gridsval_t> gridsmap_t;
 	typedef gridsmap_t::iterator giterator;
   

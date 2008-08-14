@@ -18,7 +18,8 @@
 #include <map>
 #include <vector>
 
-#include "define.h"
+#include <grids/define.h>
+
 
 namespace Grids
 {
@@ -27,22 +28,20 @@ namespace Grids
 		public:
 			Event( );
 			Event( std::string );
-			Event( std::string, gridsmap_t );
+			Event( std::string, complex_type );
 
 			void setEvent( std::string );
-			void setMap( gridsmap_t );
+			void setComplexType( complex_type );
 			
-			gridsmap_t getMap();
-			gridsmap_t * getMapPtr();
+			complex_type getComplexType();
+			complex_type * getComplexTypePointer();
 			std::string getEventType();
 			
-			int size();
-			
+									
 		private:
 			std::string event_type;
-			gridsmap_t event_map;
+			complex_type stored_value;
 			
-			int entry_position;
 	};
 
 }

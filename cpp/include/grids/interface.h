@@ -37,6 +37,8 @@ namespace Grids
 			
 			void sendEvent( Event *); // Sends an event upstream with the grids protocol
 			static void receiveEvent( Protocol *, Event *, void * userData ); // Grids protocol object hooks into this
+			static void connectionCallback(   Protocol *, Event *, void * userData );
+
 
 			ObjectController * getObjectController();
 			PersonController * getPersonController();
@@ -44,7 +46,6 @@ namespace Grids
 			
 			void addRoom( );
 			
-			void connectionEstablishedCallback(   Protocol *, Event *, void * userData );
 			
 		private:
 		

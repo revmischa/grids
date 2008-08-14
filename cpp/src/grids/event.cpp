@@ -24,13 +24,13 @@ namespace Grids
     }
 
     Event::Event( std::string in_event )
-		: event_type( in_event ), entry_position( 0 )
+		: event_type( in_event )
     {		
 	
     }
 
-    Event::Event( std::string in_event, gridsmap_t in_map )
-		: event_type( in_event ), event_map( in_map ), entry_position( 0 )
+    Event::Event( std::string in_event, complex_type value )
+		: event_type( in_event ), stored_value( value )
     {
 	
 	}
@@ -40,19 +40,19 @@ namespace Grids
         event_type = in_event;
     }
 
-    void Event::setMap( gridsmap_t in_map)
+    void Event::setComplexType( complex_type value)
     {
-        event_map = in_map;
+        stored_value = value;
 	}
 
-    gridsmap_t Event::getMap()
+    complex_type Event::getComplexType()
 	{
-		return event_map;
+		return stored_value;
 	}
 	
-	gridsmap_t * Event::getMapPtr( )
+	complex_type * Event::getComplexTypePointer( )
 	{
-		return &event_map;
+		return &stored_value;
 	}
 
     std::string Event::getEventType()
@@ -60,10 +60,7 @@ namespace Grids
         return event_type;
     }
 	
-	int Event::size()
-	{
-		return event_map.size();
-	}
+	
  
 }
 
