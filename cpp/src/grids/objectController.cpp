@@ -17,11 +17,11 @@ namespace Grids
 		
 	}
 	
-	void ObjectController::addObject( Object * obj ) 
+	void ObjectController::addObject( std::string type ) 
 	{
-		objects.push_back( obj );
+		//objects.push_back( obj );
 		
-		obj->setController( this );
+		//obj->setController( this );
 		
 		// Add the item's uuid to a lookup table
 		
@@ -42,7 +42,7 @@ namespace Grids
 	{
 		for( std::vector< Object * >::size_type i = 0; i < objects.size(); i++ )
 		{
-			objects[i]->giveEvent( evt );
+			//objects[i]->giveEvent( evt );
 		}
 	}
 	

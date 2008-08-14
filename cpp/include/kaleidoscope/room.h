@@ -21,7 +21,7 @@ namespace Kaleidoscope
 {
 
 class RenderObject;	
-	class Room : public Grids::Object
+	class Room 
 	{
 		public:
 			

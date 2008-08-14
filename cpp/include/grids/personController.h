@@ -19,7 +19,6 @@
 namespace Grids
 {
 	class Interface;
-	class Object;
 	class Person;
 	
 	class PersonController
@@ -30,7 +29,6 @@ namespace Grids
 			
 			void setInterface( Interface * );
  
-			
 			void addPerson( Person * );
 			
 			void sendEvent( std::string , std::map< std::string, std::string >  );

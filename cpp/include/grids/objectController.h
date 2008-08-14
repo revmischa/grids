@@ -28,7 +28,7 @@ namespace Grids
 			
 			void setInterface( Interface * );
 			
-			void addObject( Object *);
+			void addObject( std::string );
 			
 			void sendEvent( std::string type, std::map< std::string, std::string > );
 			
@@ -39,7 +39,8 @@ namespace Grids
 			
 			std::map< std::string, int > uuid_map;
 			
-			std::vector< Object * > objects;
+			// Stores objects ids
+			std::vector< std::string > objects;
 			
 	};
 	
