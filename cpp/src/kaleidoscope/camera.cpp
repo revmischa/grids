@@ -340,10 +340,5 @@ if( d->firstUpdate )
 	}
 
 
-
-
-
-
-
-
 }
+
