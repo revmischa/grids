@@ -1,4 +1,4 @@
-/*
+r/*
  *  
  *  kaleidoscope_2 -- Grids Visualizer
  *
@@ -8,10 +8,9 @@
  */
 
 
-#include "kaleidoscope/kaleidoscope.h"
+#include <kaleidoscope/kaleidoscope.h>
 #include <grids/interface.h>
 //#include <JSON/JSON.h>
-#include <SDL/SDL.h>
 #include <grids/protocol.h>
 
 Kaleidoscope::Device * main_device = new Kaleidoscope::Device( );

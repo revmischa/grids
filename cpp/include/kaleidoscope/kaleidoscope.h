@@ -25,8 +25,8 @@
 
 #include <iostream>
 
+#include <SDL/SDL.h>
 #include <SDL/SDL_opengl.h>
-
 
 namespace Kaleidoscope
 {
