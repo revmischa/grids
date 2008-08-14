@@ -12,7 +12,7 @@
 
 #pragma once 
 
-#include "queueNode.h"
+#include <grids/queueNode.h>
 
 namespace Grids
 {

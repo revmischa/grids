@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include "event.h"
+#include <grids/event.h>
 
 namespace Grids
 {

@@ -10,15 +10,16 @@
 
 #pragma once
 
-#include "interface.h"
-#include "event.h"
-#include "object.h"
+#include <grids/interface.h>
+#include <grids/event.h>
+#include <grids/object.h>
+
 #include <vector>
 #include <map>
 
 namespace Grids
 {
-	class Interface; // C++ lame-ness
+	class Interface;
 	
 	class ObjectController
 	{

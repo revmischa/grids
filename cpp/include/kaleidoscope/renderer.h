@@ -14,7 +14,6 @@
 
 #include <SDL/SDL_opengl.h>
 
-
 #include <kaleidoscope/device.h>
 
 namespace Kaleidoscope

@@ -10,10 +10,10 @@
 
 #pragma once
 
-#include "vector3d.h"
-#include "vector2d.h"
-#include "irrMath.h"
-#include "matrix4.h"
+#include <grids/vector3d.h>
+#include <grids/vector2d.h>
+#include <grids/irrMath.h>
+#include <kaleidoscope/matrix4.h>
 
 //#define FPS 1
 //#define MAYA 2

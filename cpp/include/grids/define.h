@@ -4,8 +4,10 @@
 #include <string>
 #include <map>
 #include <iterator>
-#include "vector3d.h"
-#include "vector2d.h"
+
+#include <grids/vector3d.h>
+#include <grids/vector2d.h>
+
 #include <json/value.h>
 
 namespace Grids

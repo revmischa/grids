@@ -9,8 +9,8 @@
  
  #pragma once
  
- #include "event.h"
- #include "objectController.h"
+ #include <grids/event.h>
+ #include <grids/objectController.h>
  
  namespace Grids
  {

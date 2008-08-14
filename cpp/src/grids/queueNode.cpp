@@ -7,7 +7,7 @@
  *
  */
 
-#include "grids/queueNode.h"
+#include <grids/queueNode.h>
 
 
 namespace Grids

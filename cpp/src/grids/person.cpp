@@ -7,7 +7,7 @@
  *
  */
 
-#include "grids/person.h"
+#include <grids/person.h>
 
 
 namespace Grids

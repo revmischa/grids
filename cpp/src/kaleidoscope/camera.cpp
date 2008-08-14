@@ -8,7 +8,7 @@
  */
 
 #include <kaleidoscope/kaleidoscope.h>
-#include "kaleidoscope/camera.h"
+#include <kaleidoscope/camera.h>
 
 #include <SDL/SDL_opengl.h>
 

@@ -10,8 +10,8 @@
  
  #pragma once
  
- #include "event.h"
- #include "messengerController.h"
+ #include <grids/event.h>
+ #include <grids/messengerController.h>
  
  
  namespace Grids
