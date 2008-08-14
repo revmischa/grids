@@ -36,8 +36,8 @@ namespace Grids
 			~Interface( );
 
 			void sendEvent( std::string , std::map< std::string, std::string > ); // Sends an event upstream with the grids protocol
-			static void receiveEvent( Protocol *, Event *, void * userData ); // Grids protocol object hooks into this
-			static void connectionCallback(   Protocol *, Event *, void * userData );
+			static void receiveEvent( Protocol *, Event *, void *  ); // Grids protocol object hooks into this
+			static void connectionCallback(   Protocol *, Event *, void *  );
 
 
 			ObjectController * getObjectController();
