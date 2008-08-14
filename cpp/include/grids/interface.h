@@ -9,12 +9,14 @@
 
 #pragma once
 
-#include "define.h"
-#include "objectController.h"
-#include "personController.h"
-#include "messengerController.h"
-#include "event.h"
-#include "protocol.h"
+#include <grids/define.h>
+#include <grids/objectController.h>
+#include <grids/personController.h>
+#include <grids/messengerController.h>
+#include <grids/event.h>
+#include <grids/protocol.h>
+
+
 
 
 namespace Grids
@@ -41,6 +43,8 @@ namespace Grids
 			ObjectController * getObjectController();
 			PersonController * getPersonController();
 			MessengerController * getMessengerController();
+			
+			void addRoom( );
 			
 		private:
 		

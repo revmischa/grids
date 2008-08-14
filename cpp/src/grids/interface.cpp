@@ -34,14 +34,17 @@ namespace Grids
 		
 		std::cout << "Connected!" << std::endl;
 		
+		protocol->setEventCallback( &Grids::Interface::receiveEvent, this );
+		protocol->runEventLoopThreaded();
+		
 		gridsmap_t m;
 		m["message"] = "LOL HI";
+		
 		
 		std::string evt = "Debug.Warn";
 		protocol->sendRequest(evt, &m);
 				
-		protocol->setEventCallback( &Grids::Interface::receiveEvent, this );
-		protocol->runEventLoopThreaded();
+		
 	}
 	
 	Interface::~Interface()
@@ -67,6 +70,8 @@ namespace Grids
 	{
 		std::string event_type = evt->getEventType();
 		
+		std::cout << event_type << std::endl;
+		
 		if( event_type == "PERSON" )
 		{
 			person_controller->giveEvent( evt );
@@ -79,6 +84,11 @@ namespace Grids
 		{
 			messenger_controller->giveEvent( evt );
 		}
+	}
+	
+	void Interface::addRoom( )
+	{
+		protocol->sendRequest( "Room.Create", NULL );
 	}
 	
 	ObjectController * Interface::getObjectController() { return object_controller; }

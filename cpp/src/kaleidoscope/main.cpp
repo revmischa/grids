@@ -42,7 +42,7 @@ int main( int argc, char **argv )
 	main_device->setEventController( main_event );
 	main_device->setCamera( main_camera );
 
-	main_device->addRoom( main_room );
+	//main_interface->addRoom(  );
 
 	std::map< Kaleidoscope::RenderObject *, std::vector< float > > a_table;
 
@@ -65,8 +65,6 @@ int main( int argc, char **argv )
 
 	main_room->addObject( main_device, a_table );
 	
-
-
 	main_device->x_pos = 200;
 	main_device->y_pos = 100;
 

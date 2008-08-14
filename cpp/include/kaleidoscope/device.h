@@ -47,14 +47,24 @@ namespace Kaleidoscope
 			void setCamera( Camera * );
 			void setCursorController( CursorController * );
 			
-			
-			
 			std::vector< Room * > rooms;
 						
-			// Room =>  < vectex_hash - Object => quad_vectices >
 			std::map< Room *, std::map< RenderObject *, std::vector< float > > > vertex_hash;
 			
+			// Room ID =>  < Object => quad_vectices ... Object => quad_vertices  ....  Object => quad_vertices  >
+			std::map< std::string, std::map< std::string, std::vector< float > > > room_objects_hash;
+			
+			// ID => Type    eg room, person, etc
+			std::map< std::string, int > id_type_hash;
+			
+			// Type => All Objects of Type
+			std::map< int, std::vector< void * > > type_objects_hash;
+			
+			// ID => pointer stored in memory
+			std::map< std::string, void * > id_object_hash;
+			
 			void addRoom( Room * );
+			
 			
 			int running;
 			
@@ -118,6 +128,7 @@ namespace Kaleidoscope
 			bool Alpha_Add;
 			bool Blend_On;
 			bool Filtering_On;
+			bool Smooth_On;
 			
 			float Light_Ambient[4];
 			float Light_Diffuse[4];

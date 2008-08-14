@@ -22,6 +22,7 @@ namespace Kaleidoscope
 		d->Alpha_Add = false;
 		d->Blend_On = false;
 		d->Filtering_On = false;
+		d->Smooth_On = true;
 		
 		loadLights(d);
 		loadTextModes(d);
@@ -37,7 +38,6 @@ namespace Kaleidoscope
 	{
 		char buf[80]; // For our strings.
 
-		
 		if (d->Texture_On)
 		  glEnable(GL_TEXTURE_2D);
 	   else
@@ -260,13 +260,19 @@ namespace Kaleidoscope
 	
 	void Renderer::renderAll( Device * d)
 	{
-		//drawBox( d );
+		drawBox( d );
 		
-		
+		/*
 		
 		prepareRender( d );
 		
 		prepareQuads();
+		
+		if ( d->Smooth_On )
+		{
+			glHint( GL_LINE_SMOOTH_HINT, GL_NICEST);
+			glHint( GL_POLYGON_SMOOTH_HINT, GL_NICEST );
+		}
 		
 		glColor4f(0.9,0.2,0.2,.75); // set the color
 		
@@ -304,6 +310,7 @@ namespace Kaleidoscope
 		finishQuads();
 		
 		glBegin(GL_LINES);
+		glHint( GL_LINE_SMOOTH_HINT, GL_NICEST);
 		for(int i=-10;i<=10;++i) {
 			glVertex3f(i,0,-10);
 			glVertex3f(i,0,10);
@@ -314,6 +321,8 @@ namespace Kaleidoscope
 		glEnd();
 		
 		finishRender();
+		
+		*/
 		
 		
 
@@ -351,7 +360,12 @@ namespace Kaleidoscope
 											   GL_NEAREST_MIPMAP_NEAREST);
 		   glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 		}
-
+		
+		if ( d->Smooth_On )
+		{
+			glHint( GL_LINE_SMOOTH_HINT, GL_NICEST);
+			glHint( GL_POLYGON_SMOOTH_HINT, GL_NICEST );
+		}
 
 	   // Need to manipulate the ModelView matrix to move our model around.
 	   glMatrixMode(GL_MODELVIEW);
