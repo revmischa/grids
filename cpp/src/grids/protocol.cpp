@@ -220,9 +220,9 @@ namespace Grids {
       Json::Value root = parseJson(msg);
 
       // FIXME: this is slow and lame
-      gridsmap_t rootMap = jsonToMap(root);
+      //gridsmap_t rootMap = jsonToMap(root);
 
-      Event *evt = new Event(rootMap["_method"].asString(), rootMap);
+      Event *evt = new Event(rootMap["_method"].asString(), root);
       eventCallback(this, evt, eventCallbackUserData);
       delete evt;
     }
