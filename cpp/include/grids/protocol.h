@@ -1,4 +1,5 @@
-#pragma once
+#ifndef GRIDS_PROTO_H
+#define GRIDS_PROTO_H
 
 #include <map>
 #include <string>
@@ -15,7 +16,7 @@ namespace Grids {
   const unsigned int GRIDS_PORT = 1488;
 
   // keep track of which threads are done
-  static std::map<int, bool> finished;
+  static std::map<int, bool> threadsFinished;
 
   class Protocol;
   typedef void (*gevent_callback_t)(Protocol *, Event *, void *userData);
@@ -56,3 +57,4 @@ namespace Grids {
   };
 }
 
+#endif

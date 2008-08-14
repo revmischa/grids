@@ -69,7 +69,6 @@
 		<Unit filename="..\src\kaleidoscope\main.cpp" />
 		<Unit filename="..\src\kaleidoscope\renderer.cpp" />
 		<Unit filename="..\src\kaleidoscope\room.cpp" />
-		<Unit filename="..\src\kaleidoscope\roomWalls.cpp" />
 		<Unit filename="..\src\kaleidoscope\table.cpp" />
 		<Extensions>
 			<code_completion />

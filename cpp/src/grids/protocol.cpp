@@ -32,7 +32,7 @@ namespace Grids {
   bool Protocol::connectToNode(const char *address) {
     IPaddress ip;
 
-    if (SDLNet_ResolveHost(&ip, address, GRIDS_PORT) == -1) {
+    if (SDLNet_ResolveHost(&ip, (char *)address, GRIDS_PORT) == -1) {
       printf("Could not resolve hostname %s: %s\n", address, SDLNet_GetError());
       exit(1);
     }
@@ -256,7 +256,7 @@ namespace Grids {
 
     eventLoopThread = SDL_CreateThread(runEventLoopThreadEntryPoint, this);
 
-    finished[getThreadId()] = 0;
+    threadsFinished[getThreadId()] = 0;
     SDL_mutexV(finishedMutex);
 
 	return 0;
@@ -281,7 +281,7 @@ namespace Grids {
     bool isFinished;
 
     SDL_mutexP(finishedMutex);
-    isFinished = finished[getThreadId()];
+    isFinished = threadsFinished[getThreadId()];
     SDL_mutexV(finishedMutex);
 
     return isFinished;
@@ -289,7 +289,7 @@ namespace Grids {
 
   void Protocol::setFinished(bool fin) {
     SDL_mutexP(finishedMutex);
-    finished[getThreadId()] = fin;
+    threadsFinished[getThreadId()] = fin;
     SDL_mutexV(finishedMutex);
   }
 

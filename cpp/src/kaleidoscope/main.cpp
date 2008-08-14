@@ -63,18 +63,18 @@ int main( int argc, char **argv )
 	//main_room->addObject( main_device, main_walls );
 
 	main_room->addObject( main_device, a_table );
-	
+
 	main_device->x_pos = 200;
 	main_device->y_pos = 100;
 
     // Initialize SDL
 
-	if( SDL_Init(SDL_INIT_VIDEO) < 0 ) {
+	if ( SDL_Init(SDL_INIT_VIDEO) < 0 ) {
 	  printf("Unable to init SDL: %s\n", SDL_GetError());
 	  return 1;
 	}
 
-    if(SDLNet_Init() == -1) {
+    if (SDLNet_Init() != 0) {
         printf("SDLNet_Init: %s\n", SDLNet_GetError());
         exit(2);
     }
