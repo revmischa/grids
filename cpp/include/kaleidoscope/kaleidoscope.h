@@ -7,11 +7,6 @@
  *
  */
 
-/////////////////////
-//  define MAC_OS_X if compiling on OS X
-///////////////////
-
-#define MAC_OS_X
 
 #pragma once
 
@@ -29,6 +24,8 @@
 #include <kaleidoscope/roomWalls.h>
 
 #include <iostream>
+
+#include <SDL/SDL_opengl.h>
 
 
 namespace Kaleidoscope

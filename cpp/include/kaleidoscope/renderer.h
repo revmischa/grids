@@ -12,13 +12,7 @@
 
 #include <kaleidoscope/kaleidoscope.h>
 
-#ifdef MAC_OS_X
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
-#else
-#include <GL/gl.h>
-#include <GL/glu.h>
-#endif
+#include <SDL/SDL_opengl.h>
 
 
 #include <kaleidoscope/device.h>
