@@ -17,8 +17,6 @@
 #include <grids/protocol.h>
 
 
-
-
 namespace Grids
 {
 	
@@ -45,6 +43,8 @@ namespace Grids
 			MessengerController * getMessengerController();
 			
 			void addRoom( );
+			
+			void connectionEstablishedCallback(   Protocol *, Event *, void * userData );
 			
 		private:
 		

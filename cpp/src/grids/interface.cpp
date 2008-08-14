@@ -42,14 +42,8 @@ namespace Grids
 		gridsmap_t m;
 		m["message"] = "LOL HI";
 		
-		
 		std::string evt = "Debug.Warn";
 		protocol->sendRequest(evt, &m);		
-		
-		//wait for some time
-		for( double i = 0; i < 1000000000; i++)
-		{
-		}
 		
 		addRoom();
 	}
@@ -69,6 +63,11 @@ namespace Grids
 	void Interface::receiveEvent( Protocol * proto, Event * evt, void * userData )
 	{
 		( (Interface*)userData)->parseEventType( evt );
+	}
+	
+	void Interface::connectionEstablishedCallback(  Protocol * proto, Event * evt, void * userData )
+	{
+	
 	}
 	
 	void Interface::parseEventType(  Event * evt )

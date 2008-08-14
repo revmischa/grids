@@ -21,13 +21,13 @@ Kaleidoscope::EventController * main_event = new Kaleidoscope::EventController( 
 Kaleidoscope::Camera * main_camera = new Kaleidoscope::Camera( main_device );
 
 // Interface doesn't work
+Grids::Interface * main_interface;
 
 Kaleidoscope::Room * main_room = new Kaleidoscope::Room( );
 
 //Kaleidoscope::RoomWalls * main_walls = new Kaleidoscope::RoomWalls();
 
 Kaleidoscope::RenderObject * main_table = new Kaleidoscope::RenderObject( );
-
 
 static SDL_Surface *gScreen;
 
@@ -80,8 +80,7 @@ int main( int argc, char **argv )
     }
 
 	
-	Grids::Interface * main_interface = new Grids::Interface( "happiland.net" );
-
+	main_interface = new Grids::Interface( "happiland.net" );
 
 	int value;
 
