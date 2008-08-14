@@ -13,7 +13,7 @@
 
 namespace Grids {
   void Protocol::setEventCallback(gevent_callback_t cb, void *userData) { eventCallback = cb; eventCallbackUserData = userData; }
-  void Protocol::setConnectedCallback(gevent_callback_t cb, void *userData) { eventCallback = cb; eventCallbackUserData = userData; }
+  void Protocol::setConnectedCallback(gevent_callback_t cb, void *userData) { connectedCallback = cb; connectedCallbackUserData = userData; }
 
   int runEventLoopThreadEntryPoint(void *arg) {
     Protocol *gp = (Protocol *)arg;
@@ -136,16 +136,16 @@ namespace Grids {
 
       incomingLength = SDLNet_Read32(&incomingLength);
 
-        if (bytesRead < 0) {
-            std::cerr << "Socket read error: " << SDLNet_GetError() << "\n";
-            break;
-        }
+      if (bytesRead < 0) {
+        std::cerr << "Socket read error: " << SDLNet_GetError() << "\n";
+        break;
+      }
 
       if (bytesRead != 4) {
         // socket broken most likely
         std::cerr << "failed to read from socket\n";
-       // break;
-	   continue;
+        // break;
+        continue;
       }
 
       if (incomingLength > 1024 * 1024 * 1024) {
@@ -176,32 +176,32 @@ namespace Grids {
       } while ((bytesRead > 0) && bytesRemaining && ! isFinished());
       buf[incomingLength] = '\0';
 
-      if (bytesRead == -1) {
-        // o snap read error
-        std::cerr << "Socket read error: " << bytesRead << "\n";
+        if (bytesRead == -1) {
+          // o snap read error
+          std::cerr << "Socket read error: " << bytesRead << "\n";
+          free(buf);
+          break;
+        }
+
+        if (bytesRead == 0) {
+          // not chill
+          std::cerr << "Didn't read any data when expecting message of " << incomingLength << " bytes\n";
+          free(buf);
+          continue;
+        }
+
+        if (bytesRead != incomingLength) {
+          std::cerr << "Only read " << bytesRead << " bytes when expecting message of "
+                    << incomingLength << " bytes\n";
+          free(buf);
+          continue;
+        }
+
+        // TODO: run in seperate thread
+        std::string msg = buf;
+        handleMessage(msg);
+
         free(buf);
-        break;
-      }
-
-      if (bytesRead == 0) {
-        // not chill
-        std::cerr << "Didn't read any data when expecting message of " << incomingLength << " bytes\n";
-        free(buf);
-        continue;
-      }
-
-      if (bytesRead != incomingLength) {
-        std::cerr << "Only read " << bytesRead << " bytes when expecting message of "
-                  << incomingLength << " bytes\n";
-        free(buf);
-        continue;
-      }
-
-      // TODO: run in seperate thread
-      std::string msg = buf;
-      handleMessage(msg);
-
-      free(buf);
     }
   }
 
@@ -211,8 +211,10 @@ namespace Grids {
 
     if (msg.find("==", 0, 2) == 0) {
       // protocol initiation message
+
       if (connectedCallback)
         connectedCallback(this, NULL, connectedCallbackUserData);
+
     } else if (msg.find("--", 0, 2) == 0) {
       // encrypted protocol message
     } else {
