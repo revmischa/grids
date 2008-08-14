@@ -1,4 +1,4 @@
-r/*
+/*
  *  
  *  kaleidoscope_2 -- Grids Visualizer
  *
