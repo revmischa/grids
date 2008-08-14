@@ -177,7 +177,7 @@ sub do_next_event {
         trans => $trans,
         proto => $proto,
     });
-        warn "hook_results: @hook_results";
+
     # were there any results?
     if (@hook_results) {
         # if any hooks returned hashrefs of request arguments, do those requests
@@ -186,8 +186,6 @@ sub do_next_event {
 
             # default the return request to be of the same method
             my $res_evt = $res->{event} || $evt->event_name;
-
-            warn "got res event: $res_evt";
 
             # do request
             $self->do_request(transport => $trans,

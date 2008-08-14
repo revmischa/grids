@@ -95,11 +95,9 @@ sub run_event_hooks {
     my ($self, $info) = @_;
 
     my $event = $info->{event};
-    my @res = $self->run_hooks($event, $info);;
-    use Data::Dumper;
-    warn Dumper(\@res);
+    my @res = $self->run_hooks($event, $info);
+
     return @res;
-    return $self->run_hooks($event, $info);
 }
 
 sub register_hooks {

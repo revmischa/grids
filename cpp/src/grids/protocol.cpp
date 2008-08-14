@@ -29,29 +29,18 @@ namespace Grids {
   }
 
   bool Protocol::connectToNode(const char *address) {
-   IPaddress ip;
+    IPaddress ip;
 
-   if(SDLNet_ResolveHost(&ip, address, GRIDS_PORT) == -1) {
-     printf("SDLNet_ResolveHost: %s\n", SDLNet_GetError());
-     exit(1);
-   }
-
-/*
-    if (setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, (const char *)&on, sizeof(int)) != 0) {
-      std::cerr << "Could not setsockopt TCP_NODELAY: " << strerror(errno) << "\n";
-      return -1;
-    }
-    if (setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(struct timeval)) != 0) {
-      std::cerr << "Could not setsockopt SO_RCVTIMEO: " << strerror(errno) << "\n";
-      return -1;
+    if(SDLNet_ResolveHost(&ip, address, GRIDS_PORT) == -1) {
+      printf("SDLNet_ResolveHost: %s\n", SDLNet_GetError());
+      exit(1);
     }
 
-    if (connect(sock, (struct sockaddr *)&addr, sizeof(struct sockaddr_in)) == -1) {
-      return 0;
+    sock = SDLNet_TCP_Open(&ip);
+    if (! sock) {
+      printf("Failed to connect to host %s: %s\n", address, SDLNet_GetError());
+      exit(2);
     }
-*/
-
-  
 
     // hooray we are connnected! initialize protocol
     sendProtocolInitiationString();
@@ -73,7 +62,12 @@ namespace Grids {
     memcpy((outstr + 4), str, len);
 
     int ret = SDLNet_TCP_Send(sock, outstr, outstr_len);
-    free(outstr);
+    //    free(outstr);
+
+    if (ret != outstr_len) {
+      printf("SDLNet_TCP_Send: %s\n", SDLNet_GetError());
+      // It may be good to disconnect sock because it is likely invalid now.
+    }
 
     return ret;
   }
