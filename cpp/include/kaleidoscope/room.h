@@ -27,7 +27,8 @@ class RenderObject;
 			
 			Room( );
 			
-			void addObject( Device *, std::map< Kaleidoscope::RenderObject *, std::vector< float > > );
+			// Add on object  ID => vertices
+			void addObject( Device *, std::map< std::string, std::vector< float > > );
 			
 		private:
 		

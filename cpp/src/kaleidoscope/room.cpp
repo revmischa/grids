@@ -16,15 +16,11 @@ namespace Kaleidoscope
 	
 	}
 	
-	void Room::addObject( Device * d, std::map< RenderObject *, std::vector< float > > user_input )
+	void Room::addObject( Device * d, std::map< std::string, std::vector< float > > user_input )
 	// Object should be in the form std::map< RenderObject *, std::vector< float > >
 	// where the floats
 	{
-		d->vertex_hash[ this ] =  user_input ;
+	
 	}
-	
-	
-		
-		
 		
 } // end namespace Kaleidoscope
