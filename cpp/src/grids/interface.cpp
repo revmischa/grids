@@ -40,8 +40,8 @@ namespace Grids
 		std::string evt = "Debug.Warn";
 		protocol->sendRequest(evt, &m);
 				
-		//protocol->setEventCallback( &Grids::Interface::receiveEvent, this );
-		//protocol->runEventLoopThreaded();
+		protocol->setEventCallback( &Grids::Interface::receiveEvent, this );
+		protocol->runEventLoopThreaded();
 	}
 	
 	Interface::~Interface()

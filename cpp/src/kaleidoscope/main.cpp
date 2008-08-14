@@ -100,7 +100,7 @@ int main( int argc, char **argv )
     SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, value);
 
 	gScreen = SDL_SetVideoMode(main_device->width, main_device->height, 0,
-		SDL_OPENGL | SDL_HWSURFACE);
+		SDL_OPENGL | SDL_HWSURFACE );
 	// 0 automatically selects the best availible BPP
 	// SDL_HWSURFACE : use hardware rendering
 
