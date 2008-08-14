@@ -45,11 +45,11 @@ namespace Grids
 			// This should probably be threaded in the future
 		}
 		
-		std::cout << "Connected" << std::endl;
+		std::cout << "Connected to " << node_address << std::endl;
 		
 		double start_time = clock();
 		
-		while( clock() - start_time < 300 )
+		while( clock() - start_time < 1000 )
 		{
 		
 		}
