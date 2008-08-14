@@ -9,9 +9,9 @@
 
 #pragma once
 
-#include "interface.h"
-#include "event.h"
-#include "messenger.h"
+#include <grids/interface.h>
+#include <grids/event.h>
+#include <grids/messenger.h>
 #include <vector>
 #include <map>
 
