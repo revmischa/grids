@@ -42,8 +42,8 @@ namespace Grids
 		
 		
 		std::string evt = "Debug.Warn";
-		protocol->sendRequest(evt, &m);
-				
+		protocol->sendRequest(evt, &m);		
+	
 		
 	}
 	
@@ -71,6 +71,8 @@ namespace Grids
 		std::string event_type = evt->getEventType();
 		
 		std::cout << event_type << std::endl;
+		
+		//if( evt->getMap()[ "_method" ]
 		
 		
 		

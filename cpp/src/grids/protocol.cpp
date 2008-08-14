@@ -134,7 +134,7 @@ namespace Grids {
 
       incomingLength = SDLNet_Read32(&incomingLength);
 
-      //std::cout << "bytesRead: " << bytesRead << " incoming: " << incomingLength << "\n";
+      std::cout << "bytesRead: " << bytesRead << " incoming: " << incomingLength << "\n";
 
         if (bytesRead < 0) {
             std::cerr << "Socket read error: " << SDLNet_GetError() << "\n";
@@ -144,7 +144,8 @@ namespace Grids {
       if (bytesRead != 4) {
         // socket broken most likely
         std::cerr << "failed to read from socket\n";
-        break;
+       // break;
+	   continue;
       }
 
       if (incomingLength > 1024 * 1024 * 1024) {
