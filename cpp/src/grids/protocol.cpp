@@ -249,6 +249,7 @@ namespace Grids {
     Json::Reader reader;
 
     if (reader.parse(msg, root))
+      return root;
 
     std::cerr << "Could not parse JSON: " << msg << "\n";
     return Json::Value(0);
