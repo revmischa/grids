@@ -222,7 +222,7 @@ namespace Grids {
       // FIXME: this is slow and lame
       //gridsmap_t rootMap = jsonToMap(root);
 
-      Event *evt = new Event(rootMap["_method"].asString(), root);
+      Event *evt = new Event(root["_method"].asString(), root);
       eventCallback(this, evt, eventCallbackUserData);
       delete evt;
     }

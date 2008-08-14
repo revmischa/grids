@@ -8,6 +8,9 @@
 using namespace Grids;
 
 void gotEvent(Protocol *, Event *, void *);
+void connected(Protocol *, Event *, void *);
+
+Protocol *proto = new Protocol();
 
 int main(int argc, char **argv) {
   short finished = 0;
@@ -18,26 +21,20 @@ int main(int argc, char **argv) {
     return -1;
   }
 
-  Protocol *proto = new Protocol();
-
-  gridsmap_t m;
-  m["message"] = "LOL HI";
+  proto->setEventCallback(gotEvent, NULL);
+  proto->setConnectedCallback(connected, NULL);
 
   const char *addr = argv[1];
 
-  if (proto->connectToNode(addr)) {
-    std::cout << "Connected!\n";
-  } else {
+  if (! proto->connectToNode(addr)) {
     std::cout << "Could not connect to " << addr << "\n";
   }
 
-  std::string evt = "Debug.Warn";
-  proto->sendRequest(evt, &m);
-
-  proto->setEventCallback(gotEvent, NULL);
   proto->runEventLoopThreaded();
 
   std::cout << "Type quit to exit\n";
+
+  gridsmap_t m;
 
   while (! finished) {
     std::cout << "> ";
@@ -72,4 +69,13 @@ int main(int argc, char **argv) {
 
 void gotEvent(Protocol *proto, Event *evt, void *userData) {
   std::cout << "Received event " << evt->getEventType() << "\n";
+}
+
+void connected(Protocol *proto, Event *, void *userData) {
+  std::cout << "Connected!\n";
+
+  gridsmap_t m;
+  m["message"] = "LOL HI";
+  std::string evt = "Debug.Warn";
+  proto->sendRequest(evt, &m);
 }
