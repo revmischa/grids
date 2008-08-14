@@ -7,8 +7,10 @@
  *
  */
 
-#include "grids/interface.h"
+#include <grids/interface.h>
+#include <json/value.h>
 #include <iostream>
+
 
 
 namespace Grids
@@ -43,8 +45,13 @@ namespace Grids
 		
 		std::string evt = "Debug.Warn";
 		protocol->sendRequest(evt, &m);		
-	
 		
+		//wait for some time
+		for( double i = 0; i < 1000000000; i++)
+		{
+		}
+		
+		addRoom();
 	}
 	
 	Interface::~Interface()
@@ -72,9 +79,10 @@ namespace Grids
 		
 		std::cout << event_type << std::endl;
 		
-		//if( evt->getMap()[ "_method" ]
-		
-		
+		if( evt->getMap()[ "_method" ] == "Room.Create" )
+		{
+			std::cout << "Created Room" << std::endl;
+		}
 		
 		if( event_type == "PERSON" )
 		{
