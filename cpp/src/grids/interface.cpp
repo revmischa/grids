@@ -10,6 +10,7 @@
 #include <grids/interface.h>
 #include <json/value.h>
 #include <iostream>
+#include <map>
 
 
 
@@ -40,6 +41,13 @@ namespace Grids
 		while( !protocol->connectToNode( node_address ) )
 		{
 			// This should probably be threaded in the future
+		}
+		
+		std::cout << "Connected" << std::endl;
+		
+		for( double i = 0; i < 1000000000; i++ )
+		{
+		
 		}
 
 		protocol->runEventLoopThreaded();
@@ -108,6 +116,15 @@ namespace Grids
 	void Interface::addRoom( )
 	{
 		protocol->sendRequest( "Room.Create", NULL );
+	}
+	
+	std::string Interface::addRoomDebug( Kaleidoscope::Device * d)
+	{
+		std::string new_id = "Room123456";
+		
+		d->rooms.push_back( new_id );
+		
+		return new_id;
 	}
 
 	ObjectController * Interface::getObjectController() { return object_controller; }

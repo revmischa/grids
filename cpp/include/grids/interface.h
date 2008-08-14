@@ -15,7 +15,15 @@
 #include <grids/messengerController.h>
 #include <grids/event.h>
 #include <grids/protocol.h>
+#include <kaleidoscope/device.h>
 
+#include <string>
+#include <map>
+
+namespace Kaleidoscope
+{
+	class Device;
+}
 
 namespace Grids
 {
@@ -45,6 +53,8 @@ namespace Grids
 			MessengerController * getMessengerController();
 
 			void addRoom( );
+			
+			std::string addRoomDebug( Kaleidoscope::Device * );
 
 
 		private:

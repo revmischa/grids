@@ -276,25 +276,25 @@ namespace Kaleidoscope
 		
 		glColor4f(0.9,0.2,0.2,.75); // set the color
 		
-		std::vector< Room * > temp_rooms = d->rooms; // Check out vector from device
+		std::vector< std::string > temp_rooms = d->rooms; // Check out vector from device
 		
-		std::map< Room *, std::map< RenderObject *, std::vector< float > > > vertex_hash = d->vertex_hash;
+		std::map< std::string, std::map< std::string, std::vector< float > > > room_objects_hash = d->room_object_hash;
 						
 		int num_rooms = temp_rooms.size();
 		int num_objects = 0;
 		
-		std::map< RenderObject *, std::vector< float > > object_vertex;
-		std::map< RenderObject *, std::vector< float > >::iterator object_iterator;
+		std::map< std::string, std::vector< float > > object_vertex_hash;
+		std::map< std::string, std::vector< float > >::iterator object_iterator;
 		
 		for( int i = 0; i < num_rooms; i++ ) // Iterate through every stored room
 		{
-			Room * temp_room = temp_rooms.at( i ); // Get one room
+			std::string room_id = temp_rooms.at( i ); // Get one room
 						
-			object_vertex = vertex_hash[ temp_room ]; // get a map: Object => vetices of all objects in room
+			object_vertex_hash = room_object_hash[ room_id ]; // get a map: Object => vetices of all objects in room
 		
 			 // start an iterator to go through the hash
 			 
-			for( object_iterator = object_vertex.begin(); object_iterator != object_vertex.end(); object_iterator++ ) // Iterate though each object in the room
+			for( object_iterator = object_vertex_hash.begin(); object_iterator != object_vertex_hash.end(); object_iterator++ ) // Iterate though each object in the room
 			{
 				std::vector< float > temp_vector = object_iterator->second;
 				int num_vertices = temp_vector.size();

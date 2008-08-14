@@ -42,8 +42,11 @@ int main( int argc, char **argv )
 	main_device->setCamera( main_camera );
 
 	//main_interface->addRoom(  );
-
-	std::map< Kaleidoscope::RenderObject *, std::vector< float > > a_table;
+	
+	std::string new_room_id = main_interface->addRoomDebug( main_device );
+	
+	// ID => vertex
+	std::map< std::string, std::vector< float > > a_table;
 
 	std::vector< float > a_vector;
 
@@ -57,12 +60,11 @@ int main( int argc, char **argv )
 	a_vector.push_back( 1.0f); a_vector.push_back( 1.0f); a_vector.push_back( -1.3f);
 	a_vector.push_back( 1.0f); a_vector.push_back( -1.0f); a_vector.push_back( -1.3f);
 
-
-	a_table[ main_table ] = a_vector;
+	main_device->room_objects_hash[ new_room_id ][ "table12345"] = a_vector;
 
 	//main_room->addObject( main_device, main_walls );
 
-	main_room->addObject( main_device, a_table );
+	//main_room->addObject( main_device, a_table );
 
 	main_device->x_pos = 200;
 	main_device->y_pos = 100;

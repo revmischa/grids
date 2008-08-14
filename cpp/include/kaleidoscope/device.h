@@ -47,12 +47,13 @@ namespace Kaleidoscope
 			void setCamera( Camera * );
 			void setCursorController( CursorController * );
 			
+			//****** --- OLD -- ********
+			std::map< Room *, std::map< RenderObject *, std::vector< float > > > vertex_hash;
+
 			
 			// Stores a vector of all known rooms
 			std::vector< std::string > rooms;
 						
-			std::map< Room *, std::map< RenderObject *, std::vector< float > > > vertex_hash;
-			
 			// Room ID =>  < Object => quad_vectices ... Object => quad_vertices  ....  Object => quad_vertices  >
 			std::map< std::string, std::map< std::string, std::vector< float > > > room_objects_hash;
 			
@@ -63,10 +64,10 @@ namespace Kaleidoscope
 			std::map< int, std::vector< void * > > type_objects_hash;
 			
 			// ID => pointer stored in memory
+			// NOTE: this list will have to be populated each time the program starts
 			std::map< std::string, void * > id_object_hash;
 			
 			void addRoom( Room * );
-			
 			
 			int running;
 			
