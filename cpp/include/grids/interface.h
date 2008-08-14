@@ -19,22 +19,22 @@
 
 namespace Grids
 {
-	
+
 	//typedef void (*gevent_callback_t)(Protocol *, Event *);
 	class ObjectController;
 	class MessengerController;
 	class PersonController;
-	
+
 	class Interface
 	{
 		public:
-			
-			Interface( const char * );
-			
-			Interface( const char *, ObjectController *, PersonController *, MessengerController * );
-			
+
+			Interface( char * );
+
+			Interface( char *, ObjectController *, PersonController *, MessengerController * );
+
 			~Interface( );
-			
+
 			void sendEvent( std::string , std::map< std::string, std::string > ); // Sends an event upstream with the grids protocol
 			static void receiveEvent( Protocol *, Event *, void * userData ); // Grids protocol object hooks into this
 			static void connectionCallback(   Protocol *, Event *, void * userData );
@@ -43,22 +43,22 @@ namespace Grids
 			ObjectController * getObjectController();
 			PersonController * getPersonController();
 			MessengerController * getMessengerController();
-			
+
 			void addRoom( );
-			
-			
+
+
 		private:
-		
+
 			ObjectController * object_controller;
 			PersonController * person_controller;
 			MessengerController * messenger_controller;
-			
+
 			Protocol * protocol;
-			
-			const char * node_address;
-			
+
+			char * node_address;
+
 			void parseEventType( Event *);
-			
+
 	};
 
 } // end namespace Grids

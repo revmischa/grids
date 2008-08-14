@@ -15,63 +15,62 @@
 
 namespace Grids
 {
-	Interface::Interface( const char * address )
+	Interface::Interface( char * address )
 	{
-		Interface( address, new ObjectController(), new PersonController(), new MessengerController() ); 
+		Interface( address, new ObjectController(), new PersonController(), new MessengerController() );
 	}
-	
-	Interface::Interface( const char * address, ObjectController * o_c_in, PersonController * p_c_in, MessengerController * m_c_in )
+
+	Interface::Interface(char * address, ObjectController * o_c_in, PersonController * p_c_in, MessengerController * m_c_in )
 		: node_address( address), object_controller( o_c_in ), person_controller( p_c_in ), messenger_controller( m_c_in )
 	{
 		object_controller->setInterface( this );
 		person_controller->setInterface( this );
 		messenger_controller->setInterface( this );
-		
+
 		protocol = new Protocol();
-		
-		protocol->setConnectedCallback( &Grids::Interface::connectionCallback, this );
-		protocol->setEventCallback( &Grids::Interface::receiveEvent, this );
-		
+
+		protocol->setConnectedCallback( &connectionCallback, this );
+		protocol->setEventCallback( &receiveEvent, this );
+
 		while( !protocol->connectToNode( node_address ) )
 		{
 			// This should probably be threaded in the future
 		}
-		
-		std::cout << "Connected!" << std::endl;
-		
+
 		protocol->runEventLoopThreaded();
-		
-		gridsmap_t m;
-		m["message"] = "LOL HI";
-		
-		std::string evt = "Debug.Warn";
-		protocol->sendRequest(evt, &m);		
-		
+
 	}
-	
+
 	Interface::~Interface()
 	{
 		protocol->stopEventLoopThread();
 		protocol->closeConnection();
 	}
-	
+
 	void Interface::sendEvent( std::string type, std::map< std::string, std::string > request)
 	// Sends an event upstream
 	{
 		protocol->sendRequest( type );
 	}
-	
+
 	void Interface::receiveEvent( Protocol * proto, Event * evt, void * userData )
 	{
 		( (Interface*)userData)->parseEventType( evt );
 	}
-	
-	void Interface::connectionCallback(  Protocol * proto, Event * evt, void * userData )
+
+	void Interface::connectionCallback(  Protocol * proto, Event *evt, void * userData )
 	{
 		std::cout << "callback";
+
+		gridsmap_t m;
+		m["message"] = "LOL HI";
+
+		std::string e = "Debug.Warn";
+		proto->sendRequest(e, &m);
+
 		((Interface*)userData)->addRoom();
 	}
-	
+
 	void Interface::parseEventType(  Event * evt )
 	// This will be modified, person objects may need object information...
 	// maybe all items need all information??
@@ -79,14 +78,14 @@ namespace Grids
 		std::cout << "callback";
 
 		std::string event_type = evt->getEventType();
-		
+
 		std::cout << event_type << std::endl;
-		
+
 		if( evt->getComplexType()[ "_method" ] == "Room.Create" )
 		{
 			std::cout << "Created Room" << std::endl;
 		}
-		
+
 		if( event_type == "PERSON" )
 		{
 			person_controller->giveEvent( evt );
@@ -100,16 +99,16 @@ namespace Grids
 			messenger_controller->giveEvent( evt );
 		}
 	}
-	
+
 	void Interface::addRoom( )
 	{
 		protocol->sendRequest( "Room.Create", NULL );
 	}
-	
+
 	ObjectController * Interface::getObjectController() { return object_controller; }
 	PersonController * Interface::getPersonController() { return person_controller; }
 	MessengerController * Interface::getMessengerController() { return messenger_controller; }
-					
+
 
 
 } // end namespace Grids
