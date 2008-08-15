@@ -260,9 +260,9 @@ namespace Kaleidoscope
 	
 	void Renderer::renderAll( Device * d)
 	{
-		drawBox( d );
+		//drawBox( d );
 		
-		/*
+		
 		
 		prepareRender( d );
 		
@@ -278,7 +278,7 @@ namespace Kaleidoscope
 		
 		std::vector< std::string > temp_rooms = d->rooms; // Check out vector from device
 		
-		std::map< std::string, std::map< std::string, std::vector< float > > > room_objects_hash = d->room_object_hash;
+		std::map< std::string, std::map< std::string, std::vector< float > > > room_objects_hash = d->room_objects_hash;
 						
 		int num_rooms = temp_rooms.size();
 		int num_objects = 0;
@@ -290,7 +290,7 @@ namespace Kaleidoscope
 		{
 			std::string room_id = temp_rooms.at( i ); // Get one room
 						
-			object_vertex_hash = room_object_hash[ room_id ]; // get a map: Object => vetices of all objects in room
+			object_vertex_hash = room_objects_hash[ room_id ]; // get a map: Object => vetices of all objects in room
 		
 			 // start an iterator to go through the hash
 			 
@@ -322,7 +322,7 @@ namespace Kaleidoscope
 		
 		finishRender();
 		
-		*/
+		
 		
 		
 
