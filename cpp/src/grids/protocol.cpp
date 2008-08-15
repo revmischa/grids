@@ -33,6 +33,10 @@ namespace Grids {
     connectedCallback = NULL;
   }
 
+  Protocol::~Protocol() {
+      SDL_DestroyMutex(finishedMutex);
+  }
+
   bool Protocol::connectToNode(const char *address) {
     IPaddress ip;
 

@@ -42,9 +42,9 @@ int main( int argc, char **argv )
 	main_device->setCamera( main_camera );
 
 	//main_interface->addRoom(  );
-	
+
 	std::string new_room_id = main_interface->addRoomDebug( main_device );
-	
+
 	// ID => vertex
 	std::map< std::string, std::vector< float > > a_table;
 
@@ -81,7 +81,7 @@ int main( int argc, char **argv )
         exit(2);
     }
 
-	
+
 	main_interface = new Grids::Interface( "happiland.net" );
 
 	int value;
@@ -139,6 +139,7 @@ int main( int argc, char **argv )
 
     // Cleanup
     SDL_Quit();
+    SDLNet_Quit();
 
     // Exit program
     return 0;

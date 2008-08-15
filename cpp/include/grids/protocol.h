@@ -27,6 +27,8 @@ namespace Grids {
   class Protocol {
   public:
     Protocol();
+    ~Protocol();
+
     void setEventCallback(gevent_callback_t, void *userData);
     void setConnectedCallback(gevent_callback_t, void *userData);
 
