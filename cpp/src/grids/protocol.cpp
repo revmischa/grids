@@ -31,6 +31,7 @@ namespace Grids {
     finishedMutex = SDL_CreateMutex();
     running = 0;
     connectedCallback = NULL;
+    setFinished(0);
   }
 
   Protocol::~Protocol() {
@@ -175,8 +176,6 @@ namespace Grids {
           bufIncoming += bytesRead;
         }
 
-        std::cout << "read: " << bytesRead << " remaining: " << bytesRemaining << "\n";
-
       } while ((bytesRead > 0) && bytesRemaining && ! isFinished());
       buf[incomingLength] = '\0';
 
@@ -210,7 +209,6 @@ namespace Grids {
   }
 
   void Protocol::handleMessage(std::string &msg) {
-    std::cout << "Got message \"" << msg << "\"\n";
     if (msg.size() < 2) return; // obv. bogus
 
     if (msg.find("==", 0, 2) == 0) {
