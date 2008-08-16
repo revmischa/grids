@@ -82,7 +82,7 @@ int main( int argc, char **argv )
     }
 
 
-	main_interface = new Grids::Interface( "happiland.net" );
+	//main_interface = new Grids::Interface( "happiland.net" );
 
 	int value;
 

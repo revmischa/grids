@@ -262,8 +262,6 @@ namespace Kaleidoscope
 	{
 		//drawBox( d );
 		
-		
-		
 		prepareRender( d );
 		
 		prepareQuads();
@@ -309,14 +307,16 @@ namespace Kaleidoscope
 		
 		finishQuads();
 		
+		int num_lines = 100;
+		
 		glBegin(GL_LINES);
-		glHint( GL_LINE_SMOOTH_HINT, GL_NICEST);
-		for(int i=-10;i<=10;++i) {
-			glVertex3f(i,0,-10);
-			glVertex3f(i,0,10);
+		//glHint( GL_LINE_SMOOTH_HINT, GL_NICEST);
+		for(int i=-num_lines;i<=num_lines;++i) {
+			glVertex3f(i,0,-num_lines);
+			glVertex3f(i,0,num_lines);
 
-			glVertex3f(10,0,i);
-			glVertex3f(-10,0,i);
+			glVertex3f(num_lines,0,i);
+			glVertex3f(-num_lines,0,i);
 		}
 		glEnd();
 		
@@ -500,7 +500,6 @@ namespace Kaleidoscope
 	   glMatrixMode(GL_PROJECTION);
 	   glLoadIdentity();
 	   
-	   //***** Removed temporarily for happiland
 	   gluPerspective(45.0f,(GLfloat)new_width/(GLfloat)new_height,0.1f,100.0f);
 
 	   glMatrixMode(GL_MODELVIEW);
