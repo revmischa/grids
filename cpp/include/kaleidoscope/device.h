@@ -51,21 +51,21 @@ namespace Kaleidoscope
 			std::map< Room *, std::map< RenderObject *, std::vector< float > > > vertex_hash;
 
 			
-			// Stores a vector of all known rooms
-			std::vector< std::string > rooms;
+			// Stores a vector of all known rooms by their ID
+			std::vector< GridsID > rooms;
 						
 			// Room ID =>  < Object => quad_vectices ... Object => quad_vertices  ....  Object => quad_vertices  >
-			std::map< std::string, std::map< std::string, std::vector< float > > > room_objects_hash;
+			std::map< GridsID, std::map< GridsID, std::vector< float > > > room_objects_hash;
 			
 			// ID => Type    eg room, person, etc
-			std::map< std::string, int > id_type_hash;
+			std::map< GridsID, int > id_type_hash;
 			
 			// Type => All Objects of Type
 			std::map< int, std::vector< void * > > type_objects_hash;
 			
 			// ID => pointer stored in memory
 			// NOTE: this list will have to be populated each time the program starts
-			std::map< std::string, void * > id_object_hash;
+			std::map< GridsID, void * > id_object_hash;
 			
 			void addRoom( Room * );
 			
@@ -92,6 +92,7 @@ namespace Kaleidoscope
 			float ZoomSpeed;
 			
 			Vec3D CenterOfRotation;
+			int ZoomType;
 			
 			float FOV;
 			float Aspect;

@@ -123,6 +123,7 @@ int main( int argc, char **argv )
     {
 		main_event->checkEvents( main_device );
 		main_camera->doMovementFPS( main_device );
+		//main_camera->doMovementMaya( main_device );
 		main_renderer->renderAll( main_device );
 
         // Swap front and back buffers (we use a double buffered display)

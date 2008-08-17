@@ -51,6 +51,16 @@ namespace Kaleidoscope
 		}
 	}
 	
+	void CursorController::setNotches( int new_notches )
+	{
+	
+	}
+	
+	void CursorController::getNotches()
+	{
+	
+	}
+	
 
 }
 

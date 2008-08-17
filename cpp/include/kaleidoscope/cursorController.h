@@ -29,6 +29,9 @@ namespace Kaleidoscope
 			void setToCenter();
 			
 			Vec2D getRelativePosition( Device *);
+			
+			void setNotches( int );
+			void getNotches( );
 		
 		private:
 			

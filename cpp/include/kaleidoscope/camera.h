@@ -78,11 +78,14 @@ namespace Kaleidoscope
 			
 			
 			void doMovementFPS(Device *);
+			void doMovementMaya( Device * );
 			void callgluLookAt( Device *);
 			
 			
 			
 		private:
+			
+			//Variables stored on Device:
 			
 			//int type;
 //			

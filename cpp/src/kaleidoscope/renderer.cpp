@@ -500,7 +500,7 @@ namespace Kaleidoscope
 	   glMatrixMode(GL_PROJECTION);
 	   glLoadIdentity();
 	   
-	   gluPerspective(45.0f,(GLfloat)new_width/(GLfloat)new_height,0.1f,100.0f);
+	   gluPerspective(45.0f,(GLfloat)new_width/(GLfloat)new_height,0.1f,10000.0f);
 
 	   glMatrixMode(GL_MODELVIEW);
 

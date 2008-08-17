@@ -67,6 +67,7 @@ namespace Kaleidoscope
 		
 		if( keys[SDLK_SPACE] )
 		{
+			d->Position = Vec3D ( 20.0f, 20.0f, 20.0f );
 			d->getCamera()->lookAtPoint( d, 0.0f, 0.0f, 0.0f );
 		}
 		

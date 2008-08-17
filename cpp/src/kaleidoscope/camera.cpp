@@ -33,7 +33,7 @@ namespace Kaleidoscope
 	
 	Camera::Camera( Device * d, int in_type )
 	{
-		Camera(  d, in_type, Vec3D( 10.0f, 0.0f, 10.0f ), Vec3D( 1.0f, 0.0f, 1.0f ), Vec3D( 0.0f, 1.0f, 0.0f ) );
+		Camera(  d, in_type, Vec3D( 10.0f, 5.0f, 10.0f ), Vec3D( 1.0f, 0.0f, 1.0f ), Vec3D( 0.0f, 1.0f, 0.0f ) );
 	}
 	
 	Camera::Camera( Device * d, int in_type, Vec3D position, Vec3D target, Vec3D up )
@@ -56,6 +56,11 @@ namespace Kaleidoscope
 		d->Rotation = Vec3D(10, 10, 0);
 		
 		d->MAX_VERTICAL_ANGLE = 89.0f;
+		
+		d->ZoomSpeed = 1.0f;
+		d->CenterOfRotation = Vec3D( 0.0f, 0.0f, 0.0f );
+		
+		d->ZoomType = ZOOM_CENTER;
 	}
 	
 	Vec3D Camera::getPosition()
@@ -296,11 +301,93 @@ if( d->firstUpdate )
 		
 		d->TargetNormal = ( d->Position - d->Target ).normalize();
 		
+		doMovementMaya( d );
+		
 	}
 	
+	void Camera::doMovementMaya( Device * d )
+	{
+		if( d->firstUpdate )
+		{
+			if( d->getCursorController() )
+			{
+				d->getCursorController()->setPosition( 0.5f, 0.5f, d );
+			}
+			
+			d->LastAnimationTime = clock();
+			d->firstUpdate = false;
+		}
+		
+		int now = clock(); // get the current time
+		int timeDiff =  now - d->LastAnimationTime;
+		d->LastAnimationTime = now;
+		
+		SDL_Event event;
+		
+		SDL_PollEvent( &event );
+		
+		//int mouse_button = event.button.button; 
+		
+		if( event.button.button == 4 || event.button.button == 5 )
+		{
+			std::cout << "Mouse Wheel" << std::endl;
+			
+			Vec3D zoomVector;
+			Vec3D PositionDifference;
+			Vec3D TargetDifference;
+			Vec3D normalTarget = d->Target;
+			normalTarget.normalize();
+			
+			if( d->ZoomType == ZOOM_FORWARD)
+			{
+				if( event.button.button == 4 )
+				{
+					zoomVector = normalTarget * ( -1.0f * timeDiff * d->ZoomSpeed );
+				}
+				else
+				{
+					zoomVector = normalTarget * ( timeDiff * d->ZoomSpeed );
+				}
+			}
+			else if( d->ZoomType == ZOOM_CENTER )
+			{
+				PositionDifference = d->Position - d->CenterOfRotation ;
+				TargetDifference = d->Target - d->CenterOfRotation ;
+				
+				float scaleAmount = 1.0f + timeDiff * d->ZoomSpeed  ;
+								
+				if( event.button.button == 4 )
+				{
+					scaleAmount *= -1.0f;
+				}
+				
+				PositionDifference *= scaleAmount;
+				TargetDifference *= scaleAmount;
+				
+				d->Position = d->CenterOfRotation + PositionDifference;
+				d->Target = d->CenterOfRotation + TargetDifference;
+			}
+			
+		}
+		
+		//NOTE: The mouse cursor should be hidden when the mouse is dragged
+		
+		if( SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(1) ) // True when left mouse button is down
+		{
+			//std::cout << "Mouse Left "<< clock() << std::endl;
+			
+			
+			
+			
+		}
+		else if( SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(3) ) // True when right mouse button is down
+		{
+			std::cout << "Mouse Right"<< std::endl;
+			
+			
+		}
 	
-	
-	
+	}
 	
 	
 	/////////////
