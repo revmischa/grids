@@ -12,7 +12,7 @@ namespace Grids {
         Keychain(std::string &serializedKey);
 
         // construct a new Keychain with public and or private keys
-        Keychain(Keychain::PublicKey inPubkey, Keychain::PrivateKey inPrivkey);
+        Keychain(PublicKey inPubkey, PrivateKey inPrivkey);
 
         Keychain();
         ~Keychain();
@@ -38,16 +38,16 @@ namespace Grids {
 
         // etc...
         bool sign(const std::string *message, std::string *outStr);
-        bool verify(const std::string *plaintext, Keychain::PublicKey *origPubkey);
+        bool verify(const std::string *plaintext, PublicKey *origPubkey);
 
         // getters
-        Keychain::PublicKey *pubkey();
-        Keychain::PublicKey *privkey();
+        PublicKey *getPbkey();
+        PublicKey *getPrivkey();
         bool isEncrypted();
 
       private:
-        Keychain::PublicKey *pubkey;
-        Keychain::PrivateKey *privkey;
+        PublicKey *pubkey;
+        PrivateKey *privkey;
         bool encrypted; // is the keypair currently encrypted with a passphrase?
     };
 
