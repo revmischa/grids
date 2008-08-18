@@ -26,7 +26,7 @@ namespace Kaleidoscope
 	
 	void CursorController::setPosition( float xScale, float yScale, Device * d )
 	{
-		SDL_WarpMouse( (int)( xScale * d->width), (int)(  yScale * device->height ) ) ;
+		SDL_WarpMouse( (int)( xScale * d->width), (int)(  yScale * device->height ) );
 	}
 	
 	void CursorController::setToCenter( )

@@ -113,6 +113,8 @@ namespace Kaleidoscope
 			bool Rotating;
 			bool Zooming;
 			
+			Vec2D cursor_save;
+			
 			
 			/////////////////
 			//Rendere Variables

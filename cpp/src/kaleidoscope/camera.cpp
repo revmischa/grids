@@ -339,24 +339,29 @@ namespace Kaleidoscope
 		
 		if( event.button.button == 4 || event.button.button == 5 )
 		{
-			std::cout << "Mouse Wheel" << std::endl;
+			//std::cout << "Mouse Wheel" << std::endl;
 			
 			Vec3D zoomVector;
 			Vec3D PositionDifference;
 			Vec3D TargetDifference;
-			Vec3D normalTarget = d->Target;
-			normalTarget.normalize();
 			
 			if( d->ZoomType == ZOOM_FORWARD)
 			{
+				Vec3D normalTarget = d->Target;
+				normalTarget.normalize();
+				
 				if( event.button.button == 4 )
 				{
-					zoomVector = normalTarget * ( timeDiff * d->ZoomSpeed );
+					zoomVector = normalTarget * ( timeDiff * d->ZoomSpeed * -1.0f  );
 				}
 				else
 				{
-					zoomVector = normalTarget * ( -1.0f * timeDiff * d->ZoomSpeed );
+					zoomVector = normalTarget * ( timeDiff * d->ZoomSpeed );
 				}
+				
+				d->Position += zoomVector;
+				d->Target += zoomVector;
+				
 			}
 			else if( d->ZoomType == ZOOM_CENTER )
 			{
@@ -365,12 +370,12 @@ namespace Kaleidoscope
 				
 				float scaleAmount; 
 								
-				if( event.button.button == 4 )
+				if( event.button.button == 4 ) // Zoom Closer
 				{
 					//scaleAmount *= 1.0f;
 					scaleAmount = 1.0f + timeDiff * d->ZoomSpeed * -1.0f ;
 				}
-				else if( event.button.button == 5 )
+				else if( event.button.button == 5 ) // Zoom Out
 				{
 					scaleAmount = 1.0f + timeDiff * d->ZoomSpeed ;
 				}
@@ -386,7 +391,8 @@ namespace Kaleidoscope
 		
 		//NOTE: The mouse cursor should be hidden when the mouse is dragged
 		
-		if( SDL_GetMouseState(NULL, NULL) & SDL_BUTTON( SDL_BUTTON_RIGHT )   && true ) // True when left mouse button is down
+		//  TRANSLATION
+		if( SDL_GetMouseState(NULL, NULL) & SDL_BUTTON( SDL_BUTTON_RIGHT ) ) // True when left mouse button is down
 		{
 			//std::cout << "Mouse Left "<< clock() << std::endl;
 			
@@ -396,9 +402,11 @@ namespace Kaleidoscope
 			// This allows the mouse to hover around and click on items.  Then, when the 
 			// mouse is pressed, the view changes.
 			{
+				d->cursor_save = cursorPos;
 				d->getCursorController()->setPosition( 0.5f, 0.5f, d );
 				
 				d->Translating = true;
+				SDL_ShowCursor( 0 );
 			}
 			else
 			{
@@ -420,21 +428,27 @@ namespace Kaleidoscope
 					
 					d->Position += translateAmount;
 					d->Target += translateAmount;
+					d->CenterOfRotation += translateAmount;
 					
 					d->getCursorController()->setPosition( 0.5f, 0.5f, d );
 				}
 			}
-		} else if( SDL_GetMouseState(NULL, NULL) & SDL_BUTTON( SDL_BUTTON_LEFT )  && true) // True when right mouse button is down
+		}
+		// ROTATION 
+		else if( SDL_GetMouseState(NULL, NULL) & SDL_BUTTON( SDL_BUTTON_LEFT ) ) // True when right mouse button is down
 		{
-			std::cout << "Mouse Right"<< std::endl;
+			//std::cout << "Mouse Right"<< std::endl;
 			
 			Vec2D cursorPos = d->getCursorController()->getRelativePosition( d );
 			
 			if( !( d->Rotating ) )
 			{
+				d->cursor_save = cursorPos;
 				d->getCursorController()->setPosition( 0.5f, 0.5f, d );
 				
 				d->Rotating = true;
+				
+				SDL_ShowCursor( 0 );
 			}
 			else
 			{
@@ -469,11 +483,19 @@ namespace Kaleidoscope
 			} // end d->Rotating == true
 		} else
 		{
-			std::cout << "Mouse UP " << clock() << std::endl;
+			if( d->Translating || d->Rotating || d->Zooming )
+			{
+				d->getCursorController()->setPosition( d->cursor_save.X, d->cursor_save.Y, d );
+			}
+			
+			//std::cout << "Mouse UP " << clock() << std::endl;
 			d->Translating = false;
 			d->Rotating = false;
 			d->Zooming = false;
 			// !!!! ****  Show Cursor  **** !!!!
+			
+			
+			SDL_ShowCursor( 1 );
 		} 
 		
 	
