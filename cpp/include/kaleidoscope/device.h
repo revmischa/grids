@@ -71,6 +71,8 @@ namespace Kaleidoscope
 			// NOTE: this list will have to be populated each time the program starts
 			std::map< GridsID, void * > id_object_hash;
 			
+			std::map< void *, GridsID > object_id_hash;
+			
 			void addRoom( Room * );
 			
 			int running;

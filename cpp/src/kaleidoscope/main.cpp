@@ -10,6 +10,7 @@
 
 #include <kaleidoscope/kaleidoscope.h>
 #include <grids/interface.h>
+#include <grids/define.h>
 #include <JSON/JSON.h>
 #include <grids/protocol.h>
 
@@ -29,12 +30,51 @@ Kaleidoscope::Room * main_room = new Kaleidoscope::Room( );
 
 Kaleidoscope::RenderObject * main_table = new Kaleidoscope::RenderObject( );
 
+Grids::complex_type test_type;
+
+
+
 static SDL_Surface *gScreen;
+
+
+//*************
+//	Notes:  -- Room Is a UUID
+//			-- Color is optional
+//
+//
+//	[Room][ID]	[Position]
+//				[Scale]
+//				[Rotation]
+//				[Quads] [ Num Quads ]
+//						[1] [Color]
+//						[1] [ Vert1 ]
+//						[1] [ Vert2 ]
+//						[1] [...]
+//						[2] [Color]
+//						[2] [ Vert1 ]
+//						[2] [ Vert2 ]
+//						[2] [...]
+//						[...]
+//				[ Lines ] [Num Lines ]
+//						[1] [Color]
+//			[Id] [Position]
+//				[Scale]
+//				[Rotation]
+//				[...]
+//			[...]
+//	[Room][ID] [ ...]
+//		[ ... ]
+//						
+//
+//
+//**************
 
 int main( int argc, char **argv )
 {
-
+	
 	main_device->running = 1;        // Flag telling if the program is running
+	
+	//test_type =  Grids::complex_type(  );
 
 	main_device->setCursorController( main_cursor );
 	main_device->setRenderer( main_renderer );
@@ -82,8 +122,8 @@ int main( int argc, char **argv )
     }
 
 
-	main_interface = new Grids::Interface( "happiland.net" );
-	main_device->interface = main_interface;
+	//main_interface = new Grids::Interface( "happiland.net" );
+	//main_device->interface = main_interface;
 
 	int value;
 
