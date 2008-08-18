@@ -1,6 +1,8 @@
 # This class represents a peer that is connected to a Node. It can be
 # a client or another Node.
 
+# FIXME: use Grids::Peer with this class
+
 package Grids::Node::Remote;
 use strict;
 use warnings;

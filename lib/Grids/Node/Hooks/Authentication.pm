@@ -41,7 +41,7 @@ sub hook_auth_check_pubkey {
     my ($node, $info) = @_;
 
     # get peer public key
-    my $peer_pubkey = $info->{proto}->peer_id->pubkey;
+    my $peer_pubkey = $info->{proto}->peer->id->pubkey;
     my $pubkey_str = $peer_pubkey->serialize;
 
     my %authorized_keys = $node->authorized_keys;

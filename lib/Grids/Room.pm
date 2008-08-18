@@ -4,7 +4,7 @@ package Grids::Room;
 
 use strict;
 use warnings;
-use Data::UUID;
+use Grids::UUID;
 use base qw/Class::Accessor::Fast/;
 
 __PACKAGE__->mk_accessors(qw/id/);
@@ -12,8 +12,7 @@ __PACKAGE__->mk_accessors(qw/id/);
 sub create {
     my ($class, %opts) = @_;
 
-    my $uuid = new Data::UUID;
-    my $id = $uuid->create_hex;
+    my $id = Grids::UUID->new_id;
 
     my $self = {
         id => $id,

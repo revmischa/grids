@@ -5,10 +5,11 @@ use warnings;
 use Carp qw/croak/;
 
 use base qw/Class::Accessor/;
-__PACKAGE__->mk_accessors(qw(encap encap_base encap_method id peer_id));
+__PACKAGE__->mk_accessors(qw(encap encap_base encap_method id peer));
 
 use Class::Autouse qw/
     Grids::Protocol::Event
+    Grids::Peer
 /;
 
 # autouse all encapsulation methods
@@ -24,8 +25,8 @@ sub new {
 
     my $enc = delete $opts{encapsulation} || 'JSON';
     my $id = delete $opts{identity} or croak "No identity passed to Grids::Protocol::New";
-    my $peer_id = delete $opts{peer_id};
-    my $self = bless { id => $id, peer_id => $peer_id }, $class;
+    my $peer = delete $opts{peer};
+    my $self = bless { id => $id, peer => $peer }, $class;
 
     if ($enc) {
         return undef unless $self->set_encapsulation_method($enc);
@@ -77,7 +78,8 @@ sub set_peer_pubkey {
     my $serialized = $opts{serialized_pubkey} or return undef;
 
     my $peer_id = $self->deserialize_pubkey($serialized);
-    $self->{peer_id} = $peer_id;
+    my $peer = new Grids::Peer(id => $peer_id);
+    $self->{peer} = $peer;
 }
 
 sub deserialize_pubkey {
@@ -102,7 +104,8 @@ sub new_from_initiation_string {
         ($pubkey) = $pubkey =~ m/pubkey=\"([0-9 ]+)\"/i or return undef;
 
         my $peer_id = $class->deserialize_pubkey($pubkey);
-        $params{peer_id} = $peer_id;
+        my $peer = new Grids::Peer(id => $peer_id);
+        $params{peer} = $peer;
     }
 
     my $p;
@@ -137,8 +140,9 @@ sub encapsulate {
 sub encrypt_message {
     my ($self, $msg) = @_;
 
-    my $peer_id = $self->peer_id;
-    return $msg unless $peer_id && $self->id;
+    return $msg unless $self->peer && $self->peer->id && $self->id;
+
+    my $peer_id = $self->peer->id;
 
     return MSG_ENCRYPTED_PREFIX . $self->id->encrypt($msg, $peer_id);
 }

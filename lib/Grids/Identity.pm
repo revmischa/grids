@@ -175,6 +175,7 @@ sub hide {
     $self->priv->hide if $self->encrypted && $self->priv;
 }
 
+*stringify = \&serialize;
 sub serialize {
     my $self = shift;    
 

@@ -2,6 +2,8 @@
 # It handles sending/receiving data over transports and handling requests
 
 use strict;
+use warnings;
+
 package Grids::Node;
 use Class::Autouse qw/
     Grids::Code
@@ -10,6 +12,7 @@ use Class::Autouse qw/
     Grids::Protocol
     Grids::Protocol::Event
     Grids::Protocol::EventQueue
+    Grids::Network
 /;
 
 use Grids::Transport;
@@ -26,8 +29,9 @@ sub new {
 
     my $conf = $opts{conf};
     my $debug = $opts{debug};
-
     my $id = $opts{id} || $opts{identity} || croak "No identity passed to Grids::Node->new";
+    my $network_id = $opts{network_id} || $id; # we are our own network if no network specified
+    my $network = $opts{network} || new Grids::Network(network_id => $network_id);
 
     $debug ||= $conf->get('debug') if $conf;
 
@@ -41,6 +45,7 @@ sub new {
 
     my $self = {
         id          => $id,
+        network     => $network,
         conf        => $conf,
         transports  => [],
         debug       => $debug,
@@ -52,6 +57,14 @@ sub new {
     bless $self, $class;
 
     return $self;
+}
+
+# send an event to all nodes in this network
+sub network_broadcast {
+    my ($self, $event) = @_;
+
+    my $network = $self->network;
+    $network->send_to_all($event);
 }
 
 sub add_transport {
