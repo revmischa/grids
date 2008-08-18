@@ -10,7 +10,7 @@
 
 #include <kaleidoscope/kaleidoscope.h>
 #include <grids/interface.h>
-//#include <JSON/JSON.h>
+#include <JSON/JSON.h>
 #include <grids/protocol.h>
 
 Kaleidoscope::Device * main_device = new Kaleidoscope::Device( );
@@ -82,7 +82,8 @@ int main( int argc, char **argv )
     }
 
 
-	//main_interface = new Grids::Interface( "happiland.net" );
+	main_interface = new Grids::Interface( "happiland.net" );
+	main_device->interface = main_interface;
 
 	int value;
 
@@ -115,6 +116,8 @@ int main( int argc, char **argv )
 	//SDL_ShowCursor( SDL_DISABLE );
 
 	main_renderer->prepare( main_device );
+	
+	main_device->last_clock = clock();
 
 	SDL_Event event;
 

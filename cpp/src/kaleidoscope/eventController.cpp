@@ -65,7 +65,7 @@ namespace Kaleidoscope
 			std::cout << "Filternig: " << d->Filtering_On << std::endl;
 		}
 		
-		if( keys[SDLK_SPACE] )
+		if( keys[SDLK_SPACE]  )
 		{
 			d->Position = Vec3D ( 20.0f, 20.0f, 20.0f );
 			d->getCamera()->lookAtPoint( d, 0.0f, 0.0f, 0.0f );
@@ -77,10 +77,23 @@ namespace Kaleidoscope
 		}
 		
 		if( keys[SDLK_TAB] )
-		{
-			d->getCamera()->swapCameraType( d );
+		{	
+			if( clock() - d->last_clock > 10 )
+			{
+				d->getCamera()->swapCameraType( d );
+				d->last_clock = clock();
+			}
 		}
 		
+		if( keys[SDLK_6] )
+		{
+			if( clock() - d->last_clock > 10 )
+			{
+				d->interface->addRoom( );
+				d->last_clock = clock();
+			}
+		}
+
 		/*
 		
 		if( glfwGetMouseButton( GLFW_MOUSE_BUTTON_LEFT ) )

@@ -30,7 +30,7 @@ namespace Grids
 		object_controller = o_c_in;
 		person_controller = p_c_in;
 		messenger_controller = m_c_in;
-
+		
 		object_controller->setInterface( this );
 		person_controller->setInterface( this );
 		messenger_controller->setInterface( this );
@@ -48,12 +48,12 @@ namespace Grids
 		
 		std::cout << "Connected to " << node_address << std::endl;
 		
-		double start_time = clock();
+		//double start_time = clock();
 		
-		while( clock() - start_time < 1000 )
-		{
+		//while( clock() - start_time < 10 )
+		//{
 		
-		}
+		//}
 
 		protocol->runEventLoopThreaded();
 
@@ -120,7 +120,9 @@ namespace Grids
 
 	void Interface::addRoom( )
 	{
-		protocol->sendRequest( "Room.Create", NULL );
+		std::cout << "Attempting to add room" << std::endl;
+		//protocol->sendRequest( "Room.Create");
+		protocol->sendRequest( "Foo.Bar");
 	}
 	
 	std::string Interface::addRoomDebug( Kaleidoscope::Device * d)

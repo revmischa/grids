@@ -17,9 +17,11 @@
 #include <kaleidoscope/cursorController.h>
 #include <kaleidoscope/room.h>
 #include <kaleidoscope/RenderObject.h>
+#include <grids/interface.h>
 
 #include <vector>
 #include <map>
+
 
 
 namespace Kaleidoscope
@@ -41,6 +43,8 @@ namespace Kaleidoscope
 			EventController * getEventController();
 			Camera * getCamera();
 			CursorController * getCursorController();
+			
+			Grids::Interface * interface;
 			
 			void setRenderer( Renderer * );
 			void setEventController( EventController * );
@@ -70,6 +74,8 @@ namespace Kaleidoscope
 			void addRoom( Room * );
 			
 			int running;
+			
+			int last_clock;
 			
 			
 			///////////

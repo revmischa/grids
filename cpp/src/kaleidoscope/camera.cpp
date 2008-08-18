@@ -220,7 +220,6 @@ namespace Kaleidoscope
 	
 	void Camera::doMovementFPS( Device * d)
 	{
-
 		if( d->firstUpdate )
 		{
 			if( d->getCursorController() )
@@ -481,7 +480,8 @@ namespace Kaleidoscope
 				} // end if Cursor != center
 				
 			} // end d->Rotating == true
-		} else
+		} 
+		else
 		{
 			if( d->Translating || d->Rotating || d->Zooming )
 			{
