@@ -28,12 +28,12 @@ namespace Kaleidoscope
 	
 	Camera::Camera(Device * d )
 	{
-		Camera(  d, FPS );
+		Camera(  d, MAYA );
 	}
 	
 	Camera::Camera( Device * d, int in_type )
 	{
-		Camera(  d, in_type, Vec3D( 10.0f, 5.0f, 10.0f ), Vec3D( 1.0f, 0.0f, 1.0f ), Vec3D( 0.0f, 1.0f, 0.0f ) );
+		Camera(  d, in_type, Vec3D( 100.0f, -100.0f, 100.0f ), Vec3D( 1.0f, 0.0f, 1.0f ), Vec3D( 0.0f, 1.0f, 0.0f ) );
 	}
 	
 	Camera::Camera( Device * d, int in_type, Vec3D position, Vec3D target, Vec3D up )
@@ -46,7 +46,9 @@ namespace Kaleidoscope
 		
 		d->type = in_type;
 		d->Position = position;
-		d->Target = target;
+		d->Target = position;
+		d->Target.normalize();
+		d->Target *= -1.0f;
 		d->UpVector = up;
 		d->RotateSpeed = rotate_speed;
 		d->TranslateSpeed = translate_speed;
@@ -57,10 +59,14 @@ namespace Kaleidoscope
 		
 		d->MAX_VERTICAL_ANGLE = 89.0f;
 		
-		d->ZoomSpeed = 1.0f;
+		d->ZoomSpeed = 0.04f;
 		d->CenterOfRotation = Vec3D( 0.0f, 0.0f, 0.0f );
 		
 		d->ZoomType = ZOOM_CENTER;
+		
+		d->Translating = false;
+		d->Rotating = false;
+		d->Zooming = false;
 	}
 	
 	Vec3D Camera::getPosition()
@@ -190,6 +196,7 @@ namespace Kaleidoscope
 		{
 		  setType( d, FPS );
 		  d->UpVector.set( 0.0f, 1.0f, 0.0f);
+		  lookAtPoint( d, d->CenterOfRotation );
 		} 
 	}
 	
@@ -214,16 +221,16 @@ namespace Kaleidoscope
 	void Camera::doMovementFPS( Device * d)
 	{
 
-if( d->firstUpdate )
-    {
-        if( d->getCursorController() )
-        {
-            d->getCursorController()->setPosition( 0.5f, 0.5f, d );
-        }
-        
-        d->LastAnimationTime = clock();
-        d->firstUpdate = false;
-    }
+		if( d->firstUpdate )
+		{
+			if( d->getCursorController() )
+			{
+				d->getCursorController()->setPosition( 0.5f, 0.5f, d );
+			}
+			
+			d->LastAnimationTime = clock();
+			d->firstUpdate = false;
+		}
 		
 		int now = clock(); // get the current time
 		int timeDiff =  now - d->LastAnimationTime;
@@ -302,7 +309,6 @@ if( d->firstUpdate )
 		d->TargetNormal = ( d->Position - d->Target ).normalize();
 		
 		doMovementMaya( d );
-		
 	}
 	
 	void Camera::doMovementMaya( Device * d )
@@ -321,6 +327,9 @@ if( d->firstUpdate )
 		int now = clock(); // get the current time
 		int timeDiff =  now - d->LastAnimationTime;
 		d->LastAnimationTime = now;
+		
+		if( timeDiff == 0 )
+			timeDiff = 1;
 		
 		SDL_Event event;
 		
@@ -342,11 +351,11 @@ if( d->firstUpdate )
 			{
 				if( event.button.button == 4 )
 				{
-					zoomVector = normalTarget * ( -1.0f * timeDiff * d->ZoomSpeed );
+					zoomVector = normalTarget * ( timeDiff * d->ZoomSpeed );
 				}
 				else
 				{
-					zoomVector = normalTarget * ( timeDiff * d->ZoomSpeed );
+					zoomVector = normalTarget * ( -1.0f * timeDiff * d->ZoomSpeed );
 				}
 			}
 			else if( d->ZoomType == ZOOM_CENTER )
@@ -354,11 +363,16 @@ if( d->firstUpdate )
 				PositionDifference = d->Position - d->CenterOfRotation ;
 				TargetDifference = d->Target - d->CenterOfRotation ;
 				
-				float scaleAmount = 1.0f + timeDiff * d->ZoomSpeed  ;
+				float scaleAmount; 
 								
 				if( event.button.button == 4 )
 				{
-					scaleAmount *= -1.0f;
+					//scaleAmount *= 1.0f;
+					scaleAmount = 1.0f + timeDiff * d->ZoomSpeed * -1.0f ;
+				}
+				else if( event.button.button == 5 )
+				{
+					scaleAmount = 1.0f + timeDiff * d->ZoomSpeed ;
 				}
 				
 				PositionDifference *= scaleAmount;
@@ -372,20 +386,96 @@ if( d->firstUpdate )
 		
 		//NOTE: The mouse cursor should be hidden when the mouse is dragged
 		
-		if( SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(1) ) // True when left mouse button is down
+		if( SDL_GetMouseState(NULL, NULL) & SDL_BUTTON( SDL_BUTTON_RIGHT )   && true ) // True when left mouse button is down
 		{
 			//std::cout << "Mouse Left "<< clock() << std::endl;
 			
+			Vec2D cursorPos = d->getCursorController()->getRelativePosition( d );
 			
-			
-			
-		}
-		else if( SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(3) ) // True when right mouse button is down
+			if( !( d->Translating ) )
+			// This allows the mouse to hover around and click on items.  Then, when the 
+			// mouse is pressed, the view changes.
+			{
+				d->getCursorController()->setPosition( 0.5f, 0.5f, d );
+				
+				d->Translating = true;
+			}
+			else
+			{
+				if(  !Equals( cursorPos.X, 0.5f) ||  !Equals( cursorPos.Y, 0.5f)  )
+				{
+					//std::cout << "Difference "<< clock() << std::endl;
+					float offsetX = ( cursorPos.X - 0.5f ) * timeDiff;
+					float offsetY = ( cursorPos.Y - 0.5f ) * timeDiff;
+					
+					Vec3D strafeVector = d->Target.crossProduct( d->UpVector );
+					Vec3D elevationVector = d->Target.crossProduct( strafeVector );
+					strafeVector.normalize();
+					elevationVector.normalize();
+					
+					Vec3D translateHorizontle = strafeVector * (   d->TranslateSpeed * offsetX  * 1000.0f);
+					Vec3D translateVertical = elevationVector * ( -1.0f * d->TranslateSpeed * offsetY * 1000.0f);
+					
+					Vec3D translateAmount = translateHorizontle + translateVertical;
+					
+					d->Position += translateAmount;
+					d->Target += translateAmount;
+					
+					d->getCursorController()->setPosition( 0.5f, 0.5f, d );
+				}
+			}
+		} else if( SDL_GetMouseState(NULL, NULL) & SDL_BUTTON( SDL_BUTTON_LEFT )  && true) // True when right mouse button is down
 		{
 			std::cout << "Mouse Right"<< std::endl;
 			
+			Vec2D cursorPos = d->getCursorController()->getRelativePosition( d );
 			
-		}
+			if( !( d->Rotating ) )
+			{
+				d->getCursorController()->setPosition( 0.5f, 0.5f, d );
+				
+				d->Rotating = true;
+			}
+			else
+			{
+				if(  !Equals( cursorPos.X, 0.5f) ||  !Equals( cursorPos.Y, 0.5f)  )
+				{
+					float offsetX = (cursorPos.X - 0.5f) * timeDiff * d->RotateSpeed * 0.1f;
+					float offsetY = (cursorPos.Y - 0.5f) * timeDiff * d->RotateSpeed * 0.1f;
+					
+					Vec3D strafeVector = d->Target.crossProduct( d->UpVector );
+					Vec3D elevationVector = d->Target.crossProduct( strafeVector );
+					strafeVector.normalize();
+					elevationVector.normalize();
+					
+					d->Position -= d->CenterOfRotation;
+					d->Target -= d->CenterOfRotation;
+					
+					d->Position = rotateAroundAxis( &(d->Position), &elevationVector, 1.0f*offsetY );
+					d->Position = rotateAroundAxis( &(d->Position), &strafeVector, -1.0f*offsetX );
+					
+					d->Target = rotateAroundAxis( &(d->Target), &elevationVector, 1.0f*offsetY );
+					d->Target = rotateAroundAxis( &(d->Target), &strafeVector, -1.0f*offsetX );
+					
+					d->UpVector = rotateAroundAxis( &(d->UpVector), &elevationVector, 1.0f*offsetY );
+					d->UpVector = rotateAroundAxis( &(d->UpVector), &strafeVector, -1.0f*offsetX );
+					
+					d->Position += d->CenterOfRotation;
+					d->Target += d->CenterOfRotation;
+					
+					d->getCursorController()->setPosition( 0.5f, 0.5f, d );
+				} // end if Cursor != center
+				
+			} // end d->Rotating == true
+		} else
+		{
+			std::cout << "Mouse UP " << clock() << std::endl;
+			d->Translating = false;
+			d->Rotating = false;
+			d->Zooming = false;
+			// !!!! ****  Show Cursor  **** !!!!
+		} 
+		
 	
 	}
 	
@@ -396,7 +486,7 @@ if( d->firstUpdate )
 	
 	bool Camera::Equals( float a, float b )
 	{
-		return ( a + 0.001f > b ) && ( a - 0.001f < b );    
+		return ( a + 0.000001f > b ) && ( a - 0.000001f < b );    
 	}
 	
 	Vec3D Camera::findRotationFromVector( Vec3D VecIn )
@@ -420,6 +510,38 @@ if( d->firstUpdate )
 		angle.X -= 90.0f;
 		
 		return angle;
+	}
+	
+	Vec3D Camera::rotateAroundAxis( Vec3D *in_vector, Vec3D *axis, float theta )
+	{
+		float ux = axis->X * in_vector->X;
+		float uy = axis->X * in_vector->Y;
+		float uz = axis->X * in_vector->Z;
+		float vx = axis->Y * in_vector->X;
+		float vy = axis->Y * in_vector->Y;
+		float vz = axis->Y * in_vector->Z;
+		float wx = axis->Z * in_vector->X;
+		float wy = axis->Z * in_vector->Y;
+		float wz = axis->Z * in_vector->Z;
+		
+		double si = sin(theta);
+		double co = cos(theta);
+		
+		float xx = (float) (axis->X
+				* (ux + vy + wz)
+				+ (in_vector->X * (axis->Y * axis->Y + axis->Z * axis->Z) - axis->X * (vy + wz))
+				* co + (-wy + vz) * si);
+		float yy = (float) (axis->Y
+				* (ux + vy + wz)
+				+ (in_vector->Y * (axis->X * axis->X + axis->Z * axis->Z) - axis->Y * (ux + wz))
+				* co + (wx - uz) * si);
+		float zz = (float) (axis->Z
+				* (ux + vy + wz)
+				+ (in_vector->Z * (axis->X * axis->X + axis->Y * axis->Y) - axis->Z * (ux + vy))
+				* co + (-vx + uy) * si);
+		return Vec3D(xx, yy, zz);  
+	
+	
 	}
 
 

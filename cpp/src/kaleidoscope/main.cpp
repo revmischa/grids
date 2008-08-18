@@ -122,8 +122,16 @@ int main( int argc, char **argv )
     do
     {
 		main_event->checkEvents( main_device );
-		main_camera->doMovementFPS( main_device );
-		//main_camera->doMovementMaya( main_device );
+		
+		if( main_device->type == Kaleidoscope::FPS )
+		{
+			main_camera->doMovementFPS( main_device );
+		}
+		else if( main_device->type == Kaleidoscope::MAYA )
+		{
+			main_camera->doMovementMaya( main_device );
+		}
+		
 		main_renderer->renderAll( main_device );
 
         // Swap front and back buffers (we use a double buffered display)

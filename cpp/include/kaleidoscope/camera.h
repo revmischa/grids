@@ -123,6 +123,7 @@ namespace Kaleidoscope
 			
 			Vec3D findRotationFromVector( Vec3D );
 			bool Equals( float, float );
+			Vec3D rotateAroundAxis( Vec3D *, Vec3D *, float theta );
 	
 	
 	};

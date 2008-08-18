@@ -109,6 +109,10 @@ namespace Kaleidoscope
 			bool firstUpdate;
 			bool cursorPos;
 			
+			bool Translating;
+			bool Rotating;
+			bool Zooming;
+			
 			
 			/////////////////
 			//Rendere Variables

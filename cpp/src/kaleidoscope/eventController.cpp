@@ -76,6 +76,11 @@ namespace Kaleidoscope
 			d->running = 0;
 		}
 		
+		if( keys[SDLK_TAB] )
+		{
+			d->getCamera()->swapCameraType( d );
+		}
+		
 		/*
 		
 		if( glfwGetMouseButton( GLFW_MOUSE_BUTTON_LEFT ) )
