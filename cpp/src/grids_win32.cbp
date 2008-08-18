@@ -9,8 +9,9 @@
 			<Target title="Debug">
 				<Option output="bin\Debug\Grids" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj\Debug\" />
-				<Option type="0" />
+				<Option type="1" />
 				<Option compiler="gcc" />
+				<Option use_console_runner="0" />
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>
@@ -49,6 +50,9 @@
 			<Add library="..\lib\win32\SDL_net.dll" />
 			<Add directory="C:\Documents and Settings\Administrator.SOUTHBERKELEY\My Documents\Grids\cpp\SDL-win32\lib" />
 		</Linker>
+		<Unit filename="..\include\grids\keychain.h" />
+		<Unit filename="..\include\grids\keychain\privateKey.h" />
+		<Unit filename="..\include\grids\keychain\publicKey.h" />
 		<Unit filename="..\src\grids\event.cpp" />
 		<Unit filename="..\src\grids\interface.cpp" />
 		<Unit filename="..\src\grids\messenger.cpp" />

@@ -31,7 +31,6 @@ namespace Grids {
     finishedMutex = SDL_CreateMutex();
     running = 0;
     connectedCallback = NULL;
-    setFinished(0);
   }
 
   Protocol::~Protocol() {
@@ -134,6 +133,8 @@ namespace Grids {
     uint32_t incomingLength;
     char *buf;
     char *bufIncoming;
+
+    setFinished(0);
 
     while (! isFinished() && sock) {
       // read in 4 byte length of message
@@ -281,7 +282,7 @@ namespace Grids {
     }
   }
 
-  Uint32 Protocol::getThreadId() {
+  uint32_t Protocol::getThreadId() {
     return SDL_GetThreadID(eventLoopThread);
   }
 
@@ -296,8 +297,13 @@ namespace Grids {
   }
 
   void Protocol::setFinished(bool fin) {
+    uint32_t threadId = getThreadId();
+
+    if (! threadId)
+        return;
+
     SDL_mutexP(finishedMutex);
-    threadsFinished[getThreadId()] = fin;
+    threadsFinished[threadId] = fin;
     SDL_mutexV(finishedMutex);
   }
 
