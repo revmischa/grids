@@ -4,7 +4,7 @@ use Grids::Transport;
 use Grids::Protocol;
 use Carp qw (croak);
 
-use Class::Autouse(qw/Grids::Protocol::EventQueue/);
+use Class::Autouse(qw/Grids::Protocol::EventQueue Grids::Address::TCP/);
 
 use base qw/Class::Accessor::Fast Grids::Hookable/;
 __PACKAGE__->mk_accessors(qw/transport id conf proto transport debug session_token event_queue/);

@@ -68,7 +68,9 @@ run();
 sub connect {
     my ($con, $addr) = @_;
 
-    if ($client->connect($addr)) {
+    my $tcp_addr = new Grids::Address::TCP(address => $addr);
+
+    if ($client->connect($tcp_addr)) {
         return "Connected to $addr";
     } else {
         return "Failed to connect to $addr";

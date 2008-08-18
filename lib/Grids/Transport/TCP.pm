@@ -1,6 +1,10 @@
 use strict;
+use warnings;
+
 package Grids::Transport::TCP;
 use base 'Grids::Transport';
+
+use Carp qw/croak/;
 use IO::Socket::INET;
 
 sub new {
@@ -19,11 +23,14 @@ sub connect {
     
     return undef unless $addr;
 
+    croak "must pass Grids::Address to Grids::Transport::TCP->connect"
+        unless $addr->isa('Grids::Address');
+
     my $sock = IO::Socket::INET->new(Proto     => "tcp",
                                      Blocking  => 1,
                                      Reuse     => 1,
-                                     PeerAddr  => $addr,
-                                     PeerPort  => 1488,
+                                     PeerAddr  => $addr->address,
+                                     PeerPort  => $addr->port,
                                      ) or return $self->error("Could not connect to host $addr: $!");
 
     $self->{sock} = $sock;
