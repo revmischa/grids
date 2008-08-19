@@ -72,6 +72,8 @@ int main( int argc, char **argv )
 	
 	main_device->running = 1;        // Flag telling if the program is running
 	
+	int main_room_width = 100;
+	
 	main_hash = Grids::complex_type(  );
 
 	main_device->setCursorController( main_cursor );
@@ -151,6 +153,54 @@ int main( int argc, char **argv )
 		main_hash[ room_id ][ "Lines" ][ 0u ][ "Vertices" ][ i+3 ][ "y" ] = 0.0f;
 		main_hash[ room_id ][ "Lines" ][ 0u ][ "Vertices" ][ i+3 ][ "z" ] = (float)i;
 	}
+	
+	main_hash[ room_id ][ "Quads" ][ 0u ] = Grids::complex_type();
+	
+	main_hash[ room_id ][ "Quads" ][ 0u ][ "Color" ] = Grids::complex_type();
+	main_hash[ room_id ][ "Quads" ][ 0u ][ "Color" ][ "r" ] = 0.0f;
+	main_hash[ room_id ][ "Quads" ][ 0u ][ "Color" ][ "g" ] = 1.0f;
+	main_hash[ room_id ][ "Quads" ][ 0u ][ "Color" ][ "b" ] = 0.0f;
+	main_hash[ room_id ][ "Quads" ][ 0u ][ "Color" ][ "a" ] = 0.15f;
+	
+	main_hash[ room_id ][ "Quads" ][ 0u ][ "Vertices" ] = Grids::complex_type();
+	
+	for( int i = 0; i < 8; i++ )
+	{
+		main_hash[ room_id ][ "Quads" ][ 0u ][ "Vertices" ][ i ] = Grids::complex_type();
+	}
+	
+	main_hash[ room_id ][ "Quads" ][ 0u ][ "Vertices" ][ 0u ][ "x" ] = -100.0f;
+	main_hash[ room_id ][ "Quads" ][ 0u ][ "Vertices" ][ 0u ][ "y" ] = -100.0f;
+	main_hash[ room_id ][ "Quads" ][ 0u ][ "Vertices" ][ 0u ][ "z" ] = -100.0f;
+	
+	main_hash[ room_id ][ "Quads" ][ 0u ][ "Vertices" ][ 1u ][ "x" ] = 100.0f;
+	main_hash[ room_id ][ "Quads" ][ 0u ][ "Vertices" ][ 1u ][ "y" ] = -100.0f;
+	main_hash[ room_id ][ "Quads" ][ 0u ][ "Vertices" ][ 1u ][ "z" ] = -100.0f;
+	
+	main_hash[ room_id ][ "Quads" ][ 0u ][ "Vertices" ][ 2u ][ "x" ] = 100.0f;
+	main_hash[ room_id ][ "Quads" ][ 0u ][ "Vertices" ][ 2u ][ "y" ] = 100.0f;
+	main_hash[ room_id ][ "Quads" ][ 0u ][ "Vertices" ][ 2u ][ "z" ] = -100.0f;
+	
+	main_hash[ room_id ][ "Quads" ][ 0u ][ "Vertices" ][ 3u ][ "x" ] = -100.0f;
+	main_hash[ room_id ][ "Quads" ][ 0u ][ "Vertices" ][ 3u ][ "y" ] = 100.0f;
+	main_hash[ room_id ][ "Quads" ][ 0u ][ "Vertices" ][ 3u ][ "z" ] = -100.0f;
+	
+	main_hash[ room_id ][ "Quads" ][ 0u ][ "Vertices" ][ 4u ][ "x" ] = -100.0f;
+	main_hash[ room_id ][ "Quads" ][ 0u ][ "Vertices" ][ 4u ][ "y" ] = -100.0f;
+	main_hash[ room_id ][ "Quads" ][ 0u ][ "Vertices" ][ 4u ][ "z" ] = 100.0f;
+	
+	main_hash[ room_id ][ "Quads" ][ 0u ][ "Vertices" ][ 5u ][ "x" ] = 100.0f;
+	main_hash[ room_id ][ "Quads" ][ 0u ][ "Vertices" ][ 5u ][ "y" ] = -100.0f;
+	main_hash[ room_id ][ "Quads" ][ 0u ][ "Vertices" ][ 5u ][ "z" ] = 100.0f;
+	
+	main_hash[ room_id ][ "Quads" ][ 0u ][ "Vertices" ][ 6u ][ "x" ] = 100.0f;
+	main_hash[ room_id ][ "Quads" ][ 0u ][ "Vertices" ][ 6u ][ "y" ] = 100.0f;
+	main_hash[ room_id ][ "Quads" ][ 0u ][ "Vertices" ][ 6u ][ "z" ] = 100.0f;
+	
+	main_hash[ room_id ][ "Quads" ][ 0u ][ "Vertices" ][ 7u ][ "x" ] = -100.0f;
+	main_hash[ room_id ][ "Quads" ][ 0u ][ "Vertices" ][ 7u ][ "y" ] = 100.0f;
+	main_hash[ room_id ][ "Quads" ][ 0u ][ "Vertices" ][ 7u ][ "z" ] = 100.0f;
+	
 	
 	//std::cout << main_hash[ room_id ][ "Lines" ][ 0u ][ "Vertices" ][ 33 ][ "z" ] << std::endl;
 	

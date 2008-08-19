@@ -307,6 +307,27 @@ namespace Kaleidoscope
 			}
 			
 			// Draw Room Quads
+			if( !( d->world_hash[ temp_room ][ "Quads" ] ) == false )
+			{
+				glBegin( GL_QUADS );
+				
+				for( int g = 0; g < d->world_hash[ temp_room ][ "Quads" ].size(); g++)
+				{
+					if( !( d->world_hash[ temp_room][ "Quads" ][ g ][ "Color" ] ) == false )
+					{
+						glColor4f( d->world_hash[ temp_room][ "Quads" ][ g ][ "Color" ][ "r" ].asDouble(), d->world_hash[ temp_room][ "Quads" ][ g ][ "Color" ][ "g" ].asDouble(), d->world_hash[ temp_room][ "Quads" ][ g ][ "Color" ][ "b" ].asDouble(), d->world_hash[ temp_room][ "Quads" ][ g ][ "Color" ][ "a" ].asDouble() ); 
+					}
+					
+					
+					for( int h = 0; h < d->world_hash[ temp_room ][ "Quads" ][ g ][ "Vertices"].size(); h++ )
+					{
+						glVertex3f( d->world_hash[ temp_room ][ "Quads" ][ g ][ "Vertices"][ h ][ "x" ].asDouble(), d->world_hash[ temp_room ][ "Quads" ][ g ][ "Vertices"][ h ][ "y" ].asDouble(), d->world_hash[ temp_room ][ "Quads" ][ g ][ "Vertices"][ h ][ "z" ].asDouble() );
+					}
+				}
+				
+				glEnd();
+			}
+			
 			
 			// Draw each object in the room, keeping the translation, scale
 			
