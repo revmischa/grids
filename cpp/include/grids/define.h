@@ -16,12 +16,16 @@ namespace Grids
 	typedef Json::Value gridsval_t;
 	
 	typedef Json::Value complex_type;
+	//typedef Json::Value
 	
 	typedef std::map<gridskey_t, gridsval_t> gridsmap_t;
 	typedef gridsmap_t::iterator giterator;
   
 	typedef irr::core::vector3df Vec3D;
 	typedef irr::core::vector2df Vec2D;
+	
+	typedef std::string GridsID;
+
 }
 
 

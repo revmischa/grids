@@ -30,9 +30,7 @@ Kaleidoscope::Room * main_room = new Kaleidoscope::Room( );
 
 Kaleidoscope::RenderObject * main_table = new Kaleidoscope::RenderObject( );
 
-Grids::complex_type test_type;
-
-
+Grids::complex_type main_hash;
 
 static SDL_Surface *gScreen;
 
@@ -74,7 +72,7 @@ int main( int argc, char **argv )
 	
 	main_device->running = 1;        // Flag telling if the program is running
 	
-	//test_type =  Grids::complex_type(  );
+	main_hash = Grids::complex_type(  );
 
 	main_device->setCursorController( main_cursor );
 	main_device->setRenderer( main_renderer );
@@ -82,7 +80,158 @@ int main( int argc, char **argv )
 	main_device->setCamera( main_camera );
 
 	//main_interface->addRoom(  );
+	
+	Grids::complex_type temp_hash = Grids::complex_type();
+	
+	Grids::GridsID room_id = "Room123";
+	Grids::GridsID object_id_1 = "Object123";
+	
+	main_hash[ "Num_Rooms" ] = 1;
+	
+	main_hash[ "Rooms" ] = Grids::complex_type();
+	main_hash[ "Rooms" ][ 0u ] = room_id;
+	
+	main_hash[ room_id ][ "Position" ] = Grids::complex_type();
+	main_hash[ room_id ][ "Position" ][ "x" ] = 0.0f;
+	main_hash[ room_id ][ "Position" ][ "y" ] = 0.0f;
+	main_hash[ room_id ][ "Position" ][ "z" ] = 0.0f;
+	
+	main_hash[ room_id ][ "Scale" ] = Grids::complex_type();
+	main_hash[ room_id ][ "Scale" ][ "x" ] = 1.0f;
+	main_hash[ room_id ][ "Scale" ][ "y" ] = 1.0f;
+	main_hash[ room_id ][ "Scale" ][ "z" ] = 1.0f;
+	
+	main_hash[ room_id ][ "Rotation" ] = Grids::complex_type();
+	main_hash[ room_id ][ "Rotation" ][ "x" ] = 0.0f;
+	main_hash[ room_id ][ "Rotation" ][ "y" ] = 0.0f;
+	main_hash[ room_id ][ "Rotation" ][ "z" ] = 0.0f;
+	
+	main_hash[ room_id ][ "Quads" ] = Grids::complex_type();
+	
+	main_hash[ room_id ][ "Lines" ] = Grids::complex_type();
+	main_hash[ room_id ][ "Num_Objects" ] = 1;
+	main_hash[ room_id ][ "Objects" ] = Grids::complex_type();
+	main_hash[ room_id ][ "Objects" ][ 0u ] = object_id_1;
+	
+	int num_lines = 100;
+	
+	main_hash[ room_id ][ "Lines" ][ 0u ] = Grids::complex_type();
+	
+	main_hash[ room_id ][ "Lines" ][ 0u ][ "Color" ] = Grids::complex_type();
+	main_hash[ room_id ][ "Lines" ][ 0u ][ "Color" ][ "r" ] = 0.0f;
+	main_hash[ room_id ][ "Lines" ][ 0u ][ "Color" ][ "g" ] = 1.0f;
+	main_hash[ room_id ][ "Lines" ][ 0u ][ "Color" ][ "b" ] = 0.0f;
+	main_hash[ room_id ][ "Lines" ][ 0u ][ "Color" ][ "a" ] = 1.0f;
+	
+	main_hash[ room_id ][ "Lines" ][ 0u ][ "Vertices" ] = Grids::complex_type();
+	
+	for(int i = 0; i <= num_lines * 8; i += 4 ) // i * 2 from -num_lines to num_lines --  + 4 Vertices 
+	{
+		main_hash[ room_id ][ "Lines" ][ 0u ][ "Vertices" ][ i ] = Grids::complex_type();
+		
+		main_hash[ room_id ][ "Lines" ][ 0u ][ "Vertices" ][ i ][ "x" ] = (float)i;
+		main_hash[ room_id ][ "Lines" ][ 0u ][ "Vertices" ][ i ][ "y" ] = 0.0f;
+		main_hash[ room_id ][ "Lines" ][ 0u ][ "Vertices" ][ i ][ "z" ] = (float)-num_lines;
+		
+		main_hash[ room_id ][ "Lines" ][ 0u ][ "Vertices" ][ i+1 ] = Grids::complex_type();
+		
+		main_hash[ room_id ][ "Lines" ][ 0u ][ "Vertices" ][ i+1 ][ "x" ] = (float)i;
+		main_hash[ room_id ][ "Lines" ][ 0u ][ "Vertices" ][ i+1 ][ "y" ] = 0.0f;
+		main_hash[ room_id ][ "Lines" ][ 0u ][ "Vertices" ][ i+1 ][ "z" ] = (float)num_lines;
+		
+		main_hash[ room_id ][ "Lines" ][ 0u ][ "Vertices" ][ i+2 ] = Grids::complex_type();
+		
+		main_hash[ room_id ][ "Lines" ][ 0u ][ "Vertices" ][ i+2 ][ "x" ] = (float)num_lines;
+		main_hash[ room_id ][ "Lines" ][ 0u ][ "Vertices" ][ i+2 ][ "y" ] = 0.0f;
+		main_hash[ room_id ][ "Lines" ][ 0u ][ "Vertices" ][ i+2 ][ "z" ] = (float)i;
+		
+		main_hash[ room_id ][ "Lines" ][ 0u ][ "Vertices" ][ i+3 ] = Grids::complex_type();
+		
+		main_hash[ room_id ][ "Lines" ][ 0u ][ "Vertices" ][ i+3 ][ "x" ] = (float)-num_lines;
+		main_hash[ room_id ][ "Lines" ][ 0u ][ "Vertices" ][ i+3 ][ "y" ] = 0.0f;
+		main_hash[ room_id ][ "Lines" ][ 0u ][ "Vertices" ][ i+3 ][ "z" ] = (float)i;
+	}
+	
+	//std::cout << main_hash[ room_id ][ "Lines" ][ 0u ][ "Vertices" ][ 33 ][ "z" ] << std::endl;
+	
+	main_hash[ object_id_1 ][ "Room" ] = room_id;
+	
+	main_hash[ object_id_1 ][ "Position" ] = Grids::complex_type();
+	main_hash[ object_id_1 ][ "Position" ][ "x" ] = -10.0f;
+	main_hash[ object_id_1 ][ "Position" ][ "y" ] = -5.0f;
+	main_hash[ object_id_1 ][ "Position" ][ "z" ] = -6.0f;
+	
+	main_hash[ object_id_1 ][ "Scale" ] = Grids::complex_type();
+	main_hash[ object_id_1 ][ "Scale" ][ "x" ] = 1.0f;
+	main_hash[ object_id_1 ][ "Scale" ][ "y" ] = 1.0f;
+	main_hash[ object_id_1 ][ "Scale" ][ "z" ] = 1.0f;
+	
+	main_hash[ object_id_1 ][ "Rotation" ] = Grids::complex_type();
+	main_hash[ object_id_1 ][ "Rotation" ][ "x" ] = 0.0f;
+	main_hash[ object_id_1 ][ "Rotation" ][ "y" ] = 0.0f;
+	main_hash[ object_id_1 ][ "Rotation" ][ "z" ] = 0.0f;
+	
+	main_hash[ object_id_1 ][ "Quads" ] = Grids::complex_type();
+	main_hash[ object_id_1 ][ "Quads" ][ 0u ] = Grids::complex_type();
+	 
+	main_hash[ object_id_1 ][ "Quads" ][ 0u ][ "Color" ] = Grids::complex_type();
+	main_hash[ object_id_1 ][ "Quads" ][ 0u ][ "Color" ][ "r" ] = 0.9f;
+	main_hash[ object_id_1 ][ "Quads" ][ 0u ][ "Color" ][ "g" ] = 0.2f;
+	main_hash[ object_id_1 ][ "Quads" ][ 0u ][ "Color" ][ "b" ] = 0.2f;
+	main_hash[ object_id_1 ][ "Quads" ][ 0u ][ "Color" ][ "a" ] = 0.75f;
+	
+	// Quads have 4 vertices, so 4 more hashes are needed
+	main_hash[ object_id_1 ][ "Quads" ][ 0u ][ "Vertices" ] = Grids::complex_type();
+	
+	main_hash[ object_id_1 ][ "Quads" ][ 0u ][ "Vertices" ][ 0u ] = Grids::complex_type();
+	main_hash[ object_id_1 ][ "Quads" ][ 0u ][ "Vertices" ][ 0u ][ "x" ] = -1.0f;
+	main_hash[ object_id_1 ][ "Quads" ][ 0u ][ "Vertices" ][ 0u ][ "y" ] = -1.0f;
+	main_hash[ object_id_1 ][ "Quads" ][ 0u ][ "Vertices" ][ 0u ][ "z" ] = -1.0f;
+	
+	main_hash[ object_id_1 ][ "Quads" ][ 0u ][ "Vertices" ][ 1u ] = Grids::complex_type();
+	main_hash[ object_id_1 ][ "Quads" ][ 0u ][ "Vertices" ][ 1u ][ "x" ] = 1.0f;
+	main_hash[ object_id_1 ][ "Quads" ][ 0u ][ "Vertices" ][ 1u ][ "y" ] = -1.0f;
+	main_hash[ object_id_1 ][ "Quads" ][ 0u ][ "Vertices" ][ 1u ][ "z" ] = -1.0f;
+	
+	main_hash[ object_id_1 ][ "Quads" ][ 0u ][ "Vertices" ][ 2u ] = Grids::complex_type();
+	main_hash[ object_id_1 ][ "Quads" ][ 0u ][ "Vertices" ][ 2u ][ "x" ] = 1.0f;
+	main_hash[ object_id_1 ][ "Quads" ][ 0u ][ "Vertices" ][ 2u ][ "y" ] = -1.0f;
+	main_hash[ object_id_1 ][ "Quads" ][ 0u ][ "Vertices" ][ 2u ][ "z" ] = 1.0f;
+	
+	main_hash[ object_id_1 ][ "Quads" ][ 0u ][ "Vertices" ][ 3u ] = Grids::complex_type();
+	main_hash[ object_id_1 ][ "Quads" ][ 0u ][ "Vertices" ][ 3u ][ "x" ] = -1.0f;
+	main_hash[ object_id_1 ][ "Quads" ][ 0u ][ "Vertices" ][ 3u ][ "y" ] = -1.0f;
+	main_hash[ object_id_1 ][ "Quads" ][ 0u ][ "Vertices" ][ 3u ][ "z" ] = 1.0f;
+	
+	main_hash[ object_id_1 ][ "Quads" ][ 1u ] = Grids::complex_type();
+	main_hash[ object_id_1 ][ "Quads" ][ 1u ][ "Vertices" ] = Grids::complex_type();
 
+	// Quads have 4 vertices, so 4 more hashes are needed
+	
+	main_hash[ object_id_1 ][ "Quads" ][ 1u ][ "Vertices" ][ 0u ] = Grids::complex_type();
+	main_hash[ object_id_1 ][ "Quads" ][ 1u ][ "Vertices" ][ 0u ][ "x" ] = -1.0f;
+	main_hash[ object_id_1 ][ "Quads" ][ 1u ][ "Vertices" ][ 0u ][ "y" ] = -1.0f;
+	main_hash[ object_id_1 ][ "Quads" ][ 1u ][ "Vertices" ][ 0u ][ "z" ] = -1.3f;
+	
+	main_hash[ object_id_1 ][ "Quads" ][ 1u ][ "Vertices" ][ 1u ] = Grids::complex_type();
+	main_hash[ object_id_1 ][ "Quads" ][ 1u ][ "Vertices" ][ 1u ][ "x" ] = -1.0f;
+	main_hash[ object_id_1 ][ "Quads" ][ 1u ][ "Vertices" ][ 1u ][ "y" ] = 1.0f;
+	main_hash[ object_id_1 ][ "Quads" ][ 1u ][ "Vertices" ][ 1u ][ "z" ] = -1.3f;
+	
+	main_hash[ object_id_1 ][ "Quads" ][ 1u ][ "Vertices" ][ 2u ] = Grids::complex_type();
+	main_hash[ object_id_1 ][ "Quads" ][ 1u ][ "Vertices" ][ 2u ][ "x" ] = 1.0f;
+	main_hash[ object_id_1 ][ "Quads" ][ 1u ][ "Vertices" ][ 2u ][ "y" ] = 1.0f;
+	main_hash[ object_id_1 ][ "Quads" ][ 1u ][ "Vertices" ][ 2u ][ "z" ] = -1.3f;
+	
+	main_hash[ object_id_1 ][ "Quads" ][ 1u ][ "Vertices" ][ 3u ] = Grids::complex_type();
+	main_hash[ object_id_1 ][ "Quads" ][ 1u ][ "Vertices" ][ 3u ][ "x" ] = 1.0f;
+	main_hash[ object_id_1 ][ "Quads" ][ 1u ][ "Vertices" ][ 3u ][ "y" ] = -1.0f;
+	main_hash[ object_id_1 ][ "Quads" ][ 1u ][ "Vertices" ][ 3u ][ "z" ] = -1.3f;
+	
+	//main_hash[ object_id_1 ][ "Lines" ] = Grids::complex_type();
+	
+	main_device->world_hash = main_hash;
+	
 	std::string new_room_id = main_interface->addRoomDebug( main_device );
 
 	// ID => vertex

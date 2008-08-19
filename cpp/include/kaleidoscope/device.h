@@ -73,6 +73,12 @@ namespace Kaleidoscope
 			
 			std::map< void *, GridsID > object_id_hash;
 			
+			
+			//*******  OH MY FUCKING GOD THIS SHOULD BE A POINTER ( FUCKING SHIT)
+			// ****************
+			
+			Grids::complex_type  world_hash;
+			
 			void addRoom( Room * );
 			
 			int running;

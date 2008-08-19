@@ -264,14 +264,54 @@ namespace Kaleidoscope
 		
 		prepareRender( d );
 		
-		prepareQuads();
+		//d->world_hash;
 		
-		if ( d->Smooth_On )
+		
+														
+		for( int i = 0; i < d->world_hash[ "Num_Rooms" ].asInt(); i++)
 		{
-			glHint( GL_LINE_SMOOTH_HINT, GL_NICEST);
-			glHint( GL_POLYGON_SMOOTH_HINT, GL_NICEST );
+			Grids::GridsID temp_room = d->world_hash[ "Rooms" ][ i ].asString();
+			
+			// Translate
+			glTranslatef( d->world_hash[ temp_room ][ "Position" ][ "x" ].asDouble(), d->world_hash[ temp_room ][ "Position" ][ "y" ].asDouble(), d->world_hash[ temp_room ][ "Position" ][ "z" ].asDouble() );
+			
+			//Rotate the calculated amount.
+			glRotatef(  d->world_hash[ temp_room ][ "Rotation" ][ "x" ].asDouble() ,1.0f,0.0f,0.0f);
+			glRotatef( d->world_hash[ temp_room ][ "Rotation" ][ "y" ].asDouble() ,0.0f,1.0f,0.0f);
+			glRotatef( d->world_hash[ temp_room ][ "Rotation" ][ "z" ].asDouble() ,0.0f,0.0f,1.0f);
+			
+			// Scale
+			glScalef( d->world_hash[ temp_room ][ "Scale" ][ "x" ].asDouble(), d->world_hash[ temp_room ][ "Scale" ][ "y" ].asDouble(), d->world_hash[ temp_room ][ "Scale" ][ "z" ].asDouble() ); 
+			
+			
+			// Draw Room Lines
+			if( d->world_hash[ temp_room ][ "Lines" ] != 0 )
+			{
+				glBegin( GL_LINES );
+				
+				for( int g = 0; g < d->world_hash[ temp_room ][ "Lines" ].size(); g++)
+				{
+					if( d->world_hash[ temp_room][ "Lines" ][ g ][ "Color" ] != 0 )
+					{
+						glColor4f( d->world_hash[ temp_room][ "Lines" ][ g ][ "Color" ][ "r" ].asDouble(), d->world_hash[ temp_room][ "Lines" ][ g ][ "Color" ][ "g" ].asDouble(), d->world_hash[ temp_room][ "Lines" ][ g ][ "Color" ][ "b" ].asDouble(), d->world_hash[ temp_room][ "Lines" ][ g ][ "Color" ][ "a" ].asDouble() ); 
+					}
+					
+					
+					for( int h = 0; h < d->world_hash[ temp_room ][ "Lines" ][ g ][ "Vertices"].size(); h++ )
+					{
+						glVertex3f( d->world_hash[ temp_room ][ "Lines" ][ g ][ "Vertices"][ h ][ "x" ].asDouble(), d->world_hash[ temp_room ][ "Lines" ][ g ][ "Vertices"][ h ][ "y" ].asDouble(), d->world_hash[ temp_room ][ "Lines" ][ g ][ "Vertices"][ h ][ "z" ].asDouble() );
+					}
+				}
+				
+				glEnd();
+			}
+			
+			// Draw Room Quads
 		}
 		
+		
+		prepareQuads();
+
 		glColor4f(0.9,0.2,0.2,.75); // set the color
 		
 		std::vector< std::string > temp_rooms = d->rooms; // Check out vector from device
@@ -286,6 +326,8 @@ namespace Kaleidoscope
 		
 		for( int i = 0; i < num_rooms; i++ ) // Iterate through every stored room
 		{
+			glLoadIdentity(); // Reset matrix. No scaling, rotation, or translation
+			
 			std::string room_id = temp_rooms.at( i ); // Get one room
 						
 			object_vertex_hash = room_objects_hash[ room_id ]; // get a map: Object => vetices of all objects in room
@@ -309,16 +351,16 @@ namespace Kaleidoscope
 		
 		int num_lines = 100;
 		
-		glBegin(GL_LINES);
-		//glHint( GL_LINE_SMOOTH_HINT, GL_NICEST);
-		for(int i=-num_lines;i<=num_lines;++i) {
-			glVertex3f(i,0,-num_lines);
-			glVertex3f(i,0,num_lines);
-
-			glVertex3f(num_lines,0,i);
-			glVertex3f(-num_lines,0,i);
-		}
-		glEnd();
+		//glBegin(GL_LINES);
+//		//glHint( GL_LINE_SMOOTH_HINT, GL_NICEST);
+//		for(int i=-num_lines;i<=num_lines;++i) {
+//			glVertex3f(i,0,-num_lines);
+//			glVertex3f(i,0,num_lines);
+//
+//			glVertex3f(num_lines,0,i);
+//			glVertex3f(-num_lines,0,i);
+//		}
+//		glEnd();
 		
 		finishRender();
 		
