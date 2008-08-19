@@ -285,13 +285,13 @@ namespace Kaleidoscope
 			
 			
 			// Draw Room Lines
-			if( d->world_hash[ temp_room ][ "Lines" ] != 0 )
+			if( !( d->world_hash[ temp_room ][ "Lines" ] ) == false )
 			{
 				glBegin( GL_LINES );
 				
 				for( int g = 0; g < d->world_hash[ temp_room ][ "Lines" ].size(); g++)
 				{
-					if( d->world_hash[ temp_room][ "Lines" ][ g ][ "Color" ] != 0 )
+					if( !( d->world_hash[ temp_room][ "Lines" ][ g ][ "Color" ] ) == false )
 					{
 						glColor4f( d->world_hash[ temp_room][ "Lines" ][ g ][ "Color" ][ "r" ].asDouble(), d->world_hash[ temp_room][ "Lines" ][ g ][ "Color" ][ "g" ].asDouble(), d->world_hash[ temp_room][ "Lines" ][ g ][ "Color" ][ "b" ].asDouble(), d->world_hash[ temp_room][ "Lines" ][ g ][ "Color" ][ "a" ].asDouble() ); 
 					}
@@ -307,49 +307,101 @@ namespace Kaleidoscope
 			}
 			
 			// Draw Room Quads
-		}
-		
-		
-		prepareQuads();
-
-		glColor4f(0.9,0.2,0.2,.75); // set the color
-		
-		std::vector< std::string > temp_rooms = d->rooms; // Check out vector from device
-		
-		std::map< std::string, std::map< std::string, std::vector< float > > > room_objects_hash = d->room_objects_hash;
-						
-		int num_rooms = temp_rooms.size();
-		int num_objects = 0;
-		
-		std::map< std::string, std::vector< float > > object_vertex_hash;
-		std::map< std::string, std::vector< float > >::iterator object_iterator;
-		
-		for( int i = 0; i < num_rooms; i++ ) // Iterate through every stored room
-		{
-			glLoadIdentity(); // Reset matrix. No scaling, rotation, or translation
 			
-			std::string room_id = temp_rooms.at( i ); // Get one room
-						
-			object_vertex_hash = room_objects_hash[ room_id ]; // get a map: Object => vetices of all objects in room
-		
-			 // start an iterator to go through the hash
-			 
-			for( object_iterator = object_vertex_hash.begin(); object_iterator != object_vertex_hash.end(); object_iterator++ ) // Iterate though each object in the room
+			// Draw each object in the room, keeping the translation, scale
+			
+			if( !(d->world_hash[ temp_room ][ "Objects" ]) == false )
 			{
-				std::vector< float > temp_vector = object_iterator->second;
-				int num_vertices = temp_vector.size();
-				
-				for( int h = 0; h < num_vertices; h += 3  )
+				for( int g = 0; g < d->world_hash[ temp_room ][ "Objects" ].size(); g++ )
 				{
-					glVertex3f( temp_vector.at( h ), temp_vector.at( h + 1 ), temp_vector.at( h + 2 ) );
-				}
-			}
-			
-		}
+					GridsID temp_object =  d->world_hash[ temp_room ][ "Objects" ][ g ].asString();
+					
+					// Translate
+					glTranslatef( d->world_hash[ temp_object ][ "Position" ][ "x" ].asDouble(), d->world_hash[ temp_object ][ "Position" ][ "y" ].asDouble(), d->world_hash[ temp_object ][ "Position" ][ "z" ].asDouble() );
+					
+					//Rotate the calculated amount.
+					glRotatef(  d->world_hash[ temp_object ][ "Rotation" ][ "x" ].asDouble() ,1.0f,0.0f,0.0f);
+					glRotatef( d->world_hash[ temp_object ][ "Rotation" ][ "y" ].asDouble() ,0.0f,1.0f,0.0f);
+					glRotatef( d->world_hash[ temp_object ][ "Rotation" ][ "z" ].asDouble() ,0.0f,0.0f,1.0f);
+					
+					// Scale
+					glScalef( d->world_hash[ temp_object ][ "Scale" ][ "x" ].asDouble(), d->world_hash[ temp_object ][ "Scale" ][ "y" ].asDouble(), d->world_hash[ temp_object ][ "Scale" ][ "z" ].asDouble() ); 
+					
+					
+					if(  !( d->world_hash[ temp_object ][ "Lines" ] ) == false ) // ! returns isNull(),  so if isNull is false
+					{
+						// Draw Lines
+						std::cout << "ERROR" << std::endl;
+					} // end if Lines exists
+					
+					if( !( d->world_hash[ temp_object ][ "Quads" ] ) == false ) // if there are quads
+					{
+						prepareQuads();
+						
+						for( int h = 0; h < d->world_hash[ temp_object ][ "Quads" ].size(); h++ )
+						{
+							if( !( d->world_hash[ temp_object ][ "Quads" ][ h ][ "Color" ] ) == false )
+							{
+								glColor4f( d->world_hash[ temp_object ][ "Quads" ][ h ][ "Color" ][ "r" ].asDouble(), d->world_hash[ temp_object ][ "Quads" ][ h ][ "Color" ][ "g" ].asDouble(), d->world_hash[ temp_object ][ "Quads" ][ h ][ "Color" ][ "b" ].asDouble(), d->world_hash[ temp_object ][ "Quads" ][ h ][ "Color" ][ "a" ].asDouble() );
+							}
+							
+							glVertex3f( d->world_hash[ temp_object ][ "Quads" ][ h ][ "Vertices" ][ 0u ][ "x" ].asDouble(), d->world_hash[ temp_object ][ "Quads" ][ h ][ "Vertices" ][ 0u ][ "y" ].asDouble(), d->world_hash[ temp_object ][ "Quads" ][ h ][ "Vertices" ][ 0u ][ "z" ].asDouble() );
+							glVertex3f( d->world_hash[ temp_object ][ "Quads" ][ h ][ "Vertices" ][ 1u ][ "x" ].asDouble(), d->world_hash[ temp_object ][ "Quads" ][ h ][ "Vertices" ][ 1u ][ "y" ].asDouble(), d->world_hash[ temp_object ][ "Quads" ][ h ][ "Vertices" ][ 1u ][ "z" ].asDouble() );
+							glVertex3f( d->world_hash[ temp_object ][ "Quads" ][ h ][ "Vertices" ][ 2u ][ "x" ].asDouble(), d->world_hash[ temp_object ][ "Quads" ][ h ][ "Vertices" ][ 2u ][ "y" ].asDouble(), d->world_hash[ temp_object ][ "Quads" ][ h ][ "Vertices" ][ 2u ][ "z" ].asDouble() );
+							glVertex3f( d->world_hash[ temp_object ][ "Quads" ][ h ][ "Vertices" ][ 3u ][ "x" ].asDouble(), d->world_hash[ temp_object ][ "Quads" ][ h ][ "Vertices" ][ 3u ][ "y" ].asDouble(), d->world_hash[ temp_object ][ "Quads" ][ h ][ "Vertices" ][ 3u ][ "z" ].asDouble() );
+								
+						} // end for h -- for each quad
+						
+						finishQuads();
+						
+					} // end if Quads exists
+					
+					
+				} // end for g
+			} // end if Objects
+		} // end for i -- per room loop
 		
-		finishQuads();
 		
-		int num_lines = 100;
+		//prepareQuads();
+//
+//		glColor4f(0.9,0.2,0.2,.75); // set the color
+//		
+//		std::vector< std::string > temp_rooms = d->rooms; // Check out vector from device
+//		
+//		std::map< std::string, std::map< std::string, std::vector< float > > > room_objects_hash = d->room_objects_hash;
+//						
+//		int num_rooms = temp_rooms.size();
+//		int num_objects = 0;
+//		
+//		std::map< std::string, std::vector< float > > object_vertex_hash;
+//		std::map< std::string, std::vector< float > >::iterator object_iterator;
+//		
+//		for( int i = 0; i < num_rooms; i++ ) // Iterate through every stored room
+//		{
+//			glLoadIdentity(); // Reset matrix. No scaling, rotation, or translation
+//			
+//			std::string room_id = temp_rooms.at( i ); // Get one room
+//						
+//			object_vertex_hash = room_objects_hash[ room_id ]; // get a map: Object => vetices of all objects in room
+//		
+//			 // start an iterator to go through the hash
+//			 
+//			for( object_iterator = object_vertex_hash.begin(); object_iterator != object_vertex_hash.end(); object_iterator++ ) // Iterate though each object in the room
+//			{
+//				std::vector< float > temp_vector = object_iterator->second;
+//				int num_vertices = temp_vector.size();
+//				
+//				for( int h = 0; h < num_vertices; h += 3  )
+//				{
+//					glVertex3f( temp_vector.at( h ), temp_vector.at( h + 1 ), temp_vector.at( h + 2 ) );
+//				}
+//			}
+//			
+//		}
+//		
+//		finishQuads();
+//		
+//		int num_lines = 100;
 		
 		//glBegin(GL_LINES);
 //		//glHint( GL_LINE_SMOOTH_HINT, GL_NICEST);

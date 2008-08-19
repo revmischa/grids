@@ -121,7 +121,7 @@ int main( int argc, char **argv )
 	main_hash[ room_id ][ "Lines" ][ 0u ][ "Color" ][ "r" ] = 0.0f;
 	main_hash[ room_id ][ "Lines" ][ 0u ][ "Color" ][ "g" ] = 1.0f;
 	main_hash[ room_id ][ "Lines" ][ 0u ][ "Color" ][ "b" ] = 0.0f;
-	main_hash[ room_id ][ "Lines" ][ 0u ][ "Color" ][ "a" ] = 1.0f;
+	main_hash[ room_id ][ "Lines" ][ 0u ][ "Color" ][ "a" ] = 0.5f;
 	
 	main_hash[ room_id ][ "Lines" ][ 0u ][ "Vertices" ] = Grids::complex_type();
 	
