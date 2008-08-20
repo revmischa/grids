@@ -293,13 +293,29 @@ namespace Kaleidoscope
 				{
 					if( !( d->world_hash[ temp_room][ "Lines" ][ g ][ "Color" ] ) == false )
 					{
-						glColor4f( d->world_hash[ temp_room][ "Lines" ][ g ][ "Color" ][ "r" ].asDouble(), d->world_hash[ temp_room][ "Lines" ][ g ][ "Color" ][ "g" ].asDouble(), d->world_hash[ temp_room][ "Lines" ][ g ][ "Color" ][ "b" ].asDouble(), d->world_hash[ temp_room][ "Lines" ][ g ][ "Color" ][ "a" ].asDouble() ); 
+						int color_index = d->world_hash[ temp_room][ "Lines" ][ g ][ "Color" ].asInt();
+						
+						glColor4f(	d->world_hash[ temp_room][ "Color" ][  color_index  ][ "r" ].asDouble(), 
+									d->world_hash[ temp_room][ "Color" ][  color_index  ][ "g" ].asDouble(), 
+									d->world_hash[ temp_room][ "Color" ][  color_index  ][ "b" ].asDouble(), 
+									d->world_hash[ temp_room][ "Color" ][  color_index  ][ "a" ].asDouble()   ); 
 					}
 					
+					int vertice_index_1;
+					int vertice_index_2;
 					
-					for( int h = 0; h < d->world_hash[ temp_room ][ "Lines" ][ g ][ "Vertices"].size(); h++ )
+					for( int h = 0; h < d->world_hash[ temp_room ][ "Lines" ][ g ][ "Indices"].size(); h++ )
 					{
-						glVertex3f( d->world_hash[ temp_room ][ "Lines" ][ g ][ "Vertices"][ h ][ "x" ].asDouble(), d->world_hash[ temp_room ][ "Lines" ][ g ][ "Vertices"][ h ][ "y" ].asDouble(), d->world_hash[ temp_room ][ "Lines" ][ g ][ "Vertices"][ h ][ "z" ].asDouble() );
+						vertice_index_1 = d->world_hash[ temp_room ][ "Lines" ][ g ][ "Indices"][ h ][ 0u ].asInt();
+						vertice_index_2 = d->world_hash[ temp_room ][ "Lines" ][ g ][ "Indices"][ h ][ 1u ].asInt();
+						
+						glVertex3f(		d->world_hash[ temp_room ][ "Vertices" ][ vertice_index_1 ][ "x" ].asDouble(), 
+										d->world_hash[ temp_room ][ "Vertices" ][ vertice_index_1 ][ "y" ].asDouble(), 
+										d->world_hash[ temp_room ][ "Vertices" ][ vertice_index_1 ][ "z" ].asDouble()	);
+										
+						glVertex3f(		d->world_hash[ temp_room ][ "Vertices" ][ vertice_index_2 ][ "x" ].asDouble(), 
+										d->world_hash[ temp_room ][ "Vertices" ][ vertice_index_2 ][ "y" ].asDouble(), 
+										d->world_hash[ temp_room ][ "Vertices" ][ vertice_index_2 ][ "z" ].asDouble()	);
 					}
 				}
 				
@@ -315,18 +331,46 @@ namespace Kaleidoscope
 				{
 					if( !( d->world_hash[ temp_room][ "Quads" ][ g ][ "Color" ] ) == false )
 					{
-						glColor4f( d->world_hash[ temp_room][ "Quads" ][ g ][ "Color" ][ "r" ].asDouble(), d->world_hash[ temp_room][ "Quads" ][ g ][ "Color" ][ "g" ].asDouble(), d->world_hash[ temp_room][ "Quads" ][ g ][ "Color" ][ "b" ].asDouble(), d->world_hash[ temp_room][ "Quads" ][ g ][ "Color" ][ "a" ].asDouble() ); 
+						int color_index = d->world_hash[ temp_room][ "Quads" ][ g ][ "Color" ].asInt();
+						
+						glColor4f(	d->world_hash[ temp_room ][ "Color" ][ color_index ][ "r" ].asDouble(), 
+									d->world_hash[ temp_room ][ "Color" ][ color_index ][ "g" ].asDouble(), 
+									d->world_hash[ temp_room ][ "Color" ][ color_index ][ "b" ].asDouble(), 
+									d->world_hash[ temp_room ][ "Color" ][ color_index ][ "a" ].asDouble()	); 
 					}
 					
+					int vertice_index_1;
+					int vertice_index_2;
+					int vertice_index_3;
+					int vertice_index_4;
 					
-					for( int h = 0; h < d->world_hash[ temp_room ][ "Quads" ][ g ][ "Vertices"].size(); h++ )
+					for( int h = 0; h < d->world_hash[ temp_room ][ "Quads" ][ g ][ "Indices" ].size(); h++ )
 					{
-						glVertex3f( d->world_hash[ temp_room ][ "Quads" ][ g ][ "Vertices"][ h ][ "x" ].asDouble(), d->world_hash[ temp_room ][ "Quads" ][ g ][ "Vertices"][ h ][ "y" ].asDouble(), d->world_hash[ temp_room ][ "Quads" ][ g ][ "Vertices"][ h ][ "z" ].asDouble() );
-					}
-				}
+						vertice_index_1 = d->world_hash[ temp_room ][ "Quads" ][ g ][ "Indices" ][ h ][ 0u ].asInt();
+						vertice_index_2 = d->world_hash[ temp_room ][ "Quads" ][ g ][ "Indices" ][ h ][ 1u ].asInt();
+						vertice_index_3 = d->world_hash[ temp_room ][ "Quads" ][ g ][ "Indices" ][ h ][ 2u ].asInt();
+						vertice_index_4 = d->world_hash[ temp_room ][ "Quads" ][ g ][ "Indices" ][ h ][ 3u ].asInt();
+						
+						glVertex3f(	d->world_hash[ temp_room ][ "Vertices" ][ vertice_index_1 ][ "x" ].asDouble(), 
+									d->world_hash[ temp_room ][ "Vertices" ][ vertice_index_1 ][ "y" ].asDouble(), 
+									d->world_hash[ temp_room ][ "Vertices" ][ vertice_index_1 ][ "z" ].asDouble()	);
+									
+						glVertex3f(	d->world_hash[ temp_room ][ "Vertices" ][ vertice_index_2 ][ "x" ].asDouble(), 
+									d->world_hash[ temp_room ][ "Vertices" ][ vertice_index_2 ][ "y" ].asDouble(), 
+									d->world_hash[ temp_room ][ "Vertices" ][ vertice_index_2 ][ "z" ].asDouble()	);
+						
+						glVertex3f(	d->world_hash[ temp_room ][ "Vertices" ][ vertice_index_3 ][ "x" ].asDouble(), 
+									d->world_hash[ temp_room ][ "Vertices" ][ vertice_index_3 ][ "y" ].asDouble(), 
+									d->world_hash[ temp_room ][ "Vertices" ][ vertice_index_3 ][ "z" ].asDouble()	);
+									
+						glVertex3f(	d->world_hash[ temp_room ][ "Vertices" ][ vertice_index_4 ][ "x" ].asDouble(), 
+									d->world_hash[ temp_room ][ "Vertices" ][ vertice_index_4 ][ "y" ].asDouble(), 
+									d->world_hash[ temp_room ][ "Vertices" ][ vertice_index_4 ][ "z" ].asDouble()	);									
+					} // end for h
+				} // end for all quads in room
 				
 				glEnd();
-			}
+			} // end if [ Quads ] exists
 			
 			
 			// Draw each object in the room, keeping the translation, scale
@@ -338,7 +382,9 @@ namespace Kaleidoscope
 					GridsID temp_object =  d->world_hash[ temp_room ][ "Objects" ][ g ].asString();
 					
 					// Translate
-					glTranslatef( d->world_hash[ temp_object ][ "Position" ][ "x" ].asDouble(), d->world_hash[ temp_object ][ "Position" ][ "y" ].asDouble(), d->world_hash[ temp_object ][ "Position" ][ "z" ].asDouble() );
+					glTranslatef(	d->world_hash[ temp_object ][ "Position" ][ "x" ].asDouble(), 
+									d->world_hash[ temp_object ][ "Position" ][ "y" ].asDouble(), 
+									d->world_hash[ temp_object ][ "Position" ][ "z" ].asDouble()	);
 					
 					//Rotate the calculated amount.
 					glRotatef(  d->world_hash[ temp_object ][ "Rotation" ][ "x" ].asDouble() ,1.0f,0.0f,0.0f);
@@ -346,7 +392,9 @@ namespace Kaleidoscope
 					glRotatef( d->world_hash[ temp_object ][ "Rotation" ][ "z" ].asDouble() ,0.0f,0.0f,1.0f);
 					
 					// Scale
-					glScalef( d->world_hash[ temp_object ][ "Scale" ][ "x" ].asDouble(), d->world_hash[ temp_object ][ "Scale" ][ "y" ].asDouble(), d->world_hash[ temp_object ][ "Scale" ][ "z" ].asDouble() ); 
+					glScalef(	d->world_hash[ temp_object ][ "Scale" ][ "x" ].asDouble(), 
+								d->world_hash[ temp_object ][ "Scale" ][ "y" ].asDouble(), 
+								d->world_hash[ temp_object ][ "Scale" ][ "z" ].asDouble()	); 
 					
 					
 					if(  !( d->world_hash[ temp_object ][ "Lines" ] ) == false ) // ! returns isNull(),  so if isNull is false
@@ -359,17 +407,50 @@ namespace Kaleidoscope
 					{
 						prepareQuads();
 						
+						
+						
 						for( int h = 0; h < d->world_hash[ temp_object ][ "Quads" ].size(); h++ )
 						{
 							if( !( d->world_hash[ temp_object ][ "Quads" ][ h ][ "Color" ] ) == false )
 							{
-								glColor4f( d->world_hash[ temp_object ][ "Quads" ][ h ][ "Color" ][ "r" ].asDouble(), d->world_hash[ temp_object ][ "Quads" ][ h ][ "Color" ][ "g" ].asDouble(), d->world_hash[ temp_object ][ "Quads" ][ h ][ "Color" ][ "b" ].asDouble(), d->world_hash[ temp_object ][ "Quads" ][ h ][ "Color" ][ "a" ].asDouble() );
+								int color_index = d->world_hash[ temp_object ][ "Quads" ][ h ][ "Color" ].asInt();
+						
+								glColor4f(	d->world_hash[ temp_object ][ "Color" ][ color_index ][ "r" ].asDouble(), 
+											d->world_hash[ temp_object ][ "Color" ][ color_index ][ "g" ].asDouble(), 
+											d->world_hash[ temp_object ][ "Color" ][ color_index ][ "b" ].asDouble(), 
+											d->world_hash[ temp_object ][ "Color" ][ color_index ][ "a" ].asDouble()	);
 							}
 							
-							glVertex3f( d->world_hash[ temp_object ][ "Quads" ][ h ][ "Vertices" ][ 0u ][ "x" ].asDouble(), d->world_hash[ temp_object ][ "Quads" ][ h ][ "Vertices" ][ 0u ][ "y" ].asDouble(), d->world_hash[ temp_object ][ "Quads" ][ h ][ "Vertices" ][ 0u ][ "z" ].asDouble() );
-							glVertex3f( d->world_hash[ temp_object ][ "Quads" ][ h ][ "Vertices" ][ 1u ][ "x" ].asDouble(), d->world_hash[ temp_object ][ "Quads" ][ h ][ "Vertices" ][ 1u ][ "y" ].asDouble(), d->world_hash[ temp_object ][ "Quads" ][ h ][ "Vertices" ][ 1u ][ "z" ].asDouble() );
-							glVertex3f( d->world_hash[ temp_object ][ "Quads" ][ h ][ "Vertices" ][ 2u ][ "x" ].asDouble(), d->world_hash[ temp_object ][ "Quads" ][ h ][ "Vertices" ][ 2u ][ "y" ].asDouble(), d->world_hash[ temp_object ][ "Quads" ][ h ][ "Vertices" ][ 2u ][ "z" ].asDouble() );
-							glVertex3f( d->world_hash[ temp_object ][ "Quads" ][ h ][ "Vertices" ][ 3u ][ "x" ].asDouble(), d->world_hash[ temp_object ][ "Quads" ][ h ][ "Vertices" ][ 3u ][ "y" ].asDouble(), d->world_hash[ temp_object ][ "Quads" ][ h ][ "Vertices" ][ 3u ][ "z" ].asDouble() );
+							int vertice_index_1;
+							int vertice_index_2;
+							int vertice_index_3;
+							int vertice_index_4;
+							
+							for( int k = 0; k < d->world_hash[ temp_object ][ "Quads" ][ h ][ "Indices" ].size(); k++ )
+							{
+								vertice_index_1 = d->world_hash[ temp_object ][ "Quads" ][ h ][ "Indices" ][ k ][ 0u ].asInt();
+								vertice_index_2 = d->world_hash[ temp_object ][ "Quads" ][ h ][ "Indices" ][ k ][ 1u ].asInt();
+								vertice_index_3 = d->world_hash[ temp_object ][ "Quads" ][ h ][ "Indices" ][ k ][ 2u ].asInt();
+								vertice_index_4 = d->world_hash[ temp_object ][ "Quads" ][ h ][ "Indices" ][ k ][ 3u ].asInt();
+								
+								glVertex3f( d->world_hash[ temp_object ][ "Vertices" ][ vertice_index_1 ][ "x" ].asDouble(),
+											d->world_hash[ temp_object ][ "Vertices" ][ vertice_index_1 ][ "y" ].asDouble(),
+											d->world_hash[ temp_object ][ "Vertices" ][ vertice_index_1 ][ "z" ].asDouble()	);
+											
+								glVertex3f( d->world_hash[ temp_object ][ "Vertices" ][ vertice_index_2 ][ "x" ].asDouble(),
+											d->world_hash[ temp_object ][ "Vertices" ][ vertice_index_2 ][ "y" ].asDouble(),
+											d->world_hash[ temp_object ][ "Vertices" ][ vertice_index_2 ][ "z" ].asDouble()	);
+											
+								glVertex3f( d->world_hash[ temp_object ][ "Vertices" ][ vertice_index_3 ][ "x" ].asDouble(),
+											d->world_hash[ temp_object ][ "Vertices" ][ vertice_index_3 ][ "y" ].asDouble(),
+											d->world_hash[ temp_object ][ "Vertices" ][ vertice_index_3 ][ "z" ].asDouble()	);
+											
+								glVertex3f( d->world_hash[ temp_object ][ "Vertices" ][ vertice_index_4 ][ "x" ].asDouble(),
+											d->world_hash[ temp_object ][ "Vertices" ][ vertice_index_4 ][ "y" ].asDouble(),
+											d->world_hash[ temp_object ][ "Vertices" ][ vertice_index_4 ][ "z" ].asDouble()	);
+							
+							
+							} // end for each indice in a quad
 								
 						} // end for h -- for each quad
 						

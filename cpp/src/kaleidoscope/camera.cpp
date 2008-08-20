@@ -453,8 +453,8 @@ namespace Kaleidoscope
 			{
 				if(  !Equals( cursorPos.X, 0.5f) ||  !Equals( cursorPos.Y, 0.5f)  )
 				{
-					float offsetX = (cursorPos.X - 0.5f) * timeDiff * d->RotateSpeed * 0.1f;
-					float offsetY = (cursorPos.Y - 0.5f) * timeDiff * d->RotateSpeed * 0.1f;
+					float offsetX = (cursorPos.Y - 0.5f) * timeDiff * d->RotateSpeed * 0.1f ;
+					float offsetY = (cursorPos.X - 0.5f) * timeDiff * d->RotateSpeed * 0.1f ;
 					
 					Vec3D strafeVector = d->Target.crossProduct( d->UpVector );
 					Vec3D elevationVector = d->Target.crossProduct( strafeVector );
@@ -464,13 +464,13 @@ namespace Kaleidoscope
 					d->Position -= d->CenterOfRotation;
 					d->Target -= d->CenterOfRotation;
 					
-					d->Position = rotateAroundAxis( &(d->Position), &elevationVector, 1.0f*offsetY );
+					d->Position = rotateAroundAxis( &(d->Position), &elevationVector, -1.0f*offsetY );
 					d->Position = rotateAroundAxis( &(d->Position), &strafeVector, -1.0f*offsetX );
 					
-					d->Target = rotateAroundAxis( &(d->Target), &elevationVector, 1.0f*offsetY );
+					d->Target = rotateAroundAxis( &(d->Target), &elevationVector, -1.0f*offsetY );
 					d->Target = rotateAroundAxis( &(d->Target), &strafeVector, -1.0f*offsetX );
 					
-					d->UpVector = rotateAroundAxis( &(d->UpVector), &elevationVector, 1.0f*offsetY );
+					d->UpVector = rotateAroundAxis( &(d->UpVector), &elevationVector, -1.0f*offsetY );
 					d->UpVector = rotateAroundAxis( &(d->UpVector), &strafeVector, -1.0f*offsetX );
 					
 					d->Position += d->CenterOfRotation;
