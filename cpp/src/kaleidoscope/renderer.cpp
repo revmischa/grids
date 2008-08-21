@@ -20,7 +20,7 @@ namespace Kaleidoscope
 		d->Texture_On = false;
 		d->Light_On = false;
 		d->Alpha_Add = false;
-		d->Blend_On = false;
+		d->Blend_On = true;
 		d->Filtering_On = false;
 		d->Smooth_On = true;
 		
@@ -268,7 +268,7 @@ namespace Kaleidoscope
 		
 		
 														
-		for( int i = 0; i < d->world_hash[ "Num_Rooms" ].asInt(); i++)
+		for( int i = 0; i < d->world_hash[ "Rooms" ].size(); i++)
 		{
 			Grids::GridsID temp_room = d->world_hash[ "Rooms" ][ i ].asString();
 			

@@ -93,6 +93,22 @@ namespace Kaleidoscope
 				d->last_clock = clock();
 			}
 		}
+		
+		if( keys[SDLK_7] )
+		{
+			if( clock() - d->last_clock > 10 )
+			{
+				Builder * temp_builder = d->getBuilder();
+				
+				Grids::GridsID temp_id = "";
+				temp_id += (char) clock();
+				
+				temp_builder->placeRoom( d, temp_id );
+				temp_builder->buildRoom( d, temp_id );
+				
+				d->last_clock = clock();
+			}
+		}
 
 		/*
 		

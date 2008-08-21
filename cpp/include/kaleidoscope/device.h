@@ -16,6 +16,7 @@
 #include <kaleidoscope/camera.h>
 #include <kaleidoscope/cursorController.h>
 #include <kaleidoscope/room.h>
+#include <kaleidoscope/builder.h>
 #include <kaleidoscope/RenderObject.h>
 #include <grids/interface.h>
 
@@ -32,6 +33,7 @@ namespace Kaleidoscope
 	class EventController;
 	class Room;
 	class RenderObject;
+	class Builder;
 	
 	class Device
 	{
@@ -43,6 +45,7 @@ namespace Kaleidoscope
 			EventController * getEventController();
 			Camera * getCamera();
 			CursorController * getCursorController();
+			Builder * getBuilder();
 			
 			Grids::Interface * interface;
 			
@@ -51,31 +54,8 @@ namespace Kaleidoscope
 			void setCamera( Camera * );
 			void setCursorController( CursorController * );
 			
-			//****** --- OLD -- ********
-			std::map< Room *, std::map< RenderObject *, std::vector< float > > > vertex_hash;
-
 			
-			// Stores a vector of all known rooms by their ID
-			std::vector< GridsID > rooms;
-						
-			// Room ID =>  < Object => quad_vectices ... Object => quad_vertices  ....  Object => quad_vertices  >
-			std::map< GridsID, std::map< GridsID, std::vector< float > > > room_objects_hash;
-			
-			// ID => Type    eg room, person, etc
-			std::map< GridsID, int > id_type_hash;
-			
-			// Type => All Objects of Type
-			std::map< int, std::vector< void * > > type_objects_hash;
-			
-			// ID => pointer stored in memory
-			// NOTE: this list will have to be populated each time the program starts
-			std::map< GridsID, void * > id_object_hash;
-			
-			std::map< void *, GridsID > object_id_hash;
-			
-			
-			//*******  OH MY FUCKING GOD THIS SHOULD BE A POINTER ( FUCKING SHIT)
-			// ****************
+			// ******  MAKE THIS A POINTER	
 			
 			Grids::complex_type  world_hash;
 			
@@ -84,6 +64,8 @@ namespace Kaleidoscope
 			int running;
 			
 			int last_clock;
+			
+			float room_width;
 			
 			
 			///////////
@@ -196,6 +178,7 @@ namespace Kaleidoscope
 			EventController * event_controller;
 			Camera * cam;
 			CursorController * cursor_controller;
+			Builder * builder;
 			
 			
 			

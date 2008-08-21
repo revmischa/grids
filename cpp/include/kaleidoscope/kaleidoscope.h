@@ -21,6 +21,7 @@
 #include <kaleidoscope/cursorController.h>
 #include <kaleidoscope/RenderObject.h>
 #include <kaleidoscope/room.h>
+#include <kaleidoscope/builder.h>
 
 #include <iostream>
 
@@ -34,6 +35,7 @@ namespace Kaleidoscope
 	class EventController;
 	class Renderer;
 	class Device;
+	class Builder;
 
 	//void createDevice( Device * new_device, int width, int height )
 //	{

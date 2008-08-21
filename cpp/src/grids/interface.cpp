@@ -128,9 +128,7 @@ namespace Grids
 	std::string Interface::addRoomDebug( Kaleidoscope::Device * d)
 	{
 		std::string new_id = "Room123456";
-		
-		d->rooms.push_back( new_id );
-		
+				
 		return new_id;
 	}
 

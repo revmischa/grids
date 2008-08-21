@@ -38,6 +38,11 @@ namespace Kaleidoscope
 	{
 		return cursor_controller;
 	}
+	
+	Builder * Device::getBuilder()
+	{
+		return builder;
+	}
 
 	void Device::setRenderer( Renderer * rnd )
 	{
