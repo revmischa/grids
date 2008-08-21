@@ -101,12 +101,14 @@ namespace Kaleidoscope
 				Builder * temp_builder = d->getBuilder();
 				
 				Grids::GridsID temp_id = "";
-				temp_id += (char) clock();
+				temp_id += (char)( clock() % 256 );
 				
 				temp_builder->placeRoom( d, temp_id );
 				temp_builder->buildRoom( d, temp_id );
 				
 				d->last_clock = clock();
+				
+				std::cout << d->world_hash[ "Rooms" ].size() << std::endl;
 			}
 		}
 

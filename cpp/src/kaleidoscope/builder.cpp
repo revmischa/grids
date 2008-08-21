@@ -126,6 +126,7 @@ namespace Kaleidoscope
 			d->world_hash[ new_id ][ "Rotation" ][ "x" ] = 0.0f;
 			d->world_hash[ new_id ][ "Rotation" ][ "y" ] = 0.0f;
 			d->world_hash[ new_id ][ "Rotation" ][ "z" ] = 0.0f;
+			
 		}
 	}
 	

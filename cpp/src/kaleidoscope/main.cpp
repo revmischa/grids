@@ -11,7 +11,7 @@
 #include <kaleidoscope/kaleidoscope.h>
 #include <grids/interface.h>
 #include <grids/define.h>
-#include <JSON/JSON.h>
+//#include <JSON/JSON.h>
 #include <grids/protocol.h>
 
 Kaleidoscope::Device * main_device = new Kaleidoscope::Device( );
@@ -91,9 +91,6 @@ int main( int argc, char **argv )
 	
 	main_builder->placeRoom( main_device, room_id );
 	main_builder->buildRoom( main_device, room_id );
-	
-	main_builder->placeRoom( main_device, room_id_2 );
-	main_builder->buildRoom( main_device, room_id_2 );
 	
 	main_builder->placeObject( main_device, object_id_1, room_id, Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f ) );
 	main_builder->buildChair( main_device, object_id_1 );
