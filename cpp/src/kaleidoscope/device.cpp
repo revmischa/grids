@@ -43,6 +43,11 @@ namespace Kaleidoscope
 	{
 		return builder;
 	}
+	
+	Gui * Device::getGui( )
+	{
+		return gui;
+	}
 
 	void Device::setRenderer( Renderer * rnd )
 	{
@@ -62,6 +67,16 @@ namespace Kaleidoscope
 	void Device::setCursorController( CursorController * crs_control)
 	{
 		cursor_controller = crs_control;
+	}
+	
+	void Device::setBuilder( Builder * new_builder )
+	{
+		builder = new_builder;
+	}
+	
+	void Device::setGui( Gui *  new_gui )
+	{
+		gui = new_gui;
 	}
 	
 	void Device::addRoom( Room * r )

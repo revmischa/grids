@@ -29,7 +29,7 @@ namespace Grids
 			
 			void addMessenger( Messenger * );
 			
-			void sendEvent( std::string, std::map< std::string, std::string > );
+			void sendEvent( std::string, complex_type );
 			
 			void giveEvent( Event * );
 			

@@ -170,14 +170,14 @@ namespace Kaleidoscope
 	   
 		glBegin(GL_LINES); 
 
-	    glColor4f(0.9,0.9,1.0,1.0);
+		glColor4f(0.9,0.9,1.0,1.0);
 		glVertex3f( -10000, 0, 0);
 		glVertex3f( 10000, 0, 0 );
 		glVertex3f( 0, -10000, 0);
 		glVertex3f(0, 10000, 0 );
 		glVertex3f( 0, 0, -10000 );
 		glVertex3f( 0, 0, 10000 );
-		
+
 		glEnd();
 	   
 	   
@@ -259,21 +259,77 @@ namespace Kaleidoscope
 	}
 	
 	void Renderer::renderAll( Device * d)
-	{
-		//drawBox( d );
-		
+	{		
 		prepareRender( d );
+				
+		renderWorldHash( d );	
 		
-		//d->world_hash;
+		renderGui( d );
+				
+		finishRender();
+	}
+	
+	void Renderer::prepareRender( Device * d)
+	{
+		if (d->Texture_On)
+		  glEnable(GL_TEXTURE_2D);
+	   else
+		  glDisable(GL_TEXTURE_2D);
+
+	   if (d->Light_On) 
+		  glEnable(GL_LIGHTING);
+	   else 
+		  glDisable(GL_LIGHTING);
+
+		if (d->Alpha_Add)
+		   glBlendFunc(GL_SRC_ALPHA,GL_ONE); 
+		else
+		   glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+
+		// If we're blending, we don't want z-buffering.
+		if (d->Blend_On)
+		   glDisable(GL_DEPTH_TEST); 
+		else
+		   glEnable(GL_DEPTH_TEST); 
+
+		if (d->Filtering_On) {
+		   glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,
+											   GL_LINEAR_MIPMAP_LINEAR);
+		   glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+		} else {
+		   glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,
+											   GL_NEAREST_MIPMAP_NEAREST);
+		   glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+		}
 		
-		
-														
+		if ( d->Smooth_On )
+		{
+			glHint( GL_LINE_SMOOTH_HINT, GL_NICEST);
+			glHint( GL_POLYGON_SMOOTH_HINT, GL_NICEST );
+		}
+
+	   // Need to manipulate the ModelView matrix to move our model around.
+	   glMatrixMode(GL_MODELVIEW);
+
+	   // Reset to 0,0,0; no rotation, no scaling.
+	   glLoadIdentity(); 
+	   
+		d->getCamera()->callgluLookAt( d );
+
+	   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
+	}
+	
+	void Renderer::renderWorldHash( Device * d )
+	{
 		for( int i = 0; i < d->world_hash[ "Rooms" ].size(); i++)
 		{
 			Grids::GridsID temp_room = d->world_hash[ "Rooms" ][ i ].asString();
 			
 			// Translate
-			glTranslatef( d->world_hash[ temp_room ][ "Position" ][ "x" ].asDouble(), d->world_hash[ temp_room ][ "Position" ][ "y" ].asDouble(), d->world_hash[ temp_room ][ "Position" ][ "z" ].asDouble() );
+			glTranslatef(	d->world_hash[ temp_room ][ "Position" ][ "x" ].asDouble(), 
+							d->world_hash[ temp_room ][ "Position" ][ "y" ].asDouble(), 
+							d->world_hash[ temp_room ][ "Position" ][ "z" ].asDouble()	);
 			
 			//Rotate the calculated amount.
 			glRotatef(  d->world_hash[ temp_room ][ "Rotation" ][ "x" ].asDouble() ,1.0f,0.0f,0.0f);
@@ -281,7 +337,9 @@ namespace Kaleidoscope
 			glRotatef( d->world_hash[ temp_room ][ "Rotation" ][ "z" ].asDouble() ,0.0f,0.0f,1.0f);
 			
 			// Scale
-			glScalef( d->world_hash[ temp_room ][ "Scale" ][ "x" ].asDouble(), d->world_hash[ temp_room ][ "Scale" ][ "y" ].asDouble(), d->world_hash[ temp_room ][ "Scale" ][ "z" ].asDouble() ); 
+			glScalef(	d->world_hash[ temp_room ][ "Scale" ][ "x" ].asDouble(), 
+						d->world_hash[ temp_room ][ "Scale" ][ "y" ].asDouble(), 
+						d->world_hash[ temp_room ][ "Scale" ][ "z" ].asDouble()		); 
 			
 			
 			// Draw Room Lines
@@ -462,116 +520,8 @@ namespace Kaleidoscope
 				} // end for g
 			} // end if Objects
 		} // end for i -- per room loop
-		
-		
-		//prepareQuads();
-//
-//		glColor4f(0.9,0.2,0.2,.75); // set the color
-//		
-//		std::vector< std::string > temp_rooms = d->rooms; // Check out vector from device
-//		
-//		std::map< std::string, std::map< std::string, std::vector< float > > > room_objects_hash = d->room_objects_hash;
-//						
-//		int num_rooms = temp_rooms.size();
-//		int num_objects = 0;
-//		
-//		std::map< std::string, std::vector< float > > object_vertex_hash;
-//		std::map< std::string, std::vector< float > >::iterator object_iterator;
-//		
-//		for( int i = 0; i < num_rooms; i++ ) // Iterate through every stored room
-//		{
-//			glLoadIdentity(); // Reset matrix. No scaling, rotation, or translation
-//			
-//			std::string room_id = temp_rooms.at( i ); // Get one room
-//						
-//			object_vertex_hash = room_objects_hash[ room_id ]; // get a map: Object => vetices of all objects in room
-//		
-//			 // start an iterator to go through the hash
-//			 
-//			for( object_iterator = object_vertex_hash.begin(); object_iterator != object_vertex_hash.end(); object_iterator++ ) // Iterate though each object in the room
-//			{
-//				std::vector< float > temp_vector = object_iterator->second;
-//				int num_vertices = temp_vector.size();
-//				
-//				for( int h = 0; h < num_vertices; h += 3  )
-//				{
-//					glVertex3f( temp_vector.at( h ), temp_vector.at( h + 1 ), temp_vector.at( h + 2 ) );
-//				}
-//			}
-//			
-//		}
-//		
-//		finishQuads();
-//		
-//		int num_lines = 100;
-		
-		//glBegin(GL_LINES);
-//		//glHint( GL_LINE_SMOOTH_HINT, GL_NICEST);
-//		for(int i=-num_lines;i<=num_lines;++i) {
-//			glVertex3f(i,0,-num_lines);
-//			glVertex3f(i,0,num_lines);
-//
-//			glVertex3f(num_lines,0,i);
-//			glVertex3f(-num_lines,0,i);
-//		}
-//		glEnd();
-		
-		finishRender();
-		
-		
-		
-		
 
-	}
 	
-	void Renderer::prepareRender( Device * d)
-	{
-		if (d->Texture_On)
-		  glEnable(GL_TEXTURE_2D);
-	   else
-		  glDisable(GL_TEXTURE_2D);
-
-	   if (d->Light_On) 
-		  glEnable(GL_LIGHTING);
-	   else 
-		  glDisable(GL_LIGHTING);
-
-		if (d->Alpha_Add)
-		   glBlendFunc(GL_SRC_ALPHA,GL_ONE); 
-		else
-		   glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-
-		// If we're blending, we don't want z-buffering.
-		if (d->Blend_On)
-		   glDisable(GL_DEPTH_TEST); 
-		else
-		   glEnable(GL_DEPTH_TEST); 
-
-		if (d->Filtering_On) {
-		   glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,
-											   GL_LINEAR_MIPMAP_LINEAR);
-		   glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-		} else {
-		   glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,
-											   GL_NEAREST_MIPMAP_NEAREST);
-		   glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-		}
-		
-		if ( d->Smooth_On )
-		{
-			glHint( GL_LINE_SMOOTH_HINT, GL_NICEST);
-			glHint( GL_POLYGON_SMOOTH_HINT, GL_NICEST );
-		}
-
-	   // Need to manipulate the ModelView matrix to move our model around.
-	   glMatrixMode(GL_MODELVIEW);
-
-	   // Reset to 0,0,0; no rotation, no scaling.
-	   glLoadIdentity(); 
-	   
-		d->getCamera()->callgluLookAt( d );
-
-	   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	}
 	
@@ -587,6 +537,14 @@ namespace Kaleidoscope
 	
 	void Renderer::finishRender()
 	{
+	
+	}
+	
+	void Renderer::renderGui( Device * d )
+	{
+		d->getGui()->prepareGui( d );
+		d->getGui()->drawGui( d );
+		d->getGui()->finishGui( d );
 	}
 	
 	

@@ -78,76 +78,75 @@ namespace Kaleidoscope
 		
 		if( keys[SDLK_TAB] )
 		{	
-			if( clock() - d->last_clock > 10 )
+			if( SDL_GetTicks() - d->last_clock > 100 )
 			{
 				d->getCamera()->swapCameraType( d );
-				d->last_clock = clock();
+				d->last_clock = SDL_GetTicks();
 			}
 		}
 		
 		if( keys[SDLK_6] )
 		{
-			if( clock() - d->last_clock > 10 )
+			if( SDL_GetTicks() - d->last_clock > 100 ) // 10 milliseconds
 			{
-				d->interface->addRoom( );
-				d->last_clock = clock();
+				d->interface->createRoom( );
+				d->last_clock = SDL_GetTicks();
 			}
 		}
 		
 		if( keys[SDLK_7] )
 		{
-			if( clock() - d->last_clock > 10 )
+			if( SDL_GetTicks() - d->last_clock > 100 )
 			{
 				Builder * temp_builder = d->getBuilder();
 				
 				Grids::GridsID temp_id = "";
-				temp_id += (char)( clock() % 256 );
+				temp_id +=  SDL_GetTicks() ;
 				
 				temp_builder->placeRoom( d, temp_id );
 				temp_builder->buildRoom( d, temp_id );
 				
-				d->last_clock = clock();
+				d->last_clock = SDL_GetTicks();
 				
 				std::cout << d->world_hash[ "Rooms" ].size() << std::endl;
 			}
 		}
-
-		/*
 		
-		if( glfwGetMouseButton( GLFW_MOUSE_BUTTON_LEFT ) )
+		// If the mouse is clicked ( not dragged )
+		// pass that information on to the gui
+		
+		///////////////////////////
+		////  CLICK vs DRAG DETECTION
+		/////////////////////////
+		
+		if( SDL_GetMouseState(NULL, NULL) & SDL_BUTTON( SDL_BUTTON_LEFT ) ) // True when left mouse button is down
 		{
-			d->leftPressed = true;
+			if( d->left_pressed == false )
+			{
+				d->left_pressed = true;
+				
+				d->mouse_timer = SDL_GetTicks();
+			}
 		}
 		else
 		{
-			d->leftPressed = false;
-		}
-		
-		if( glfwGetMouseButton( GLFW_MOUSE_BUTTON_RIGHT ) )
-		{
-			d->rightPressed = true;
-		}
-		else
-		{
-			d->rightPressed = false;
-		}
-		
-		if( glfwGetMouseButton( GLFW_MOUSE_BUTTON_MIDDLE ) )
-		{
-			d->middlePressed = true;
-		}
-		else
-		{
-			d->middlePressed = false;
-		}
-		
-		d->mouseWheelPosition = glfwGet
-		*/
+			if( d->left_pressed && ( SDL_GetTicks() - d->mouse_timer ) < CLICK_LENGTH ) 
+			// A click must be under 2/5 th of a second 
+			// 
+			{
+				int x, y;
+				SDL_GetMouseState( &x, &y );
+				
+				// Alert GUI and pass on the location of the click
+				d->getGui()->registerClick( SDL_BUTTON_LEFT, x, y );
+			}
 			
-	
-	
+			d->left_pressed = false;
+		}
+		
 	
 	}
+	
 	
 	void EventController::mousePressedCall( int button, int state, int x, int y )
 	{

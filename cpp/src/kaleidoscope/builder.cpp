@@ -461,8 +461,74 @@ namespace Kaleidoscope
 	
 	void Builder::buildBox( Device * d, GridsID new_id, float box_size, float * color )
 	{
-	
-	
+		d->world_hash[ new_id ][ "Vertices" ][ 0u ][ "x" ] = -box_size;
+		d->world_hash[ new_id ][ "Vertices" ][ 0u ][ "y" ] = -box_size;
+		d->world_hash[ new_id ][ "Vertices" ][ 0u ][ "z" ] = -box_size;
+		
+		d->world_hash[ new_id ][ "Vertices" ][ 1u ][ "x" ] = box_size;
+		d->world_hash[ new_id ][ "Vertices" ][ 1u ][ "y" ] = -box_size;
+		d->world_hash[ new_id ][ "Vertices" ][ 1u ][ "z" ] = -box_size;
+		
+		d->world_hash[ new_id ][ "Vertices" ][ 2u ][ "x" ] = box_size;
+		d->world_hash[ new_id ][ "Vertices" ][ 2u ][ "y" ] = box_size;
+		d->world_hash[ new_id ][ "Vertices" ][ 2u ][ "z" ] = -box_size;
+		
+		d->world_hash[ new_id ][ "Vertices" ][ 3u ][ "x" ] = -box_size;
+		d->world_hash[ new_id ][ "Vertices" ][ 3u ][ "y" ] = box_size;
+		d->world_hash[ new_id ][ "Vertices" ][ 3u ][ "z" ] = -box_size;
+		
+		d->world_hash[ new_id ][ "Vertices" ][ 4u ][ "x" ] = -box_size;
+		d->world_hash[ new_id ][ "Vertices" ][ 4u ][ "y" ] = -box_size;
+		d->world_hash[ new_id ][ "Vertices" ][ 4u ][ "z" ] = box_size;
+		
+		d->world_hash[ new_id ][ "Vertices" ][ 5u ][ "x" ] = box_size;
+		d->world_hash[ new_id ][ "Vertices" ][ 5u ][ "y" ] = -box_size;
+		d->world_hash[ new_id ][ "Vertices" ][ 5u ][ "z" ] = box_size;
+		
+		d->world_hash[ new_id ][ "Vertices" ][ 6u ][ "x" ] = box_size;
+		d->world_hash[ new_id ][ "Vertices" ][ 6u ][ "y" ] = box_size;
+		d->world_hash[ new_id ][ "Vertices" ][ 6u ][ "z" ] = box_size;
+		
+		d->world_hash[ new_id ][ "Vertices" ][ 7u ][ "x" ] = -box_size;
+		d->world_hash[ new_id ][ "Vertices" ][ 7u ][ "y" ] = box_size;
+		d->world_hash[ new_id ][ "Vertices" ][ 7u ][ "z" ] = box_size;
+		
+		d->world_hash[ new_id ][ "Color" ][ 0u ][ "r" ] = color[0];
+		d->world_hash[ new_id ][ "Color" ][ 0u ][ "g" ] = color[1];
+		d->world_hash[ new_id ][ "Color" ][ 0u ][ "b" ] = color[2];
+		d->world_hash[ new_id ][ "Color" ][ 0u ][ "a" ] = color[3];
+		
+		d->world_hash[ new_id ][ "Quads" ][ 0u ][ "Color" ] = 0u;
+		
+		d->world_hash[ new_id ][ "Quads" ][ 0u ][ "Indices" ][ 0u ][ 0u ] = 0u; // Box top
+		d->world_hash[ new_id ][ "Quads" ][ 0u ][ "Indices" ][ 0u ][ 1u ] = 1u;
+		d->world_hash[ new_id ][ "Quads" ][ 0u ][ "Indices" ][ 0u ][ 2u ] = 2u;
+		d->world_hash[ new_id ][ "Quads" ][ 0u ][ "Indices" ][ 0u ][ 3u ] = 3u;
+		
+		d->world_hash[ new_id ][ "Quads" ][ 0u ][ "Indices" ][ 1u ][ 0u ] = 4u; // Box bottom
+		d->world_hash[ new_id ][ "Quads" ][ 0u ][ "Indices" ][ 1u ][ 1u ] = 5u;
+		d->world_hash[ new_id ][ "Quads" ][ 0u ][ "Indices" ][ 1u ][ 2u ] = 6u;
+		d->world_hash[ new_id ][ "Quads" ][ 0u ][ "Indices" ][ 1u ][ 3u ] = 7u;
+		
+		d->world_hash[ new_id ][ "Quads" ][ 0u ][ "Indices" ][ 2u ][ 0u ] = 4u;
+		d->world_hash[ new_id ][ "Quads" ][ 0u ][ "Indices" ][ 2u ][ 1u ] = 5u;
+		d->world_hash[ new_id ][ "Quads" ][ 0u ][ "Indices" ][ 2u ][ 2u ] = 1u;
+		d->world_hash[ new_id ][ "Quads" ][ 0u ][ "Indices" ][ 2u ][ 3u ] = 0u;
+		
+		d->world_hash[ new_id ][ "Quads" ][ 0u ][ "Indices" ][ 3u ][ 0u ] = 7u;
+		d->world_hash[ new_id ][ "Quads" ][ 0u ][ "Indices" ][ 3u ][ 1u ] = 6u;
+		d->world_hash[ new_id ][ "Quads" ][ 0u ][ "Indices" ][ 3u ][ 2u ] = 2u;
+		d->world_hash[ new_id ][ "Quads" ][ 0u ][ "Indices" ][ 3u ][ 3u ] = 3u;
+		
+		d->world_hash[ new_id ][ "Quads" ][ 0u ][ "Indices" ][ 4u ][ 0u ] = 4u;
+		d->world_hash[ new_id ][ "Quads" ][ 0u ][ "Indices" ][ 4u ][ 1u ] = 7u;
+		d->world_hash[ new_id ][ "Quads" ][ 0u ][ "Indices" ][ 4u ][ 2u ] = 3u;
+		d->world_hash[ new_id ][ "Quads" ][ 0u ][ "Indices" ][ 4u ][ 3u ] = 0u;
+		
+		d->world_hash[ new_id ][ "Quads" ][ 0u ][ "Indices" ][ 5u ][ 0u ] = 5u;
+		d->world_hash[ new_id ][ "Quads" ][ 0u ][ "Indices" ][ 5u ][ 1u ] = 6u;
+		d->world_hash[ new_id ][ "Quads" ][ 0u ][ "Indices" ][ 5u ][ 2u ] = 2u;
+		d->world_hash[ new_id ][ "Quads" ][ 0u ][ "Indices" ][ 5u ][ 3u ] = 1u;
 	
 	}
 	

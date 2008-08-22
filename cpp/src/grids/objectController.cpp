@@ -33,7 +33,7 @@ namespace Grids
 		controller_interface = intr;
 	}
 	
-	void ObjectController::sendEvent( std::string in_type, std::map< std::string, std::string > value_map )
+	void ObjectController::sendEvent( std::string in_type, complex_type value_map )
 	{
 		controller_interface->sendEvent( in_type, value_map );
 	}

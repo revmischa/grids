@@ -17,7 +17,9 @@
 #include <kaleidoscope/cursorController.h>
 #include <kaleidoscope/room.h>
 #include <kaleidoscope/builder.h>
+#include <kaleidoscope/gui.h>
 #include <kaleidoscope/RenderObject.h>
+
 #include <grids/interface.h>
 
 #include <vector>
@@ -34,6 +36,7 @@ namespace Kaleidoscope
 	class Room;
 	class RenderObject;
 	class Builder;
+	class Gui;
 	
 	class Device
 	{
@@ -46,6 +49,7 @@ namespace Kaleidoscope
 			Camera * getCamera();
 			CursorController * getCursorController();
 			Builder * getBuilder();
+			Gui * getGui();
 			
 			Grids::Interface * interface;
 			
@@ -53,6 +57,8 @@ namespace Kaleidoscope
 			void setEventController( EventController * );
 			void setCamera( Camera * );
 			void setCursorController( CursorController * );
+			void setBuilder( Builder * );
+			void setGui( Gui * );
 			
 			
 			// ******  MAKE THIS A POINTER	
@@ -158,8 +164,14 @@ namespace Kaleidoscope
 			bool rightPressed;
 			bool middlePressed;
 			
+			bool left_pressed;
+			bool right_pressed;
+			
 			bool key_pressed;
 			bool special_key_pressed;
+			
+			int mouse_timer;
+			
 			
 			/////////////////
 			//  Cursor Variables
@@ -179,6 +191,7 @@ namespace Kaleidoscope
 			Camera * cam;
 			CursorController * cursor_controller;
 			Builder * builder;
+			Gui * gui;
 			
 			
 			

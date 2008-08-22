@@ -18,14 +18,15 @@
 
 namespace Grids
 {
-	Interface::Interface( char * address )
+	Interface::Interface( Kaleidoscope::Device * in_device, char * address )
 	{
-		Interface( address, new ObjectController(), new PersonController(), new MessengerController() );
+		Interface(  in_device, address, new ObjectController(), new PersonController(), new MessengerController() );
 	}
 
-	Interface::Interface(char * address, ObjectController * o_c_in, PersonController * p_c_in, MessengerController * m_c_in )
+	Interface::Interface( Kaleidoscope::Device * in_device, char * address, ObjectController * o_c_in, PersonController * p_c_in, MessengerController * m_c_in )
 	//	: node_address( address), object_controller( o_c_in ), person_controller( p_c_in ), messenger_controller( m_c_in )
 	{
+		d = in_device;
 		node_address = address;
 		object_controller = o_c_in;
 		person_controller = p_c_in;
@@ -65,11 +66,14 @@ namespace Grids
 		protocol->closeConnection();
 	}
 
-	void Interface::sendEvent( std::string type, std::map< std::string, std::string > request)
+	void Interface::sendEvent( std::string type, complex_type request)
 	// Sends an event upstream
 	{
+		//protocol->sendRequest( type, request );
+		
 		protocol->sendRequest( type );
 	}
+		
 
 	void Interface::receiveEvent( Protocol * proto, Event * evt, void * userData )
 	{
@@ -86,50 +90,80 @@ namespace Grids
 		std::string e = "Debug.Warn";
 		proto->sendRequest(e, &m);
 
-		((Interface*)userData)->addRoom();
+		//((Interface*)userData)->creatRoom();
 	}
 
 	void Interface::parseEventType(  Event * evt )
-	// This will be modified, person objects may need object information...
-	// maybe all items need all information??
+	// What are the specifics of the events
+	// What are the methods, etc.
+	// 
+	// Room.Create
+	//	ID
+	//
+	// Object -- Does object exist?
+	//	Position?
+	//	Rotation
+	//	Indices, etc
+	//
+	//		ID		=>	1231123123
+	//		Actions	=>	[0]	=>	[ "Position" ]
+	//					[1]	=>	[ "Rotation" ]
+	//					[2] =>	[ "Vertices" ][0][ "x" ] = 23123
+	//										  [1]
+	//										  [2]
+	//					[3] =>	[ "Indices" ]
+	//
+	
 	{
-		std::cout << "callback";
+		std::cout << "callback" << std::endl;
 
 		std::string event_type = evt->getEventType();
 
-		std::cout << event_type << std::endl;
-
-		if( evt->getComplexType()[ "_method" ] == "Room.Create" )
+		if( event_type == "Kaleidoscope.Action" )
 		{
-			std::cout << "Created Room" << std::endl;
+			if( evt->getComplexType()[ "_method" ] == "Room.Create" )
+			{
+				// NOTA BENE: Even though Kaleidoscope doesn't send out a UUID method
+				// It expects one back in the ID
+				std::cout << "Created Room" << std::endl;
+				
+				d->getBuilder()->placeRoom( d,  evt->getComplexType()[ "ID" ].asString() );
+				d->getBuilder()->buildRoom( d,  evt->getComplexType()[ "ID" ].asString() );
+				
+			}
+			else if( evt->getComplexType()[ "_method" ] == "Object.Create" )
+			{
+			
+			}
+			else if(  evt->getComplexType()[ "_method" ] == "Object.Modify" )
+			{
+			
+			}
 		}
 
-		if( event_type == "PERSON" )
-		{
-			person_controller->giveEvent( evt );
-		}
-		else if( event_type == "OBJECT" )
-		{
-			object_controller->giveEvent( evt );
-		}
-		else if( event_type == "MESSENGER" )
-		{
-			messenger_controller->giveEvent( evt );
-		}
 	}
 
-	void Interface::addRoom( )
+	void Interface::createRoom( )
 	{
 		std::cout << "Attempting to add room" << std::endl;
-		//protocol->sendRequest( "Room.Create");
-		protocol->sendRequest( "Foo.Bar");
+		
+		complex_type temp_type = complex_type();
+		
+		temp_type[ "_method" ] = "Room.Create";
+		
+		//protocol->sendRequest( "Kaleidoscope.Action", temp_type );
 	}
 	
-	std::string Interface::addRoomDebug( Kaleidoscope::Device * d)
+	std::string Interface::addRoomDebug( Kaleidoscope::Device * dvc)
 	{
 		std::string new_id = "Room123456";
 				
 		return new_id;
+	}
+	
+	void Interface::setDevice( Kaleidoscope::Device * in_device )
+	{
+		d = in_device;
 	}
 
 	ObjectController * Interface::getObjectController() { return object_controller; }

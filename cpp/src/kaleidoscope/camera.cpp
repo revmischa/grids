@@ -227,15 +227,15 @@ namespace Kaleidoscope
 				d->getCursorController()->setPosition( 0.5f, 0.5f, d );
 			}
 			
-			d->LastAnimationTime = clock();
+			d->LastAnimationTime = SDL_GetTicks();
 			d->firstUpdate = false;
 		}
 		
-		int now = clock(); // get the current time
+		int now = SDL_GetTicks(); // get the current time
 		int timeDiff =  now - d->LastAnimationTime;
 		d->LastAnimationTime = now;
 				
-		if( timeDiff == 0 ) // if framerate > 1000 fps you cannot move...
+		if( true || timeDiff == 0  ) // if framerate > 1000 fps you cannot move...
 			timeDiff = 1;
 			
 		Vec3D temp_rotation = Vec3D( d->Rotation );
@@ -319,15 +319,15 @@ namespace Kaleidoscope
 				d->getCursorController()->setPosition( 0.5f, 0.5f, d );
 			}
 			
-			d->LastAnimationTime = clock();
+			d->LastAnimationTime = SDL_GetTicks();
 			d->firstUpdate = false;
 		}
 		
-		int now = clock(); // get the current time
+		int now = SDL_GetTicks(); // get the current time
 		int timeDiff =  now - d->LastAnimationTime;
 		d->LastAnimationTime = now;
 		
-		if( timeDiff == 0 )
+		if( true || timeDiff == 0 )
 			timeDiff = 1;
 		
 		SDL_Event event;
@@ -393,7 +393,7 @@ namespace Kaleidoscope
 		//  TRANSLATION
 		if( SDL_GetMouseState(NULL, NULL) & SDL_BUTTON( SDL_BUTTON_RIGHT ) ) // True when left mouse button is down
 		{
-			//std::cout << "Mouse Left "<< clock() << std::endl;
+			//std::cout << "Mouse Left "<< SDL_GetTicks() << std::endl;
 			
 			Vec2D cursorPos = d->getCursorController()->getRelativePosition( d );
 			
@@ -411,7 +411,7 @@ namespace Kaleidoscope
 			{
 				if(  !Equals( cursorPos.X, 0.5f) ||  !Equals( cursorPos.Y, 0.5f)  )
 				{
-					//std::cout << "Difference "<< clock() << std::endl;
+					//std::cout << "Difference "<< SDL_GetTicks() << std::endl;
 					float offsetX = ( cursorPos.X - 0.5f ) * timeDiff;
 					float offsetY = ( cursorPos.Y - 0.5f ) * timeDiff;
 					
@@ -420,7 +420,7 @@ namespace Kaleidoscope
 					strafeVector.normalize();
 					elevationVector.normalize();
 					
-					Vec3D translateHorizontle = strafeVector * (   d->TranslateSpeed * offsetX  * 1000.0f);
+					Vec3D translateHorizontle = strafeVector * (   d->TranslateSpeed * offsetX  * 1000.0f );
 					Vec3D translateVertical = elevationVector * ( -1.0f * d->TranslateSpeed * offsetY * 1000.0f);
 					
 					Vec3D translateAmount = translateHorizontle + translateVertical;
@@ -434,7 +434,7 @@ namespace Kaleidoscope
 			}
 		}
 		// ROTATION 
-		else if( SDL_GetMouseState(NULL, NULL) & SDL_BUTTON( SDL_BUTTON_LEFT ) ) // True when right mouse button is down
+		else if( SDL_GetMouseState(NULL, NULL) & SDL_BUTTON( SDL_BUTTON_LEFT ) && now - d->mouse_timer > CLICK_LENGTH ) // True when left mouse button is down
 		{
 			//std::cout << "Mouse Right"<< std::endl;
 			
@@ -488,7 +488,7 @@ namespace Kaleidoscope
 				d->getCursorController()->setPosition( d->cursor_save.X, d->cursor_save.Y, d );
 			}
 			
-			//std::cout << "Mouse UP " << clock() << std::endl;
+			//std::cout << "Mouse UP " << SDL_GetTicks() << std::endl;
 			d->Translating = false;
 			d->Rotating = false;
 			d->Zooming = false;

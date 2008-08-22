@@ -21,6 +21,10 @@
 //#define FPS 1
 //#define MAYA 2
 
+
+// Time in milliseconds of a click ( vs a drag )
+#define CLICK_LENGTH 200 
+
 namespace Kaleidoscope
 {
 	typedef irr::core::vector3df Vec3D;

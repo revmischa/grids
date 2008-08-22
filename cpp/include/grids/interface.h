@@ -37,13 +37,13 @@ namespace Grids
 	{
 		public:
 
-			Interface( char * );
+			Interface( Kaleidoscope::Device *, char * );
 
-			Interface( char *, ObjectController *, PersonController *, MessengerController * );
+			Interface( Kaleidoscope::Device *, char *, ObjectController *, PersonController *, MessengerController * );
 
 			~Interface( );
 
-			void sendEvent( std::string , std::map< std::string, std::string > ); // Sends an event upstream with the grids protocol
+			void sendEvent( std::string , complex_type ); // Sends an event upstream with the grids protocol
 			static void receiveEvent( Protocol *, Event *, void *  ); // Grids protocol object hooks into this
 			static void connectionCallback(   Protocol *, Event *, void *  );
 
@@ -51,13 +51,17 @@ namespace Grids
 			ObjectController * getObjectController();
 			PersonController * getPersonController();
 			MessengerController * getMessengerController();
+			
+			void setDevice( Kaleidoscope::Device * );
 
-			void addRoom( );
+			void createRoom( );
 			
 			std::string addRoomDebug( Kaleidoscope::Device * );
 
 
 		private:
+			
+			Kaleidoscope::Device * d;
 
 			ObjectController * object_controller;
 			PersonController * person_controller;

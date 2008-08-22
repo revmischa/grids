@@ -26,7 +26,7 @@ namespace Grids
 		
 	}
 	
-	void Object::sendEvent( std::string in_type, std::map< std::string, std::string > value_map ) 
+	void Object::sendEvent( std::string in_type, complex_type value_map ) 
 	{
 		controller->sendEvent( in_type, value_map );
 	}

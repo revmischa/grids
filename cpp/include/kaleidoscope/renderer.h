@@ -58,6 +58,9 @@ namespace Kaleidoscope
 			void finishQuads();
 			void finishRender();
 			
+			void renderWorldHash( Device * );
+			void renderGui( Device * );
+			
 	};
 	
 }
