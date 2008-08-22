@@ -114,8 +114,8 @@ int main( int argc, char **argv )
     }
 
 
-	//main_interface = new Grids::Interface( main_device, "happiland.net" );
-	//main_device->interface = main_interface;
+	main_interface = new Grids::Interface( main_device, "happiland.net" );
+	main_device->interface = main_interface;
 
 	int value;
 
