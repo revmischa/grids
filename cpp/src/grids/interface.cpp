@@ -48,13 +48,6 @@ namespace Grids
 		}
 		
 		std::cout << "Connected to " << node_address << std::endl;
-		
-		//double start_time = clock();
-		
-		//while( clock() - start_time < 10 )
-		//{
-		
-		//}
 
 		protocol->runEventLoopThreaded();
 
@@ -62,8 +55,8 @@ namespace Grids
 
 	Interface::~Interface()
 	{
-		protocol->stopEventLoopThread();
-		protocol->closeConnection();
+		//protocol->stopEventLoopThread();
+		//protocol->closeConnection();
 	}
 
 	void Interface::sendEvent( std::string type, complex_type request)
@@ -77,12 +70,13 @@ namespace Grids
 
 	void Interface::receiveEvent( Protocol * proto, Event * evt, void * userData )
 	{
+		std::cout << "Receive Event" << std::endl;
 		( (Interface*)userData)->parseEventType( evt );
 	}
 
 	void Interface::connectionCallback(  Protocol * proto, Event *evt, void * userData )
 	{
-		std::cout << "callback";
+		std::cout << "callback" << std::endl;
 
 		gridsmap_t m;
 		m["message"] = "LOL HI";
@@ -115,7 +109,7 @@ namespace Grids
 	//
 	
 	{
-		std::cout << "callback" << std::endl;
+		std::cout << "parse event" << std::endl;
 
 		std::string event_type = evt->getEventType();
 

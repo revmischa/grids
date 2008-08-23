@@ -22,6 +22,8 @@
 #include <kaleidoscope/RenderObject.h>
 #include <kaleidoscope/room.h>
 #include <kaleidoscope/builder.h>
+#include <kaleidoscope/autodesk3dsLoader.h>
+
 
 #include <iostream>
 
@@ -36,6 +38,7 @@ namespace Kaleidoscope
 	class Renderer;
 	class Device;
 	class Builder;
+	class Autodesk3dsLoader;
 
 	//void createDevice( Device * new_device, int width, int height )
 //	{

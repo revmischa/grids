@@ -59,7 +59,7 @@ namespace Kaleidoscope
 		
 		d->MAX_VERTICAL_ANGLE = 89.0f;
 		
-		d->ZoomSpeed = 0.04f;
+		d->ZoomSpeed = 0.14f;
 		d->CenterOfRotation = Vec3D( 0.0f, 0.0f, 0.0f );
 		
 		d->ZoomType = ZOOM_CENTER;

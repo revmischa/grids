@@ -78,7 +78,7 @@ namespace Kaleidoscope
 		
 		if( keys[SDLK_TAB] )
 		{	
-			if( SDL_GetTicks() - d->last_clock > 100 )
+			if( SDL_GetTicks() - d->last_clock > 400 )
 			{
 				d->getCamera()->swapCameraType( d );
 				d->last_clock = SDL_GetTicks();
@@ -87,7 +87,7 @@ namespace Kaleidoscope
 		
 		if( keys[SDLK_6] )
 		{
-			if( SDL_GetTicks() - d->last_clock > 100 ) // 10 milliseconds
+			if( SDL_GetTicks() - d->last_clock > 400 ) // 10 milliseconds
 			{
 				d->interface->createRoom( );
 				d->last_clock = SDL_GetTicks();
@@ -96,7 +96,7 @@ namespace Kaleidoscope
 		
 		if( keys[SDLK_7] )
 		{
-			if( SDL_GetTicks() - d->last_clock > 100 )
+			if( SDL_GetTicks() - d->last_clock > 400 )
 			{
 				Builder * temp_builder = d->getBuilder();
 				
@@ -111,6 +111,20 @@ namespace Kaleidoscope
 				std::cout << d->world_hash[ "Rooms" ].size() << std::endl;
 			}
 		}
+		
+		if( keys[96] )
+		{
+			if( SDL_GetTicks() - d->last_clock > 400 ) // 100 milliseconds
+			{
+				std::cout << "Escape" << std::endl;
+				
+				
+				d->last_clock = SDL_GetTicks();
+			}
+		}
+		
+		
+		
 		
 		// If the mouse is clicked ( not dragged )
 		// pass that information on to the gui

@@ -11,7 +11,6 @@
 #include <kaleidoscope/kaleidoscope.h>
 #include <grids/interface.h>
 #include <grids/define.h>
-//#include <JSON/JSON.h>
 #include <grids/protocol.h>
 
 Kaleidoscope::Device * main_device = new Kaleidoscope::Device( );
@@ -22,6 +21,8 @@ Kaleidoscope::EventController * main_event = new Kaleidoscope::EventController( 
 Kaleidoscope::Camera * main_camera = new Kaleidoscope::Camera( main_device );
 Kaleidoscope::Builder * main_builder = new Kaleidoscope::Builder( );
 Kaleidoscope::Gui * main_gui = new Kaleidoscope::Gui( );
+Kaleidoscope::Autodesk3dsLoader * main_loader = new Kaleidoscope::Autodesk3dsLoader( );
+
 
 // Interface doesn't work
 Grids::Interface * main_interface;
@@ -35,39 +36,6 @@ Kaleidoscope::RenderObject * main_table = new Kaleidoscope::RenderObject( );
 Grids::complex_type main_hash;
 
 static SDL_Surface *gScreen;
-
-
-//*************
-//	Notes:  -- Room Is a UUID
-//			-- Color is optional
-//
-//
-//	[Room][ID]	[Position]
-//				[Scale]
-//				[Rotation]
-//				[Quads] [ Num Quads ]
-//						[1] [Color]
-//						[1] [ Vert1 ]
-//						[1] [ Vert2 ]
-//						[1] [...]
-//						[2] [Color]
-//						[2] [ Vert1 ]
-//						[2] [ Vert2 ]
-//						[2] [...]
-//						[...]
-//				[ Lines ] [Num Lines ]
-//						[1] [Color]
-//			[Id] [Position]
-//				[Scale]
-//				[Rotation]
-//				[...]
-//			[...]
-//	[Room][ID] [ ...]
-//		[ ... ]
-//						
-//
-//
-//**************
 
 
 int main( int argc, char **argv )
@@ -85,10 +53,8 @@ int main( int argc, char **argv )
 	main_device->setGui( main_gui );
 		
 	Grids::GridsID room_id = "Room1";
-	Grids::GridsID room_id_2 = "Room2";
-	Grids::GridsID room_id_3 = "Room3";
-
 	Grids::GridsID object_id_1 = "Object123";
+	Grids::GridsID loaded_id = "Loaded123";
 	
 	main_device->world_hash = Grids::complex_type(  );
 	
@@ -100,19 +66,22 @@ int main( int argc, char **argv )
 	
 	main_device->x_pos = 200;
 	main_device->y_pos = 100;
-
+	 
+	main_builder->placeObject( main_device, loaded_id, room_id, Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f ) );
+	main_loader->load3ds( main_device, loaded_id, "tube_model.3ds", false );
+	
     // Initialize SDL
 
 	if ( SDL_Init(SDL_INIT_VIDEO) < 0 ) {
 	  printf("Unable to init SDL: %s\n", SDL_GetError());
 	  return 1;
 	}
-
+	
     if (SDLNet_Init() != 0) {
         printf("SDLNet_Init: %s\n", SDLNet_GetError());
         exit(2);
     }
-
+	
 
 	main_interface = new Grids::Interface( main_device, "happiland.net" );
 	main_device->interface = main_interface;
@@ -151,7 +120,6 @@ int main( int argc, char **argv )
 
 	//SDL_ShowCursor( SDL_DISABLE );
 	
-
 	main_renderer->prepare( main_device );
 	
 	main_device->last_clock = clock();
@@ -173,7 +141,7 @@ int main( int argc, char **argv )
 		}
 		
 		main_renderer->renderAll( main_device );
-
+		
         // Swap front and back buffers (we use a double buffered display)
 		SDL_GL_SwapBuffers ();
 		

@@ -517,6 +517,108 @@ namespace Kaleidoscope
 					} // end if Quads exists
 					
 					
+					/////////////
+					// Triangles
+					////////////
+					
+					
+					if( !( d->world_hash[ temp_object ][ "Triangles" ] ) == false ) // if there are quads
+					{
+						prepareTriangles();
+						
+						for( int h = 0; h < d->world_hash[ temp_object ][ "Triangles" ].size(); h++ )
+						{
+							if( !( d->world_hash[ temp_object ][ "Triangles" ][ h ][ "Color" ] ) == false )
+							{
+								int color_index = d->world_hash[ temp_object ][ "Triangles" ][ h ][ "Color" ].asInt();
+						
+								glColor4f(	d->world_hash[ temp_object ][ "Color" ][ color_index ][ "r" ].asDouble(), 
+											d->world_hash[ temp_object ][ "Color" ][ color_index ][ "g" ].asDouble(), 
+											d->world_hash[ temp_object ][ "Color" ][ color_index ][ "b" ].asDouble(), 
+											d->world_hash[ temp_object ][ "Color" ][ color_index ][ "a" ].asDouble()	);
+							}
+							
+							int vertice_index_1;
+							int vertice_index_2;
+							int vertice_index_3;
+							
+							for( int k = 0; k < d->world_hash[ temp_object ][ "Triangles" ][ h ][ "Indices" ].size(); k++ )
+							{
+								vertice_index_1 = d->world_hash[ temp_object ][ "Triangles" ][ h ][ "Indices" ][ k ][ 0u ].asInt();
+								vertice_index_2 = d->world_hash[ temp_object ][ "Triangles" ][ h ][ "Indices" ][ k ][ 1u ].asInt();
+								vertice_index_3 = d->world_hash[ temp_object ][ "Triangles" ][ h ][ "Indices" ][ k ][ 2u ].asInt();
+								
+								glVertex3f( d->world_hash[ temp_object ][ "Vertices" ][ vertice_index_1 ][ "x" ].asDouble(),
+											d->world_hash[ temp_object ][ "Vertices" ][ vertice_index_1 ][ "y" ].asDouble(),
+											d->world_hash[ temp_object ][ "Vertices" ][ vertice_index_1 ][ "z" ].asDouble()	);
+											
+								glVertex3f( d->world_hash[ temp_object ][ "Vertices" ][ vertice_index_2 ][ "x" ].asDouble(),
+											d->world_hash[ temp_object ][ "Vertices" ][ vertice_index_2 ][ "y" ].asDouble(),
+											d->world_hash[ temp_object ][ "Vertices" ][ vertice_index_2 ][ "z" ].asDouble()	);
+											
+								glVertex3f( d->world_hash[ temp_object ][ "Vertices" ][ vertice_index_3 ][ "x" ].asDouble(),
+											d->world_hash[ temp_object ][ "Vertices" ][ vertice_index_3 ][ "y" ].asDouble(),
+											d->world_hash[ temp_object ][ "Vertices" ][ vertice_index_3 ][ "z" ].asDouble()	);
+											
+							
+							
+							} // end for each indice in a triangle
+								
+						} // end for h -- for each triangle
+						
+						finishTriangles();
+						
+					} // end if Triangles exists
+					
+					
+					
+					/////////////
+					// Lines
+					////////////
+					
+					
+					if( !( d->world_hash[ temp_object ][ "Lines" ] ) == false ) // if there are quads
+					{
+						prepareLines();
+						
+						for( int h = 0; h < d->world_hash[ temp_object ][ "Lines" ].size(); h++ )
+						{
+							if( !( d->world_hash[ temp_object ][ "Lines" ][ h ][ "Color" ] ) == false )
+							{
+								int color_index = d->world_hash[ temp_object ][ "Lines" ][ h ][ "Color" ].asInt();
+						
+								glColor4f(	d->world_hash[ temp_object ][ "Color" ][ color_index ][ "r" ].asDouble(), 
+											d->world_hash[ temp_object ][ "Color" ][ color_index ][ "g" ].asDouble(), 
+											d->world_hash[ temp_object ][ "Color" ][ color_index ][ "b" ].asDouble(), 
+											d->world_hash[ temp_object ][ "Color" ][ color_index ][ "a" ].asDouble()	);
+							}
+							
+							int vertice_index_1;
+							int vertice_index_2;
+							
+							for( int k = 0; k < d->world_hash[ temp_object ][ "Lines" ][ h ][ "Indices" ].size(); k++ )
+							{
+								vertice_index_1 = d->world_hash[ temp_object ][ "Lines" ][ h ][ "Indices" ][ k ][ 0u ].asInt();
+								vertice_index_2 = d->world_hash[ temp_object ][ "Lines" ][ h ][ "Indices" ][ k ][ 1u ].asInt();
+								
+								glVertex3f( d->world_hash[ temp_object ][ "Vertices" ][ vertice_index_1 ][ "x" ].asDouble(),
+											d->world_hash[ temp_object ][ "Vertices" ][ vertice_index_1 ][ "y" ].asDouble(),
+											d->world_hash[ temp_object ][ "Vertices" ][ vertice_index_1 ][ "z" ].asDouble()	);
+											
+								glVertex3f( d->world_hash[ temp_object ][ "Vertices" ][ vertice_index_2 ][ "x" ].asDouble(),
+											d->world_hash[ temp_object ][ "Vertices" ][ vertice_index_2 ][ "y" ].asDouble(),
+											d->world_hash[ temp_object ][ "Vertices" ][ vertice_index_2 ][ "z" ].asDouble()	);
+	
+							} // end for each indice in a line
+								
+						} // end for h -- for each line
+						
+						finishLines();
+						
+					} // end if Triangles exists
+
+					
+					
 				} // end for g
 			} // end if Objects
 		} // end for i -- per room loop
@@ -534,6 +636,28 @@ namespace Kaleidoscope
 	{
 		glEnd();
 	}
+	
+	void Renderer::prepareTriangles()
+	{
+		glBegin(GL_TRIANGLES);
+	}
+	
+	void Renderer::finishTriangles()
+	{
+		glEnd();
+	}
+	
+	void Renderer::prepareLines()
+	{
+		glBegin(GL_LINES);
+	}
+	
+	void Renderer::finishLines()
+	{
+		glEnd();
+	}
+	
+		
 	
 	void Renderer::finishRender()
 	{

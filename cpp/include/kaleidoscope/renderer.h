@@ -56,6 +56,10 @@ namespace Kaleidoscope
 			void prepareRender( Device *);
 			void prepareQuads();
 			void finishQuads();
+			void prepareTriangles();
+			void finishTriangles();
+			void prepareLines();
+			void finishLines();
 			void finishRender();
 			
 			void renderWorldHash( Device * );
