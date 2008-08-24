@@ -55,8 +55,8 @@ namespace Grids
 
 	Interface::~Interface()
 	{
-		//protocol->stopEventLoopThread();
-		//protocol->closeConnection();
+		protocol->stopEventLoopThread();
+		protocol->closeConnection();
 	}
 
 	void Interface::sendEvent( std::string type, complex_type request)

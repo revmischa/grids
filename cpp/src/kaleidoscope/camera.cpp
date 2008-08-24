@@ -33,7 +33,7 @@ namespace Kaleidoscope
 	
 	Camera::Camera( Device * d, int in_type )
 	{
-		Camera(  d, in_type, Vec3D( 1000.0f, -1000.0f, 1000.0f ), Vec3D( 1.0f, 0.0f, 1.0f ), Vec3D( 0.0f, 1.0f, 0.0f ) );
+		Camera(  d, in_type, Vec3D( 10.0f, -10.0f, 10.0f ), Vec3D( -10.0f, -10.0f, -10.0f ), Vec3D( 0.0f, 1.0f, 0.0f ) );
 	}
 	
 	Camera::Camera( Device * d, int in_type, Vec3D position, Vec3D target, Vec3D up )
@@ -52,10 +52,11 @@ namespace Kaleidoscope
 		d->UpVector = up;
 		d->RotateSpeed = rotate_speed;
 		d->TranslateSpeed = translate_speed;
+		d->MoveSpeed = 4.0f;
 			
 		d->firstUpdate = true;
 		
-		d->Rotation = Vec3D(10, 10, 0);
+		d->Rotation = Vec3D(10, -10, 0);
 		
 		d->MAX_VERTICAL_ANGLE = 89.0f;
 		
@@ -197,6 +198,7 @@ namespace Kaleidoscope
 		  setType( d, FPS );
 		  d->UpVector.set( 0.0f, 1.0f, 0.0f);
 		  lookAtPoint( d, d->CenterOfRotation );
+		  SDL_ShowCursor( 0 );
 		} 
 	}
 	
@@ -231,6 +233,8 @@ namespace Kaleidoscope
 			d->firstUpdate = false;
 		}
 		
+		
+		
 		int now = SDL_GetTicks(); // get the current time
 		int timeDiff =  now - d->LastAnimationTime;
 		d->LastAnimationTime = now;
@@ -246,9 +250,6 @@ namespace Kaleidoscope
 		d->Target.set( 0.0f, 0.0f, 1.0f );
 		
 		Vec2D cursorpos = d->getCursorController()->getRelativePosition( d );
-		
-		// if mouseX != lastMouseX, though this is called in the 
-		// GLUT event mouseMoved, so we can skip the step
 		
 		if(   !Equals( cursorpos.X, 0.5f) ||  !Equals( cursorpos.Y, 0.5f)  )
 		{
@@ -278,11 +279,11 @@ namespace Kaleidoscope
 		
 		if( keys[SDLK_UP] )
 		{
-			d->Position -= d->Target * ( timeDiff * d->TranslateSpeed );				
+			d->Position -= d->Target * ( timeDiff * d->MoveSpeed );				
 		}
 		else if( keys[SDLK_DOWN] )
 		{
-			d->Position += d->Target * ( timeDiff * d->TranslateSpeed );
+			d->Position += d->Target * ( timeDiff * d->MoveSpeed );
 		}
 			
 		Vec3D strafevect = Vec3D( d->Target );
@@ -291,11 +292,11 @@ namespace Kaleidoscope
 			
 		if( keys[SDLK_LEFT] )
 		{
-			d->Position += strafevect * ( timeDiff * d->TranslateSpeed );
+			d->Position += strafevect * ( timeDiff * d->MoveSpeed );
 		}
 		else if(  keys[SDLK_RIGHT] )
 		{
-			d->Position -= strafevect * ( timeDiff * d->TranslateSpeed );	
+			d->Position -= strafevect * ( timeDiff * d->MoveSpeed );	
 		}
 		
 		d->Target += d->Position;
@@ -307,7 +308,6 @@ namespace Kaleidoscope
 		
 		d->TargetNormal = ( d->Position - d->Target ).normalize();
 		
-		doMovementMaya( d );
 	}
 	
 	void Camera::doMovementMaya( Device * d )
@@ -336,9 +336,9 @@ namespace Kaleidoscope
 		
 		//int mouse_button = event.button.button; 
 		
-		if( SDL_GetMouseState(NULL, NULL) & SDL_BUTTON( SDL_BUTTON_WHEELUP ) || SDL_GetMouseState(NULL, NULL) & SDL_BUTTON( SDL_BUTTON_WHEELDOWN ) )
+		if( ( event.button.button ==  4 || event.button.button ==  5 )  &&  !( SDL_GetMouseState(NULL, NULL) & SDL_BUTTON( SDL_BUTTON_RIGHT ) ) )
 		{
-			std::cout << "Mouse Wheel" << std::endl;
+			//std::cout << "Mouse Wheel" << std::endl;
 			
 			Vec3D zoomVector;
 			Vec3D PositionDifference;
@@ -349,7 +349,7 @@ namespace Kaleidoscope
 				Vec3D normalTarget = d->Target;
 				normalTarget.normalize();
 				
-				if( SDL_GetMouseState(NULL, NULL) & SDL_BUTTON( SDL_BUTTON_WHEELUP ) )
+				if( event.button.button ==  4 )
 				{
 					zoomVector = normalTarget * ( timeDiff * d->ZoomSpeed * -1.0f  );
 				}
@@ -369,12 +369,11 @@ namespace Kaleidoscope
 				
 				float scaleAmount; 
 								
-				if(  SDL_GetMouseState(NULL, NULL) & SDL_BUTTON( SDL_BUTTON_WHEELUP ) ) // Zoom Closer
+				if(  event.button.button ==  4 ) // Zoom Closer
 				{
-					//scaleAmount *= 1.0f;
 					scaleAmount = 1.0f + timeDiff * d->ZoomSpeed * -1.0f ;
 				}
-				else if( SDL_GetMouseState(NULL, NULL) & SDL_BUTTON( SDL_BUTTON_WHEELDOWN ) ) // Zoom Out
+				else if( event.button.button ==  5  ) // Zoom Out
 				{
 					scaleAmount = 1.0f + timeDiff * d->ZoomSpeed ;
 				}
@@ -393,7 +392,6 @@ namespace Kaleidoscope
 		//  TRANSLATION
 		if( SDL_GetMouseState(NULL, NULL) & SDL_BUTTON( SDL_BUTTON_RIGHT ) ) // True when left mouse button is down
 		{
-			//std::cout << "Mouse Left "<< SDL_GetTicks() << std::endl;
 			
 			Vec2D cursorPos = d->getCursorController()->getRelativePosition( d );
 			
@@ -415,10 +413,10 @@ namespace Kaleidoscope
 					float offsetX = ( cursorPos.X - 0.5f ) * timeDiff;
 					float offsetY = ( cursorPos.Y - 0.5f ) * timeDiff;
 					
-					Vec3D look = d->Target - d->Position;
+					//Vec3D look = d->Target - d->Position;
 					
-					Vec3D strafeVector = look.crossProduct( d->UpVector );
-					Vec3D elevationVector = look.crossProduct( strafeVector );
+					Vec3D strafeVector = d->Target.crossProduct( d->UpVector );
+					Vec3D elevationVector = d->Target.crossProduct( strafeVector );
 					strafeVector.normalize();
 					elevationVector.normalize();
 					
@@ -472,8 +470,10 @@ namespace Kaleidoscope
 					d->Target = rotateAroundAxis( &(d->Target), &elevationVector, -1.0f*offsetY );
 					d->Target = rotateAroundAxis( &(d->Target), &strafeVector, -1.0f*offsetX );
 					
-					d->UpVector = rotateAroundAxis( &(d->UpVector), &elevationVector, -1.0f*offsetY );
-					d->UpVector = rotateAroundAxis( &(d->UpVector), &strafeVector, -1.0f*offsetX );
+					// FOR WACKY ROTATION, ROTATE THE UP VECTOR
+					// LEAVING IT UNTOUCHED 
+					//d->UpVector = rotateAroundAxis( &(d->UpVector), &elevationVector, -1.0f*offsetY );
+					//d->UpVector = rotateAroundAxis( &(d->UpVector), &strafeVector, -1.0f*offsetX );
 					
 					d->Position += d->CenterOfRotation;
 					d->Target += d->CenterOfRotation;
