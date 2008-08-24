@@ -21,6 +21,16 @@ int main(int argc, char **argv) {
     return -1;
   }
 
+  if ( SDL_Init(0) < 0 ) {
+    printf("Unable to init SDL: %s\n", SDL_GetError());
+    return 1;
+  }
+  
+  if (SDLNet_Init() != 0) {
+    printf("SDLNet_Init: %s\n", SDLNet_GetError());
+    exit(2);
+  }
+
   proto->setEventCallback(gotEvent, NULL);
   proto->setConnectedCallback(connected, NULL);
 
@@ -66,6 +76,9 @@ int main(int argc, char **argv) {
 
   proto->stopEventLoopThread();
   proto->closeConnection();
+
+  SDL_Quit();
+  SDLNet_Quit();
 }
 
 void gotEvent(Protocol *proto, Event *evt, void *userData) {
