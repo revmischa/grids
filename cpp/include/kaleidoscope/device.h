@@ -43,6 +43,7 @@ namespace Kaleidoscope
 		public:
 			
 			Device( );
+			~Device();
 			
 			Renderer * getRenderer();
 			EventController * getEventController();

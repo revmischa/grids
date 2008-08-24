@@ -18,6 +18,32 @@ namespace Kaleidoscope
 	{
 		
 	}
+	
+	Device::~Device( )
+	{
+		std::cout << "Deleting device" << std::endl;
+		
+		if( renderer )
+			delete renderer;
+		
+		if( event_controller )
+			delete event_controller;
+		
+		if( cam )
+			delete cam;
+		
+		if( cursor_controller )
+			delete cursor_controller;
+		
+		if( builder )
+			delete builder;
+		
+		if( gui )
+			delete gui;
+			
+		if( interface )
+			delete interface;
+	}
 			
 	Renderer * Device::getRenderer()
 	{

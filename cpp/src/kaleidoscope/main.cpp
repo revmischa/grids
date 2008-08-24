@@ -23,15 +23,7 @@ Kaleidoscope::Builder * main_builder = new Kaleidoscope::Builder( );
 Kaleidoscope::Gui * main_gui = new Kaleidoscope::Gui( );
 Kaleidoscope::Autodesk3dsLoader * main_loader = new Kaleidoscope::Autodesk3dsLoader( );
 
-
-// Interface doesn't work
 Grids::Interface * main_interface;
-
-Kaleidoscope::Room * main_room = new Kaleidoscope::Room( );
-
-//Kaleidoscope::RoomWalls * main_walls = new Kaleidoscope::RoomWalls();
-
-Kaleidoscope::RenderObject * main_table = new Kaleidoscope::RenderObject( );
 
 Grids::complex_type main_hash;
 
@@ -68,12 +60,12 @@ int main( int argc, char **argv )
 	main_device->x_pos = 200;
 	main_device->y_pos = 100;
 	 
-	main_builder->placeObject( main_device, loaded_id, room_id, Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f ) );
-	main_loader->load3ds( main_device, loaded_id, "sketch_test.3ds", true );
+	//main_builder->placeObject( main_device, loaded_id, room_id, Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f ) );
+	//main_loader->load3ds( main_device, loaded_id, "torus.3ds", false );
 	
     // Initialize SDL
 
-	if ( SDL_Init(SDL_INIT_VIDEO) < 0 ) {
+	if ( SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) < 0 ) {
 	  printf("Unable to init SDL: %s\n", SDL_GetError());
 	  return 1;
 	}
@@ -83,8 +75,7 @@ int main( int argc, char **argv )
         exit(2);
     }
 	
-
-	main_interface = new Grids::Interface( main_device, "happiland.net" );
+	main_interface = new Grids::Interface( main_device, "happiland.net" , new Grids::ObjectController(), new Grids::PersonController(), new Grids::MessengerController() );
 	main_device->setInterface( main_interface );
 
 	int value;
@@ -155,10 +146,15 @@ int main( int argc, char **argv )
 		}
 	}
     while( main_device->running );
-
+	
+	//delete gScreen;
+	//delete temp_surface;
+	
     // Cleanup
     SDL_Quit();
     SDLNet_Quit();
+	
+	delete main_device; // Also deletes renderer, cam, interface, etc
 
     // Exit program
     return 0;

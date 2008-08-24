@@ -55,8 +55,16 @@ namespace Grids
 
 	Interface::~Interface()
 	{
+		std::cout << "Destroying Interface" << std::endl;
+		
+		delete object_controller;
+		delete person_controller;
+		delete messenger_controller;
+		
 		protocol->stopEventLoopThread();
 		protocol->closeConnection();
+		
+		delete protocol;
 	}
 
 	void Interface::sendEvent( std::string type, complex_type request)
