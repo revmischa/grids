@@ -1,4 +1,4 @@
-#include "mesh3dsobject.h"
+#include "3ds/mesh/mesh3dsobject.h"
 
 #include <iostream>
 using namespace std;
@@ -71,7 +71,7 @@ void Mesh3DSObject::ParseLocalCoordinateSystem(Model3DSChunk c)
 		for(int i = 0 ; i < 4 ; i++)
 		{
 			cout << matrix.m[i][j];
-			
+
 			if(i < 3)
 				cout << " , ";
 		}
@@ -96,7 +96,7 @@ void Mesh3DSObject::ParseVertices(Model3DSChunk c)
 		v.x = c.Float();
 		v.y = c.Float();
 		v.z = c.Float();
-		
+
 		vertices.push_back(v);
 
 		cout << "\t\t\tv[" << i << "] = ("
@@ -106,7 +106,7 @@ void Mesh3DSObject::ParseVertices(Model3DSChunk c)
 void Mesh3DSObject::ParseTextureCoords(Model3DSChunk c)
 {
 	int n_texcoords = c.Short();
-	
+
 	Mesh3DSTextureCoord texcoord;
 
 	cout << dec << "\t\t\tn_texcoords = (" << n_texcoords << ")\n";
@@ -114,9 +114,9 @@ void Mesh3DSObject::ParseTextureCoords(Model3DSChunk c)
 	{
 		texcoord.u = c.Float();
 		texcoord.v = c.Float();
-		
+
 		texturecoords.push_back(texcoord);
-		
+
 		cout << "\t\t\ttexcoord[" << i << "] = ("
 			<< texcoord.u << "," << texcoord.v << ")\n";
 	}
@@ -166,9 +166,9 @@ void Mesh3DSObject::ParseFacesMaterials(Model3DSChunk c)
 	for(int i = 0 ; i < n_faces ; i++)
 	{
 		int f = c.Short();
-		
+
 		faces_applied.push_back(f);
-		
+
 		cout << "\t\t\t\tmaterial assigned to face " << f << "\n";
 	}
 

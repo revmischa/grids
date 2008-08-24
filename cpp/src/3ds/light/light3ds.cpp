@@ -1,4 +1,4 @@
-#include "light3ds.h"
+#include "3ds/light/light3ds.h"
 
 using namespace std;
 

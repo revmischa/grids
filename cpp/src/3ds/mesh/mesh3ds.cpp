@@ -1,4 +1,4 @@
-#include "mesh3ds.h"
+#include "3ds/mesh/mesh3ds.h"
 
 #include <iostream>
 using namespace std;

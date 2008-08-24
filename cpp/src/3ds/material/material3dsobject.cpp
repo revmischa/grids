@@ -1,4 +1,4 @@
-#include "material3dsobject.h"
+#include "3ds/material/material3dsobject.h"
 
 using namespace std;
 

@@ -1,4 +1,4 @@
-#include "scene3ds.h"
+#include "3ds/scene3ds.h"
 
 #include <iostream>
 using namespace std;
@@ -31,7 +31,7 @@ void Scene3DS::operator=(const char *src)
 			case(0x0002):
 				// parse int which has version info
 			break;
-			
+
 			case(0x3d3d):
 				ParseEditor3D(cc);
 			break;
@@ -55,11 +55,11 @@ void Scene3DS::ParseEditor3D(Model3DSChunk c)
 			case(0xafff):
 				Material3DS::Parse(cc);
 			break;
-			
+
 			case(0x4000):
 				ParseEditObject(cc);
 			break;
-			
+
 			default:
 			break;
 		}
@@ -69,7 +69,7 @@ void Scene3DS::ParseEditor3D(Model3DSChunk c)
 void Scene3DS::ParseEditObject(Model3DSChunk c)
 {
 	string obj_name = c.Str();
-	
+
 	for(Model3DSChunk cc = c.Child() ; cc ; cc = cc.Sibling())
 	{
 		switch(cc.ID())
@@ -77,15 +77,15 @@ void Scene3DS::ParseEditObject(Model3DSChunk c)
 			case(0x4100):
 				Mesh3DS::Parse(obj_name , cc);
 			break;
-			
+
 			case(0x4600):
 				Light3DS::Parse(obj_name , cc);
 			break;
-			
+
 			case(0x4700):
 				cout << "\tobject camera\n";
 			break;
-			
+
 			default:
 				cout << "\terror : unknown object "
 					<< hex << cc.ID() << dec << "\n";

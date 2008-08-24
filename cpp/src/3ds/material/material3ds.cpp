@@ -1,4 +1,4 @@
-#include "material3ds.h"
+#include "3ds/material/material3ds.h"
 
 #include <iostream>
 #include <string>
@@ -14,7 +14,7 @@ Material3DS::~Material3DS()
 void Material3DS::Parse(Model3DSChunk c)
 {
 	cout << "edit material\n";
-	
+
 	for(Model3DSChunk cc = c.Child() ; cc ; cc = cc.Sibling())
 	{
 		switch(cc.ID())
@@ -22,7 +22,7 @@ void Material3DS::Parse(Model3DSChunk c)
 			case(0xa000):
 				NewMaterial(cc);
 			break;
-			
+
 			default:
 			break;
 		}
