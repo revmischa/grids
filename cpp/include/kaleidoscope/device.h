@@ -19,6 +19,7 @@
 #include <kaleidoscope/builder.h>
 #include <kaleidoscope/gui.h>
 #include <kaleidoscope/RenderObject.h>
+#include <kaleidoscope/autodesk3dsLoader.h>
 
 #include <grids/interface.h>
 
@@ -51,7 +52,9 @@ namespace Kaleidoscope
 			CursorController * getCursorController();
 			Builder * getBuilder();
 			Gui * getGui();
+			Autodesk3dsLoader * getLoader();
 			Grids::Interface * getInterface( );
+			
 						
 			void setRenderer( Renderer * );
 			void setEventController( EventController * );
@@ -59,6 +62,7 @@ namespace Kaleidoscope
 			void setCursorController( CursorController * );
 			void setBuilder( Builder * );
 			void setGui( Gui * );
+			void setLoader( Autodesk3dsLoader * );
 			void setInterface( Grids::Interface * );
 			
 			
@@ -191,9 +195,12 @@ namespace Kaleidoscope
 			EventController * event_controller;
 			Camera * cam;
 			CursorController * cursor_controller;
+			
 			Builder * builder;
 			Gui * gui;
+			Autodesk3dsLoader * loader;
 			Grids::Interface * interface;
+			
 			
 			
 			

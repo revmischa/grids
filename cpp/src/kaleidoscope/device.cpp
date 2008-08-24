@@ -41,6 +41,9 @@ namespace Kaleidoscope
 		if( gui )
 			delete gui;
 			
+		if( loader )
+			delete loader;
+			
 		if( interface )
 			delete interface;
 	}
@@ -79,6 +82,11 @@ namespace Kaleidoscope
 	{
 		return interface;
 	}
+	
+	Autodesk3dsLoader * Device::getLoader()
+	{
+		return loader;
+	}
 
 	void Device::setRenderer( Renderer * rnd )
 	{
@@ -113,6 +121,11 @@ namespace Kaleidoscope
 	void Device::setInterface( Grids::Interface * new_interface )
 	{
 		interface = new_interface;
+	}
+	
+	void Device::setLoader( Autodesk3dsLoader * new_loader )
+	{
+		loader = new_loader;
 	}
 	
 	void Device::addRoom( Room * r )

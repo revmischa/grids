@@ -55,9 +55,6 @@ namespace Grids
 			void setDevice( Kaleidoscope::Device * );
 
 			void createRoom( );
-			
-			std::string addRoomDebug( Kaleidoscope::Device * );
-
 
 		private:
 			

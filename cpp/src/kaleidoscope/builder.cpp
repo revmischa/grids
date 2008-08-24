@@ -344,7 +344,7 @@ namespace Kaleidoscope
 	
 	}
 	
-	void Builder::placeObject( Device * d, GridsID new_id, GridsID Room_ID, Vec3D new_position )
+	void Builder::placeObject( Device * d, GridsID new_id, GridsID Room_ID, Vec3D new_position, Vec3D new_scale, Vec3D new_rotation )
 	{
 		
 		if( !( d->world_hash[ Room_ID ][ "Objects" ] ) )
@@ -366,14 +366,14 @@ namespace Kaleidoscope
 		d->world_hash[ new_id ][ "Position" ][ "z" ] = new_position.Z;
 		
 		d->world_hash[ new_id ][ "Scale" ] = Grids::complex_type();
-		d->world_hash[ new_id ][ "Scale" ][ "x" ] = 1.0f;
-		d->world_hash[ new_id ][ "Scale" ][ "y" ] = 1.0f;
-		d->world_hash[ new_id ][ "Scale" ][ "z" ] = 1.0f;
+		d->world_hash[ new_id ][ "Scale" ][ "x" ] = new_scale.X;
+		d->world_hash[ new_id ][ "Scale" ][ "y" ] = new_scale.Y;
+		d->world_hash[ new_id ][ "Scale" ][ "z" ] = new_scale.Z;
 		
 		d->world_hash[ new_id ][ "Rotation" ] = Grids::complex_type();
-		d->world_hash[ new_id ][ "Rotation" ][ "x" ] = 0.0f;
-		d->world_hash[ new_id ][ "Rotation" ][ "y" ] = 0.0f;
-		d->world_hash[ new_id ][ "Rotation" ][ "z" ] = 0.0f;
+		d->world_hash[ new_id ][ "Rotation" ][ "x" ] = new_rotation.X;
+		d->world_hash[ new_id ][ "Rotation" ][ "y" ] = new_rotation.Y;
+		d->world_hash[ new_id ][ "Rotation" ][ "z" ] = new_rotation.Z;
 		
 	}
 	

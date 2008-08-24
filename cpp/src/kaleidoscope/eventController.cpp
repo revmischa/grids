@@ -99,17 +99,23 @@ namespace Kaleidoscope
 		{
 			if( SDL_GetTicks() - d->last_clock > 400 )
 			{
-				Builder * temp_builder = d->getBuilder();
+				Grids::complex_type object_type;
 				
-				Grids::GridsID temp_id = "";
-				temp_id +=  SDL_GetTicks() ;
+				object_type[ "Room_ID" ] = d->world_hash[ "Rooms" ][ 0u ];
 				
-				temp_builder->placeRoom( d, temp_id );
-				temp_builder->buildRoom( d, temp_id );
+				object_type[ "Position" ][ "x" ] = 0.0f;
+				object_type[ "Position" ][ "y" ] = 0.0f;
+				object_type[ "Position" ][ "z" ] = 0.0f;
+				object_type[ "Scale" ][ "x" ] = 1.0f;
+				object_type[ "Scale" ][ "y" ] = 1.0f;
+				object_type[ "Scale" ][ "z" ] = 1.0f;
+				object_type[ "Rotation" ][ "x" ] = 0.0f;
+				object_type[ "Rotation" ][ "y" ] = 0.0f;
+				object_type[ "Rotation" ][ "z" ] = 0.0f;
+				
+				d->getInterface()->sendEvent( "Object.Place", object_type );
 				
 				d->last_clock = SDL_GetTicks();
-				
-				std::cout << d->world_hash[ "Rooms" ].size() << std::endl;
 			}
 		}
 		
@@ -126,7 +132,7 @@ namespace Kaleidoscope
 			}
 		}
 		
-		if( keys[96] )
+		if( keys[96] ) // ~ key, used to open console
 		{
 			if( SDL_GetTicks() - d->last_clock > 400 ) // 100 milliseconds
 			{

@@ -199,7 +199,7 @@ namespace Kaleidoscope
 		  d->UpVector.set( 0.0f, 1.0f, 0.0f);
 		  lookAtPoint( d, d->CenterOfRotation );
 		  SDL_ShowCursor( 0 );
-		} 
+		}
 	}
 	
 	int Camera::getType(Device * d)
@@ -232,8 +232,6 @@ namespace Kaleidoscope
 			d->LastAnimationTime = SDL_GetTicks();
 			d->firstUpdate = false;
 		}
-		
-		
 		
 		int now = SDL_GetTicks(); // get the current time
 		int timeDiff =  now - d->LastAnimationTime;
@@ -499,8 +497,6 @@ namespace Kaleidoscope
 			
 			SDL_ShowCursor( 1 );
 		} 
-		
-	
 	}
 	
 	

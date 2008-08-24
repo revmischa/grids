@@ -24,7 +24,6 @@ namespace Grids
 	}
 
 	Interface::Interface( Kaleidoscope::Device * in_device, char * address, ObjectController * o_c_in, PersonController * p_c_in, MessengerController * m_c_in )
-	//	: node_address( address), object_controller( o_c_in ), person_controller( p_c_in ), messenger_controller( m_c_in )
 	{
 		d = in_device;
 		node_address = address;
@@ -102,26 +101,6 @@ namespace Grids
 	}
 
 	void Interface::parseEventType(  Event * evt )
-	// What are the specifics of the events
-	// What are the methods, etc.
-	// 
-	// Room.Create
-	//	ID
-	//
-	// Object -- Does object exist?
-	//	Position?
-	//	Rotation
-	//	Indices, etc
-	//
-	//		ID		=>	1231123123
-	//		Actions	=>	[0]	=>	[ "Position" ]
-	//					[1]	=>	[ "Rotation" ]
-	//					[2] =>	[ "Vertices" ][0][ "x" ] = 23123
-	//										  [1]
-	//										  [2]
-	//					[3] =>	[ "Indices" ]
-	//
-	
 	{
 		std::cout << "parse event" << std::endl;
 
@@ -141,8 +120,26 @@ namespace Grids
 				d->getBuilder()->placeRoom( d,  evt->getComplexType()[ "id" ].asString() );
 				d->getBuilder()->buildRoom( d,  evt->getComplexType()[ "id" ].asString() );
 			}
-
 		}
+		else if( event_type == "Object.Place" )
+		{
+			if( evt->getComplexType()[ "_method" ] == "Object.Place" )
+			{
+				d->getBuilder()->placeObject( d, evt->getComplexType()[ "id" ].asString(),
+						evt->getComplexType()[ "Room_ID" ].asString(),
+						Vec3D(	evt->getComplexType()[ "Position" ][ "x" ].asDouble(),
+								evt->getComplexType()[ "Position" ][ "y" ].asDouble(),
+								evt->getComplexType()[ "Position" ][ "z" ].asDouble() ), 
+						Vec3D(	evt->getComplexType()[ "Scale" ][ "x" ].asDouble(),
+								evt->getComplexType()[ "Scale" ][ "y" ].asDouble(),
+								evt->getComplexType()[ "Scale" ][ "z" ].asDouble() ), 
+						Vec3D(	evt->getComplexType()[ "Rotation" ][ "x" ].asDouble(),
+								evt->getComplexType()[ "Rotation" ][ "y" ].asDouble(),
+								evt->getComplexType()[ "Rotation" ][ "z" ].asDouble() )		);
+			}
+		}
+		
+		
 	}
 
 	void Interface::createRoom( )
@@ -156,12 +153,7 @@ namespace Grids
 		//protocol->sendRequest( "Kaleidoscope.Action", temp_type );
 	}
 	
-	std::string Interface::addRoomDebug( Kaleidoscope::Device * dvc)
-	{
-		std::string new_id = "Room123456";
-				
-		return new_id;
-	}
+	
 	
 	void Interface::setDevice( Kaleidoscope::Device * in_device )
 	{
