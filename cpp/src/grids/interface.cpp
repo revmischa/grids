@@ -126,8 +126,11 @@ namespace Grids
 		std::cout << "parse event" << std::endl;
 
 		std::string event_type = evt->getEventType();
+		
+		std::cout << evt->getEventType() << std::endl;
+		std::cout << evt->getComplexType()[ "id" ].asString() << std::endl;
 
-		if( event_type == "Kaleidoscope.Action" )
+		if( event_type == "Room.Create" )
 		{
 			if( evt->getComplexType()[ "_method" ] == "Room.Create" )
 			{
@@ -135,20 +138,11 @@ namespace Grids
 				// It expects one back in the ID
 				std::cout << "Created Room" << std::endl;
 				
-				d->getBuilder()->placeRoom( d,  evt->getComplexType()[ "ID" ].asString() );
-				d->getBuilder()->buildRoom( d,  evt->getComplexType()[ "ID" ].asString() );
-				
+				d->getBuilder()->placeRoom( d,  evt->getComplexType()[ "id" ].asString() );
+				d->getBuilder()->buildRoom( d,  evt->getComplexType()[ "id" ].asString() );
 			}
-			else if( evt->getComplexType()[ "_method" ] == "Object.Create" )
-			{
-			
-			}
-			else if(  evt->getComplexType()[ "_method" ] == "Object.Modify" )
-			{
-			
-			}
-		}
 
+		}
 	}
 
 	void Interface::createRoom( )
