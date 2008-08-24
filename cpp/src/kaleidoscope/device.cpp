@@ -48,6 +48,11 @@ namespace Kaleidoscope
 	{
 		return gui;
 	}
+	
+	Grids::Interface * Device::getInterface( )
+	{
+		return interface;
+	}
 
 	void Device::setRenderer( Renderer * rnd )
 	{
@@ -77,6 +82,11 @@ namespace Kaleidoscope
 	void Device::setGui( Gui *  new_gui )
 	{
 		gui = new_gui;
+	}
+	
+	void Device::setInterface( Grids::Interface * new_interface )
+	{
+		interface = new_interface;
 	}
 	
 	void Device::addRoom( Room * r )

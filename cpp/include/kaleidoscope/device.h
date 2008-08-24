@@ -50,15 +50,15 @@ namespace Kaleidoscope
 			CursorController * getCursorController();
 			Builder * getBuilder();
 			Gui * getGui();
-			
-			Grids::Interface * interface;
-			
+			Grids::Interface * getInterface( );
+						
 			void setRenderer( Renderer * );
 			void setEventController( EventController * );
 			void setCamera( Camera * );
 			void setCursorController( CursorController * );
 			void setBuilder( Builder * );
 			void setGui( Gui * );
+			void setInterface( Grids::Interface * );
 			
 			
 			// ******  MAKE THIS A POINTER	
@@ -192,6 +192,7 @@ namespace Kaleidoscope
 			CursorController * cursor_controller;
 			Builder * builder;
 			Gui * gui;
+			Grids::Interface * interface;
 			
 			
 			

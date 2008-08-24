@@ -51,6 +51,7 @@ int main( int argc, char **argv )
 	main_device->setCamera( main_camera );
 	main_device->setBuilder( main_builder );
 	main_device->setGui( main_gui );
+
 		
 	Grids::GridsID room_id = "Room1";
 	Grids::GridsID object_id_1 = "Object123";
@@ -68,7 +69,7 @@ int main( int argc, char **argv )
 	main_device->y_pos = 100;
 	 
 	main_builder->placeObject( main_device, loaded_id, room_id, Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f ) );
-	main_loader->load3ds( main_device, loaded_id, "torus.3ds", false );
+	main_loader->load3ds( main_device, loaded_id, "torus.3ds", true );
 	
     // Initialize SDL
 
@@ -84,7 +85,7 @@ int main( int argc, char **argv )
 	
 
 	main_interface = new Grids::Interface( main_device, "happiland.net" );
-	main_device->interface = main_interface;
+	main_device->setInterface( main_interface );
 
 	int value;
 

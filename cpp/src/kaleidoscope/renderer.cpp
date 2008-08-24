@@ -454,13 +454,7 @@ namespace Kaleidoscope
 								d->world_hash[ temp_object ][ "Scale" ][ "y" ].asDouble(), 
 								d->world_hash[ temp_object ][ "Scale" ][ "z" ].asDouble()	); 
 					
-					
-					if(  !( d->world_hash[ temp_object ][ "Lines" ] ) == false ) // ! returns isNull(),  so if isNull is false
-					{
-						// Draw Lines
-						std::cout << "ERROR" << std::endl;
-					} // end if Lines exists
-					
+									
 					if( !( d->world_hash[ temp_object ][ "Quads" ] ) == false ) // if there are quads
 					{
 						prepareQuads();

@@ -12,6 +12,7 @@
 #include <SDL/SDL.h>
 #include <grids/define.h> // for Vec3D
 #include <iostream>
+#include <kaleidoscope/define.h>
 
 namespace Kaleidoscope
 {
@@ -89,7 +90,7 @@ namespace Kaleidoscope
 		{
 			if( SDL_GetTicks() - d->last_clock > 400 ) // 10 milliseconds
 			{
-				d->interface->createRoom( );
+				//d->interface->createRoom( );
 				d->last_clock = SDL_GetTicks();
 			}
 		}
@@ -109,6 +110,19 @@ namespace Kaleidoscope
 				d->last_clock = SDL_GetTicks();
 				
 				std::cout << d->world_hash[ "Rooms" ].size() << std::endl;
+			}
+		}
+		
+		if( keys[SDLK_8] )
+		{
+			if( SDL_GetTicks() - d->last_clock > 400 )
+			{
+				std::cout << "Key Pressed, Attempting to create room" << std::endl;
+				
+				d->getInterface()->sendEvent( "Room.Create", Grids::complex_type( ) );
+								
+				d->last_clock = SDL_GetTicks();
+				
 			}
 		}
 		

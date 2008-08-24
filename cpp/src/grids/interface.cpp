@@ -63,6 +63,7 @@ namespace Grids
 	// Sends an event upstream
 	{
 		//protocol->sendRequest( type, request );
+		std::cout << "Interface, attempting to send request" << std::endl;
 		
 		protocol->sendRequest( type );
 	}
@@ -85,6 +86,11 @@ namespace Grids
 		proto->sendRequest(e, &m);
 
 		//((Interface*)userData)->creatRoom();
+		
+		if( evt )
+		{
+			((Interface*)userData)->parseEventType( evt );
+		}
 	}
 
 	void Interface::parseEventType(  Event * evt )

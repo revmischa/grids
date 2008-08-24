@@ -33,7 +33,7 @@ namespace Kaleidoscope
 	
 	Camera::Camera( Device * d, int in_type )
 	{
-		Camera(  d, in_type, Vec3D( 100.0f, -100.0f, 100.0f ), Vec3D( 1.0f, 0.0f, 1.0f ), Vec3D( 0.0f, 1.0f, 0.0f ) );
+		Camera(  d, in_type, Vec3D( 1000.0f, -1000.0f, 1000.0f ), Vec3D( 1.0f, 0.0f, 1.0f ), Vec3D( 0.0f, 1.0f, 0.0f ) );
 	}
 	
 	Camera::Camera( Device * d, int in_type, Vec3D position, Vec3D target, Vec3D up )
@@ -212,7 +212,7 @@ namespace Kaleidoscope
 	
 	void Camera::callgluLookAt( Device * d)
 	// This is where the magic happens
-	{ // Removed for happiland
+	{ 
 		gluLookAt( d->Target.X, d->Target.Y, d->Target.Z, // eyex, eyey, eyez
 			d->Position.X, d->Position.Y, d->Position.Z, // centerx, centery, centerz
 			d->UpVector.X, d->UpVector.Y, d->UpVector.Z); 	
@@ -336,9 +336,9 @@ namespace Kaleidoscope
 		
 		//int mouse_button = event.button.button; 
 		
-		if( event.button.button == 4 || event.button.button == 5 )
+		if( SDL_GetMouseState(NULL, NULL) & SDL_BUTTON( SDL_BUTTON_WHEELUP ) || SDL_GetMouseState(NULL, NULL) & SDL_BUTTON( SDL_BUTTON_WHEELDOWN ) )
 		{
-			//std::cout << "Mouse Wheel" << std::endl;
+			std::cout << "Mouse Wheel" << std::endl;
 			
 			Vec3D zoomVector;
 			Vec3D PositionDifference;
@@ -349,7 +349,7 @@ namespace Kaleidoscope
 				Vec3D normalTarget = d->Target;
 				normalTarget.normalize();
 				
-				if( event.button.button == 4 )
+				if( SDL_GetMouseState(NULL, NULL) & SDL_BUTTON( SDL_BUTTON_WHEELUP ) )
 				{
 					zoomVector = normalTarget * ( timeDiff * d->ZoomSpeed * -1.0f  );
 				}
@@ -369,12 +369,12 @@ namespace Kaleidoscope
 				
 				float scaleAmount; 
 								
-				if( event.button.button == 4 ) // Zoom Closer
+				if(  SDL_GetMouseState(NULL, NULL) & SDL_BUTTON( SDL_BUTTON_WHEELUP ) ) // Zoom Closer
 				{
 					//scaleAmount *= 1.0f;
 					scaleAmount = 1.0f + timeDiff * d->ZoomSpeed * -1.0f ;
 				}
-				else if( event.button.button == 5 ) // Zoom Out
+				else if( SDL_GetMouseState(NULL, NULL) & SDL_BUTTON( SDL_BUTTON_WHEELDOWN ) ) // Zoom Out
 				{
 					scaleAmount = 1.0f + timeDiff * d->ZoomSpeed ;
 				}
@@ -415,8 +415,10 @@ namespace Kaleidoscope
 					float offsetX = ( cursorPos.X - 0.5f ) * timeDiff;
 					float offsetY = ( cursorPos.Y - 0.5f ) * timeDiff;
 					
-					Vec3D strafeVector = d->Target.crossProduct( d->UpVector );
-					Vec3D elevationVector = d->Target.crossProduct( strafeVector );
+					Vec3D look = d->Target - d->Position;
+					
+					Vec3D strafeVector = look.crossProduct( d->UpVector );
+					Vec3D elevationVector = look.crossProduct( strafeVector );
 					strafeVector.normalize();
 					elevationVector.normalize();
 					
