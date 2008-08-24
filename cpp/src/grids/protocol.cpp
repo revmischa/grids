@@ -62,6 +62,11 @@ namespace Grids {
   }
 
   int Protocol::protocolWrite(const char *str) {
+      if (! sock) {
+          std::cerr << "No socket exists but Protocol::protocolWrite was called\n";
+        return -1;
+      }
+
     uint32_t len = strlen(str);
 
     unsigned int outstr_len = len + 4;
@@ -71,7 +76,7 @@ namespace Grids {
     memcpy((outstr + 4), str, len);
 
     int ret = SDLNet_TCP_Send(sock, outstr, outstr_len);
-    //    free(outstr);
+    free(outstr);
 
     if (ret != outstr_len) {
       printf("SDLNet_TCP_Send: %s\n", SDLNet_GetError());
@@ -129,23 +134,46 @@ namespace Grids {
   }
 
   void Protocol::runEventLoop() {
-    int bytesRead;
+    int bytesRead, socketReady;
     uint32_t incomingLength;
     char *buf;
     char *bufIncoming;
 
     setFinished(0);
 
+    // create a socket set consisting of our socket, so that we can poll for data
+    SDLNet_SocketSet sockSet = SDLNet_AllocSocketSet(1);
+
+    int numused = SDLNet_TCP_AddSocket(sockSet, sock);
+    if(numused == -1) {
+        printf("SDLNet_AddSocket: %s\n", SDLNet_GetError());
+        SDLNet_FreeSocketSet(sockSet);
+        return;
+    }
+
     while (! isFinished() && sock) {
+        socketReady = SDLNet_CheckSockets(sockSet, 1000);
+        if (socketReady == -1) {
+            printf("Error in SDLNet_CheckSockets: %s\n", SDLNet_GetError());
+            //most of the time this is a system error, where perror might help.
+            perror("SDLNet_CheckSockets");
+            break;
+        }
+
+        if (socketReady != 1) {
+            // nothing to read
+            continue;
+        }
+
       // read in 4 byte length of message
       bytesRead = SDLNet_TCP_Recv(sock, &incomingLength, 4);
 
-      incomingLength = SDLNet_Read32(&incomingLength);
-
-      if (bytesRead < 0) {
-        std::cerr << "Socket read error: " << SDLNet_GetError() << "\n";
+      if (bytesRead <= 0) {
+        std::cerr << "Socket read error " << bytesRead << ": " << SDLNet_GetError() << "\n";
         continue;
       }
+
+      incomingLength = SDLNet_Read32(&incomingLength);
 
       if (bytesRead != 4) {
         // socket broken most likely
@@ -207,6 +235,8 @@ namespace Grids {
 
         free(buf);
     }
+
+    SDLNet_FreeSocketSet(sockSet);
   }
 
   void Protocol::handleMessage(std::string &msg) {
@@ -265,16 +295,16 @@ namespace Grids {
 
     eventLoopThread = SDL_CreateThread(runEventLoopThreadEntryPoint, this);
 
-    threadsFinished[getThreadId()] = 0;
+    uint32_t threadId = SDL_GetThreadID(eventLoopThread);
+    threadsFinished[threadId] = 0;
+
     SDL_mutexV(finishedMutex);
 
 	return 0;
   }
 
   void Protocol::stopEventLoopThread() {
-    SDL_mutexP(finishedMutex);
     setFinished(1);
-    SDL_mutexV(finishedMutex);
 
     if (running) {
       SDL_WaitThread(eventLoopThread, NULL);
@@ -283,7 +313,7 @@ namespace Grids {
   }
 
   uint32_t Protocol::getThreadId() {
-    return SDL_GetThreadID(eventLoopThread);
+    return SDL_ThreadID();
   }
 
   bool Protocol::isFinished() {
