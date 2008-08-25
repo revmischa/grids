@@ -58,16 +58,20 @@ namespace Grids {
   }
 
   void Protocol::sendProtocolInitiationString() {
-    protocolWrite("==Grids/1.0/JSON");
+      std::string initString = "==Grids/1.0/JSON";
+    protocolWrite(initString);
   }
 
-  int Protocol::protocolWrite(const char *str) {
+  int Protocol::protocolWrite(std::string &str) {
+    uint32_t len = str.size();
+    return protocolWrite(str.c_str(), len);
+  }
+
+  int Protocol::protocolWrite(const char *str, uint32_t len) {
       if (! sock) {
-          std::cerr << "No socket exists but Protocol::protocolWrite was called\n";
+        std::cerr << "No socket exists but Protocol::protocolWrite was called\n";
         return -1;
       }
-
-    uint32_t len = strlen(str);
 
     unsigned int outstr_len = len + 4;
     char *outstr = (char *)malloc(outstr_len);
@@ -114,7 +118,9 @@ namespace Grids {
     const static std::string methodkey = "_method";
     (*args)[methodkey] = evt;
 
-    protocolWrite(args->asCString());
+    std::string valueStr = args->asString();
+
+    protocolWrite(valueStr);
 
     if (createdVal)
         delete args;

@@ -39,7 +39,8 @@ namespace Grids {
 
     bool connectToNode(const char *address);
     void sendProtocolInitiationString();
-    int protocolWrite(const char *);
+    int protocolWrite(std::string &str);
+    int protocolWrite(const char *str, uint32_t len);
     void sendRequest(std::string);
     void sendRequest(std::string, Value *args);
     void closeConnection();

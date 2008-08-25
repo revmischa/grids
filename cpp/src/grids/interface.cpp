@@ -75,13 +75,13 @@ namespace Grids
 	}
 
 
-	void Interface::receiveEvent( Protocol * proto, Event * evt, void * userData )
+	void Interface::receiveEvent( Protocol * proto, Event * evt, void * self )
 	{
 		std::cout << "Receive Event" << std::endl;
-		( (Interface*)userData)->parseEventType( evt );
+		( (Interface*)self)->parseEventType( evt );
 	}
 
-	void Interface::connectionCallback(  Protocol * proto, Event *evt, void * userData )
+	void Interface::connectionCallback(  Protocol * proto, Event *evt, void * self )
 	{
 		std::cout << "callback" << std::endl;
 
@@ -90,13 +90,6 @@ namespace Grids
 
 		std::string e = "Debug.Warn";
 		proto->sendRequest(e, &m);
-
-		//((Interface*)userData)->creatRoom();
-
-		if( evt )
-		{
-			((Interface*)userData)->parseEventType( evt );
-		}
 	}
 
 	void Interface::parseEventType(  Event * evt )
@@ -142,7 +135,7 @@ namespace Grids
 		Value temp_type = Value();
 
 		temp_type[ "_method" ] = "Room.Create";
-		
+
 		sendEvent( "Room.Create", temp_type );
 	}
 
