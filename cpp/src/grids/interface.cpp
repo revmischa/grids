@@ -72,7 +72,7 @@ namespace Grids
 		//protocol->sendRequest( type, request );
 		std::cout << "Interface, attempting to send request" << std::endl;
 
-		protocol->sendRequest( type );
+		protocol->sendRequest( type, &request );
 	}
 
 
@@ -111,32 +111,26 @@ namespace Grids
 
 		if( event_type == "Room.Create" )
 		{
-			if( evt->getArgs()[ "_method" ] == "Room.Create" )
-			{
 				// NOTA BENE: Even though Kaleidoscope doesn't send out a UUID method
 				// It expects one back in the ID
 				std::cout << "Created Room" << std::endl;
 
 				d->getBuilder()->placeRoom( d,  evt->getArgs()[ "id" ].asString() );
 				d->getBuilder()->buildRoom( d,  evt->getArgs()[ "id" ].asString() );
-			}
 		}
 		else if( event_type == "Object.Place" )
 		{
-			if( evt->getArgs()[ "_method" ] == "Object.Place" )
-			{
 				d->getBuilder()->placeObject( d, evt->getArgs()[ "id" ].asString(),
-						evt->getArgs()[ "Room_ID" ].asString(),
-						Vec3D(	evt->getArgs()[ "Position" ][ "x" ].asDouble(),
-								evt->getArgs()[ "Position" ][ "y" ].asDouble(),
-								evt->getArgs()[ "Position" ][ "z" ].asDouble() ),
-						Vec3D(	evt->getArgs()[ "Scale" ][ "x" ].asDouble(),
-								evt->getArgs()[ "Scale" ][ "y" ].asDouble(),
-								evt->getArgs()[ "Scale" ][ "z" ].asDouble() ),
-						Vec3D(	evt->getArgs()[ "Rotation" ][ "x" ].asDouble(),
-								evt->getArgs()[ "Rotation" ][ "y" ].asDouble(),
-								evt->getArgs()[ "Rotation" ][ "z" ].asDouble() )		);
-			}
+						evt->getArgs()[ "roomId" ].asString(),
+						Vec3D(	evt->getArgs()[ "position" ][ 0u ].asDouble(),
+								evt->getArgs()[ "position" ][ 1u ].asDouble(),
+								evt->getArgs()[ "position" ][ 2u ].asDouble() ),
+						Vec3D(	evt->getArgs()[ "scale" ][ 0u ].asDouble(),
+								evt->getArgs()[ "scale" ][ 1u ].asDouble(),
+								evt->getArgs()[ "scale" ][ 2u ].asDouble() ),
+						Vec3D(	evt->getArgs()[ "rotation" ][ 0u ].asDouble(),
+								evt->getArgs()[ "rotation" ][ 1u ].asDouble(),
+								evt->getArgs()[ "rotation" ][ 2u ].asDouble() )		);
 		}
 
 
@@ -149,8 +143,9 @@ namespace Grids
 		Value temp_type = Value();
 
 		temp_type[ "_method" ] = "Room.Create";
+		
+		sendEvent( "Room.Create", temp_type );
 
-		//protocol->sendRequest( "Kaleidoscope.Action", temp_type );
 	}
 
 

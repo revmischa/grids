@@ -187,8 +187,6 @@ namespace Kaleidoscope
 
 
 
-
-
 		private:
 
 			Renderer * renderer;
@@ -200,12 +198,8 @@ namespace Kaleidoscope
 			Gui * gui;
 			Autodesk3dsLoader * loader;
 			Grids::Interface * interface;
-
-
-
-
-
-
+			
+			
 	};
 
 } // end namespace Kaleidoscope

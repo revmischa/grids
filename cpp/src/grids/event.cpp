@@ -9,7 +9,6 @@
 
 
 #include <string>
-#include <map>
 #include <vector>
 #include <iostream>
 
@@ -24,15 +23,14 @@ namespace Grids
     }
 
     Event::Event( std::string in_event )
-		: event_type( in_event )
     {
-
+		event_type = in_event;
     }
 
-    Event::Event(std::string in_event, Grids::Value value)
-		: event_type( in_event ), args( value )
+    Event::Event( std::string in_event, Value value )
     {
-
+		event_type = in_event;
+		args = value;
 	}
 
     void Event::setEvent(std::string in_event)
@@ -40,7 +38,7 @@ namespace Grids
         event_type = in_event;
     }
 
-    void Event::setArgs(Grids::Value value)
+    void Event::setArgs( Value value)
     {
         args = value;
 	}

@@ -191,7 +191,16 @@ namespace Kaleidoscope
 	{
 		if( getType( d ) == FPS )
 		{
-		  setType( d, MAYA );
+			// Attempting to set the center rotation to a point 30 units away from the 
+			// camera based on targetr
+			
+			//Vec3D new_center = d->Target - d->Position;
+			//new_center.normalize();
+			//new_center *= 30.0f ;
+			//d->CenterOfRotation = d->Position + new_center;
+			
+			setType( d, MAYA );
+			//lookAtPoint( d, d->CenterOfRotation );
 		}
 		else if ( getType( d ) == MAYA )
 		{

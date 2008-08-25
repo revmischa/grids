@@ -101,17 +101,17 @@ namespace Kaleidoscope
 			{
 				Grids::Value object_type;
 
-				object_type[ "Room_ID" ] = d->world_hash[ "Rooms" ][ 0u ];
+				object_type[ "roomId" ] = d->world_hash[ "rooms" ][ 0u ];
 
-				object_type[ "Position" ][ "x" ] = 0.0f;
-				object_type[ "Position" ][ "y" ] = 0.0f;
-				object_type[ "Position" ][ "z" ] = 0.0f;
-				object_type[ "Scale" ][ "x" ] = 1.0f;
-				object_type[ "Scale" ][ "y" ] = 1.0f;
-				object_type[ "Scale" ][ "z" ] = 1.0f;
-				object_type[ "Rotation" ][ "x" ] = 0.0f;
-				object_type[ "Rotation" ][ "y" ] = 0.0f;
-				object_type[ "Rotation" ][ "z" ] = 0.0f;
+				object_type[ "position" ][ 0u ] = 0.0f;
+				object_type[ "position" ][ 1u ] = 0.0f;
+				object_type[ "position" ][ 2u ] = 0.0f;
+				object_type[ "scale" ][ 0u ] = 1.0f;
+				object_type[ "scale" ][ 1u ] = 1.0f;
+				object_type[ "scale" ][ 2u ] = 1.0f;
+				object_type[ "rotation" ][ 0u ] = 0.0f;
+				object_type[ "rotation" ][ 1u ] = 0.0f;
+				object_type[ "rotation" ][ 2u ] = 0.0f;
 
 				d->getInterface()->sendEvent( "Object.Place", object_type );
 
@@ -125,7 +125,7 @@ namespace Kaleidoscope
 			{
 				std::cout << "Key Pressed, Attempting to create room" << std::endl;
 
-				d->getInterface()->sendEvent( "Room.Create", Grids::Value( ) );
+				d->getInterface()->createRoom();
 
 				d->last_clock = SDL_GetTicks();
 
