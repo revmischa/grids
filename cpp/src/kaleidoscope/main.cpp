@@ -63,7 +63,7 @@ int main( int argc, char **argv )
 	main_device->x_pos = 200;
 	main_device->y_pos = 100;
 
-	//main_builder->placeObject( main_device, loaded_id, room_id, Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f ) );
+	//main_builder->placeObject( main_device, loaded_id, room_id, Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f ), Kaleidoscope::Vec3D( 1.0f, 1.0f, 1.0f ), Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f ) );
 	//main_loader->load3ds( main_device, loaded_id, "torus.3ds", false );
 
     // Initialize SDL

@@ -69,10 +69,9 @@ namespace Grids
 	void Interface::sendEvent( std::string type, Value request)
 	// Sends an event upstream
 	{
-		//protocol->sendRequest( type, request );
 		std::cout << "Interface, attempting to send request" << std::endl;
 
-		protocol->sendRequest( type, &request );
+		protocol->sendRequest( type );
 	}
 
 
@@ -145,7 +144,6 @@ namespace Grids
 		temp_type[ "_method" ] = "Room.Create";
 		
 		sendEvent( "Room.Create", temp_type );
-
 	}
 
 
