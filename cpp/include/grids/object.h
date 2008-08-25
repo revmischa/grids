@@ -6,34 +6,34 @@
  *  Copyright 2008 Patrick Tierney. All rights reserved.
  *
  */
- 
+
  #pragma once
- 
+
  #include <grids/event.h>
  #include <grids/objectController.h>
- 
+
  namespace Grids
  {
 	class ObjectController;
-	
+
 	class Object
 	{
 		public:
-			
+
 			Object( );
-			
+
 			void giveEvent( Event * );	// ObjectController uses this
 										// to pass messages
-			
-			void sendEvent( std::string , complex_type  );									// upstream
-										
+
+			void sendEvent( std::string , Grids::Value  );									// upstream
+
 			void setController( ObjectController * );
-			
+
 		private:
-			
+
 			ObjectController * controller;
-	
+
 	};
-	
+
  } // end namespace Grids
 

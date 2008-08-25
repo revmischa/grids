@@ -25,42 +25,42 @@ namespace Grids
 
     Event::Event( std::string in_event )
 		: event_type( in_event )
-    {		
-	
+    {
+
     }
 
-    Event::Event( std::string in_event, complex_type value )
-		: event_type( in_event ), stored_value( value )
+    Event::Event(std::string in_event, Grids::Value value)
+		: event_type( in_event ), args( value )
     {
-	
+
 	}
 
-    void Event::setEvent( std::string in_event)
+    void Event::setEvent(std::string in_event)
     {
         event_type = in_event;
     }
 
-    void Event::setComplexType( complex_type value)
+    void Event::setArgs(Grids::Value value)
     {
-        stored_value = value;
+        args = value;
 	}
 
-    complex_type Event::getComplexType()
+    Grids::Value Event::getArgs()
 	{
-		return stored_value;
+		return args;
 	}
-	
-	complex_type * Event::getComplexTypePointer( )
+
+	Grids::Value * Event::getArgsPtr( )
 	{
-		return &stored_value;
+		return &args;
 	}
 
     std::string Event::getEventType()
     {
         return event_type;
     }
-	
-	
- 
+
+
+
 }
 

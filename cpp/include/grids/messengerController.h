@@ -19,26 +19,26 @@
 namespace Grids
 {
 	class Messenger;
-	
+
 	class MessengerController
 	{
 		public:
 			MessengerController( );
-			
+
 			void setInterface( Interface * );
-			
+
 			void addMessenger( Messenger * );
-			
-			void sendEvent( std::string, complex_type );
-			
+
+			void sendEvent( std::string, Value );
+
 			void giveEvent( Event * );
-			
+
 		private:
 			Interface * controller_interface;
-			
+
 			std::map< std::string, int > uuid_map;
-			
+
 			std::vector< Messenger * >  messengers;
 	};
-	
+
 } // end namespace Grids

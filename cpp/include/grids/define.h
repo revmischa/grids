@@ -8,22 +8,12 @@
 #include <grids/vector3d.h>
 #include <grids/vector2d.h>
 
-#include <json/value.h>
+#include <grids/value.h>
 
-namespace Grids
-{
-	typedef std::string gridskey_t;
-	typedef Json::Value gridsval_t;
-	
-	typedef Json::Value complex_type;
-	//typedef Json::Value
-	
-	typedef std::map<gridskey_t, gridsval_t> gridsmap_t;
-	typedef gridsmap_t::iterator giterator;
-  
+namespace Grids {
 	typedef irr::core::vector3df Vec3D;
 	typedef irr::core::vector2df Vec2D;
-	
+
 	typedef std::string GridsID;
 
 }

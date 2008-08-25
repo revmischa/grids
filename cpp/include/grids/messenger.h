@@ -6,34 +6,34 @@
  *  Copyright 2008 Patrick Tierney. All rights reserved.
  *
  */
- 
- 
+
+
  #pragma once
- 
+
  #include <grids/event.h>
  #include <grids/messengerController.h>
- 
- 
+
+
  namespace Grids
  {
 	class MessengerController;
-	
+
 	class Messenger
 	{
 		public:
-			
+
 			Messenger( );
-			
+
 			void giveEvent( Event * );
-			
-			void sendEvent( std::string in_type, complex_type complex_value );
-						
+
+			void sendEvent( std::string in_type, Value args );
+
 			void setController( MessengerController * );
-			
+
 		private:
-			
+
 			MessengerController * controller;
-	
+
 	};
 
 } // end namespace Grids

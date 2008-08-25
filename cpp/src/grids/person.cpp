@@ -14,20 +14,20 @@ namespace Grids
 {
 	Person::Person( )
 	{
-	
+
 	}
-	
+
 	void Person::giveEvent( Event * evt )
 	// called when an event is received
 	{
-		
+
 	}
-	
-	void Person::sendEvent(  std::string in_type, complex_type value_map  )
+
+	void Person::sendEvent(  std::string in_type, Value args  )
 	{
-		controller->sendEvent( in_type, value_map );
+		controller->sendEvent( in_type, args );
 	}
-	
+
 	void Person::setController( PersonController * psn )
 	{
 		controller = psn;

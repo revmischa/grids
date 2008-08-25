@@ -41,18 +41,16 @@ namespace Grids {
     void sendProtocolInitiationString();
     int protocolWrite(const char *);
     void sendRequest(std::string);
-    void sendRequest(std::string, gridsmap_t *args);
+    void sendRequest(std::string, Value *args);
     void closeConnection();
 
     bool isFinished();
     void setFinished(bool);
-    gridsmap_t jsonToMap(Json::Value &);
-    Json::Value parseJson(std::string &msg);
-    std::string stringifyMap(gridsmap_t *m);
+    Value parseJson(std::string &msg);
+    std::string stringifyValue(Value *val);
     void handleMessage(std::string &msg);
 
   private:
-    Json::Value mapToJsonValue(gridsmap_t *);
     void dispatchEvent(Grids::Event *);
 
     // callback storage

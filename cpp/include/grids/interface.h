@@ -43,7 +43,7 @@ namespace Grids
 
 			~Interface( );
 
-			void sendEvent( std::string , complex_type ); // Sends an event upstream with the grids protocol
+			void sendEvent( std::string , Value ); // Sends an event upstream with the grids protocol
 			static void receiveEvent( Protocol *, Event *, void *  ); // Grids protocol object hooks into this
 			static void connectionCallback(   Protocol *, Event *, void *  );
 
@@ -51,13 +51,15 @@ namespace Grids
 			ObjectController * getObjectController();
 			PersonController * getPersonController();
 			MessengerController * getMessengerController();
-			
+
 			void setDevice( Kaleidoscope::Device * );
 
 			void createRoom( );
 
+			std::string addRoomDebug( Kaleidoscope::Device * );
+
 		private:
-			
+
 			Kaleidoscope::Device * d;
 
 			ObjectController * object_controller;

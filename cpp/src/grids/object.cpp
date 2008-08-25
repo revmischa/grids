@@ -12,25 +12,25 @@
 
 namespace Grids
 {
-	
+
 
 	Object::Object( )
 	{
-	
+
 	}
-	
+
 	void Object::giveEvent( Event * evt)
 	// Called when an event is received
 	{
-		
-		
+
+
 	}
-	
-	void Object::sendEvent( std::string in_type, complex_type value_map ) 
+
+	void Object::sendEvent( std::string in_type, Value args )
 	{
-		controller->sendEvent( in_type, value_map );
+		controller->sendEvent( in_type, args );
 	}
-	
+
 	void Object::setController( ObjectController * cont )
 	{
 		controller = cont ;

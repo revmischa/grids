@@ -30,7 +30,7 @@ namespace Grids
 		object_controller = o_c_in;
 		person_controller = p_c_in;
 		messenger_controller = m_c_in;
-		
+
 		object_controller->setInterface( this );
 		person_controller->setInterface( this );
 		messenger_controller->setInterface( this );
@@ -45,7 +45,7 @@ namespace Grids
 			std::cerr << "Could not connect to " << node_address << "\n";
 			return;
 		}
-		
+
 		std::cout << "Connected to " << node_address << std::endl;
 
 		protocol->runEventLoopThreaded();
@@ -55,26 +55,26 @@ namespace Grids
 	Interface::~Interface()
 	{
 		std::cout << "Destroying Interface" << std::endl;
-		
+
 		delete object_controller;
 		delete person_controller;
 		delete messenger_controller;
-		
+
 		protocol->stopEventLoopThread();
 		protocol->closeConnection();
-		
+
 		delete protocol;
 	}
 
-	void Interface::sendEvent( std::string type, complex_type request)
+	void Interface::sendEvent( std::string type, Value request)
 	// Sends an event upstream
 	{
 		//protocol->sendRequest( type, request );
 		std::cout << "Interface, attempting to send request" << std::endl;
-		
+
 		protocol->sendRequest( type );
 	}
-		
+
 
 	void Interface::receiveEvent( Protocol * proto, Event * evt, void * userData )
 	{
@@ -86,14 +86,14 @@ namespace Grids
 	{
 		std::cout << "callback" << std::endl;
 
-		gridsmap_t m;
+		Value m;
 		m["message"] = "LOL HI";
 
 		std::string e = "Debug.Warn";
 		proto->sendRequest(e, &m);
 
 		//((Interface*)userData)->creatRoom();
-		
+
 		if( evt )
 		{
 			((Interface*)userData)->parseEventType( evt );
@@ -105,56 +105,56 @@ namespace Grids
 		std::cout << "parse event" << std::endl;
 
 		std::string event_type = evt->getEventType();
-		
+
 		std::cout << evt->getEventType() << std::endl;
-		std::cout << evt->getComplexType()[ "id" ].asString() << std::endl;
+		std::cout << evt->getArgs()[ "id" ].asString() << std::endl;
 
 		if( event_type == "Room.Create" )
 		{
-			if( evt->getComplexType()[ "_method" ] == "Room.Create" )
+			if( evt->getArgs()[ "_method" ] == "Room.Create" )
 			{
 				// NOTA BENE: Even though Kaleidoscope doesn't send out a UUID method
 				// It expects one back in the ID
 				std::cout << "Created Room" << std::endl;
-				
-				d->getBuilder()->placeRoom( d,  evt->getComplexType()[ "id" ].asString() );
-				d->getBuilder()->buildRoom( d,  evt->getComplexType()[ "id" ].asString() );
+
+				d->getBuilder()->placeRoom( d,  evt->getArgs()[ "id" ].asString() );
+				d->getBuilder()->buildRoom( d,  evt->getArgs()[ "id" ].asString() );
 			}
 		}
 		else if( event_type == "Object.Place" )
 		{
-			if( evt->getComplexType()[ "_method" ] == "Object.Place" )
+			if( evt->getArgs()[ "_method" ] == "Object.Place" )
 			{
-				d->getBuilder()->placeObject( d, evt->getComplexType()[ "id" ].asString(),
-						evt->getComplexType()[ "Room_ID" ].asString(),
-						Vec3D(	evt->getComplexType()[ "Position" ][ "x" ].asDouble(),
-								evt->getComplexType()[ "Position" ][ "y" ].asDouble(),
-								evt->getComplexType()[ "Position" ][ "z" ].asDouble() ), 
-						Vec3D(	evt->getComplexType()[ "Scale" ][ "x" ].asDouble(),
-								evt->getComplexType()[ "Scale" ][ "y" ].asDouble(),
-								evt->getComplexType()[ "Scale" ][ "z" ].asDouble() ), 
-						Vec3D(	evt->getComplexType()[ "Rotation" ][ "x" ].asDouble(),
-								evt->getComplexType()[ "Rotation" ][ "y" ].asDouble(),
-								evt->getComplexType()[ "Rotation" ][ "z" ].asDouble() )		);
+				d->getBuilder()->placeObject( d, evt->getArgs()[ "id" ].asString(),
+						evt->getArgs()[ "Room_ID" ].asString(),
+						Vec3D(	evt->getArgs()[ "Position" ][ "x" ].asDouble(),
+								evt->getArgs()[ "Position" ][ "y" ].asDouble(),
+								evt->getArgs()[ "Position" ][ "z" ].asDouble() ),
+						Vec3D(	evt->getArgs()[ "Scale" ][ "x" ].asDouble(),
+								evt->getArgs()[ "Scale" ][ "y" ].asDouble(),
+								evt->getArgs()[ "Scale" ][ "z" ].asDouble() ),
+						Vec3D(	evt->getArgs()[ "Rotation" ][ "x" ].asDouble(),
+								evt->getArgs()[ "Rotation" ][ "y" ].asDouble(),
+								evt->getArgs()[ "Rotation" ][ "z" ].asDouble() )		);
 			}
 		}
-		
-		
+
+
 	}
 
 	void Interface::createRoom( )
 	{
 		std::cout << "Attempting to add room" << std::endl;
-		
-		complex_type temp_type = complex_type();
-		
+
+		Value temp_type = Value();
+
 		temp_type[ "_method" ] = "Room.Create";
-		
+
 		//protocol->sendRequest( "Kaleidoscope.Action", temp_type );
 	}
-	
-	
-	
+
+
+
 	void Interface::setDevice( Kaleidoscope::Device * in_device )
 	{
 		d = in_device;

@@ -90,31 +90,38 @@ namespace Grids {
     SDLNet_TCP_Close(sock);
   }
 
-  std::string Protocol::stringifyMap(gridsmap_t *m) {
+  // fast(?) version of turning a Grids::Value into a string
+  std::string Protocol::stringifyValue(Value *val) {
     Json::FastWriter *writer = new Json::FastWriter();
-    Json::Value root = mapToJsonValue(m);
-    return writer->write(root);
+    return writer->write(val);
   }
 
   void Protocol::sendRequest(std::string evt) {
     sendRequest(evt, NULL);
   }
 
-  void Protocol::sendRequest(std::string evt, gridsmap_t *args) {
+  void Protocol::sendRequest(std::string evt, Value *args) {
     if (evt.empty())
       return;
 
+    bool createdVal = 0;
+
     if (args == NULL) {
-      args = new gridsmap_t();
+      args = new Value();
+      createdVal = 1;
     }
 
     const static std::string methodkey = "_method";
     (*args)[methodkey] = evt;
-    std::string msg = stringifyMap(args);
+    std::string msg = stringifyValue(args);
 
     protocolWrite(msg.c_str());
+
+    if (createdVal)
+        delete args;
   }
 
+/*
   Json::Value Protocol::mapToJsonValue(gridsmap_t *m) {
     giterator mapIterator;
 
@@ -132,6 +139,7 @@ namespace Grids {
 
     return jsonVal;
   }
+*/
 
   void Protocol::runEventLoop() {
     int bytesRead, socketReady;
@@ -252,7 +260,7 @@ namespace Grids {
       // encrypted protocol message
     } else {
       // assume this is json for now
-      Json::Value root = parseJson(msg);
+      Value root = parseJson(msg);
 
       // FIXME: this is slow and lame
       //gridsmap_t rootMap = jsonToMap(root);
@@ -263,12 +271,13 @@ namespace Grids {
     }
   }
 
-  gridsmap_t Protocol::jsonToMap(Json::Value &root) {
+/*
+  Value Protocol::jsonToMap(Value &root) {
     // ghetto, should fix in the future
     Json::Value::Members memberList = root.getMemberNames();
     std::vector<std::string>::iterator iter;
 
-    gridsmap_t outMap;
+    Vak outMap;
 
     for (iter = memberList.begin(); iter != memberList.end(); iter++) {
       Json::Value val = root[*iter];
@@ -277,17 +286,17 @@ namespace Grids {
 
     return outMap;
   }
+*/
 
-
-  Json::Value Protocol::parseJson(std::string &msg) {
-    Json::Value root;
+  Value Protocol::parseJson(std::string &msg) {
+    Grids::Value root;
     Json::Reader reader;
 
     if (reader.parse(msg, root))
       return root;
 
     std::cerr << "Could not parse JSON: " << msg << "\n";
-    return Json::Value(0);
+    return Value();
   }
 
   int Protocol::runEventLoopThreaded() {

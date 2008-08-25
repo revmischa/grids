@@ -28,20 +28,20 @@ namespace Grids
 		public:
 			Event( );
 			Event( std::string );
-			Event( std::string, complex_type );
+			Event( std::string, Grids::Value );
 
 			void setEvent( std::string );
-			void setComplexType( complex_type );
-			
-			complex_type getComplexType();
-			complex_type * getComplexTypePointer();
+			void setArgs( Grids::Value );
+
+			Grids::Value getArgs();
+			Grids::Value *getArgsPtr();
 			std::string getEventType();
-			
-									
+
+
 		private:
 			std::string event_type;
-			complex_type stored_value;
-			
+			Grids::Value args;
+
 	};
 
 }

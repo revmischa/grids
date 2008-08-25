@@ -20,29 +20,29 @@
 namespace Grids
 {
 	class Interface;
-	
+
 	class ObjectController
 	{
 		public:
 			ObjectController();
-			
+
 			void setInterface( Interface * );
-			
+
 			void addObject( std::string );
-			
-			void sendEvent( std::string type, complex_type );
-			
+
+			void sendEvent( std::string type, Grids::Value );
+
 			void giveEvent( Event *); // The GInterface passes messages using this
-			
+
 		private:
 			Interface * controller_interface;
-			
+
 			std::map< std::string, int > uuid_map;
-			
+
 			// Stores objects ids
 			std::vector< std::string > objects;
-			
+
 	};
-	
+
 } // end namepace Grids
 

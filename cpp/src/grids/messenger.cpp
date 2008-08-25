@@ -12,23 +12,23 @@
 
 namespace Grids
 {
-	
+
 	Messenger::Messenger( )
 	{
-	
+
 	}
-	
+
 	void Messenger::giveEvent( Event * evt )
 	// Called when an event is received
 	{
-	
+
 	}
-	
-	void Messenger::sendEvent( std::string in_type, complex_type complex_value )
+
+	void Messenger::sendEvent( std::string in_type, Value args )
 	{
-		controller->sendEvent( in_type, complex_value );
+		controller->sendEvent( in_type, args );
 	}
-	
+
 	void Messenger::setController( MessengerController *cont )
 	{
 		controller = cont;
