@@ -93,7 +93,7 @@ namespace Grids {
   // fast(?) version of turning a Grids::Value into a string
   std::string Protocol::stringifyValue(Value *val) {
     Json::FastWriter *writer = new Json::FastWriter();
-    return writer->write(val);
+    return writer->write((Json::Value) val);
   }
 
   void Protocol::sendRequest(std::string evt) {
@@ -113,9 +113,8 @@ namespace Grids {
 
     const static std::string methodkey = "_method";
     (*args)[methodkey] = evt;
-    std::string msg = stringifyValue(args);
 
-    protocolWrite(msg.c_str());
+    protocolWrite(args->asCString());
 
     if (createdVal)
         delete args;
