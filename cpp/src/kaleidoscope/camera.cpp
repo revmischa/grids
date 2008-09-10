@@ -475,8 +475,8 @@ namespace Kaleidoscope
 				{
 					if(  !Equals( cursorPos.X, 0.5f) ||  !Equals( cursorPos.Y, 0.5f)  )
 					{
-						float offsetX = (cursorPos.Y - 0.5f) * timeDiff * d->RotateSpeed * 0.1f ;
-						float offsetY = (cursorPos.X - 0.5f) * timeDiff * d->RotateSpeed * 0.1f ;
+						float offsetX = (cursorPos.Y - 0.5f) * timeDiff * d->RotateSpeed * -0.1f ;
+						float offsetY = (cursorPos.X - 0.5f) * timeDiff * d->RotateSpeed * -0.1f ;
 						
 						Vec3D strafeVector = d->Target.crossProduct( d->UpVector );
 						Vec3D elevationVector = d->Target.crossProduct( strafeVector );
