@@ -34,7 +34,27 @@ namespace Kaleidoscope
 			void buildChair( Device *, GridsID ); // Adds chair quads, polygons to specific ID
 			
 			void buildBox( Device *, GridsID, float, float * ); // size, color[]
-
+			
+			void buildBillboard( Device *, GridsID, std::string );
+			
+			SDL_Surface * loadImage( std::string image_name );
+			
+			// Images are stored:
+			// [ id ][ "images" ][ image_index ][ x ][ y ]
+			
+			// packImage attaches an image to the grids ID given
+			// packImage returns the newly created image_index
+			int packImage( Device *, GridsID, SDL_Surface * );
+			
+			SDL_Surface * getImage( Device *, GridsID ); // get the first (and only) image for an id
+			SDL_Surface * getImage( Device *, GridsID, int ); // or specify which image
+			
+			
+		private:
+			
+			Uint32 getPixel( SDL_Surface *, int, int );
+			void putPixel( SDL_Surface *, int, int, Uint32 );
+		
 	};
 
 } // end namespace Kaleidoscope

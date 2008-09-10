@@ -13,6 +13,12 @@
 #include <grids/define.h>
 #include <grids/protocol.h>
 
+#include <stdlib.h>
+#include <string>
+#include <SDL_ttf/SDL_ttf.h>
+#include <SDL_image/SDL_image.h>
+
+
 Kaleidoscope::Device * main_device = new Kaleidoscope::Device( );
 
 Kaleidoscope::CursorController * main_cursor = new Kaleidoscope::CursorController( main_device );
@@ -21,11 +27,17 @@ Kaleidoscope::EventController * main_event = new Kaleidoscope::EventController( 
 Kaleidoscope::Camera * main_camera = new Kaleidoscope::Camera( main_device );
 
 Kaleidoscope::Builder * main_builder = new Kaleidoscope::Builder( );
-Kaleidoscope::Gui * main_gui = new Kaleidoscope::Gui( );
+Kaleidoscope::Gui * main_gui;
 Kaleidoscope::Autodesk3dsLoader * main_loader = new Kaleidoscope::Autodesk3dsLoader( );
 Grids::Interface * main_interface;
 
 Grids::Value main_hash;
+
+static SDL_Surface *gScreen;
+
+
+void glBlitOnScreen( int in_texture );
+
 
 int main( int argc, char **argv )
 {
@@ -40,7 +52,6 @@ int main( int argc, char **argv )
 	main_device->setCamera( main_camera );
 
 	main_device->setBuilder( main_builder );
-	main_device->setGui( main_gui );
 	main_device->setLoader( main_loader );
 
 
@@ -64,9 +75,10 @@ int main( int argc, char **argv )
 	main_device->y_pos = 100;
 
 	//main_builder->placeObject( main_device, loaded_id, room_id, Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f ), Kaleidoscope::Vec3D( 1.0f, 1.0f, 1.0f ), Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f ) );
-	//main_loader->load3ds( main_device, loaded_id, "torus.3ds", false );
+	//main_loader->load3ds( main_device, loaded_id, "torus.3ds", true );
 
-    // Initialize SDL
+
+	// Initialize SDL
 
 	if ( SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) < 0 ) {
 	  printf("Unable to init SDL: %s\n", SDL_GetError());
@@ -80,7 +92,8 @@ int main( int argc, char **argv )
 
 	main_interface = new Grids::Interface( main_device, "happiland.net" , new Grids::ObjectController(), new Grids::PersonController(), new Grids::MessengerController() );
 	main_device->setInterface( main_interface );
-
+	
+	
 	int value;
 
     // Don't set color bit sizes (SDL_GL_RED_SIZE, etc)
@@ -101,7 +114,7 @@ int main( int argc, char **argv )
 	SDL_WM_SetIcon( temp_surface, NULL );
 	SDL_WM_SetCaption( "Kaleidoscope -- Grids Visualizer", "Kaleidoscope" );
 
-	static SDL_Surface *gScreen;
+	
 
 	gScreen = SDL_SetVideoMode(main_device->width, main_device->height, 0,
 		SDL_OPENGL | SDL_HWSURFACE );
@@ -113,18 +126,32 @@ int main( int argc, char **argv )
 	  printf("Unable to create window: %s\n", SDL_GetError());
 	  return 1;
 	}
-
+	
+	main_gui = new Kaleidoscope::Gui( main_device );
+	main_device->setGui( main_gui );
+	
+	int text_id = main_gui->addText(main_device, Kaleidoscope::Vec2D( -0.95f, 0.95f ), " " );
+	main_gui->addText(main_device, Kaleidoscope::Vec3D( 50.0f, 50.0f, 50.0f ), "point < 50, 50, 50 >" );
+	main_gui->addText(main_device, Kaleidoscope::Vec3D( -50.0f, 0.0f, -50.0f ), "point < -50, 0, -50 >" );
+	
+	
+	SDL_Surface * temp_image = IMG_Load( "corona.png" );
+	
+	main_builder->packImage(main_device, "temp_image232", temp_image );
+	
+	delete temp_image;
+	
+	main_device->loaded_image = main_builder->getImage( main_device, "temp_image232" );
+		
 	main_renderer->prepare( main_device );
 
 	main_device->last_clock = SDL_GetTicks();
-
-	SDL_Event event;
 
     // Main rendering loop
     do
     {
 		main_event->checkEvents( main_device );
-
+		
 		if( main_device->type == Kaleidoscope::FPS )
 		{
 			main_camera->doMovementFPS( main_device );
@@ -133,22 +160,14 @@ int main( int argc, char **argv )
 		{
 			main_camera->doMovementMaya( main_device );
 		}
-
+		
 		main_renderer->renderAll( main_device );
-
+				
         // Swap front and back buffers (we use a double buffered display)
-		SDL_GL_SwapBuffers ();
-
-
-		SDL_PollEvent (&event);
-
-		if( event.type == SDL_QUIT )
-		{
-			main_device->running = 0;
-		}
+		SDL_GL_SwapBuffers();
+		
 	}
     while( main_device->running );
-
 
     // Cleanup
     SDL_Quit();
@@ -159,5 +178,8 @@ int main( int argc, char **argv )
     // Exit program
     return 0;
 }
+
+
+
 
 

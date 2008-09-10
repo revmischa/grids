@@ -324,6 +324,8 @@ namespace Kaleidoscope
 	{
 		for( int i = 0; i < d->world_hash[ "rooms" ].size(); i++)
 		{
+			glPushMatrix();
+			
 			Grids::GridsID temp_room = d->world_hash[ "rooms" ][ i ].asString();
 			
 			// Translate
@@ -611,10 +613,11 @@ namespace Kaleidoscope
 						
 					} // end if Triangles exists
 
-					
-					
 				} // end for g
+				
 			} // end if Objects
+			
+			glPopMatrix();
 		} // end for i -- per room loop
 
 	
@@ -660,9 +663,10 @@ namespace Kaleidoscope
 	
 	void Renderer::renderGui( Device * d )
 	{
-		d->getGui()->prepareGui( d );
-		d->getGui()->drawGui( d );
-		d->getGui()->finishGui( d );
+		//d->getGui()->prepareGui( d );
+		//d->getGui()->drawGui( d );
+		//d->getGui()->finishGui( d );
+		d->getGui()->drawAll( d );
 	}
 	
 	
@@ -815,5 +819,6 @@ namespace Kaleidoscope
 
 	
 }
+
 
 

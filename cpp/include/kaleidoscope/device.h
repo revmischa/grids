@@ -24,8 +24,12 @@
 #include <grids/interface.h>
 #include <grids/value.h>
 
+#include <SDL/SDL.h>
+
 #include <vector>
 #include <map>
+
+#include <SDL_ttf/SDL_ttf.h>
 
 
 
@@ -77,6 +81,8 @@ namespace Kaleidoscope
 			int last_clock;
 
 			float room_width;
+		
+			SDL_Event device_event;
 
 
 			///////////
@@ -158,7 +164,14 @@ namespace Kaleidoscope
 
 			int mouseX;
 			int mouseY;
-
+		
+			int down_x;
+			int down_y;
+		
+			bool mouse_moved;
+		
+			bool mouse_down;
+		
 			unsigned char stored_key;
 			int special_key;
 
@@ -184,8 +197,24 @@ namespace Kaleidoscope
 
 			int last_x;
 			int last_y;
-
-
+		
+			///////////////
+			//  Gui Variables
+			///////////////
+			
+			Grids::Value text_hash;
+			std::vector< SDL_Surface * > screen_texts;
+			std::vector< SDL_Surface * > space_texts;
+		
+			SDL_Surface * loaded_image;
+			
+			//int screen_font;
+			//int space_font;
+			TTF_Font * screen_font;
+			TTF_Font * space_font;
+			SDL_Color text_color;
+		
+			GLuint texture;
 
 		private:
 

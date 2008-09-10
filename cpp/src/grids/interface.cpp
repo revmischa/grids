@@ -103,28 +103,40 @@ namespace Grids
 
 		if( event_type == "Room.Create" )
 		{
-				// NOTA BENE: Even though Kaleidoscope doesn't send out a UUID method
-				// It expects one back in the ID
-				std::cout << "Created Room" << std::endl;
+			// NOTA BENE: Even though Kaleidoscope doesn't send out a UUID method
+			// It expects one back in the ID
+			std::cout << "Created Room" << std::endl;
 
-				d->getBuilder()->placeRoom( d,  evt->getArgs()[ "id" ].asString() );
-				d->getBuilder()->buildRoom( d,  evt->getArgs()[ "id" ].asString() );
+			d->getBuilder()->placeRoom( d,  evt->getArgs()[ "id" ].asString() );
+			d->getBuilder()->buildRoom( d,  evt->getArgs()[ "id" ].asString() );
 		}
 		else if( event_type == "Object.Place" )
 		{
-				d->getBuilder()->placeObject( d, evt->getArgs()[ "id" ].asString(),
-						evt->getArgs()[ "roomId" ].asString(),
-						Vec3D(	evt->getArgs()[ "position" ][ 0u ].asDouble(),
-								evt->getArgs()[ "position" ][ 1u ].asDouble(),
-								evt->getArgs()[ "position" ][ 2u ].asDouble() ),
-						Vec3D(	evt->getArgs()[ "scale" ][ 0u ].asDouble(),
-								evt->getArgs()[ "scale" ][ 1u ].asDouble(),
-								evt->getArgs()[ "scale" ][ 2u ].asDouble() ),
-						Vec3D(	evt->getArgs()[ "rotation" ][ 0u ].asDouble(),
-								evt->getArgs()[ "rotation" ][ 1u ].asDouble(),
-								evt->getArgs()[ "rotation" ][ 2u ].asDouble() )		);
+			d->getBuilder()->placeObject( d, evt->getArgs()[ "id" ].asString(),
+					evt->getArgs()[ "roomId" ].asString(),
+					Vec3D(	evt->getArgs()[ "position" ][ 0u ].asDouble(),
+							evt->getArgs()[ "position" ][ 1u ].asDouble(),
+							evt->getArgs()[ "position" ][ 2u ].asDouble() ),
+					Vec3D(	evt->getArgs()[ "scale" ][ 0u ].asDouble(),
+							evt->getArgs()[ "scale" ][ 1u ].asDouble(),
+							evt->getArgs()[ "scale" ][ 2u ].asDouble() ),
+					Vec3D(	evt->getArgs()[ "rotation" ][ 0u ].asDouble(),
+							evt->getArgs()[ "rotation" ][ 1u ].asDouble(),
+							evt->getArgs()[ "rotation" ][ 2u ].asDouble() )		);
 		}
-
+		else if( event_type == "Room.Object.Create" )
+		{
+		
+//			[ "roomId" ] = 
+//			[ "attr" ] = 
+//			Room.Object.Create = 
+//			Room.Object.Update = 
+//			
+		}
+		else if( event_type == "Room.Object.Update" )
+		{
+		
+		}
 
 	}
 
@@ -138,7 +150,6 @@ namespace Grids
 
 		sendEvent( "Room.Create", temp_type );
 	}
-
 
 
 	void Interface::setDevice( Kaleidoscope::Device * in_device )

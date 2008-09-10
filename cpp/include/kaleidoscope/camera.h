@@ -46,11 +46,11 @@ namespace Kaleidoscope
 			void mouseUpdate( int, int );
 			void mouseUpdate( int, int, int, int );
 			
-			Vec3D getPosition();
-			Vec3D getTarget();
-			Vec3D getLook();
-			Vec3D getUp();
-			Vec3D getRotation();
+			Vec3D getPosition( Device *);
+			Vec3D getTarget( Device *);
+			Vec3D getLook( Device *);
+			Vec3D getUp( Device *);
+			Vec3D getRotation( Device *);
 			
 			void setPosition( Vec3D );
 			void setPosition( float, float, float );

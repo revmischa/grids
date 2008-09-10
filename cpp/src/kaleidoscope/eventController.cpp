@@ -32,150 +32,104 @@ namespace Kaleidoscope
 	void EventController::checkEvents( Device * d )
 	{
 
-		Uint8* keys;
-
-		keys = SDL_GetKeyState( NULL );
-
-		if(  keys[SDLK_1] )
+		std::string temp_string;
+		
+		SDL_Event event;
+		
+		d->mouseButton = 0;
+		d->mouse_moved = false;
+		
+		while( SDL_PollEvent( &event ) )
 		{
-			d->Texture_On = !(d->Texture_On);
-			std::cout << "Texture: " << d->Texture_On << std::endl;
-		}
-
-		if( keys[SDLK_2] )
-		{
-			d->Light_On = !(d->Light_On);
-			std::cout << "Light: " << d->Light_On << std::endl;
-		}
-
-		if( keys[SDLK_3] )
-		{
-			d->Alpha_Add = !(d->Alpha_Add);
-			std::cout << "Alpha: " << d->Alpha_Add << std::endl;
-		}
-
-		if( keys[SDLK_4] )
-		{
-			d->Blend_On = !(d->Blend_On);
-			std::cout << "Blend: " << d->Blend_On << std::endl;
-		}
-
-		if( keys[SDLK_5] )
-		{
-			d->Filtering_On = !(d->Filtering_On );
-			std::cout << "Filternig: " << d->Filtering_On << std::endl;
-		}
-
-		if( keys[SDLK_SPACE]  )
-		{
-			d->Position = Vec3D ( 20.0f, 20.0f, 20.0f );
-			d->getCamera()->lookAtPoint( d, 0.0f, 0.0f, 0.0f );
-		}
-
-		if( keys[SDLK_ESCAPE] )
-		{
-			d->running = 0;
-		}
-
-		if( keys[SDLK_TAB] )
-		{
-			if( SDL_GetTicks() - d->last_clock > 400 )
+			if( event.type == SDL_KEYDOWN )
 			{
-				d->getCamera()->swapCameraType( d );
-				d->last_clock = SDL_GetTicks();
+				if( event.key.keysym.sym == SDLK_TAB )
+				{
+					d->getCamera()->swapCameraType( d );
+				}
+				else if( event.key.keysym.sym == SDLK_1 )
+				{
+					d->Texture_On = !(d->Texture_On);
+				}
+				else if( event.key.keysym.sym == SDLK_2 )
+				{
+					d->Light_On = !(d->Light_On);
+				}
+				else if( event.key.keysym.sym == SDLK_3 )
+				{
+					d->Alpha_Add = !(d->Alpha_Add);
+				}
+				else if( event.key.keysym.sym == SDLK_4 )
+				{
+					d->Blend_On = !(d->Blend_On);
+				}
+				else if( event.key.keysym.sym == SDLK_5 )
+				{
+					d->Filtering_On = !(d->Filtering_On );
+				}
+				else if( event.key.keysym.sym == SDLK_ESCAPE )
+				{
+					d->running = 0;
+				}
+				else if( ( event.key.keysym.sym > 96 && event.key.keysym.sym <= 122 ) || event.key.keysym.sym == SDLK_SPACE )
+				{
+					temp_string = "";
+					temp_string += (char)event.key.keysym.sym;
+					d->getGui()->appendText( d, 1u, 0u, temp_string);
+				}
+				else if( event.key.keysym.sym == SDLK_RETURN )
+				{
+					d->getGui()->parseText( d, 1u, 0u );
+					//std::cout << "return" << std::endl;
+				}
+				else if( event.key.keysym.sym == SDLK_BACKSPACE )
+				{
+					d->getGui()->removeLastCharacter( d, 1u, 0u );
+				}
+				else if( event.key.keysym.sym == SDLK_DELETE )
+				{
+					d->getGui()->clearText( d, 1u, 0u );
+				}
 			}
-		}
-
-		if( keys[SDLK_6] )
-		{
-			if( SDL_GetTicks() - d->last_clock > 400 ) // 10 milliseconds
+			
+			///////////////////////////
+			////  CLICK vs DRAG DETECTION
+			/////////////////////////
+			
+			else if( event.type == SDL_MOUSEBUTTONDOWN )
 			{
-				//d->interface->createRoom( );
-				d->last_clock = SDL_GetTicks();
-			}
-		}
-
-		if( keys[SDLK_7] )
-		{
-			if( SDL_GetTicks() - d->last_clock > 400 )
-			{
-				Grids::Value object_type;
-
-				object_type[ "roomId" ] = d->world_hash[ "rooms" ][ 0u ];
-
-				object_type[ "position" ][ 0u ] = 0.0f;
-				object_type[ "position" ][ 1u ] = 0.0f;
-				object_type[ "position" ][ 2u ] = 0.0f;
-				object_type[ "scale" ][ 0u ] = 1.0f;
-				object_type[ "scale" ][ 1u ] = 1.0f;
-				object_type[ "scale" ][ 2u ] = 1.0f;
-				object_type[ "rotation" ][ 0u ] = 0.0f;
-				object_type[ "rotation" ][ 1u ] = 0.0f;
-				object_type[ "rotation" ][ 2u ] = 0.0f;
-
-				d->getInterface()->sendEvent( "Object.Place", object_type );
-
-				d->last_clock = SDL_GetTicks();
-			}
-		}
-
-		if( keys[SDLK_8] )
-		{
-			if( SDL_GetTicks() - d->last_clock > 400 )
-			{
-				std::cout << "Key Pressed, Attempting to create room" << std::endl;
-
-				d->getInterface()->createRoom();
-
-				d->last_clock = SDL_GetTicks();
-
-			}
-		}
-
-		if( keys[96] ) // ~ key, used to open console
-		{
-			if( SDL_GetTicks() - d->last_clock > 400 ) // 100 milliseconds
-			{
-				std::cout << "Escape" << std::endl;
-
-
-				d->last_clock = SDL_GetTicks();
-			}
-		}
-
-
-
-
-		// If the mouse is clicked ( not dragged )
-		// pass that information on to the gui
-
-		///////////////////////////
-		////  CLICK vs DRAG DETECTION
-		/////////////////////////
-
-		if( SDL_GetMouseState(NULL, NULL) & SDL_BUTTON( SDL_BUTTON_LEFT ) ) // True when left mouse button is down
-		{
-			if( d->left_pressed == false )
-			{
-				d->left_pressed = true;
-
-				d->mouse_timer = SDL_GetTicks();
-			}
-		}
-		else
-		{
-			if( d->left_pressed && ( SDL_GetTicks() - d->mouse_timer ) < CLICK_LENGTH )
-			// A click must be under 2/5 th of a second
-			//
-			{
+				// record the first state
 				int x, y;
 				SDL_GetMouseState( &x, &y );
-
-				// Alert GUI and pass on the location of the click
-				d->getGui()->registerClick( SDL_BUTTON_LEFT, x, y );
+				
+				d->down_x = x;
+				d->down_y = y;
+								
+				d->mouseButton = event.button.button;
+				d->mouse_down = true;
 			}
-
-			d->left_pressed = false;
+			else if( event.type == SDL_MOUSEBUTTONUP )
+			{
+				// if the first click is the same as up then
+				int x, y;
+				SDL_GetMouseState( &x, &y );
+				
+				if(		d->down_x == x && d->down_y == y && 
+						event.button.button != 4 && event.button.button != 5	)
+				{
+					d->getGui()->registerClick( SDL_BUTTON_LEFT, x, y );
+				}
+				
+				d->mouse_down = false;
+			}
+			else if( event.type == SDL_MOUSEMOTION )
+			{
+				d->mouse_moved = true;
+			}
+			else if( event.type == SDL_QUIT )
+			{
+				d->running = 0;
+			}
 		}
 
 

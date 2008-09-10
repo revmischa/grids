@@ -12,6 +12,7 @@
 #include <grids/define.h>
 
 #include <math.h>
+#include <SDL_image/SDL_image.h>
 
 
 
@@ -458,6 +459,19 @@ namespace Kaleidoscope
 		d->world_hash[ new_id ][ "quads" ][ 0u ][ "indices" ][ 1u ][ 2u ] = 6u;
 		d->world_hash[ new_id ][ "quads" ][ 0u ][ "indices" ][ 1u ][ 3u ] = 7u;
 	}
+	
+	void Builder::buildBillboard( Device * d, GridsID new_id, std::string image_name )
+	// Builds and attaches a glow orb to the given GridsID
+	{
+		SDL_Surface * temp_surface = loadImage( image_name );
+
+		// pack image pixles into json... hmmm
+	}
+	
+	SDL_Surface * Builder::loadImage( std::string image_name )
+	{
+		return IMG_Load( image_name.c_str() );
+	}
 
 	void Builder::buildBox( Device * d, GridsID new_id, float box_size, float * color )
 	{
@@ -530,6 +544,163 @@ namespace Kaleidoscope
 		d->world_hash[ new_id ][ "quads" ][ 0u ][ "indices" ][ 5u ][ 2u ] = 2u;
 		d->world_hash[ new_id ][ "quads" ][ 0u ][ "indices" ][ 5u ][ 3u ] = 1u;
 
+	}
+	
+	int Builder::packImage( Device * d, GridsID in_id, SDL_Surface * in_surface )
+	{
+		if( !( d->world_hash[ in_id ][ "images" ] ) ) // if there are no images attached to the array
+		{
+			d->world_hash[ in_id ][ "images" ][ 0u ] = Grids::Value();			
+			
+			int surface_x = in_surface->w;
+			int surface_y = in_surface->h;
+			
+			for( int i = 0; i < surface_x; i++ )
+			{
+				for( int g = 0; g < surface_y; g++ )
+				{
+					d->world_hash[ in_id ][ "images" ][ 0u ][ i ][ g ] = getPixel(in_surface, i, g);
+				}
+			}
+			
+			return 0;
+			
+		} // end if "images" is empty
+		else
+		{
+			int new_index = d->world_hash[ in_id ][ "images" ].size();
+			
+			int surface_x = in_surface->w;
+			int surface_y = in_surface->h;
+			
+			for( int i = 0; i < surface_x; i++ )
+			{
+				for( int g = 0; g < surface_y; g++ )
+				{
+					d->world_hash[ in_id ][ "images" ][ new_index ][ i ][ g ] = getPixel(in_surface, i, g);
+				}
+			}
+			
+			return new_index;
+		}
+		
+		
+	} // end packImage()
+	
+	
+	SDL_Surface * Builder::getImage( Device * d, GridsID in_id )
+	{
+		return getImage( d, in_id, 0u );
+	}
+	
+	SDL_Surface * Builder::getImage( Device * d, GridsID in_id, int in_index )
+	{
+		int surface_x = d->world_hash[ in_id ][ "images" ][ in_index ].size();
+		int surface_y = d->world_hash[ in_id ][ "images" ][ in_index ][ 0u ].size(); // assuming of course that this as rectangular...
+		
+		#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+				Uint32 rmask = 0xff000000;
+				Uint32 gmask = 0x00ff0000;
+				Uint32 bmask = 0x0000ff00;
+				Uint32 amask = 0x000000ff;
+		#else
+				Uint32 rmask = 0x000000ff;
+				Uint32 gmask = 0x0000ff00;
+				Uint32 bmask = 0x00ff0000;
+				Uint32 amask = 0xff000000;
+		#endif
+				
+		SDL_Surface * temp_surface = SDL_CreateRGBSurface( SDL_HWSURFACE, surface_x, surface_y, 32, rmask, gmask, bmask, amask );
+		
+		SDL_LockSurface( temp_surface );
+		
+		// modify pixels
+		
+		Uint32 temp_pixel;
+		
+		for( int i = 0; i < surface_x; i++ )
+		{
+			for( int g = 0; g < surface_y; g++ )
+			{
+				temp_pixel = d->world_hash[ in_id ][ "images" ][ in_index ][ i ][ g ].asDouble();
+				
+				putPixel( temp_surface, i, g, temp_pixel );
+			}
+		}
+		
+		SDL_UnlockSurface( temp_surface );
+		
+		return temp_surface;
+		
+	}
+	
+	
+	
+	
+	
+	
+	/////////////////////
+	///  PRIVATE
+	////////////////////
+	
+	Uint32 Builder::getPixel(SDL_Surface *surface, int x, int y)
+	{
+		int bpp = surface->format->BytesPerPixel;
+		/* Here p is the address to the pixel we want to retrieve */
+		Uint8 *p = (Uint8 *)surface->pixels + y * surface->pitch + x * bpp;
+		
+		switch(bpp) {
+			case 1:
+				return *p;
+				
+			case 2:
+				return *(Uint16 *)p;
+				
+			case 3:
+				if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
+					return p[0] << 16 | p[1] << 8 | p[2];
+				else
+					return p[0] | p[1] << 8 | p[2] << 16;
+				
+			case 4:
+				return *(Uint32 *)p;
+				
+			default:
+				return 0;       /* shouldn't happen, but avoids warnings */
+		}
+	}
+	
+	void Builder::putPixel(SDL_Surface *surface, int x, int y, Uint32 pixel)
+	{
+		int bpp = surface->format->BytesPerPixel;
+		/* Here p is the address to the pixel we want to set */
+		Uint8 *p = (Uint8 *)surface->pixels + y * surface->pitch + x * bpp;
+		
+		switch(bpp) {
+			case 1:
+				*p = pixel;
+				break;
+				
+			case 2:
+				*(Uint16 *)p = pixel;
+				break;
+				
+			case 3:
+				if(SDL_BYTEORDER == SDL_BIG_ENDIAN) {
+					p[0] = (pixel >> 16) & 0xff;
+					p[1] = (pixel >> 8) & 0xff;
+					p[2] = pixel & 0xff;
+				} else {
+					p[0] = pixel & 0xff;
+					p[1] = (pixel >> 8) & 0xff;
+					p[2] = (pixel >> 16) & 0xff;
+				}
+				break;
+				
+			case 4:
+				*(Uint32 *)p = pixel;
+				break;
+		}
 	}
 
 } // end namespace Kaleidoscope
