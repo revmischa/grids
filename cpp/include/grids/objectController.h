@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include <grids/define.h>
 #include <grids/interface.h>
 #include <grids/event.h>
 #include <grids/object.h>
@@ -27,8 +28,16 @@ namespace Grids
 			ObjectController();
 
 			void setInterface( Interface * );
-
-			void addObject( std::string );
+			
+		
+			/// *** NOTE Create object sends the request to create an object
+			// the creation actually occurs when the network bounces back a
+			// GridsID, confirming the request
+			void sendCreateObject(); // creates an object outside of a room
+			void sendCreateObject( GridsID ); // creates an object inside of a room based on the ID
+		
+			void sendUpdatePosition( GridsID, Vec3D, Vec3D, Vec3D ); // update the position, rotation, and scale
+					
 
 			void sendEvent( std::string type, Grids::Value );
 
@@ -36,11 +45,6 @@ namespace Grids
 
 		private:
 			Interface * controller_interface;
-
-			std::map< std::string, int > uuid_map;
-
-			// Stores objects ids
-			std::vector< std::string > objects;
 
 	};
 

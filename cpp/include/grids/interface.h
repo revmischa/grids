@@ -47,7 +47,6 @@ namespace Grids
 			static void receiveEvent( Protocol *, Event *, void *  ); // Grids protocol object hooks into this
 			static void connectionCallback(   Protocol *, Event *, void *  );
 
-
 			ObjectController * getObjectController();
 			PersonController * getPersonController();
 			MessengerController * getMessengerController();

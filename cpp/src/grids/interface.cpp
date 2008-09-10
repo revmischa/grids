@@ -131,7 +131,7 @@ namespace Grids
 //			[ "attr" ] = 
 //			Room.Object.Create = 
 //			Room.Object.Update = 
-//			
+
 		}
 		else if( event_type == "Room.Object.Update" )
 		{
@@ -150,7 +150,20 @@ namespace Grids
 
 		sendEvent( "Room.Create", temp_type );
 	}
-
+	
+	
+	/////////////////////
+	//// OTHER METHODS
+	//////////////////
+	
+	// Create Object
+	// Pass Room_Id, ( or none ) at the very least
+	
+	
+	// Update Object (specify ID)
+	// Pass a new location, geometry, texture, etc
+	
+	//
 
 	void Interface::setDevice( Kaleidoscope::Device * in_device )
 	{

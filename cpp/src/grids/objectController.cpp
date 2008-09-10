@@ -16,22 +16,32 @@ namespace Grids
 	{
 
 	}
-
-	void ObjectController::addObject( std::string type )
+	
+	void ObjectController::setInterface( Interface * in_interface )
 	{
-		//objects.push_back( obj );
-
-		//obj->setController( this );
-
-		// Add the item's uuid to a lookup table
-
-		// Public key / private key
+		controller_interface = in_interface;
 	}
 
-	void ObjectController::setInterface( Interface * intr )
+	void ObjectController::sendCreateObject(  )
 	{
-		controller_interface = intr;
+		Value temp_value = Value();
+		
+		temp_value[ "_method" ] = "Room.Create" ;
+		
+		controller_interface->sendEvent( "Room.Create", temp_value );
 	}
+	
+	void ObjectController::sendCreateObject( GridsID room_id )
+	{
+		
+	}
+	
+	void ObjectController::sendUpdatePosition( GridsID object_id, Vec3D new_position, Vec3D new_rotation, Vec3D new_scale )
+	{
+		
+	}
+	
+
 
 	void ObjectController::sendEvent( std::string in_type, Value args )
 	{
@@ -40,10 +50,8 @@ namespace Grids
 
 	void ObjectController::giveEvent( Event * evt )
 	{
-		for( std::vector< Object * >::size_type i = 0; i < objects.size(); i++ )
-		{
-			//objects[i]->giveEvent( evt );
-		}
+
+		
 	}
 
 } // end namespace Grids
