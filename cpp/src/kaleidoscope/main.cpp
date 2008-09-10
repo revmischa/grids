@@ -128,18 +128,18 @@ int main( int argc, char **argv )
 	main_gui = new Kaleidoscope::Gui( main_device );
 	main_device->setGui( main_gui );
 
-	//int text_id = main_gui->addText(main_device, Kaleidoscope::Vec2D( -0.95f, 0.95f ), " " );
-	//main_gui->addText(main_device, Kaleidoscope::Vec3D( 50.0f, 50.0f, 50.0f ), "point < 50, 50, 50 >" );
-	//main_gui->addText(main_device, Kaleidoscope::Vec3D( -50.0f, 0.0f, -50.0f ), "point < -50, 0, -50 >" );
+	int text_id = main_gui->addText(main_device, Kaleidoscope::Vec2D( -0.95f, 0.95f ), " " );
+	main_gui->addText(main_device, Kaleidoscope::Vec3D( 50.0f, 50.0f, 50.0f ), "point < 50, 50, 50 >" );
+	main_gui->addText(main_device, Kaleidoscope::Vec3D( -50.0f, 0.0f, -50.0f ), "point < -50, 0, -50 >" );
 
 
-	//SDL_Surface * temp_image = IMG_Load( "corona.png" );
+	SDL_Surface * temp_image = IMG_Load( "corona.png" );
 
-    //main_builder->packImage(main_device, "temp_image232", temp_image );
+    main_builder->packImage(main_device, "temp_image232", temp_image );
 
-	//delete temp_image;
+	delete temp_image;
 
-	//main_device->loaded_image = main_builder->getImage( main_device, "temp_image232" );
+	main_device->loaded_image = main_builder->getImage( main_device, "temp_image232" );
 
 	main_renderer->prepare( main_device );
 
