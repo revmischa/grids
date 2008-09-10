@@ -41,6 +41,7 @@ void glBlitOnScreen( int in_texture );
 
 int main( int argc, char **argv )
 {
+    std::cout << "Hello world" << std::endl;
 
 	main_device->running = 1;        // Flag telling if the program is running
 
