@@ -31,6 +31,11 @@
 
 #include <SDL_ttf/SDL_ttf.h>
 
+namespace Grids
+{
+	class Interface;
+}
+
 
 
 namespace Kaleidoscope

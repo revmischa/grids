@@ -157,13 +157,28 @@ namespace Grids
 	//////////////////
 	
 	// Create Object
-	// Pass Room_Id, ( or none ) at the very least
-	
-	
-	// Update Object (specify ID)
-	// Pass a new location, geometry, texture, etc
-	
+	// SEND		==>	GridsID of room ( or none ) 
+	// RECEIVE	==>	GridsID of new object, GridsID of room if applicable
 	//
+	//	
+	// Update Object Position
+	// SEND		==>	GridsID of object, Position Vector, Rotation Vector, Scale Vector
+	// RECEIVE	==>	GridsID of object, Position Vector, Rotation Vector, Scale Vector
+	//
+	//
+	// Create Person
+	// SEND		==> GridsID of room
+	// RECEIVE	==>	GridsID of person, GridsID of person's room
+	//
+	// Update Person Position
+	// SEND		==> GridsID of person, Position Vector, Rotation Vector, Scale Vector
+	// RECEIVE	==>	GridsID of object, Position Vector, Rotation Vector, Scale Vector
+	//
+	// maybe Update Object Position and Update Person Position can be combined?
+	
+	
+	
+	// Update person ( 
 
 	void Interface::setDevice( Kaleidoscope::Device * in_device )
 	{

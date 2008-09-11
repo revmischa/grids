@@ -29,7 +29,30 @@ namespace Grids
 	{
 		controller_interface = intr;
 	}
-
+	
+	void PersonController::parseEvent( Kaleidoscope::Device * d, Event * evt )
+	{
+		std::string event_type = evt->getEventType();
+		
+		
+	}
+	
+	void PersonController::sendUpdatePosition( Kaleidoscope::Device * d, GridsID in_id, 
+											Vec3D in_pos, Vec3D in_rot, Vec3D in_scale )
+	// Sends a request to Grids to update the position of a person, or that a person's position, etc has changed
+	{
+		
+		
+	}
+	
+	void PersonController::updatePosition( Kaleidoscope::Device * d, GridsID in_id, 
+											  Vec3D in_pos, Vec3D in_rot, Vec3D in_scale )
+	// Move / update a person's Value hash to reflect the new position
+	// Called by parseEvent
+	{
+		
+		
+	}
 
 	void PersonController::sendEvent( std::string in_type, Value args )
 

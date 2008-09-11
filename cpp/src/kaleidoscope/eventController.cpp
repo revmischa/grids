@@ -76,6 +76,8 @@ namespace Kaleidoscope
 					temp_string = "";
 					temp_string += (char)event.key.keysym.sym;
 					d->getGui()->appendText( d, 1u, 0u, temp_string);
+					
+					// NOTE: I still need to add support for SHIFT and CAPS LOCK keys
 				}
 				else if( event.key.keysym.sym == SDLK_RETURN )
 				{

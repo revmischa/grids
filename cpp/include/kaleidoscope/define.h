@@ -10,6 +10,10 @@
 
 #pragma once
 
+#include <SDL_ttf/SDL_ttf.h>
+#include <SDL_image/SDL_image.h>
+#include <SDL/SDL.h>
+
 #include <grids/vector3d.h>
 #include <grids/vector2d.h>
 #include <grids/irrMath.h>

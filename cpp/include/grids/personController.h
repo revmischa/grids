@@ -13,6 +13,8 @@
 #include <grids/event.h>
 #include <grids/person.h>
 
+#include <kaleidoscope/kaleidoscope.h>
+
 #include <vector>
 #include <map>
 
@@ -29,11 +31,20 @@ namespace Grids
 
 			void setInterface( Interface * );
 
-			void addPerson( Person * );
+			void sendAddPerson( );	// This should only be called once.
+									// there are only one of you, right?
+			
+			void sendUpdatePosition( Kaleidoscope::Device *, GridsID, Vec3D, Vec3D, Vec3D );
+			
+			void updatePosition( Kaleidoscope::Device *, GridsID, Vec3D, Vec3D, Vec3D );
+		
+			void parseEvent( Kaleidoscope::Device *, Event * );
 
-			void sendEvent( std::string , Grids::Value  );
+			void sendEvent( std::string, Grids::Value );
 
 			void giveEvent( Event * );
+		
+			void addPerson( Person * );
 
 		private:
 

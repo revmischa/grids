@@ -33,7 +33,14 @@ namespace Grids
 	
 	void ObjectController::sendCreateObject( GridsID room_id )
 	{
+		std::string method = "Room.Object.Create";
 		
+		Value temp_value = Value();
+		
+		temp_value[ "_method" ] = method;
+		//temp_value[ 
+		
+		controller_interface->sendEvent( method, temp_value );
 	}
 	
 	void ObjectController::sendUpdatePosition( GridsID object_id, Vec3D new_position, Vec3D new_rotation, Vec3D new_scale )
