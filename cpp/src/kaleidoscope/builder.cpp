@@ -144,10 +144,10 @@ namespace Kaleidoscope
 
 		// Lines Color
 		d->world_hash[ new_id ][ "color" ][ 0u ] = Grids::Value();
-		d->world_hash[ new_id ][ "color" ][ 0u ][ 0u ] = 0.0f;
+		d->world_hash[ new_id ][ "color" ][ 0u ][ 0u ] = 1.0f;
 		d->world_hash[ new_id ][ "color" ][ 0u ][ 1u ] = 1.0f;
-		d->world_hash[ new_id ][ "color" ][ 0u ][ 2u ] = 0.0f;
-		d->world_hash[ new_id ][ "color" ][ 0u ][ 3u ] = 0.5f;
+		d->world_hash[ new_id ][ "color" ][ 0u ][ 2u ] = 1.0f;
+		d->world_hash[ new_id ][ "color" ][ 0u ][ 3u ] = 0.1f;
 
 		d->world_hash[ new_id ][ "lines" ][ 0u ][ "indices" ] = Grids::Value();
 		d->world_hash[ new_id ][ "lines" ][ 0u ][ "color" ] = 0u;
@@ -206,10 +206,10 @@ namespace Kaleidoscope
 		// Wall Color
 
 		d->world_hash[ new_id ][ "color" ][ 1u ] = Grids::Value();
-		d->world_hash[ new_id ][ "color" ][ 1u ][ 0u ] = 0.0f;
+		d->world_hash[ new_id ][ "color" ][ 1u ][ 0u ] = 1.0f;
 		d->world_hash[ new_id ][ "color" ][ 1u ][ 1u ] = 1.0f;
-		d->world_hash[ new_id ][ "color" ][ 1u ][ 2u ] = 0.0f;
-		d->world_hash[ new_id ][ "color" ][ 1u ][ 3u ] = 0.05f;
+		d->world_hash[ new_id ][ "color" ][ 1u ][ 2u ] = 1.0f;
+		d->world_hash[ new_id ][ "color" ][ 1u ][ 3u ] = 0.01f;
 
 		// Outline Color -- faint white
 		d->world_hash[ new_id ][ "color" ][ 2u ] = Grids::Value();

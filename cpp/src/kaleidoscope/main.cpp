@@ -18,6 +18,7 @@
 #include <SDL_ttf/SDL_ttf.h>
 #include <SDL_image/SDL_image.h>
 
+#include <sstream>
 
 Kaleidoscope::Device * main_device = new Kaleidoscope::Device( );
 
@@ -35,6 +36,8 @@ Grids::Value main_hash;
 
 static SDL_Surface *gScreen;
 
+#define ROOM_SIZE 100.0f
+
 
 int main( int argc, char **argv )
 {
@@ -42,7 +45,7 @@ int main( int argc, char **argv )
 
 	main_device->running = 1;        // Flag telling if the program is running
 
-	main_device->room_width = 100; // How wide the rooms are
+	main_device->room_width = ROOM_SIZE; // How wide the rooms are
 
 	main_device->setCursorController( main_cursor );
 	main_device->setRenderer( main_renderer );
@@ -66,8 +69,42 @@ int main( int argc, char **argv )
 								Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f ),
 								Kaleidoscope::Vec3D( 1.0f, 1.0f, 1.0f ),
 								Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f )	);
-
+	
 	main_builder->buildChair( main_device, object_id_1 );
+	
+	Grids::GridsID temp_box_id;
+	float temp_box_color[ 4 ];
+	
+	std::stringstream out;
+	
+	srand ( time(NULL) );
+
+		
+	for( int i = 0; i < 10; i++ )
+	{
+		out << i;
+		
+		temp_box_id = "TINY_BOX" + out.str();
+		
+		std::cout << temp_box_id << std::endl;
+		
+		main_builder->placeObject(	main_device, temp_box_id, room_id,
+								  Kaleidoscope::Vec3D( ROOM_SIZE - (rand() % 10000)/10000.0f * ROOM_SIZE * 2.0f,  
+													  ROOM_SIZE - (rand() % 10000)/10000.0f * ROOM_SIZE * 2.0f, 
+													   ROOM_SIZE - (rand() % 10000)/10000.0f * ROOM_SIZE * 2.0f ),
+								  Kaleidoscope::Vec3D( 1.0f, 1.0f, 1.0f ),
+								  Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f )	);
+	
+		
+		temp_box_color[ 0 ] = (rand() % 10000)/10000.0f;
+		temp_box_color[ 1 ] = (rand() % 10000)/10000.0f;
+		temp_box_color[ 2 ] = (rand() % 10000)/10000.0f;
+		temp_box_color[ 3 ] = 0.45f;
+		
+		main_device->getBuilder()->buildBox(main_device, temp_box_id, 4, temp_box_color );
+	}
+
+	
 
 	main_device->x_pos = 200;
 	main_device->y_pos = 100;

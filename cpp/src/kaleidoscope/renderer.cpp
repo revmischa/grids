@@ -441,6 +441,8 @@ namespace Kaleidoscope
 				{
 					GridsID temp_object =  d->world_hash[ temp_room ][ "objects" ][ g ].asString();
 					
+					glPushMatrix();
+					
 					// Translate
 					glTranslatef(	d->world_hash[ temp_object ][ "position" ][ 0u ].asDouble(), 
 									d->world_hash[ temp_object ][ "position" ][ 1u ].asDouble(), 
@@ -612,6 +614,8 @@ namespace Kaleidoscope
 						finishLines();
 						
 					} // end if Triangles exists
+					
+					glPopMatrix();
 
 				} // end for g
 				
