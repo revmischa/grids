@@ -21,7 +21,7 @@ namespace Kaleidoscope {
 		
 	public:
 		
-		VoxelSpace( Grids::GridsID, int ww, int hh, int dd, int xs, int ys, int zs, int cacheSize);
+		VoxelSpace( Grids::GridsID, float ww, float hh, float dd, float xs, float ys, float zs );
 		
 		void setNodes( Device * d );
 		void createPotentials( );
@@ -29,7 +29,7 @@ namespace Kaleidoscope {
 		void render();
 		void update( Device *, float s, float isoV);
 		
-		void renderSlice( Device *, bool zSlice,float currSlice, float isoV);
+		void generateVoxelSlice( Device *, bool zSlice,float currSlice, float isoV);
 		
 		
 		// space dimensions, the size over which to look when forming the "blob"
@@ -45,10 +45,6 @@ namespace Kaleidoscope {
 		// current total power/potential of all nodes
 		float totalP;
 		
-		// vertice cache
-		float * cacheX;
-		float * cacheY;
-		float * cacheZ;
 		
 		// current list of nodes/voxels in the space
 		// Node * nodes; // The nodes are equivalend to objects and people so I'll just use Vec3D of positions
@@ -65,6 +61,9 @@ namespace Kaleidoscope {
 	private:
 		
 		std::vector< float > node_potentials;
+		
+		int vertex_counter;
+		int line_counter;
 		
 		
 		// internally used lookup tables by the marching square algorithm

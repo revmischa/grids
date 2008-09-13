@@ -13,6 +13,8 @@
 #include <grids/define.h>
 #include <grids/protocol.h>
 
+#include <kaleidoscope/voxelSpace.h>
+
 #include <stdlib.h>
 #include <string>
 #include <SDL_ttf/SDL_ttf.h>
@@ -64,13 +66,6 @@ int main( int argc, char **argv )
 
 	main_builder->placeRoom( main_device, room_id );
 	main_builder->buildRoom( main_device, room_id );
-
-	main_builder->placeObject(	main_device, object_id_1, room_id,
-								Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f ),
-								Kaleidoscope::Vec3D( 1.0f, 1.0f, 1.0f ),
-								Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f )	);
-	
-	main_builder->buildChair( main_device, object_id_1 );
 	
 	Grids::GridsID temp_box_id;
 	float temp_box_color[ 4 ];
@@ -80,7 +75,7 @@ int main( int argc, char **argv )
 	srand ( time(NULL) );
 
 		
-	for( int i = 0; i < 10; i++ )
+	for( int i = 0; i < 35; i++ )
 	{
 		out << i;
 		
@@ -99,19 +94,27 @@ int main( int argc, char **argv )
 		temp_box_color[ 0 ] = (rand() % 10000)/10000.0f;
 		temp_box_color[ 1 ] = (rand() % 10000)/10000.0f;
 		temp_box_color[ 2 ] = (rand() % 10000)/10000.0f;
-		temp_box_color[ 3 ] = 0.45f;
+		temp_box_color[ 3 ] = 0.35f;
 		
-		main_device->getBuilder()->buildBox(main_device, temp_box_id, 4, temp_box_color );
+		main_device->getBuilder()->buildBox(main_device, temp_box_id, 2, temp_box_color );
 	}
-
 	
+	Grids::GridsID voxel_id = "Voxel1234";
+	
+	Kaleidoscope::VoxelSpace * main_voxel = new Kaleidoscope::VoxelSpace( voxel_id , ROOM_SIZE, ROOM_SIZE, ROOM_SIZE, ROOM_SIZE - 1, ROOM_SIZE - 1, ROOM_SIZE - 1 );
+	
+	main_builder->placeObject(	main_device, voxel_id, room_id,
+							  Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f ),
+							  Kaleidoscope::Vec3D( 1.0f, 1.0f, 1.0f ),
+							  Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f )	);
+	
+	main_voxel->update(main_device, 3, 0.65f);
 
 	main_device->x_pos = 200;
 	main_device->y_pos = 100;
 
 	//main_builder->placeObject( main_device, loaded_id, room_id, Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f ), Kaleidoscope::Vec3D( 1.0f, 1.0f, 1.0f ), Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f ) );
 	//main_loader->load3ds( main_device, loaded_id, "torus.3ds", true );
-
 
 	// Initialize SDL
 

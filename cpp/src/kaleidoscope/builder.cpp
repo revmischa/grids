@@ -381,6 +381,7 @@ namespace Kaleidoscope
 	void Builder::placeObject( Device * d, GridsID new_id, Vec3D new_position )
 	// Place an object that's not contained inside a room
 	{
+		
 
 	}
 
@@ -543,6 +544,57 @@ namespace Kaleidoscope
 		d->world_hash[ new_id ][ "quads" ][ 0u ][ "indices" ][ 5u ][ 1u ] = 6u;
 		d->world_hash[ new_id ][ "quads" ][ 0u ][ "indices" ][ 5u ][ 2u ] = 2u;
 		d->world_hash[ new_id ][ "quads" ][ 0u ][ "indices" ][ 5u ][ 3u ] = 1u;
+		
+		
+		// Line Color
+		d->world_hash[ new_id ][ "color" ][ 1u ][ 0u ] = 0.75f;
+		d->world_hash[ new_id ][ "color" ][ 1u ][ 1u ] = 0.75f;
+		d->world_hash[ new_id ][ "color" ][ 1u ][ 2u ] = 0.75f;
+		d->world_hash[ new_id ][ "color" ][ 1u ][ 3u ] = 0.15f;
+		
+		d->world_hash[ new_id ][ "lines" ][ 0u ][ "color" ] = 1u;
+		
+		d->world_hash[ new_id ][ "lines" ][ 0u ][ "indices" ][ 0u ][ 0u ] = 0u;
+		d->world_hash[ new_id ][ "lines" ][ 0u ][ "indices" ][ 0u ][ 1u ] = 1u;
+		
+		d->world_hash[ new_id ][ "lines" ][ 0u ][ "indices" ][ 1u ][ 0u ] = 1u;
+		d->world_hash[ new_id ][ "lines" ][ 0u ][ "indices" ][ 1u ][ 1u ] = 2u;
+		
+		d->world_hash[ new_id ][ "lines" ][ 0u ][ "indices" ][ 2u ][ 0u ] = 2u;
+		d->world_hash[ new_id ][ "lines" ][ 0u ][ "indices" ][ 2u ][ 1u ] = 3u;
+		
+		d->world_hash[ new_id ][ "lines" ][ 0u ][ "indices" ][ 3u ][ 0u ] = 3u;
+		d->world_hash[ new_id ][ "lines" ][ 0u ][ "indices" ][ 3u ][ 1u ] = 0u;
+		
+		
+		
+		d->world_hash[ new_id ][ "lines" ][ 0u ][ "indices" ][ 4u ][ 0u ] = 4u;
+		d->world_hash[ new_id ][ "lines" ][ 0u ][ "indices" ][ 4u ][ 1u ] = 5u;
+		
+		d->world_hash[ new_id ][ "lines" ][ 0u ][ "indices" ][ 5u ][ 0u ] = 5u;
+		d->world_hash[ new_id ][ "lines" ][ 0u ][ "indices" ][ 5u ][ 1u ] = 6u;
+		
+		d->world_hash[ new_id ][ "lines" ][ 0u ][ "indices" ][ 6u ][ 0u ] = 6u;
+		d->world_hash[ new_id ][ "lines" ][ 0u ][ "indices" ][ 6u ][ 1u ] = 7u;
+		
+		d->world_hash[ new_id ][ "lines" ][ 0u ][ "indices" ][ 7u ][ 0u ] = 7u;
+		d->world_hash[ new_id ][ "lines" ][ 0u ][ "indices" ][ 7u ][ 1u ] = 4u;
+		
+		
+		
+		d->world_hash[ new_id ][ "lines" ][ 0u ][ "indices" ][ 8u ][ 0u ] = 0u;
+		d->world_hash[ new_id ][ "lines" ][ 0u ][ "indices" ][ 8u ][ 1u ] = 4u;
+		
+		d->world_hash[ new_id ][ "lines" ][ 0u ][ "indices" ][ 9u ][ 0u ] = 1u;
+		d->world_hash[ new_id ][ "lines" ][ 0u ][ "indices" ][ 9u ][ 1u ] = 5u;
+		
+		d->world_hash[ new_id ][ "lines" ][ 0u ][ "indices" ][ 10u ][ 0u ] = 2u;
+		d->world_hash[ new_id ][ "lines" ][ 0u ][ "indices" ][ 10u ][ 1u ] = 6u;
+		
+		d->world_hash[ new_id ][ "lines" ][ 0u ][ "indices" ][ 11u ][ 0u ] = 3u;
+		d->world_hash[ new_id ][ "lines" ][ 0u ][ "indices" ][ 11u ][ 1u ] = 7u;
+		
+		
 
 	}
 	

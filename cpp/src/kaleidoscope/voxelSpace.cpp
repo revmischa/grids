@@ -10,12 +10,12 @@
 #include <kaleidoscope/voxelSpace.h>
 
 
-#define NODE_POTENTIAL 0.5f
+#define NODE_POTENTIAL 130.5f
 
 namespace Kaleidoscope 
 {
 		
-	VoxelSpace::VoxelSpace( Grids::GridsID in_id, int ww, int hh, int dd, int xs, int ys, int zs, int cacheSize) 
+	VoxelSpace::VoxelSpace( Grids::GridsID in_id, float ww, float hh, float dd, float xs, float ys, float zs ) 
 	{
 		voxel_id = in_id;
 		
@@ -87,16 +87,14 @@ namespace Kaleidoscope
 		{
 			_edgeFlags.push_back( temp_vector_4 );
 		}
-		
-		// cache arrays for vertex list
-		cacheX=new float[cacheSize];
-		cacheY=new float[cacheSize];
-		cacheZ=new float[cacheSize];
+	
 	}
 	
 	// updates node list, called from showNodes() above
 	void VoxelSpace::setNodes( Device * d ) 
 	{
+		//std::cout << "setNodes()" << std::endl;
+		
 		node_positions.clear();
 		
 		// set the vector node_positions from the relevant people and objects
@@ -115,9 +113,16 @@ namespace Kaleidoscope
 					node_positions.push_back( Vec3D( d->world_hash[ temp_object ][ "position" ][ 0u ].asDouble(),
 													d->world_hash[ temp_object ][ "position" ][ 1u ].asDouble(),
 													d->world_hash[ temp_object ][ "position" ][ 2u ].asDouble()	) );
+					
+					
+//					std::cout	<< d->world_hash[ temp_object ][ "position" ][ 0u ].asDouble() << " : " 
+//								<< d->world_hash[ temp_object ][ "position" ][ 1u ].asDouble() << " : "
+//								<< d->world_hash[ temp_object ][ "position" ][ 2u ].asDouble() << std::endl;
 				}
 			}
 		}
+		
+		numNodes = node_positions.size();
 		
 		createPotentials();
 	}
@@ -138,15 +143,46 @@ namespace Kaleidoscope
 	// isoV = threshold value to be used for finding surface
 	void VoxelSpace::update( Device * d, float s, float isoV) 
 	{
+		setNodes( d );
+		
+		vertex_counter = 0;
+		line_counter = 0;
+		
+		d->world_hash[ voxel_id ][ "vertices" ].clear(); // clear the 
+		d->world_hash[ voxel_id ][ "lines" ].clear(); // stores the color and indices
+		d->world_hash[ voxel_id ][ "color" ].clear();
+		
+		
+		d->world_hash[ voxel_id ][ "color" ][ 0u ][ 0u ] = 1.0f;
+		d->world_hash[ voxel_id ][ "color" ][ 0u ][ 1u ] = 1.0f;
+		d->world_hash[ voxel_id ][ "color" ][ 0u ][ 2u ] = 1.0f;
+		d->world_hash[ voxel_id ][ "color" ][ 0u ][ 3u ] = 1.0f;
+		
+		d->world_hash[ voxel_id ][ "lines" ][ 0u ][ "color" ] = 0u;
+		
+//		d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter ][ 0u ] = -100.0f;
+//		d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter ][ 1u ] = -100.0f;
+//		d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter ][ 2u ] = -100.0f;
+//		
+//		d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter + 1u ][ 0u ] = 100.0f;
+//		d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter + 1u ][ 1u ] = 100.0f;
+//		d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter + 1u ][ 2u ] = 100.0f;
+//		
+//		d->world_hash[ voxel_id ][ "lines" ][ 0u ][ "indices" ][ line_counter ][ 0u ] = 0u;
+//		d->world_hash[ voxel_id ][ "lines" ][ 0u ][ "indices" ][ line_counter ][ 1u ] = 1u;
+//		
+//		vertex_counter += 2;
+//		line_counter += 1;
+		
 		vCount=0;
 		for(float i=0; i<=depth; i+=s) 
 		{
-			renderSlice(d, true, i, isoV);
-			renderSlice(d, false, i, isoV);
+			generateVoxelSlice(d, true, i, isoV);
+			generateVoxelSlice(d, false, i, isoV);
 		}
 		
-		node_positions.clear();
-		node_potentials.clear();
+		//node_positions.clear();
+		//node_potentials.clear();
 	}
 	
 	// Rendering is done in the Render class
@@ -162,8 +198,8 @@ namespace Kaleidoscope
 	}
 	
 	// marching square implementation based on code/descriptions by paul bourke
-	void VoxelSpace::renderSlice( Device * d, bool zSlice,float currSlice, float isoV) 
-	{
+	void VoxelSpace::generateVoxelSlice( Device * d, bool zSlice,float currSlice, float isoV) 
+	{		
 		float sum, dx, dy, dz, distsq, currX, currY, currZ;
 		// decide if XY or ZY plane
 		// only difference between the 2 cases is that
@@ -203,6 +239,7 @@ namespace Kaleidoscope
 				currX += xscale;
 			} // end for x = 0
 			currSlice-=d2;
+			
 		} // end if zSlice 
 		else 
 		{
@@ -245,11 +282,11 @@ namespace Kaleidoscope
 		float lerpF;
 		float vx1,vy1,vx2,vy2;
 		
-		d->world_hash[ voxel_id ][ "vertices" ].clear(); // clear the 
-		d->world_hash[ voxel_id ][ "lines" ].clear(); // stores the color and indices
 		
-		int vertex_counter = 0;
-		int line_counter = 0;
+		
+		
+		
+		
 		
 		// main slice rendering pass
 		// re-process values in _sliceData array and determine if
@@ -261,6 +298,11 @@ namespace Kaleidoscope
 		//beginShape(LINES);
 		int gX1=(zSlice ? gridX-1 : gridZ-1);
 		int gY1=gridY-1;
+		
+		//std::cout << "gX1  " << gX1 << std::endl;
+		//std::cout << "gY1  " << gY1 << std::endl;
+		
+		
 		for (int y = 0; y < gY1; y++) 
 		{
 			yy=y+1;
@@ -269,6 +311,7 @@ namespace Kaleidoscope
 				// check if this edge hasn't already been processed
 				if ( !_edgeFlags[x][y] ) 
 				{
+					
 					corners = 0;
 					// compare all 4 corners of the current grid square/cell with
 					// the iso threshold value and set respective codes
@@ -297,8 +340,12 @@ namespace Kaleidoscope
 					// if it is 1+2+4+8=15 the square is totally outside
 					// in both cases no further steps are needed and we can skip that next part
 					
-					if (corners > 0 && corners < 0x0f) 
+					//std::cout << 0x0f << std::endl; // 0x0f = 15?
+					
+					if (corners > 0 && corners < 0x0f)  // 
 					{
+						//std::cout << "corner found " << corners << std::endl;
+						
 						n = 0;
 						// here the algorithm makes heavy use of the lookup tables (defined above)
 						// to compute the exact position of the surface line(s) in the current cell and at same
@@ -345,30 +392,29 @@ namespace Kaleidoscope
 							vy2 = (yscale * (startOffsetY + lerpF * (endOffsetY - startOffsetY)));
 							
 							// add the render pipeline and vertex cache
-							if (zSlice) 
+							if (zSlice)
 							{	
 								d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter ][ 0u ] = vx1;
 								d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter ][ 1u ] = vy1;
-								d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter ][ 2u ] = currSlice;
+								d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter ][ 2u ] = currSlice;  // [ vertex_counter++ ]
 								
 								d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter + 1 ][ 0u ] = vx2;
 								d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter + 1 ][ 1u ] = vy2;
 								d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter + 1 ][ 2u ] = currSlice;
 								
-								d->world_hash[ voxel_id ][ "lines" ][ line_counter ][ "indices" ][ 0u ][ 0u ] = vertex_counter;
-								d->world_hash[ voxel_id ][ "lines" ][ line_counter ][ "indices" ][ 0u ][ 1u ] = vertex_counter + 1;
+								
+								d->world_hash[ voxel_id ][ "lines" ][ 0u ][ "indices" ][ line_counter ][ 0u ] = vertex_counter;
+								d->world_hash[ voxel_id ][ "lines" ][ 0u ][ "indices" ][ line_counter ][ 1u ] = vertex_counter + 1;
 								
 								line_counter += 1;
 								vertex_counter += 2;
 								
+//								std::cout << vx1 << " : " << vy1 << " : " << currSlice << std::endl;
+//								std::cout << vx2 << " : " << vy2 << " : " << currSlice << std::endl;
+								
 								//vertex(vx1, vy1, currSlice);
 								//vertex(vx2, vy2, currSlice);
-								cacheX[vCount]=vx1;
-								cacheY[vCount]=vy1;
-								cacheZ[vCount++]=currSlice;
-								cacheX[vCount]=vx2;
-								cacheY[vCount]=vy2;
-								cacheZ[vCount++]=currSlice;
+							
 							} 
 							else 
 							{
@@ -380,20 +426,17 @@ namespace Kaleidoscope
 								d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter + 1 ][ 1u ] = vy2;
 								d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter + 1 ][ 2u ] = vx2;
 								
-								d->world_hash[ voxel_id ][ "lines" ][ line_counter ][ "indices" ][ 0u ][ 0u ] = vertex_counter;
-								d->world_hash[ voxel_id ][ "lines" ][ line_counter ][ "indices" ][ 0u ][ 1u ] = vertex_counter + 1;
+								d->world_hash[ voxel_id ][ "lines" ][ 0u ][ "indices" ][ line_counter ][ 0u ] = vertex_counter;
+								d->world_hash[ voxel_id ][ "lines" ][ 0u ][ "indices" ][ line_counter ][ 1u ] = vertex_counter + 1;
 								
 								line_counter += 1;
 								vertex_counter += 2;
 								
+//								std::cout << currSlice << " : " << vy1 << " : " << vx1 << std::endl;
+//								std::cout << currSlice << " : " << vy2 << " : " << vx2 << std::endl;
+								
 								//vertex(currSlice, vy1, vx1);
 								//vertex(currSlice, vy2, vx2);
-								cacheX[vCount]=currSlice;
-								cacheY[vCount]=vy1;
-								cacheZ[vCount++]=vx1;
-								cacheX[vCount]=currSlice;
-								cacheY[vCount]=vy2;
-								cacheZ[vCount++]=vx2;
 							} 
 							// set edge as already processed
 							_edgeFlags[x][y] = true;

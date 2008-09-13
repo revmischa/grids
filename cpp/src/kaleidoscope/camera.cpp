@@ -269,7 +269,7 @@ namespace Kaleidoscope
 		
 		Vec2D cursorpos = d->getCursorController()->getRelativePosition( d );
 		
-		if(   !Equals( cursorpos.X, 0.5f) ||  !Equals( cursorpos.Y, 0.5f)  )
+		if(  !Equals( cursorpos.X, 0.5f) ||  !Equals( cursorpos.Y, 0.5f)  )
 		{
 			temp_rotation.Y += ( 0.5f - cursorpos.X) * d->RotateSpeed * timeDiff;
 			temp_rotation.X -= ( 0.5f - cursorpos.Y) * d->RotateSpeed * timeDiff;
