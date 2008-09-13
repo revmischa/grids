@@ -75,7 +75,7 @@ int main( int argc, char **argv )
 	srand ( time(NULL) );
 
 		
-	for( int i = 0; i < 35; i++ )
+	for( int i = 0; i < 20; i++ )
 	{
 		out << i;
 		
@@ -101,14 +101,15 @@ int main( int argc, char **argv )
 	
 	Grids::GridsID voxel_id = "Voxel1234";
 	
-	Kaleidoscope::VoxelSpace * main_voxel = new Kaleidoscope::VoxelSpace( voxel_id , ROOM_SIZE, ROOM_SIZE, ROOM_SIZE, ROOM_SIZE - 1, ROOM_SIZE - 1, ROOM_SIZE - 1 );
+	Kaleidoscope::VoxelSpace * main_voxel = new Kaleidoscope::VoxelSpace( voxel_id , ROOM_SIZE*3, ROOM_SIZE*3, ROOM_SIZE*3, ROOM_SIZE/4, ROOM_SIZE/4, ROOM_SIZE/4  );
 	
 	main_builder->placeObject(	main_device, voxel_id, room_id,
 							  Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f ),
+							  //Kaleidoscope::Vec3D( 100.0f, 0.0f, 100.0f ),
 							  Kaleidoscope::Vec3D( 1.0f, 1.0f, 1.0f ),
 							  Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f )	);
 	
-	main_voxel->update(main_device, 3, 0.65f);
+	main_voxel->update(main_device, 3, 0.45f);
 
 	main_device->x_pos = 200;
 	main_device->y_pos = 100;

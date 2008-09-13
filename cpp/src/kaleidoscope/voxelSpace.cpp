@@ -10,12 +10,15 @@
 #include <kaleidoscope/voxelSpace.h>
 
 
-#define NODE_POTENTIAL 130.5f
+#define NODE_POTENTIAL 225.0f
 
 namespace Kaleidoscope 
 {
 		
 	VoxelSpace::VoxelSpace( Grids::GridsID in_id, float ww, float hh, float dd, float xs, float ys, float zs ) 
+	// ww, hh, dd = the width, height, and depth of the space to analize
+	// xs, ys, zs = the number of steps along each axis
+	
 	{
 		voxel_id = in_id;
 		
@@ -72,9 +75,9 @@ namespace Kaleidoscope
 		xscale = (float)w/xs;
 		yscale = (float)h/ys;
 		zscale = (float)depth/zs;
-		gridX = xs+1;
-		gridY = ys+1;
-		gridZ = zs+1;
+		gridX = (xs+1);
+		gridY = (ys+1);
+		gridZ = (zs+1);
 		
 		std::vector< float > temp_vector_3( gridY );
 		for( int i = 0; i < gridX; i++ )
@@ -128,6 +131,7 @@ namespace Kaleidoscope
 	}
 	
 	void VoxelSpace::createPotentials( )
+	// You can think of the potetnials as the radius of the sphere that each Node will create
 	{
 		node_potentials.clear();
 		
@@ -148,34 +152,24 @@ namespace Kaleidoscope
 		vertex_counter = 0;
 		line_counter = 0;
 		
-		d->world_hash[ voxel_id ][ "vertices" ].clear(); // clear the 
+		d->world_hash[ voxel_id ][ "vertices" ].clear(); // clear the vertices
 		d->world_hash[ voxel_id ][ "lines" ].clear(); // stores the color and indices
 		d->world_hash[ voxel_id ][ "color" ].clear();
-		
 		
 		d->world_hash[ voxel_id ][ "color" ][ 0u ][ 0u ] = 1.0f;
 		d->world_hash[ voxel_id ][ "color" ][ 0u ][ 1u ] = 1.0f;
 		d->world_hash[ voxel_id ][ "color" ][ 0u ][ 2u ] = 1.0f;
-		d->world_hash[ voxel_id ][ "color" ][ 0u ][ 3u ] = 1.0f;
+		d->world_hash[ voxel_id ][ "color" ][ 0u ][ 3u ] = 0.20f;
 		
 		d->world_hash[ voxel_id ][ "lines" ][ 0u ][ "color" ] = 0u;
 		
-//		d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter ][ 0u ] = -100.0f;
-//		d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter ][ 1u ] = -100.0f;
-//		d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter ][ 2u ] = -100.0f;
-//		
-//		d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter + 1u ][ 0u ] = 100.0f;
-//		d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter + 1u ][ 1u ] = 100.0f;
-//		d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter + 1u ][ 2u ] = 100.0f;
-//		
-//		d->world_hash[ voxel_id ][ "lines" ][ 0u ][ "indices" ][ line_counter ][ 0u ] = 0u;
-//		d->world_hash[ voxel_id ][ "lines" ][ 0u ][ "indices" ][ line_counter ][ 1u ] = 1u;
-//		
-//		vertex_counter += 2;
-//		line_counter += 1;
+		d->world_hash[ voxel_id ][ "position" ][ 0u ] = w / 2.0f;
+		d->world_hash[ voxel_id ][ "position" ][ 1u ] = 0.0f;
+		d->world_hash[ voxel_id ][ "position" ][ 2u ] = depth / 2.0f;
+		
 		
 		vCount=0;
-		for(float i=0; i<=depth; i+=s) 
+		for(float i=-depth/2.0f; i<= depth/2.0f; i+=s)
 		{
 			generateVoxelSlice(d, true, i, isoV);
 			generateVoxelSlice(d, false, i, isoV);
@@ -210,10 +204,10 @@ namespace Kaleidoscope
 		// the result values can also be understood as field strength 
 		if (zSlice) 
 		{
-			currX = 0;
+			currX = -w/2.0f;
 			for (int x = 0; x < gridX; x++) 
 			{
-				currY = 0;
+				currY = -h/2.0f;
 				for (int y = 0; y < gridY; y++) 
 				{
 					// reset all edges to unused
@@ -243,11 +237,11 @@ namespace Kaleidoscope
 		} // end if zSlice 
 		else 
 		{
-			currZ = 0;
+			currZ = -depth/2.0f;
 			// same steps as above, only in ZY plane
 			for (int z = 0; z < gridZ; z++) 
 			{
-				currY = 0;
+				currY = -h/2.0f;
 				for (int y = 0; y < gridY; y++) 
 				{
 					_edgeFlags[z][y] = false;
@@ -283,11 +277,6 @@ namespace Kaleidoscope
 		float vx1,vy1,vx2,vy2;
 		
 		
-		
-		
-		
-		
-		
 		// main slice rendering pass
 		// re-process values in _sliceData array and determine if
 		// the field strength at each point is less than the given
@@ -311,7 +300,6 @@ namespace Kaleidoscope
 				// check if this edge hasn't already been processed
 				if ( !_edgeFlags[x][y] ) 
 				{
-					
 					corners = 0;
 					// compare all 4 corners of the current grid square/cell with
 					// the iso threshold value and set respective codes
@@ -375,8 +363,8 @@ namespace Kaleidoscope
 							// get linear interpolation factor based difference in field strengths
 							lerpF = (dV != 0) ? (isoV - v1) / dV : 0.5;
 							// compute interpolated position of start vertex
-							vx1 = (xscale * (startOffsetX + lerpF * (endOffsetX - startOffsetX)))-w2;
-							vy1 = (yscale * (startOffsetY + lerpF * (endOffsetY - startOffsetY)));
+							vx1 = -w/2.0f + (xscale * (startOffsetX + lerpF * (endOffsetX - startOffsetX)))-w2;
+							vy1 = -h/2.0f + (yscale * (startOffsetY + lerpF * (endOffsetY - startOffsetY)));
 							
 							// now do the same thing for the end point of the line
 							startP = _offsets[edge2[0]];
@@ -388,8 +376,8 @@ namespace Kaleidoscope
 							v1 = _sliceData[startOffsetX][startOffsetY];
 							dV = _sliceData[endOffsetX][endOffsetY] - v1;
 							lerpF = (dV != 0) ? (isoV - v1) / dV : 0.5;
-							vx2 = (xscale * (startOffsetX + lerpF * (endOffsetX - startOffsetX)))-w2;
-							vy2 = (yscale * (startOffsetY + lerpF * (endOffsetY - startOffsetY)));
+							vx2 =   -w/2.0f + (xscale * (startOffsetX + lerpF * (endOffsetX - startOffsetX)))-w2;
+							vy2 = -h/2.0f + (yscale * (startOffsetY + lerpF * (endOffsetY - startOffsetY)));
 							
 							// add the render pipeline and vertex cache
 							if (zSlice)
@@ -422,7 +410,7 @@ namespace Kaleidoscope
 								d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter ][ 1u ] = vy1;
 								d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter ][ 2u ] = vx1;
 								
-								d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter + 1 ][ 0u ] = currSlice;
+								d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter + 1 ][ 0u ] = currSlice ;
 								d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter + 1 ][ 1u ] = vy2;
 								d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter + 1 ][ 2u ] = vx2;
 								
