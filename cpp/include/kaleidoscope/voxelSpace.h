@@ -33,9 +33,12 @@ namespace Kaleidoscope {
 		
 		
 		// space dimensions, the size over which to look when forming the "blob"
-		int w, h, depth;
+		float w, h, depth;
 		// half width,height,depth
-		int w2, h2, d2;
+		float w2, h2, d2;
+		// negative half width, height, depth
+		float n_w2, n_h2, n_d2;
+		
 		// number of discrete steps along each axis
 		int gridX, gridY, gridZ;
 		// scale factor
@@ -64,7 +67,6 @@ namespace Kaleidoscope {
 		
 		int vertex_counter;
 		int line_counter;
-		
 		
 		// internally used lookup tables by the marching square algorithm
 		// see comments in renderSlice() method for more detail

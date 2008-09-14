@@ -20,6 +20,8 @@
 #include <kaleidoscope/gui.h>
 #include <kaleidoscope/RenderObject.h>
 #include <kaleidoscope/autodesk3dsLoader.h>
+#include <kaleidoscope/voxelSpace.h>
+#include <kaleidoscope/threadController.h>
 
 #include <grids/interface.h>
 #include <grids/value.h>
@@ -48,6 +50,8 @@ namespace Kaleidoscope
 	class RenderObject;
 	class Builder;
 	class Gui;
+	class VoxelSpace;
+	class ThreadController;
 
 	class Device
 	{
@@ -63,7 +67,11 @@ namespace Kaleidoscope
 			Builder * getBuilder();
 			Gui * getGui();
 			Autodesk3dsLoader * getLoader();
+			VoxelSpace * getVoxel();
+			ThreadController * getThreadController();
+		
 			Grids::Interface * getInterface( );
+			
 
 			void setRenderer( Renderer * );
 			void setEventController( EventController * );
@@ -72,6 +80,8 @@ namespace Kaleidoscope
 			void setBuilder( Builder * );
 			void setGui( Gui * );
 			void setLoader( Autodesk3dsLoader * );
+			void setVoxel( VoxelSpace * );
+			void setThreadController( ThreadController * );
 			void setInterface( Grids::Interface * );
 
 
@@ -220,6 +230,15 @@ namespace Kaleidoscope
 			SDL_Color text_color;
 		
 			GLuint texture;
+		
+		
+			///////////////
+			//  Multithreading Variables
+			///////////////
+			
+			SDL_mutex * device_mutex;
+			SDL_Thread * voxel_update_thread;
+			
 
 		private:
 
@@ -231,6 +250,9 @@ namespace Kaleidoscope
 			Builder * builder;
 			Gui * gui;
 			Autodesk3dsLoader * loader;
+			VoxelSpace * voxel;
+			
+			ThreadController * thread_controller;
 			Grids::Interface * interface;
 			
 			

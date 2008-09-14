@@ -16,6 +16,8 @@
 
 namespace Kaleidoscope
 {
+	
+	
 	class Gui
 	{
 		public:
@@ -68,7 +70,7 @@ namespace Kaleidoscope
 		
 			void parseText( Device *, int, int );
 			void parseString( Device *, std::string );
-		
+				
 			void removeLastCharacter( Device *, int, int );
 			void clearText( Device *, int, int );
 		

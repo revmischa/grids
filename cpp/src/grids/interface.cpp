@@ -13,6 +13,7 @@
 #include <time.h>
 #include <iostream>
 #include <map>
+#include <sstream>
 
 
 
@@ -109,6 +110,34 @@ namespace Grids
 
 			d->getBuilder()->placeRoom( d,  evt->getArgs()[ "id" ].asString() );
 			d->getBuilder()->buildRoom( d,  evt->getArgs()[ "id" ].asString() );
+			
+			std::stringstream out;
+			float temp_box_color[ 4 ];
+			GridsID temp_box_id;
+			
+			for( int i = 0; i < 10; i++ )
+			{
+				out << i;
+				
+				temp_box_id = evt->getArgs()[ "id" ].asString() + out.str();
+								
+				d->getBuilder()->placeObject(	d, temp_box_id, evt->getArgs()[ "id" ].asString(),
+										  Kaleidoscope::Vec3D( d->room_width - (rand() % 10000)/10000.0f * d->room_width * 2.0f,  
+															  d->room_width - (rand() % 10000)/10000.0f * d->room_width * 2.0f, 
+															  d->room_width - (rand() % 10000)/10000.0f * d->room_width * 2.0f ),
+										  Kaleidoscope::Vec3D( 1.0f, 1.0f, 1.0f ),
+										  Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f )	);
+				
+				temp_box_color[ 0 ] = (rand() % 10000)/10000.0f;
+				temp_box_color[ 1 ] = (rand() % 10000)/10000.0f;
+				temp_box_color[ 2 ] = (rand() % 10000)/10000.0f;
+				temp_box_color[ 3 ] = 0.35f;
+				
+				
+				d->getBuilder()->buildBox(d, temp_box_id, 2, temp_box_color );
+			}
+			
+			d->getVoxel()->update(d, 3, 0.45f);
 		}
 		else if( event_type == "Object.Place" )
 		{
@@ -116,7 +145,7 @@ namespace Grids
 					evt->getArgs()[ "roomId" ].asString(),
 					Vec3D(	evt->getArgs()[ "position" ][ 0u ].asDouble(),
 							evt->getArgs()[ "position" ][ 1u ].asDouble(),
-							evt->getArgs()[ "position" ][ 2u ].asDouble() ),
+							evt->getArgs()[ "position" ][ 2u ].asDouble()  ),
 					Vec3D(	evt->getArgs()[ "scale" ][ 0u ].asDouble(),
 							evt->getArgs()[ "scale" ][ 1u ].asDouble(),
 							evt->getArgs()[ "scale" ][ 2u ].asDouble() ),

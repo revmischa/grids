@@ -70,8 +70,15 @@ namespace Kaleidoscope
 		w = ww;
 		h = hh;
 		depth = dd;
-		w2 = (w >> 1);
-		d2 = (depth >> 1);
+		
+		w2 = w / 2.0f;
+		d2 = depth / 2.0f;
+		h2 = h / 2.0f;
+		
+		n_w2 = -w2;
+		n_h2 = -h2;
+		n_d2 = -d2;
+		
 		xscale = (float)w/xs;
 		yscale = (float)h/ys;
 		zscale = (float)depth/zs;
@@ -95,9 +102,7 @@ namespace Kaleidoscope
 	
 	// updates node list, called from showNodes() above
 	void VoxelSpace::setNodes( Device * d ) 
-	{
-		//std::cout << "setNodes()" << std::endl;
-		
+	{		
 		node_positions.clear();
 		
 		// set the vector node_positions from the relevant people and objects
@@ -111,16 +116,17 @@ namespace Kaleidoscope
 			{
 				for( int g = 0; g < d->world_hash[ temp_room ][ "objects" ].size(); g++ )
 				{
-					GridsID temp_object =  d->world_hash[ temp_room ][ "objects" ][ g ].asString();
+					GridsID temp_object = d->world_hash[ temp_room ][ "objects" ][ g ].asString();
 					
-					node_positions.push_back( Vec3D( d->world_hash[ temp_object ][ "position" ][ 0u ].asDouble(),
-													d->world_hash[ temp_object ][ "position" ][ 1u ].asDouble(),
-													d->world_hash[ temp_object ][ "position" ][ 2u ].asDouble()	) );
+					node_positions.push_back( Vec3D( d->world_hash[ temp_object ][ "position" ][ 0u ].asDouble() + 
+													d->world_hash[ temp_room ][ "position" ][ 0u ].asDouble(),
+													
+													d->world_hash[ temp_object ][ "position" ][ 1u ].asDouble() + 
+													d->world_hash[ temp_room ][ "position" ][ 1u ].asDouble(),
+													
+													d->world_hash[ temp_object ][ "position" ][ 2u ].asDouble()	+ 
+													d->world_hash[ temp_room ][ "position" ][ 2u ].asDouble()  )  );
 					
-					
-//					std::cout	<< d->world_hash[ temp_object ][ "position" ][ 0u ].asDouble() << " : " 
-//								<< d->world_hash[ temp_object ][ "position" ][ 1u ].asDouble() << " : "
-//								<< d->world_hash[ temp_object ][ "position" ][ 2u ].asDouble() << std::endl;
 				}
 			}
 		}
@@ -152,9 +158,10 @@ namespace Kaleidoscope
 		vertex_counter = 0;
 		line_counter = 0;
 		
-		d->world_hash[ voxel_id ][ "vertices" ].clear(); // clear the vertices
-		d->world_hash[ voxel_id ][ "lines" ].clear(); // stores the color and indices
-		d->world_hash[ voxel_id ][ "color" ].clear();
+		// If I clear these JSon values
+		//d->world_hash[ voxel_id ][ "vertices" ].clear(); // clear the vertices
+		//d->world_hash[ voxel_id ][ "lines" ].clear(); // stores the color and indices
+		//d->world_hash[ voxel_id ][ "color" ].clear();
 		
 		d->world_hash[ voxel_id ][ "color" ][ 0u ][ 0u ] = 1.0f;
 		d->world_hash[ voxel_id ][ "color" ][ 0u ][ 1u ] = 1.0f;
@@ -166,8 +173,7 @@ namespace Kaleidoscope
 		d->world_hash[ voxel_id ][ "position" ][ 0u ] = w / 2.0f;
 		d->world_hash[ voxel_id ][ "position" ][ 1u ] = 0.0f;
 		d->world_hash[ voxel_id ][ "position" ][ 2u ] = depth / 2.0f;
-		
-		
+				
 		vCount=0;
 		for(float i=-depth/2.0f; i<= depth/2.0f; i+=s)
 		{
@@ -182,13 +188,7 @@ namespace Kaleidoscope
 	// Rendering is done in the Render class
 	void VoxelSpace::render() 
 	{
-//		beginShape(LINES);
-//		for(int i=0; i<vCount; i++) 
-//		{
-//			stroke(0,16+cacheY[i]*2);
-//			vertex(cacheX[i],cacheY[i],cacheZ[i]);
-//		}
-//		endShape();
+
 	}
 	
 	// marching square implementation based on code/descriptions by paul bourke
@@ -204,10 +204,10 @@ namespace Kaleidoscope
 		// the result values can also be understood as field strength 
 		if (zSlice) 
 		{
-			currX = -w/2.0f;
+			currX = n_w2;
 			for (int x = 0; x < gridX; x++) 
 			{
-				currY = -h/2.0f;
+				currY = n_h2;
 				for (int y = 0; y < gridY; y++) 
 				{
 					// reset all edges to unused
@@ -237,11 +237,11 @@ namespace Kaleidoscope
 		} // end if zSlice 
 		else 
 		{
-			currZ = -depth/2.0f;
+			currZ = n_d2;
 			// same steps as above, only in ZY plane
 			for (int z = 0; z < gridZ; z++) 
 			{
-				currY = -h/2.0f;
+				currY = n_h2;
 				for (int y = 0; y < gridY; y++) 
 				{
 					_edgeFlags[z][y] = false;
@@ -276,7 +276,6 @@ namespace Kaleidoscope
 		float lerpF;
 		float vx1,vy1,vx2,vy2;
 		
-		
 		// main slice rendering pass
 		// re-process values in _sliceData array and determine if
 		// the field strength at each point is less than the given
@@ -284,13 +283,8 @@ namespace Kaleidoscope
 		// boundary surface, if the current point's value is below,
 		// but one of it's neighbour is >= threshold value
 		
-		//beginShape(LINES);
 		int gX1=(zSlice ? gridX-1 : gridZ-1);
 		int gY1=gridY-1;
-		
-		//std::cout << "gX1  " << gX1 << std::endl;
-		//std::cout << "gY1  " << gY1 << std::endl;
-		
 		
 		for (int y = 0; y < gY1; y++) 
 		{
@@ -327,12 +321,9 @@ namespace Kaleidoscope
 					// if the result of corners=0 the entire square is within the surface area
 					// if it is 1+2+4+8=15 the square is totally outside
 					// in both cases no further steps are needed and we can skip that next part
-					
-					//std::cout << 0x0f << std::endl; // 0x0f = 15?
-					
-					if (corners > 0 && corners < 0x0f)  // 
+										
+					if (corners > 0 && corners < 0x0f)  
 					{
-						//std::cout << "corner found " << corners << std::endl;
 						
 						n = 0;
 						// here the algorithm makes heavy use of the lookup tables (defined above)
@@ -363,8 +354,8 @@ namespace Kaleidoscope
 							// get linear interpolation factor based difference in field strengths
 							lerpF = (dV != 0) ? (isoV - v1) / dV : 0.5;
 							// compute interpolated position of start vertex
-							vx1 = -w/2.0f + (xscale * (startOffsetX + lerpF * (endOffsetX - startOffsetX)))-w2;
-							vy1 = -h/2.0f + (yscale * (startOffsetY + lerpF * (endOffsetY - startOffsetY)));
+							vx1 = n_w2 + (xscale * (startOffsetX + lerpF * (endOffsetX - startOffsetX)))-w2;
+							vy1 = n_h2 + (yscale * (startOffsetY + lerpF * (endOffsetY - startOffsetY)));
 							
 							// now do the same thing for the end point of the line
 							startP = _offsets[edge2[0]];
@@ -376,56 +367,38 @@ namespace Kaleidoscope
 							v1 = _sliceData[startOffsetX][startOffsetY];
 							dV = _sliceData[endOffsetX][endOffsetY] - v1;
 							lerpF = (dV != 0) ? (isoV - v1) / dV : 0.5;
-							vx2 =   -w/2.0f + (xscale * (startOffsetX + lerpF * (endOffsetX - startOffsetX)))-w2;
-							vy2 = -h/2.0f + (yscale * (startOffsetY + lerpF * (endOffsetY - startOffsetY)));
+							vx2 = n_w2 + (xscale * (startOffsetX + lerpF * (endOffsetX - startOffsetX)))-w2;
+							vy2 = n_h2 + (yscale * (startOffsetY + lerpF * (endOffsetY - startOffsetY)));
 							
 							// add the render pipeline and vertex cache
 							if (zSlice)
 							{	
 								d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter ][ 0u ] = vx1;
 								d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter ][ 1u ] = vy1;
-								d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter ][ 2u ] = currSlice;  // [ vertex_counter++ ]
+								d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter ][ 2u ] = currSlice;
 								
-								d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter + 1 ][ 0u ] = vx2;
-								d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter + 1 ][ 1u ] = vy2;
-								d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter + 1 ][ 2u ] = currSlice;
+								d->world_hash[ voxel_id ][ "lines" ][ 0u ][ "indices" ][ line_counter ][ 0u ] = vertex_counter++;
 								
-								
-								d->world_hash[ voxel_id ][ "lines" ][ 0u ][ "indices" ][ line_counter ][ 0u ] = vertex_counter;
-								d->world_hash[ voxel_id ][ "lines" ][ 0u ][ "indices" ][ line_counter ][ 1u ] = vertex_counter + 1;
-								
-								line_counter += 1;
-								vertex_counter += 2;
-								
-//								std::cout << vx1 << " : " << vy1 << " : " << currSlice << std::endl;
-//								std::cout << vx2 << " : " << vy2 << " : " << currSlice << std::endl;
-								
-								//vertex(vx1, vy1, currSlice);
-								//vertex(vx2, vy2, currSlice);
-							
-							} 
-							else 
+								d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter ][ 0u ] = vx2;
+								d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter ][ 1u ] = vy2;
+								d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter ][ 2u ] = currSlice;
+																
+								d->world_hash[ voxel_id ][ "lines" ][ 0u ][ "indices" ][ line_counter++ ][ 1u ] = vertex_counter++;
+							}
+							else
 							{
 								d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter ][ 0u ] = currSlice;
 								d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter ][ 1u ] = vy1;
 								d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter ][ 2u ] = vx1;
 								
-								d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter + 1 ][ 0u ] = currSlice ;
-								d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter + 1 ][ 1u ] = vy2;
-								d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter + 1 ][ 2u ] = vx2;
+								d->world_hash[ voxel_id ][ "lines" ][ 0u ][ "indices" ][ line_counter ][ 0u ] = vertex_counter++;
 								
-								d->world_hash[ voxel_id ][ "lines" ][ 0u ][ "indices" ][ line_counter ][ 0u ] = vertex_counter;
-								d->world_hash[ voxel_id ][ "lines" ][ 0u ][ "indices" ][ line_counter ][ 1u ] = vertex_counter + 1;
+								d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter ][ 0u ] = currSlice ;
+								d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter ][ 1u ] = vy2;
+								d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter ][ 2u ] = vx2;
 								
-								line_counter += 1;
-								vertex_counter += 2;
-								
-//								std::cout << currSlice << " : " << vy1 << " : " << vx1 << std::endl;
-//								std::cout << currSlice << " : " << vy2 << " : " << vx2 << std::endl;
-								
-								//vertex(currSlice, vy1, vx1);
-								//vertex(currSlice, vy2, vx2);
-							} 
+								d->world_hash[ voxel_id ][ "lines" ][ 0u ][ "indices" ][ line_counter++ ][ 1u ] = vertex_counter++;
+							}
 							// set edge as already processed
 							_edgeFlags[x][y] = true;
 						} // end while currEdges[n] != -1

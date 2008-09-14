@@ -32,6 +32,7 @@ Kaleidoscope::Camera * main_camera = new Kaleidoscope::Camera( main_device );
 Kaleidoscope::Builder * main_builder = new Kaleidoscope::Builder( );
 Kaleidoscope::Gui * main_gui;
 Kaleidoscope::Autodesk3dsLoader * main_loader = new Kaleidoscope::Autodesk3dsLoader( );
+Kaleidoscope::ThreadController * main_tc = new Kaleidoscope::ThreadController();
 Grids::Interface * main_interface;
 
 Grids::Value main_hash;
@@ -56,6 +57,7 @@ int main( int argc, char **argv )
 
 	main_device->setBuilder( main_builder );
 	main_device->setLoader( main_loader );
+	main_device->setThreadController(main_tc);
 
 
 	Grids::GridsID room_id = "Room1";
@@ -101,15 +103,16 @@ int main( int argc, char **argv )
 	
 	Grids::GridsID voxel_id = "Voxel1234";
 	
-	Kaleidoscope::VoxelSpace * main_voxel = new Kaleidoscope::VoxelSpace( voxel_id , ROOM_SIZE*3, ROOM_SIZE*3, ROOM_SIZE*3, ROOM_SIZE/4, ROOM_SIZE/4, ROOM_SIZE/4  );
+	Kaleidoscope::VoxelSpace * main_voxel = new Kaleidoscope::VoxelSpace( voxel_id , ROOM_SIZE*10, ROOM_SIZE*10, ROOM_SIZE*10, ROOM_SIZE/2, ROOM_SIZE/2, ROOM_SIZE/2  );
 	
 	main_builder->placeObject(	main_device, voxel_id, room_id,
 							  Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f ),
-							  //Kaleidoscope::Vec3D( 100.0f, 0.0f, 100.0f ),
 							  Kaleidoscope::Vec3D( 1.0f, 1.0f, 1.0f ),
 							  Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f )	);
 	
 	main_voxel->update(main_device, 3, 0.45f);
+	
+	main_device->setVoxel( main_voxel );
 
 	main_device->x_pos = 200;
 	main_device->y_pos = 100;
@@ -131,7 +134,6 @@ int main( int argc, char **argv )
 
 	main_interface = new Grids::Interface( main_device, "happiland.net" , new Grids::ObjectController(), new Grids::PersonController(), new Grids::MessengerController() );
 	main_device->setInterface( main_interface );
-
 
 	int value;
 
@@ -175,15 +177,14 @@ int main( int argc, char **argv )
 	main_gui->addText(main_device, Kaleidoscope::Vec3D( -50.0f, 0.0f, -50.0f ), "point < -50, 0, -50 >" );
 
 
-	SDL_Surface * temp_image = IMG_Load( "corona.png" );
+//	SDL_Surface * temp_image = IMG_Load( "corona.png" );
+//
+//    main_builder->packImage(main_device, "temp_image232", temp_image );
+//
+//	delete temp_image;
+//
+//	main_device->loaded_image = main_builder->getImage( main_device, "temp_image232" );
 
-    main_builder->packImage(main_device, "temp_image232", temp_image );
-
-	delete temp_image;
-
-	main_device->loaded_image = main_builder->getImage( main_device, "temp_image232" );
-
-	
 
 	main_renderer->prepare( main_device );
 

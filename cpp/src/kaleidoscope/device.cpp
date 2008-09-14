@@ -87,6 +87,16 @@ namespace Kaleidoscope
 	{
 		return loader;
 	}
+	
+	VoxelSpace * Device::getVoxel()
+	{
+		return voxel;
+	}
+	
+	ThreadController * Device::getThreadController()
+	{
+		return thread_controller;
+	}
 
 	void Device::setRenderer( Renderer * rnd )
 	{
@@ -127,6 +137,17 @@ namespace Kaleidoscope
 	{
 		loader = new_loader;
 	}
+	
+	void Device::setVoxel( VoxelSpace * new_voxel )
+	{
+		voxel = new_voxel;
+	}
+	
+	void Device::setThreadController( ThreadController * new_tc )
+	{
+		thread_controller = new_tc;
+	}
+	
 	
 	void Device::addRoom( Room * r )
 	{

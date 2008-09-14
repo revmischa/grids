@@ -575,7 +575,15 @@ namespace Kaleidoscope
 		{
 			d->getInterface()->createRoom();
 		}
+		
+		if( in_string == " update" ) 
+		{
+			d->getThreadController()->updateVoxelThreaded( d );
+		}
 	}
+	
+	
+		
 
 	void Gui::removeLastCharacter( Device * d, int text_type, int text_id )
 	{
