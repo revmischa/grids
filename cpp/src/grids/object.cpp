@@ -19,16 +19,31 @@ namespace Grids
 
 	}
 
-	void Object::giveEvent( Event * evt)
+	void Object::requestUpdatePosition( Kaleidoscope::Device * d, Vec3D in_pos, Vec3D in_rot, Vec3D in_scl )
 	// Called when an event is received
 	{
-
+		d->getInterface()->getObjectController()->requestUpdatePosition(d, this, in_pos, in_rot, in_scl);
 
 	}
 
-	void Object::sendEvent( std::string in_type, Value args )
+	void Object::updatePosition( Kaleidoscope::Device * d, Vec3D in_pos, Vec3D in_rot, Vec3D in_scl )
 	{
-		controller->sendEvent( in_type, args );
+		d->getInterface()->getObjectController()->updatePosition( d, this, in_pos, in_rot, in_scl );
+	}
+	
+	void Object::create( Kaleidoscope::Device * d, Value cube_value )
+	{
+		
+	}
+	
+	float Object::detectSelection( Kaleidoscope::Device * d, Vec3D ray_position, Vec3D ray_target )
+	{
+		return -1.0f;
+	}
+	
+	void Object::selectObject( Kaleidoscope::Device * d )
+	{
+		
 	}
 
 	void Object::setController( ObjectController * cont )

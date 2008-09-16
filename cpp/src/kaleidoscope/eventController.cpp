@@ -120,6 +120,8 @@ namespace Kaleidoscope
 						event.button.button != 4 && event.button.button != 5	)
 				{
 					d->getGui()->registerClick( SDL_BUTTON_LEFT, x, y );
+					
+					d->getThreadController()->detectSelectionThreaded(d, Vec2D( x, y ) );
 				}
 				
 				d->mouse_down = false;
@@ -143,21 +145,21 @@ namespace Kaleidoscope
 		device->mouseButton = button;
 		device->mouseState = state;
 
-		device->mouseX = x;
-		device->mouseY = y;
+		device->mouse_x = x;
+		device->mouse_y = y;
 	}
 
 	void EventController::mouseMovedCall( int x, int y )
 	{
-		device->mouseX = x;
-		device->mouseY = y;
+		device->mouse_x = x;
+		device->mouse_y = y;
 	}
 
 
 	void EventController::mouseDraggedCall( int x, int y )
 	{
-		device->mouseX = x;
-		device->mouseY = y;
+		device->mouse_x = x;
+		device->mouse_y = y;
 
 	}
 
@@ -208,12 +210,12 @@ namespace Kaleidoscope
 
 	int EventController::getMouseX()
 	{
-		return device->mouseX;
+		return device->mouse_x;
 	}
 
 	int EventController::getMouseY()
 	{
-		return device->mouseY;
+		return device->mouse_y;
 	}
 
 	unsigned char EventController::key()

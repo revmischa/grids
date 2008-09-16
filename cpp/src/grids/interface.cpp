@@ -32,7 +32,6 @@ namespace Grids
 		person_controller = p_c_in;
 		messenger_controller = m_c_in;
 
-		object_controller->setInterface( this );
 		person_controller->setInterface( this );
 		messenger_controller->setInterface( this );
 
@@ -94,6 +93,7 @@ namespace Grids
 	}
 
 	void Interface::parseEventType(  Event * evt )
+	// NOTE: This call runs inside of its own thread, started by Grids protocol
 	{
 		std::cout << "parse event" << std::endl;
 
@@ -132,7 +132,6 @@ namespace Grids
 				temp_box_color[ 1 ] = (rand() % 10000)/10000.0f;
 				temp_box_color[ 2 ] = (rand() % 10000)/10000.0f;
 				temp_box_color[ 3 ] = 0.35f;
-				
 				
 				d->getBuilder()->buildBox(d, temp_box_id, 2, temp_box_color );
 			}

@@ -107,7 +107,7 @@ namespace Kaleidoscope
 
 			glPushMatrix();
 
-			glTranslatef( pos_x / FONT_SCALE_X , pos_y / FONT_SCALE_Y , 0.0f );
+			glTranslatef( pos_x / FONT_SCALE_X, pos_y / FONT_SCALE_Y, 0.0f );
 
 			glBegin(GL_QUADS); {
 				glTexCoord2i(0,0); glVertex2i(0, 0);
@@ -289,7 +289,6 @@ namespace Kaleidoscope
 				glRotatef(acos(angleCosine)*180/irr::core::PI,-1,0,0);
 			}
 		}
-
 
 
 	}

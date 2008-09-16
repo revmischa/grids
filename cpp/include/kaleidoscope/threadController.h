@@ -15,6 +15,7 @@
 namespace Kaleidoscope
 {
 	int runVoxelUpdateThreadEntryPoint( void * d );
+	int runDetectSelectionThreadEntryPoint( void * d );
 	
 	class ThreadController
 	{
@@ -22,6 +23,7 @@ namespace Kaleidoscope
 			ThreadController();
 			
 			void updateVoxelThreaded( Device * );
+			void detectSelectionThreaded( Device *, Vec2D );
 	};
 	
 	

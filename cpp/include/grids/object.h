@@ -7,13 +7,20 @@
  *
  */
 
- #pragma once
+#pragma once
 
- #include <grids/event.h>
- #include <grids/objectController.h>
+#include <grids/event.h>
+#include <grids/objectController.h>
 
- namespace Grids
- {
+#include <kaleidoscope/device.h>
+
+namespace Kaleidoscope
+{
+	class Device;
+}
+
+namespace Grids
+{
 	class ObjectController;
 
 	class Object
@@ -21,13 +28,17 @@
 		public:
 
 			Object( );
-
-			void giveEvent( Event * );	// ObjectController uses this
-										// to pass messages
-
-			void sendEvent( std::string , Grids::Value  );									// upstream
+		
+			void requestUpdatePosition( Kaleidoscope::Device *, Vec3D, Vec3D, Vec3D );
+			void updatePosition( Kaleidoscope::Device *, Vec3D, Vec3D, Vec3D );
+		
+			void create( Kaleidoscope::Device *, Value );
 
 			void setController( ObjectController * );
+		
+			float detectSelection( Kaleidoscope::Device *, Vec3D, Vec3D );
+			
+			void selectObject( Kaleidoscope::Device * );
 
 		private:
 
@@ -35,5 +46,5 @@
 
 	};
 
- } // end namespace Grids
+} // end namespace Grids
 

@@ -44,8 +44,8 @@ namespace Kaleidoscope
 		{
 			int x, y;
 			SDL_GetMouseState( &x, &y );
-			d->mouseX = x;
-			d->mouseY = y;
+			d->mouse_x = x;
+			d->mouse_y = y;
 							
 			return Vec2D( (float)( x ) / (float) d->width, (float)( y ) / (float) d->height );	
 		}

@@ -772,20 +772,25 @@ namespace Kaleidoscope
 	{
 	
 		// Let's not core dump, no matter what.
-	   if (new_height == 0)
+		if (new_height == 0)
 		  new_height = 1;
 
-	   glViewport(0, 0, new_width, new_height);
+		glViewport(0, 0, new_width, new_height);
 
-	   glMatrixMode(GL_PROJECTION);
-	   glLoadIdentity();
-	   
-	   gluPerspective(45.0f,(GLfloat)new_width/(GLfloat)new_height,0.1f,10000.0f);
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		
+		float fovy = 45.0f;
+		float aspect = (GLfloat)new_width/(GLfloat)new_height;
+		float zNear = 0.1f;
+		float zFar = 10000.0f;
+		
+		d->getCamera()->setPerspective( d, fovy, aspect, zNear, zFar );
+		
+		glMatrixMode(GL_MODELVIEW);
 
-	   glMatrixMode(GL_MODELVIEW);
-
-	   d->width  = new_width;
-	   d->height = new_height;
+		d->width  = new_width;
+		d->height = new_height;
 	}
 		
 	void Renderer::loadLights( Device * d)

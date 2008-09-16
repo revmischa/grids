@@ -122,7 +122,7 @@ namespace Kaleidoscope
 			Vec3D CenterOfRotation;
 			int ZoomType;
 
-			float FOV;
+			float Fov;
 			float Aspect;
 			float Near;
 			float Far;
@@ -177,8 +177,8 @@ namespace Kaleidoscope
 			// Event Variables
 			/////////////
 
-			int mouseX;
-			int mouseY;
+			int mouse_x;
+			int mouse_y;
 		
 			int down_x;
 			int down_y;
@@ -238,6 +238,7 @@ namespace Kaleidoscope
 			
 			SDL_mutex * device_mutex;
 			SDL_Thread * voxel_update_thread;
+			SDL_Thread * selection_thread;
 			
 
 		private:

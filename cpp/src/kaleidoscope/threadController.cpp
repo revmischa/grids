@@ -19,6 +19,21 @@ namespace Kaleidoscope
 		return 0;
 	}
 	
+	int runDetectSelectionThreadEntryPoint( void * d )
+	{
+		// get Lock on d->mouse_x
+		int m_x = ( (Device *)d )->down_x;
+		// release d->mouse_x
+		
+		// get Lock on d->mouse_y
+		int m_y = ( (Device *)d )->down_y;
+		// release d->mouse_y
+		
+		( (Device *)d)->getInterface()->getObjectController()->detectSelection( (Device *)d, m_x, m_y );
+		
+		return 0;
+	}
+	
 	ThreadController::ThreadController( )
 	{
 		
@@ -27,6 +42,11 @@ namespace Kaleidoscope
 	void ThreadController::updateVoxelThreaded( Device * d )
 	{
 		d->voxel_update_thread = SDL_CreateThread( runVoxelUpdateThreadEntryPoint, d );
+	}
+	
+	void ThreadController::detectSelectionThreaded( Device * d, Vec2D mouse_coords )
+	{
+		d->selection_thread = SDL_CreateThread( runDetectSelectionThreadEntryPoint, d  );
 	}
 	
 	

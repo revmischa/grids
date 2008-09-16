@@ -72,6 +72,7 @@ namespace Kaleidoscope
 			void setCameraToFPS();
 			void setCameraToMaya();
 			void swapCameraType(Device *);
+			void setPerspective( Device *, float, float, float, float );
 			
 			int getType(Device *);
 			void setType( Device *, int );
@@ -80,6 +81,8 @@ namespace Kaleidoscope
 			void doMovementFPS(Device *);
 			void doMovementMaya( Device * );
 			void callgluLookAt( Device *);
+		
+			void getRayFromScreenCoordinates( Device *, Vec2D, float * );
 			
 			
 			

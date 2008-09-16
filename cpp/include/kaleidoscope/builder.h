@@ -29,7 +29,7 @@ namespace Kaleidoscope
 			// agrs:  device, object ID, room ID, position
 			void placeObject( Device *, GridsID, GridsID, Vec3D, Vec3D, Vec3D );	// Places an object into the world hash, 
 			
-			void placeObject( Device *, GridsID, Vec3D );	// Places an object into the world hash, 
+			void placeObject( Device *, GridsID, Vec3D, Vec3D, Vec3D );	// Places an object into the world hash, 
 			
 			void buildChair( Device *, GridsID ); // Adds chair quads, polygons to specific ID
 			

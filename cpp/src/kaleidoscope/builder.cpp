@@ -378,7 +378,7 @@ namespace Kaleidoscope
 
 	}
 
-	void Builder::placeObject( Device * d, GridsID new_id, Vec3D new_position )
+	void Builder::placeObject( Device * d, GridsID new_id, Vec3D new_position, Vec3D new_scale, Vec3D new_rotation  )
 	// Place an object that's not contained inside a room
 	{
 		

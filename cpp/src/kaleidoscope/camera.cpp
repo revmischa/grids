@@ -147,6 +147,28 @@ namespace Kaleidoscope
 		setRotation( d, Vec3D( x, y, z ) );
 	}
 	
+	void Camera::setPerspective( Device * d, float fovy, float aspect, float zNear, float zFar )
+	{
+		d->Fov = fovy;
+		d->Aspect = aspect;
+		d->Near = zNear;
+		d->Far = zFar;
+		
+		gluPerspective( fovy, aspect, zNear, zFar );
+	}
+	
+	void Camera::getRayFromScreenCoordinates( Device * d, Vec2D coords, float * screen_ray )
+	{
+		screen_ray[ 0 ] = 1.0f;
+		screen_ray[ 1 ] = 2.0f;
+		screen_ray[ 2 ] = 3.0f;
+		screen_ray[ 3 ] = 4.0f;
+		screen_ray[ 4 ] = 5.0f;
+		screen_ray[ 5 ] = 6.0f;
+		
+		
+	}
+	
 	void Camera::lookAtPoint( Device * d,  Vec3D vec )
 	{
 		setLook( d, vec - d->Position );
@@ -525,6 +547,8 @@ namespace Kaleidoscope
 			}
 		} 
 	}
+	
+	
 	
 	
 	/////////////

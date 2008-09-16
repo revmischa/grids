@@ -14,6 +14,7 @@
 #include <grids/protocol.h>
 
 #include <kaleidoscope/voxelSpace.h>
+#include <kaleidoscope/simpleCube.h>
 
 #include <stdlib.h>
 #include <string>
@@ -110,7 +111,9 @@ int main( int argc, char **argv )
 							  Kaleidoscope::Vec3D( 1.0f, 1.0f, 1.0f ),
 							  Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f )	);
 	
-	main_voxel->update(main_device, 3, 0.45f);
+	//main_voxel->update(main_device, 3, 0.45f);
+	
+	
 	
 	main_device->setVoxel( main_voxel );
 
@@ -154,8 +157,7 @@ int main( int argc, char **argv )
 	SDL_Surface * temp_surface = SDL_LoadBMP( "change_room.bmp" );
 	SDL_WM_SetIcon( temp_surface, NULL );
 	SDL_WM_SetCaption( "Kaleidoscope -- Grids Visualizer", "Kaleidoscope" );
-
-
+	
 
 	gScreen = SDL_SetVideoMode(main_device->width, main_device->height, 0,
 		SDL_OPENGL | SDL_HWSURFACE );
@@ -167,11 +169,12 @@ int main( int argc, char **argv )
 	  printf("Unable to create window: %s\n", SDL_GetError());
 	  return 1;
 	}
+	
+	main_tc->updateVoxelThreaded( main_device );
 
 	main_gui = new Kaleidoscope::Gui( main_device );
 	main_device->setGui( main_gui );
 
-    
 	int text_id = main_gui->addText(main_device, Kaleidoscope::Vec2D( -0.95f, 0.95f ), " " );
 	main_gui->addText(main_device, Kaleidoscope::Vec3D( 50.0f, 50.0f, 50.0f ), "point < 50, 50, 50 >" );
 	main_gui->addText(main_device, Kaleidoscope::Vec3D( -50.0f, 0.0f, -50.0f ), "point < -50, 0, -50 >" );
