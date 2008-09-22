@@ -47,26 +47,30 @@ namespace Kaleidoscope
 			d->world_hash[ new_id ][ "rotation" ][ 1u ] = 0.0f;
 			d->world_hash[ new_id ][ "rotation" ][ 2u ] = 0.0f;
 		}
-		else if( false )
+		else
 		{
-			int world_size = 10; // 20 x 20 x 20 = 8000 total rooms
+			int world_size = 5; // 20 x 20 x 20 = 8000 total rooms
 
 			int room_width = d->room_width;
-
-			float dist_const = sqrt( 3 * (room_width * room_width ) );
-
-			Vec3D closest_position = Vec3D( -world_size * room_width,
-											-world_size * room_width,
-											-world_size * room_width		);
+			
+			// The default position is the position to place new rooms if all of the rooms are filled up
+			// It is the farthest possible position
+			Vec3D default_position = Vec3D( -world_size * room_width * 2,
+										   -world_size * room_width * 2,
+										   -world_size * room_width * 2		);
+			
+			Vec3D closest_position = default_position; 
 
 			Vec3D temp_position;
-
+			
 			for( int i = -world_size; i < world_size; i++)
 			{
 				for( int g = -world_size; g < world_size; g++)
 				{
 					for( int h = -world_size; h < world_size; h++)
 					{
+						temp_position = Vec3D( i * 2 * room_width, g * 2 * room_width, h * 2 * room_width );
+						
 						for( int j = 0; j < d->world_hash[ "rooms" ].size(); j++ )
 						{
 							GridsID temp_id = d->world_hash[ "rooms" ][ j ].asString();
@@ -74,18 +78,21 @@ namespace Kaleidoscope
 							Vec3D temp_room_position = Vec3D(	d->world_hash[ temp_id ][ "position" ][ 0u ].asDouble(),
 																d->world_hash[ temp_id ][ "position" ][ 1u ].asDouble(),
 																d->world_hash[ temp_id ][ "position" ][ 2u ].asDouble()	);
-
-
-							if( sqrt(	( room_width * i -  temp_room_position.X ) * ( room_width * i ) +
-										( room_width * g) * ( room_width * g) +
-										( room_width * h) * ( room_width * h)	)  )
-
-
+							
+							if( temp_position == temp_room_position )
 							{
-
+								temp_position = default_position;
 							}
-
+							
 						} // end for Rooms
+						
+						
+						if( temp_position.getLength() < closest_position.getLength() )
+						{
+							closest_position = temp_position;
+						}
+						
+						
 					} // end for h
 				} // end for g
 			} // end for i
@@ -107,7 +114,7 @@ namespace Kaleidoscope
 			d->world_hash[ new_id ][ "rotation" ][ 2u ] = 0.0f;
 		}
 
-		else
+		if( false )
 		{
 			int num_rooms = d->world_hash[ "rooms" ].size();
 			float room_width = d->room_width;

@@ -19,6 +19,12 @@ namespace Kaleidoscope
 		return 0;
 	}
 	
+	int runCreateRoomDebugThreadEntryPoint( void * d )
+	{
+		( (Device *)d)->getInterface()->createRoomDebug();
+		return 0;
+	}
+	
 	int runDetectSelectionThreadEntryPoint( void * d )
 	{
 		// get Lock on d->mouse_x
@@ -47,6 +53,11 @@ namespace Kaleidoscope
 	void ThreadController::detectSelectionThreaded( Device * d, Vec2D mouse_coords )
 	{
 		d->selection_thread = SDL_CreateThread( runDetectSelectionThreadEntryPoint, d  );
+	}
+	
+	void ThreadController::createRoomDebugThreaded( Device * d )
+	{
+		d->create_room_debug_thread = SDL_CreateThread( runCreateRoomDebugThreadEntryPoint, d  );
 	}
 	
 	

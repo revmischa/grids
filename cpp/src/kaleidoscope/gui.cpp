@@ -368,6 +368,8 @@ namespace Kaleidoscope
 		if( mouse_button == SDL_BUTTON_LEFT )
 		{
 			std::cout << mouse_x << " : " << mouse_y << std::endl;
+			
+			
 		}
 	}
 
@@ -579,6 +581,12 @@ namespace Kaleidoscope
 		{
 			d->getThreadController()->updateVoxelThreaded( d );
 		}
+		
+		if( in_string == " ex" ) 
+		{
+			d->getThreadController()->createRoomDebugThreaded( d );
+		}
+		
 	}
 	
 	

@@ -45,8 +45,6 @@ static SDL_Surface *gScreen;
 
 int main( int argc, char **argv )
 {
-    std::cout << "Hello world" << std::endl;
-
 	main_device->running = 1;        // Flag telling if the program is running
 
 	main_device->room_width = ROOM_SIZE; // How wide the rooms are
@@ -76,32 +74,9 @@ int main( int argc, char **argv )
 	std::stringstream out;
 	
 	srand ( time(NULL) );
+	
+	Kaleidoscope::SimpleCube * main_cube = new Kaleidoscope::SimpleCube( );
 
-		
-	for( int i = 0; i < 20; i++ )
-	{
-		out << i;
-		
-		temp_box_id = "TINY_BOX" + out.str();
-		
-		std::cout << temp_box_id << std::endl;
-		
-		main_builder->placeObject(	main_device, temp_box_id, room_id,
-								  Kaleidoscope::Vec3D( ROOM_SIZE - (rand() % 10000)/10000.0f * ROOM_SIZE * 2.0f,  
-													  ROOM_SIZE - (rand() % 10000)/10000.0f * ROOM_SIZE * 2.0f, 
-													   ROOM_SIZE - (rand() % 10000)/10000.0f * ROOM_SIZE * 2.0f ),
-								  Kaleidoscope::Vec3D( 1.0f, 1.0f, 1.0f ),
-								  Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f )	);
-	
-		
-		temp_box_color[ 0 ] = (rand() % 10000)/10000.0f;
-		temp_box_color[ 1 ] = (rand() % 10000)/10000.0f;
-		temp_box_color[ 2 ] = (rand() % 10000)/10000.0f;
-		temp_box_color[ 3 ] = 0.35f;
-		
-		main_device->getBuilder()->buildBox(main_device, temp_box_id, 2, temp_box_color );
-	}
-	
 	Grids::GridsID voxel_id = "Voxel1234";
 	
 	Kaleidoscope::VoxelSpace * main_voxel = new Kaleidoscope::VoxelSpace( voxel_id , ROOM_SIZE*10, ROOM_SIZE*10, ROOM_SIZE*10, ROOM_SIZE/2, ROOM_SIZE/2, ROOM_SIZE/2  );
@@ -112,8 +87,6 @@ int main( int argc, char **argv )
 							  Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f )	);
 	
 	//main_voxel->update(main_device, 3, 0.45f);
-	
-	
 	
 	main_device->setVoxel( main_voxel );
 
@@ -170,7 +143,6 @@ int main( int argc, char **argv )
 	  return 1;
 	}
 	
-	main_tc->updateVoxelThreaded( main_device );
 
 	main_gui = new Kaleidoscope::Gui( main_device );
 	main_device->setGui( main_gui );
@@ -178,17 +150,53 @@ int main( int argc, char **argv )
 	int text_id = main_gui->addText(main_device, Kaleidoscope::Vec2D( -0.95f, 0.95f ), " " );
 	main_gui->addText(main_device, Kaleidoscope::Vec3D( 50.0f, 50.0f, 50.0f ), "point < 50, 50, 50 >" );
 	main_gui->addText(main_device, Kaleidoscope::Vec3D( -50.0f, 0.0f, -50.0f ), "point < -50, 0, -50 >" );
+	
+	
+	
+	
+	for( int i = 0; i < 20; i++ )
+	{
+//		out << i;
+//		
+//		temp_box_id = "TINY_BOX" + out.str();
+//		
+//		std::cout << temp_box_id << std::endl;
+//				
+//		main_builder->placeObject(	main_device, temp_box_id, room_id,
+//								  Kaleidoscope::Vec3D( ROOM_SIZE - (rand() % 10000)/10000.0f * ROOM_SIZE * 2.0f,  
+//													  ROOM_SIZE - (rand() % 10000)/10000.0f * ROOM_SIZE * 2.0f, 
+//													   ROOM_SIZE - (rand() % 10000)/10000.0f * ROOM_SIZE * 2.0f ),
+//								  Kaleidoscope::Vec3D( 1.0f, 1.0f, 1.0f ),
+//								  Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f )	);
+		
+		temp_box_color[ 0 ] = (rand() % 10000)/10000.0f;
+		temp_box_color[ 1 ] = (rand() % 10000)/10000.0f;
+		temp_box_color[ 2 ] = (rand() % 10000)/10000.0f;
+		temp_box_color[ 3 ] = 0.35f;
+		
+		//main_device->getBuilder()->buildBox(main_device, temp_box_id, 2, temp_box_color );
+		
+		main_cube->requestCreateCube( main_device, room_id, 
+									 Kaleidoscope::Vec3D(	ROOM_SIZE - (rand() % 10000)/10000.0f * ROOM_SIZE * 2.0f,  
+															ROOM_SIZE - (rand() % 10000)/10000.0f * ROOM_SIZE * 2.0f, 
+															ROOM_SIZE - (rand() % 10000)/10000.0f * ROOM_SIZE * 2.0f ),
+									 2.0f, &temp_box_color[ 0 ]  );
+		
+	}
+	
+	main_tc->updateVoxelThreaded( main_device );
 
+	
 
 //	SDL_Surface * temp_image = IMG_Load( "corona.png" );
 //
-//    main_builder->packImage(main_device, "temp_image232", temp_image );
+//  main_builder->packImage(main_device, "temp_image232", temp_image );
 //
 //	delete temp_image;
 //
 //	main_device->loaded_image = main_builder->getImage( main_device, "temp_image232" );
-
-
+	
+	
 	main_renderer->prepare( main_device );
 
 	main_device->last_clock = SDL_GetTicks();

@@ -39,6 +39,10 @@ namespace Grids
 			float detectSelection( Kaleidoscope::Device *, Vec3D, Vec3D );
 			
 			void selectObject( Kaleidoscope::Device * );
+		
+			float calculateRadiusFromVertices( Kaleidoscope::Device *, GridsID );
+		
+			float distanceToSphereAlongRay( Vec3D, Vec3D, Vec3D, float );
 
 		private:
 

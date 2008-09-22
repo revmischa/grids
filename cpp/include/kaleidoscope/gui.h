@@ -76,7 +76,7 @@ namespace Kaleidoscope
 		
 		
 		private:
-			
+					
 	
 	};
 	

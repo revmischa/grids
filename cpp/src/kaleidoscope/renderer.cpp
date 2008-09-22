@@ -334,7 +334,7 @@ namespace Kaleidoscope
 							d->world_hash[ temp_room ][ "position" ][ 2u ].asDouble()	);
 			
 			//Rotate the calculated amount.
-			glRotatef(  d->world_hash[ temp_room ][ "rotation" ][ 0u ].asDouble() ,1.0f,0.0f,0.0f);
+			glRotatef( d->world_hash[ temp_room ][ "rotation" ][ 0u ].asDouble() ,1.0f,0.0f,0.0f);
 			glRotatef( d->world_hash[ temp_room ][ "rotation" ][ 1u ].asDouble() ,0.0f,1.0f,0.0f);
 			glRotatef( d->world_hash[ temp_room ][ "rotation" ][ 2u ].asDouble() ,0.0f,0.0f,1.0f);
 			
@@ -411,6 +411,8 @@ namespace Kaleidoscope
 						vertice_index_3 = d->world_hash[ temp_room ][ "quads" ][ g ][ "indices" ][ h ][ 2u ].asInt();
 						vertice_index_4 = d->world_hash[ temp_room ][ "quads" ][ g ][ "indices" ][ h ][ 3u ].asInt();
 						
+						
+						
 						glVertex3f(	d->world_hash[ temp_room ][ "vertices" ][ vertice_index_1 ][ 0u ].asDouble(), 
 									d->world_hash[ temp_room ][ "vertices" ][ vertice_index_1 ][ 1u ].asDouble(), 
 									d->world_hash[ temp_room ][ "vertices" ][ vertice_index_1 ][ 2u ].asDouble()	);
@@ -437,9 +439,11 @@ namespace Kaleidoscope
 			
 			if( !(d->world_hash[ temp_room ][ "objects" ]) == false )
 			{
+								
 				for( int g = 0; g < d->world_hash[ temp_room ][ "objects" ].size(); g++ )
 				{
 					GridsID temp_object =  d->world_hash[ temp_room ][ "objects" ][ g ].asString();
+					
 					
 					glPushMatrix();
 					
@@ -448,10 +452,11 @@ namespace Kaleidoscope
 									d->world_hash[ temp_object ][ "position" ][ 1u ].asDouble(), 
 									d->world_hash[ temp_object ][ "position" ][ 2u ].asDouble()	);
 					
+					
 					//Rotate the calculated amount.
-					glRotatef(  d->world_hash[ temp_object ][ "rotation" ][ 0u ].asDouble() ,1.0f,0.0f,0.0f);
-					glRotatef( d->world_hash[ temp_object ][ "rotation" ][ 1u ].asDouble() ,0.0f,1.0f,0.0f);
-					glRotatef( d->world_hash[ temp_object ][ "rotation" ][ 2u ].asDouble() ,0.0f,0.0f,1.0f);
+					glRotatef(  d->world_hash[ temp_object ][ "rotation" ][ 0u ].asDouble() , 1.0f,0.0f,0.0f);
+					glRotatef( d->world_hash[ temp_object ][ "rotation" ][ 1u ].asDouble() , 0.0f,1.0f,0.0f);
+					glRotatef( d->world_hash[ temp_object ][ "rotation" ][ 2u ].asDouble() , 0.0f,0.0f,1.0f);
 					
 					// Scale
 					glScalef(	d->world_hash[ temp_object ][ "scale" ][ 0u ].asDouble(), 
@@ -488,6 +493,26 @@ namespace Kaleidoscope
 								vertice_index_2 = d->world_hash[ temp_object ][ "quads" ][ h ][ "indices" ][ k ][ 1u ].asInt();
 								vertice_index_3 = d->world_hash[ temp_object ][ "quads" ][ h ][ "indices" ][ k ][ 2u ].asInt();
 								vertice_index_4 = d->world_hash[ temp_object ][ "quads" ][ h ][ "indices" ][ k ][ 3u ].asInt();
+								
+								
+//								std::cout << vertice_index_1 << " " << vertice_index_2 << " " << vertice_index_3 << " " << vertice_index_4 << std::endl;
+//								
+//								std::cout << d->world_hash[ temp_object ][ "vertices" ][ vertice_index_1 ][ 0u ].asDouble()
+//								<< " " << d->world_hash[ temp_object ][ "vertices" ][ vertice_index_1 ][ 1u ].asDouble()
+//								<< " " << d->world_hash[ temp_object ][ "vertices" ][ vertice_index_1 ][ 2u ].asDouble() << std::endl;
+//								
+//								std::cout << d->world_hash[ temp_object ][ "vertices" ][ vertice_index_2 ][ 0u ].asDouble()
+//								<< " " << d->world_hash[ temp_object ][ "vertices" ][ vertice_index_2 ][ 1u ].asDouble()
+//								<< " " << d->world_hash[ temp_object ][ "vertices" ][ vertice_index_2 ][ 2u ].asDouble() << std::endl;
+//								
+//								std::cout << d->world_hash[ temp_object ][ "vertices" ][ vertice_index_3 ][ 0u ].asDouble()
+//								<< " " << d->world_hash[ temp_object ][ "vertices" ][ vertice_index_3 ][ 1u ].asDouble()
+//								<< " " << d->world_hash[ temp_object ][ "vertices" ][ vertice_index_3 ][ 2u ].asDouble() << std::endl;
+//								
+//								std::cout << d->world_hash[ temp_object ][ "vertices" ][ vertice_index_4 ][ 0u ].asDouble()
+//								<< " " << d->world_hash[ temp_object ][ "vertices" ][ vertice_index_4 ][ 1u ].asDouble()
+//								<< " " << d->world_hash[ temp_object ][ "vertices" ][ vertice_index_4 ][ 2u ].asDouble() << std::endl;
+								
 								
 								glVertex3f( d->world_hash[ temp_object ][ "vertices" ][ vertice_index_1 ][ 0u ].asDouble(),
 											d->world_hash[ temp_object ][ "vertices" ][ vertice_index_1 ][ 1u ].asDouble(),
@@ -780,7 +805,9 @@ namespace Kaleidoscope
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
 		
-		float fovy = 45.0f;
+		float fovy = 26.0f;  // NOTE: It is possible to calulate the exact (most realistic) fovy of a progmam based on the viewer's distance from the screen.  See OpenGL documentation.
+							// 26.0f *roughly* coresponds to a 35mm camera 50mm lens,  45.0f *roughly* coresponds to a 24mm wide angle lense.
+		
 		float aspect = (GLfloat)new_width/(GLfloat)new_height;
 		float zNear = 0.1f;
 		float zFar = 10000.0f;

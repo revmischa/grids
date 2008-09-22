@@ -9,6 +9,7 @@
 
 #include <grids/interface.h>
 #include <json/value.h>
+#include <kaleidoscope/simpleCube.h>
 
 #include <time.h>
 #include <iostream>
@@ -73,6 +74,36 @@ namespace Grids
 
 		protocol->sendRequest( type );
 	}
+	
+	void Interface::sendEventDebug( std::string type, Value request )
+	{
+		Protocol p;
+		
+		Event temp_event;
+		// Simplate the actions of the server
+		
+		GridsID temp_id;
+		std::stringstream temp_stream;
+		
+		temp_stream << SDL_GetTicks()*rand();
+		
+		temp_id = temp_stream.str();
+		
+		temp_event.setEvent( request[ "_method" ].asString() );
+		
+		request[ "id" ] = temp_id;
+		
+		temp_event.setArgs( request );
+		
+		receiveEventDebug( &p, &temp_event , &p );
+		
+	}
+	
+	void Interface::receiveEventDebug( Protocol * proto, Event * evt, void * self )
+	{
+		
+		this->parseEventType( evt );
+	}
 
 
 	void Interface::receiveEvent( Protocol * proto, Event * evt, void * self )
@@ -115,25 +146,43 @@ namespace Grids
 			float temp_box_color[ 4 ];
 			GridsID temp_box_id;
 			
-			for( int i = 0; i < 10; i++ )
+			for( int i = 0; i < 17; i++ )
 			{
-				out << i;
+//				out << i;
+//				
+//				temp_box_id = evt->getArgs()[ "id" ].asString() + out.str();
+//								
+//				d->getBuilder()->placeObject(	d, temp_box_id, evt->getArgs()[ "id" ].asString(),
+//										  Kaleidoscope::Vec3D( d->room_width - (rand() % 10000)/10000.0f * d->room_width * 2.0f,  
+//															  d->room_width - (rand() % 10000)/10000.0f * d->room_width * 2.0f, 
+//															  d->room_width - (rand() % 10000)/10000.0f * d->room_width * 2.0f ),
+//										  Kaleidoscope::Vec3D( 1.0f, 1.0f, 1.0f ),
+//										  Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f )	);
+//				
+//				temp_box_color[ 0 ] = (rand() % 10000)/10000.0f;
+//				temp_box_color[ 1 ] = (rand() % 10000)/10000.0f;
+//				temp_box_color[ 2 ] = (rand() % 10000)/10000.0f;
+//				temp_box_color[ 3 ] = 0.35f;
+//				
+//				d->getBuilder()->buildBox(d, temp_box_id, 2, temp_box_color );
 				
-				temp_box_id = evt->getArgs()[ "id" ].asString() + out.str();
-								
-				d->getBuilder()->placeObject(	d, temp_box_id, evt->getArgs()[ "id" ].asString(),
-										  Kaleidoscope::Vec3D( d->room_width - (rand() % 10000)/10000.0f * d->room_width * 2.0f,  
-															  d->room_width - (rand() % 10000)/10000.0f * d->room_width * 2.0f, 
-															  d->room_width - (rand() % 10000)/10000.0f * d->room_width * 2.0f ),
-										  Kaleidoscope::Vec3D( 1.0f, 1.0f, 1.0f ),
-										  Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f )	);
+				Kaleidoscope::SimpleCube * inter_cube = new Kaleidoscope::SimpleCube( );
 				
 				temp_box_color[ 0 ] = (rand() % 10000)/10000.0f;
 				temp_box_color[ 1 ] = (rand() % 10000)/10000.0f;
 				temp_box_color[ 2 ] = (rand() % 10000)/10000.0f;
 				temp_box_color[ 3 ] = 0.35f;
 				
-				d->getBuilder()->buildBox(d, temp_box_id, 2, temp_box_color );
+				//main_device->getBuilder()->buildBox(main_device, temp_box_id, 2, temp_box_color );
+				
+				inter_cube->requestCreateCube( d, evt->getArgs()[ "id" ].asString(), Kaleidoscope::Vec3D( d->room_width - (rand() % 10000)/10000.0f * d->room_width * 2.0f,  
+																						d->room_width - (rand() % 10000)/10000.0f * d->room_width * 2.0f , 
+																						d->room_width - (rand() % 10000)/10000.0f * d->room_width * 2.0f ),
+											 2.0f, &temp_box_color[ 0 ]  );
+				
+				
+				
+				
 			}
 			
 			d->getVoxel()->update(d, 3, 0.45f);
@@ -154,16 +203,12 @@ namespace Grids
 		}
 		else if( event_type == "Room.Object.Create" )
 		{
-		
-//			[ "roomId" ] = 
-//			[ "attr" ] = 
-//			Room.Object.Create = 
-//			Room.Object.Update = 
+			object_controller->createObject(d, evt->getArgs() );
 
 		}
 		else if( event_type == "Room.Object.Update" )
 		{
-		
+			object_controller->updateValue( d, evt->getArgs()[ "id" ].asString(), evt->getArgs() );
 		}
 
 	}
@@ -177,6 +222,28 @@ namespace Grids
 		temp_type[ "_method" ] = "Room.Create";
 
 		sendEvent( "Room.Create", temp_type );
+	}
+	
+	void Interface::createRoomDebug()
+	{
+		Event temp_event;
+		// Simplate the actions of the server
+		Value request;
+		
+		GridsID temp_id;
+		std::stringstream temp_stream;
+		
+		temp_stream << SDL_GetTicks();
+		temp_id = temp_stream.str();
+		
+		temp_event.setEvent( "Room.Create" );
+		
+		request[ "id" ] = temp_id;
+		
+		temp_event.setArgs( request );
+		
+		parseEventType( &temp_event );
+		
 	}
 	
 	

@@ -159,14 +159,77 @@ namespace Kaleidoscope
 	
 	void Camera::getRayFromScreenCoordinates( Device * d, Vec2D coords, float * screen_ray )
 	{
-		screen_ray[ 0 ] = 1.0f;
-		screen_ray[ 1 ] = 2.0f;
-		screen_ray[ 2 ] = 3.0f;
-		screen_ray[ 3 ] = 4.0f;
-		screen_ray[ 4 ] = 5.0f;
-		screen_ray[ 5 ] = 6.0f;
+		Vec3D farLeftUp, farRightUp, farLeftDown;
+		Vec3D nearLeftUp, nearRightUp, nearLeftDown;
+		
+		float Hnear =  tan(d->Fov / 2) * d->Near;
+		float Wnear = Hnear * d->Aspect;
+		
+		float Hfar =  tan(d->Fov / 2) * d->Far;
+		float Wfar = Hfar * d->Aspect;
+				
+		Vec3D tarVec = d->Target - d->Position; 
+		tarVec.normalize();
+		
+		Vec3D strafeVec = tarVec.crossProduct( d->UpVector );
+		strafeVec.normalize();
+		
+		Vec3D elVec = tarVec.crossProduct( strafeVec );
+		elVec.normalize();
+		
+		Vec3D farCenter = d->Position + ( tarVec * d->Far ); 
+		
+		farLeftUp = farCenter + ( elVec * ( Hfar / 2.0f ) )  - ( strafeVec * ( Wfar / 2.0f ) );      
+		
+		farRightUp = farCenter + ( elVec * ( Hfar / 2.0f ) )  + ( strafeVec * ( Wfar / 2.0f ) );
+		
+		farLeftDown = farCenter - ( elVec * ( Hfar / 2.0f ) )  - ( strafeVec * ( Wfar / 2.0f ) ); 
 		
 		
+		Vec3D nearCenter = d->Position + ( tarVec * d->Near ); 
+		
+		nearLeftUp = nearCenter + ( elVec * ( Hnear / 2.0f ) )  - ( strafeVec * ( Wnear / 2.0f ) );      
+		
+		nearRightUp = nearCenter + ( elVec * ( Hnear / 2.0f ) )  + ( strafeVec * ( Wnear / 2.0f ) );
+		
+		nearLeftDown = nearCenter - ( elVec * ( Hnear / 2.0f ) )  - ( strafeVec * ( Wnear / 2.0f ) );
+		
+		
+		
+		Vec3D lefttorightFar =  farRightUp - farLeftUp ;
+		Vec3D uptodownFar = farLeftDown - farLeftUp ;
+		
+		
+		Vec3D lefttorightNear =  nearRightUp - nearLeftUp ;
+		Vec3D uptodownNear = nearLeftDown - nearLeftUp ;
+		
+		
+		float dx = ( float )( coords.X ) / (float)( d->width );
+		float dy = ( float )( coords.Y ) / (float)( d->height );   
+		
+		Vec3D directionFar =  farLeftUp + ( lefttorightFar * dx )  + ( uptodownFar * dy );
+		Vec3D directionNear =  nearLeftUp + ( lefttorightNear * dx )  + ( uptodownNear * dy );
+		
+		std::cout << "coords  " << coords.X << " : " << coords.Y << std::endl;
+		std::cout << "dx  " << dx << " : " << dy << std::endl;
+		std::cout << "fov/aspect  " << d->Fov << " : " << d->Aspect << std::endl;
+		
+		//direction.subSelf(Position);
+		//direction.normalize();
+		//direction.scale( -50000 );
+		
+		Vec3D screen_ray_temp = directionFar - directionNear;
+		
+		screen_ray_temp.normalize();
+		
+		screen_ray[ 0 ] = directionNear.X;
+		screen_ray[ 1 ] = directionNear.Y;
+		screen_ray[ 2 ] = directionNear.Z;
+		
+		screen_ray[ 3 ] = screen_ray_temp.X;
+		screen_ray[ 4 ] = screen_ray_temp.Y;
+		screen_ray[ 5 ] = screen_ray_temp.Z;
+			
 	}
 	
 	void Camera::lookAtPoint( Device * d,  Vec3D vec )
@@ -419,6 +482,10 @@ namespace Kaleidoscope
 				
 				d->Position = d->CenterOfRotation + PositionDifference;
 				d->Target = d->CenterOfRotation + TargetDifference;
+				
+				Vec3D temp_tar =  d->Target - d->Position; // The target must be normalized for selection / cursor-ray finding to work
+				temp_tar.normalize();
+				d->Target = d->Position + temp_tar;
 			}
 			
 		}

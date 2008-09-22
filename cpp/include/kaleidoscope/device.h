@@ -238,6 +238,7 @@ namespace Kaleidoscope
 			
 			SDL_mutex * device_mutex;
 			SDL_Thread * voxel_update_thread;
+			SDL_Thread * create_room_debug_thread;
 			SDL_Thread * selection_thread;
 			
 

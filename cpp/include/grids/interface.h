@@ -56,6 +56,11 @@ namespace Grids
 			void createRoom( );
 
 			std::string addRoomDebug( Kaleidoscope::Device * );
+		
+			void sendEventDebug( std::string, Value );
+			void receiveEventDebug( Protocol *, Event *, void * );
+		
+			void createRoomDebug();
 
 		private:
 

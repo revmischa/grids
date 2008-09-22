@@ -34,30 +34,27 @@ namespace Grids
 	{
 		public:
 			ObjectController();
+			~ObjectController( );
 		
 			/// *** NOTE Create object sends the request to create an object
 			// the creation actually occurs when the network bounces back a
 			// GridsID, confirming the request
-			void requestCreateObject( Kaleidoscope::Device * ); // creates an object outside of a room
-			void requestCreateObject( Kaleidoscope::Device *, GridsID ); // creates an object inside of a room based on the ID
+			void requestCreateObject( Kaleidoscope::Device *, Value ); // creates an object 
 		
-			void createObject( Kaleidoscope::Device *, GridsID ); // params, object id
-			void createObject( Kaleidoscope::Device *, GridsID, GridsID ); // params, object id, room id
-			void createObject( Kaleidoscope::Device *, GridsID, Vec3D, Vec3D, Vec3D ); // params, object id
-			void createObject( Kaleidoscope::Device *, GridsID, GridsID, Vec3D, Vec3D, Vec3D ); // params, object id, room id
+			void createObject( Kaleidoscope::Device *, Value ); // params, object id
 		
-			void requestUpdatePosition( Kaleidoscope::Device *, Object *, Vec3D, Vec3D, Vec3D );
-			void requestUpdatePosition( Kaleidoscope::Device *, GridsID, Vec3D, Vec3D, Vec3D );
+			void requestUpdateValue( Kaleidoscope::Device *, Object *, Value );
+			void requestUpdateValue( Kaleidoscope::Device *, GridsID, Value );
 			
-			void updatePosition( Kaleidoscope::Device *, Object *, Vec3D, Vec3D, Vec3D );
-			void updatePosition( Kaleidoscope::Device *, GridsID, Vec3D, Vec3D, Vec3D );
-		
-			void sendUpdatePosition( GridsID, Vec3D, Vec3D, Vec3D ); // update the position, rotation, and scale
-			
+			void updateValue( Kaleidoscope::Device *, Object *, Value );
+			void updateValue( Kaleidoscope::Device *, GridsID, Value );
+					
 			void detectSelection( Kaleidoscope::Device *, int, int );
 		
 			float intersectRaySphere( Vec3D, Vec3D, Vec3D, float );
 			GridsID getIdFromPointer( Object * );
+		
+			void registerObject( GridsID, Object * );
 
 		private:
 		

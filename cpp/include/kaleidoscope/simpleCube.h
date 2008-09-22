@@ -31,9 +31,9 @@ namespace Kaleidoscope
 			
 			// Params: Device, room, position, color_array
 			// Interface generates
-			SimpleCube( Device *, GridsID, Vec3D, float * );
+			SimpleCube( );//Device *, GridsID, Vec3D, float, float * );
 		
-			void requestCreateCube( Device *, GridsID, Vec3D, float * );
+			void requestCreateCube( Device *, GridsID, Vec3D, float, float * );
 		
 			void create( Device *, Grids::Value );
 			
