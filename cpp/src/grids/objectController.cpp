@@ -3,7 +3,21 @@
  *  grids_view_01
  *
  *  Created by Patrick Tierney on 8/8/08.
- *  Copyright 2008 Patrick Tierney. All rights reserved.
+ *
+ *	 This file is part of Grids/Kaleidoscope.
+ *	 
+ *	 Grids/Kaleidoscope is free software: you can redistribute it and/or modify
+ *	 it under the terms of the GNU General Public License as published by
+ *	 the Free Software Foundation, either version 3 of the License, or
+ *	 (at your option) any later version.
+ *	 
+ *	 Grids/Kaleidoscope is distributed in the hope that it will be useful,
+ *	 but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *	 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *	 GNU General Public License for more details.
+ *	 
+ *	 You should have received a copy of the GNU General Public License
+ *	 along with Grids/Kaleidoscope.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -24,31 +38,29 @@ namespace Grids
 		
 	}
 	
-	
 
-	void ObjectController::requestCreateObject( Kaleidoscope::Device * d, Value obj_value )
+	void ObjectController::requestCreateObject( Kaleidoscope::Device * d, Value * obj_value )
 	{
-		obj_value[ "_method" ] = "Room.Object.Create";
-		
-		d->getInterface()->sendEventDebug( obj_value[ "_method" ].asString() , obj_value );
+		(*obj_value)[ "_method" ] = "Room.Object.Create";
+				
+		d->getInterface()->sendEventDebug( (*obj_value)[ "_method" ].asString() , obj_value );
 	}
 	
-	void ObjectController::createObject( Kaleidoscope::Device * d, Value obj_value )
+	void ObjectController::createObject( Kaleidoscope::Device * d, Value * obj_value )
 	{
 		// how do I know what pointer this ID belongs to?
 		// do I create a new cube?
 		// Yes
 		
-		std::cout << "ObjectController creating object" << std::endl;
+		//std::cout << "ObjectController creating object" << std::endl;
 		
-		
-		if( obj_value[ "Kaleidoscope" ][ "Object.Type" ][ "Class.Name" ] == "SimpleCube" )
+		if( (*obj_value)[ "Kaleidoscope" ][ "Object.Type" ][ "Class.Name" ] == "SimpleCube" )
 		{
 			
 			Kaleidoscope::SimpleCube * new_cube = new Kaleidoscope::SimpleCube();
 			
 			// register this fucker with the object controller
-			registerObject( obj_value[ "id" ].asString(), new_cube );
+			registerObject( (*obj_value)[ "id" ].asString(), new_cube );
 			
 			new_cube->create( d, obj_value );
 		}
@@ -97,25 +109,12 @@ namespace Grids
 		
 		Vec3D ray_pos = Vec3D( screen_ray[ 0 ], screen_ray[ 1 ], screen_ray[ 2 ] );
 		Vec3D ray_target = Vec3D( screen_ray[ 3 ], screen_ray[4 ], screen_ray[ 5 ] );
-		ray_target *= -282.0f;
-		
-		Vec3D temp_box_position = ray_pos + ray_target;
-		
-		d->world_hash[ "TINY_BOX0" ][ "position" ][ 0u ] = temp_box_position.X;
-		d->world_hash[ "TINY_BOX0" ][ "position" ][ 1u ] = temp_box_position.Y;
-		d->world_hash[ "TINY_BOX0" ][ "position" ][ 2u ] = temp_box_position.Z;
-		
-//		std::cout << "Target   " << screen_ray[ 3 ] << " : " << screen_ray[ 4 ] << " : " << screen_ray[ 5 ] << std::endl;
-//		std::cout << "Box pos  " << temp_box_position.X << " : " << temp_box_position.Y << " : " << temp_box_position.Z << std::endl;
-//		std::cout << "Position  " << d->Position.X << " : " << d->Position.Y << " : " << d->Position.Z << std::endl;
-//		std::cout << "Target  " << d->Target.X << " : " << d->Target.Y << " : " << d->Target.Z << std::endl;
-//		std::cout << "Up  " << d->UpVector.X << " : " << d->UpVector.Y << " : " << d->UpVector.Z << std::endl;
-
+				
 		for( int i = 0; i < object_ids.size(); i++ )
 		{
 			temp_id = object_ids[ i ];
 			
-			temp_dist = (id_pointer_hash[ temp_id ])->detectSelection( d, ray_pos, ray_target );
+			temp_dist = getDistFromRay( d, temp_id, ray_pos, ray_target );
 			
 			if( temp_dist != -1 && temp_dist < closest_dist )
 			{
@@ -123,16 +122,33 @@ namespace Grids
 			}
 		}
 		
-		
 		if( closest_id.size() != 0 )
 		{
-			(id_pointer_hash[ temp_id ])->selectObject( d );
+			selectObject( d, closest_id );
 		}
-		
 			
 	}
 	
-	void ObjectController::requestUpdateValue( Kaleidoscope::Device * d, Object * obj_ptr, Value in_value )
+	
+	float ObjectController::getDistFromRay( Kaleidoscope::Device * d, GridsID in_id, Vec3D ray_pos, Vec3D ray_target )
+	{
+		if( d->world_hash[ in_id ][ "Object.Type" ][ "Class.Name" ] == "SimpleCube" )
+		{
+			return ( (Kaleidoscope::SimpleCube *) id_pointer_hash[ in_id ])->detectSelection( d, ray_pos, ray_target );
+		}
+		
+		return -1.0f;
+	}
+	
+	void ObjectController::selectObject( Kaleidoscope::Device * d, GridsID in_id )
+	{
+		if( d->world_hash[ in_id ][ "Object.Type" ][ "Class.Name" ] == "SimpleCube" )
+		{
+			( (Kaleidoscope::SimpleCube *) id_pointer_hash[ in_id ])->selectObject( d );
+		}
+	}
+	
+	void ObjectController::requestUpdateValue( Kaleidoscope::Device * d, Object * obj_ptr, Value * in_value )
 	{
 		GridsID temp_id = pointer_id_hash[ obj_ptr ];
 		
@@ -143,21 +159,20 @@ namespace Grids
 		
 	}
 	
-	void ObjectController::requestUpdateValue( Kaleidoscope::Device * d, GridsID obj_id, Value in_value )
+	void ObjectController::requestUpdateValue( Kaleidoscope::Device * d, GridsID obj_id, Value * in_value )
 	{
 		// assemble a correct event, with position, scale, and rotation properly filled in
 		// send the request to the interface
 		
-		Value temp_value = Value();
-		temp_value[ "id" ] = obj_id;
+		(*in_value)[ "id" ] = obj_id;
 		
 		// Need details for what the position, etc will be
 		
-		d->getInterface()->sendEvent( "Room.Object.Update", temp_value );
+		d->getInterface()->sendEvent( "Room.Object.Update", in_value );
 		
 	}
 	
-	void ObjectController::updateValue( Kaleidoscope::Device * d, Object * obj_ptr, Value obj_value)
+	void ObjectController::updateValue( Kaleidoscope::Device * d, Object * obj_ptr, Value * obj_value)
 	{
 		GridsID temp_id = pointer_id_hash[ obj_ptr ];
 		
@@ -168,13 +183,19 @@ namespace Grids
 		
 	}
 	
-	void ObjectController::updateValue( Kaleidoscope::Device * d, GridsID obj_id, Value obj_value)
+	void ObjectController::updateValue( Kaleidoscope::Device * d, GridsID obj_id, Value * obj_value)
 	{
 		if( !( d->world_hash[ obj_id ] ) == false ) // if the object hash position has been created
 		{
-			Vec3D obj_pos;
-			Vec3D obj_rot;
-			Vec3D obj_scl;
+			Vec3D obj_pos = Vec3D( (*obj_value)[ "position" ][ 0u ].asDouble(), 
+								  (*obj_value)[ "position" ][ 1u ].asDouble(), 
+								  (*obj_value)[ "position" ][ 2u ].asDouble() ) ;
+			Vec3D obj_rot = Vec3D( (*obj_value)[ "rotation" ][ 0u ].asDouble(), 
+								  (*obj_value)[ "rotation" ][ 1u ].asDouble(), 
+								  (*obj_value)[ "rotation" ][ 2u ].asDouble()	) ;
+			Vec3D obj_scl = Vec3D( (*obj_value)[ "scale" ][ 0u ].asDouble(), 
+								  (*obj_value)[ "scale" ][ 1u ].asDouble(), 
+								  (*obj_value)[ "scale" ][ 2u ].asDouble()	);
 			
 			d->world_hash[ obj_id ][ "position" ][ 0u ] = obj_pos.X;
 			d->world_hash[ obj_id ][ "position" ][ 1u ] = obj_pos.Y;

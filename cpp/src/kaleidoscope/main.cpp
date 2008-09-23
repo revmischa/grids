@@ -2,8 +2,23 @@
  *
  *  kaleidoscope_2 -- Grids Visualizer
  *
- *  Created by Patrick Tierney on 8/11/08.
- *  Copyright 2008 Patrick Tierney. All rights reserved.
+ *	Created by Patrick Tierney on 8/11/08.
+ *
+ *	 This file is part of Grids/Kaleidoscope.
+ *	 
+ *	 Grids/Kaleidoscope is free software: you can redistribute it and/or modify
+ *	 it under the terms of the GNU General Public License as published by
+ *	 the Free Software Foundation, either version 3 of the License, or
+ *	 (at your option) any later version.
+ *	 
+ *	 Grids/Kaleidoscope is distributed in the hope that it will be useful,
+ *	 but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *	 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *	 GNU General Public License for more details.
+ *	 
+ *	 You should have received a copy of the GNU General Public License
+ *	 along with Grids/Kaleidoscope.  If not, see <http://www.gnu.org/licenses/>.
+ *
  *
  */
 
@@ -22,6 +37,7 @@
 #include <SDL_image/SDL_image.h>
 
 #include <sstream>
+#include <assert.h>
 
 Kaleidoscope::Device * main_device = new Kaleidoscope::Device( );
 
@@ -45,6 +61,8 @@ static SDL_Surface *gScreen;
 
 int main( int argc, char **argv )
 {
+	std::cout << "device  " << main_device << std::endl;
+	
 	main_device->running = 1;        // Flag telling if the program is running
 
 	main_device->room_width = ROOM_SIZE; // How wide the rooms are
@@ -59,53 +77,45 @@ int main( int argc, char **argv )
 	main_device->setThreadController(main_tc);
 
 
-	Grids::GridsID room_id = "Room1";
-	Grids::GridsID object_id_1 = "Object123";
-	Grids::GridsID loaded_id = "Loaded123";
+	Grids::GridsID my_room_id = "Room1";
 
 	main_device->world_hash = Grids::Value(  );
 
-	main_builder->placeRoom( main_device, room_id );
-	main_builder->buildRoom( main_device, room_id );
+	main_builder->placeRoom( main_device, my_room_id );
+	main_builder->buildRoom( main_device, my_room_id );
 	
 	Grids::GridsID temp_box_id;
-	float temp_box_color[ 4 ];
-	
-	std::stringstream out;
-	
+		
 	srand ( time(NULL) );
 	
-	Kaleidoscope::SimpleCube * main_cube = new Kaleidoscope::SimpleCube( );
 
 	Grids::GridsID voxel_id = "Voxel1234";
 	
-	Kaleidoscope::VoxelSpace * main_voxel = new Kaleidoscope::VoxelSpace( voxel_id , ROOM_SIZE*10, ROOM_SIZE*10, ROOM_SIZE*10, ROOM_SIZE/2, ROOM_SIZE/2, ROOM_SIZE/2  );
+//	Kaleidoscope::VoxelSpace * main_voxel = new Kaleidoscope::VoxelSpace( voxel_id , ROOM_SIZE*10, ROOM_SIZE*10, ROOM_SIZE*10, ROOM_SIZE/2, ROOM_SIZE/2, ROOM_SIZE/2  );
 	
-	main_builder->placeObject(	main_device, voxel_id, room_id,
-							  Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f ),
-							  Kaleidoscope::Vec3D( 1.0f, 1.0f, 1.0f ),
-							  Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f )	);
-	
-	//main_voxel->update(main_device, 3, 0.45f);
-	
-	main_device->setVoxel( main_voxel );
+//	main_builder->placeObject(	main_device, voxel_id, my_room_id,
+//							  Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f ),
+//							  Kaleidoscope::Vec3D( 1.0f, 1.0f, 1.0f ),
+//							  Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f )	);
+		
+//	main_device->setVoxel( main_voxel );
 
 	main_device->x_pos = 200;
 	main_device->y_pos = 100;
 
-	//main_builder->placeObject( main_device, loaded_id, room_id, Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f ), Kaleidoscope::Vec3D( 1.0f, 1.0f, 1.0f ), Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f ) );
+	//main_builder->placeObject( main_device, loaded_id, my_room_id, Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f ), Kaleidoscope::Vec3D( 1.0f, 1.0f, 1.0f ), Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f ) );
 	//main_loader->load3ds( main_device, loaded_id, "torus.3ds", true );
 
 	// Initialize SDL
 
 	if ( SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) < 0 ) {
-	  printf("Unable to init SDL: %s\n", SDL_GetError());
-	  return 1;
+		std::cout << "Unable to init SDL: " << SDL_GetError() << std::endl;
+		assert( false ); // end the program and tell us where it ended
 	}
 
     if (SDLNet_Init() != 0) {
-        printf("SDLNet_Init: %s\n", SDLNet_GetError());
-        exit(2);
+		std::cout << "SDLNet_Init: " << SDLNet_GetError() << std::endl;
+        assert( false ); // end the program and tell us where it ended
     }
 
 	main_interface = new Grids::Interface( main_device, "happiland.net" , new Grids::ObjectController(), new Grids::PersonController(), new Grids::MessengerController() );
@@ -127,23 +137,19 @@ int main( int argc, char **argv )
     value = 1;
     SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, value);
 
-	SDL_Surface * temp_surface = SDL_LoadBMP( "change_room.bmp" );
-	SDL_WM_SetIcon( temp_surface, NULL );
+//	SDL_Surface * temp_surface = SDL_LoadBMP( "change_room.bmp" );
+//	SDL_WM_SetIcon( temp_surface, NULL );
 	SDL_WM_SetCaption( "Kaleidoscope -- Grids Visualizer", "Kaleidoscope" );
 	
-
-	gScreen = SDL_SetVideoMode(main_device->width, main_device->height, 0,
-		SDL_OPENGL | SDL_HWSURFACE );
+	gScreen = SDL_SetVideoMode(main_device->width, main_device->height, 0, SDL_OPENGL | SDL_HWSURFACE );
 	// 0 automatically selects the best availible BPP
 	// SDL_HWSURFACE : use hardware rendering
 
-	if ( gScreen == NULL )
-	{
-	  printf("Unable to create window: %s\n", SDL_GetError());
-	  return 1;
+	if ( gScreen == NULL ) {
+		std::cout << "Unable to create window: " << SDL_GetError() << std::endl;
+		assert( false ); // end the prognam and tell us where it ended
 	}
 	
-
 	main_gui = new Kaleidoscope::Gui( main_device );
 	main_device->setGui( main_gui );
 
@@ -152,31 +158,18 @@ int main( int argc, char **argv )
 	main_gui->addText(main_device, Kaleidoscope::Vec3D( -50.0f, 0.0f, -50.0f ), "point < -50, 0, -50 >" );
 	
 	
-	
+	// ** LOAD THE ROOM WITH SOME RANDOMLY PLACED CUBES ** 
+	Kaleidoscope::SimpleCube * main_cube = new Kaleidoscope::SimpleCube( );
+	float temp_box_color[ 4 ];
 	
 	for( int i = 0; i < 20; i++ )
 	{
-//		out << i;
-//		
-//		temp_box_id = "TINY_BOX" + out.str();
-//		
-//		std::cout << temp_box_id << std::endl;
-//				
-//		main_builder->placeObject(	main_device, temp_box_id, room_id,
-//								  Kaleidoscope::Vec3D( ROOM_SIZE - (rand() % 10000)/10000.0f * ROOM_SIZE * 2.0f,  
-//													  ROOM_SIZE - (rand() % 10000)/10000.0f * ROOM_SIZE * 2.0f, 
-//													   ROOM_SIZE - (rand() % 10000)/10000.0f * ROOM_SIZE * 2.0f ),
-//								  Kaleidoscope::Vec3D( 1.0f, 1.0f, 1.0f ),
-//								  Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f )	);
-		
 		temp_box_color[ 0 ] = (rand() % 10000)/10000.0f;
 		temp_box_color[ 1 ] = (rand() % 10000)/10000.0f;
 		temp_box_color[ 2 ] = (rand() % 10000)/10000.0f;
 		temp_box_color[ 3 ] = 0.35f;
-		
-		//main_device->getBuilder()->buildBox(main_device, temp_box_id, 2, temp_box_color );
-		
-		main_cube->requestCreateCube( main_device, room_id, 
+				
+		main_cube->requestCreateCube( main_device, my_room_id, 
 									 Kaleidoscope::Vec3D(	ROOM_SIZE - (rand() % 10000)/10000.0f * ROOM_SIZE * 2.0f,  
 															ROOM_SIZE - (rand() % 10000)/10000.0f * ROOM_SIZE * 2.0f, 
 															ROOM_SIZE - (rand() % 10000)/10000.0f * ROOM_SIZE * 2.0f ),
@@ -184,10 +177,8 @@ int main( int argc, char **argv )
 		
 	}
 	
-	main_tc->updateVoxelThreaded( main_device );
-
-	
-
+//	main_tc->updateVoxelThreaded( main_device );
+//
 //	SDL_Surface * temp_image = IMG_Load( "corona.png" );
 //
 //  main_builder->packImage(main_device, "temp_image232", temp_image );
@@ -214,7 +205,7 @@ int main( int argc, char **argv )
 		{
 			main_camera->doMovementMaya( main_device );
 		}
-
+		
 		main_renderer->renderAll( main_device );
 
         // Swap front and back buffers (we use a double buffered display)

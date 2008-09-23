@@ -3,7 +3,21 @@
  *  kaleidoscope
  *
  *  Created by Patrick Tierney on 8/10/08.
- *  Copyright 2008 Patrick Tierney. All rights reserved.
+ *
+ *	 This file is part of Grids/Kaleidoscope.
+ *	 
+ *	 Grids/Kaleidoscope is free software: you can redistribute it and/or modify
+ *	 it under the terms of the GNU General Public License as published by
+ *	 the Free Software Foundation, either version 3 of the License, or
+ *	 (at your option) any later version.
+ *	 
+ *	 Grids/Kaleidoscope is distributed in the hope that it will be useful,
+ *	 but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *	 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *	 GNU General Public License for more details.
+ *	 
+ *	 You should have received a copy of the GNU General Public License
+ *	 along with Grids/Kaleidoscope.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -195,7 +209,6 @@ namespace Kaleidoscope
 		nearLeftDown = nearCenter - ( elVec * ( Hnear / 2.0f ) )  - ( strafeVec * ( Wnear / 2.0f ) );
 		
 		
-		
 		Vec3D lefttorightFar =  farRightUp - farLeftUp ;
 		Vec3D uptodownFar = farLeftDown - farLeftUp ;
 		
@@ -210,15 +223,7 @@ namespace Kaleidoscope
 		Vec3D directionFar =  farLeftUp + ( lefttorightFar * dx )  + ( uptodownFar * dy );
 		Vec3D directionNear =  nearLeftUp + ( lefttorightNear * dx )  + ( uptodownNear * dy );
 		
-		std::cout << "coords  " << coords.X << " : " << coords.Y << std::endl;
-		std::cout << "dx  " << dx << " : " << dy << std::endl;
-		std::cout << "fov/aspect  " << d->Fov << " : " << d->Aspect << std::endl;
-		
-		//direction.subSelf(Position);
-		//direction.normalize();
-		//direction.scale( -50000 );
-		
-		Vec3D screen_ray_temp = directionFar - directionNear;
+		Vec3D screen_ray_temp = directionNear - directionFar;
 		
 		screen_ray_temp.normalize();
 		

@@ -3,7 +3,21 @@
  *  grids_view_01
  *
  *  Created by Patrick Tierney on 8/7/08.
- *  Copyright 2008 Patrick Tierney. All rights reserved.
+ *
+ *	 This file is part of Grids/Kaleidoscope.
+ *	 
+ *	 Grids/Kaleidoscope is free software: you can redistribute it and/or modify
+ *	 it under the terms of the GNU General Public License as published by
+ *	 the Free Software Foundation, either version 3 of the License, or
+ *	 (at your option) any later version.
+ *	 
+ *	 Grids/Kaleidoscope is distributed in the hope that it will be useful,
+ *	 but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *	 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *	 GNU General Public License for more details.
+ *	 
+ *	 You should have received a copy of the GNU General Public License
+ *	 along with Grids/Kaleidoscope.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -67,7 +81,7 @@ namespace Grids
 		delete protocol;
 	}
 
-	void Interface::sendEvent( std::string type, Value request)
+	void Interface::sendEvent( std::string type, Value * request)
 	// Sends an event upstream
 	{
 		std::cout << "Interface, attempting to send request" << std::endl;
@@ -75,12 +89,9 @@ namespace Grids
 		protocol->sendRequest( type );
 	}
 	
-	void Interface::sendEventDebug( std::string type, Value request )
-	{
-		Protocol p;
-		
-		Event temp_event;
-		// Simplate the actions of the server
+	void Interface::sendEventDebug( std::string type, Value * request )
+	{		
+		Event * temp_event = new Event();
 		
 		GridsID temp_id;
 		std::stringstream temp_stream;
@@ -89,20 +100,20 @@ namespace Grids
 		
 		temp_id = temp_stream.str();
 		
-		temp_event.setEvent( request[ "_method" ].asString() );
+		temp_event->setEvent( (*request)[ "_method" ].asString() );
 		
-		request[ "id" ] = temp_id;
+		(*request)[ "id" ] = temp_id;
 		
-		temp_event.setArgs( request );
+		temp_event->setArgs( *request );
 		
-		receiveEventDebug( &p, &temp_event , &p );
+		receiveEventDebug( NULL, temp_event , NULL );
 		
 	}
 	
 	void Interface::receiveEventDebug( Protocol * proto, Event * evt, void * self )
 	{
 		
-		this->parseEventType( evt );
+		parseEventType( evt );
 	}
 
 
@@ -126,7 +137,7 @@ namespace Grids
 	void Interface::parseEventType(  Event * evt )
 	// NOTE: This call runs inside of its own thread, started by Grids protocol
 	{
-		std::cout << "parse event" << std::endl;
+		//std::cout << "parse event" << std::endl;
 
 		std::string event_type = evt->getEventType();
 
@@ -137,7 +148,7 @@ namespace Grids
 		{
 			// NOTA BENE: Even though Kaleidoscope doesn't send out a UUID method
 			// It expects one back in the ID
-			std::cout << "Created Room" << std::endl;
+			//std::cout << "Created Room" << std::endl;
 
 			d->getBuilder()->placeRoom( d,  evt->getArgs()[ "id" ].asString() );
 			d->getBuilder()->buildRoom( d,  evt->getArgs()[ "id" ].asString() );
@@ -145,47 +156,22 @@ namespace Grids
 			std::stringstream out;
 			float temp_box_color[ 4 ];
 			GridsID temp_box_id;
+			Kaleidoscope::SimpleCube * inter_cube = new Kaleidoscope::SimpleCube( );
 			
 			for( int i = 0; i < 17; i++ )
 			{
-//				out << i;
-//				
-//				temp_box_id = evt->getArgs()[ "id" ].asString() + out.str();
-//								
-//				d->getBuilder()->placeObject(	d, temp_box_id, evt->getArgs()[ "id" ].asString(),
-//										  Kaleidoscope::Vec3D( d->room_width - (rand() % 10000)/10000.0f * d->room_width * 2.0f,  
-//															  d->room_width - (rand() % 10000)/10000.0f * d->room_width * 2.0f, 
-//															  d->room_width - (rand() % 10000)/10000.0f * d->room_width * 2.0f ),
-//										  Kaleidoscope::Vec3D( 1.0f, 1.0f, 1.0f ),
-//										  Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f )	);
-//				
-//				temp_box_color[ 0 ] = (rand() % 10000)/10000.0f;
-//				temp_box_color[ 1 ] = (rand() % 10000)/10000.0f;
-//				temp_box_color[ 2 ] = (rand() % 10000)/10000.0f;
-//				temp_box_color[ 3 ] = 0.35f;
-//				
-//				d->getBuilder()->buildBox(d, temp_box_id, 2, temp_box_color );
-				
-				Kaleidoscope::SimpleCube * inter_cube = new Kaleidoscope::SimpleCube( );
-				
 				temp_box_color[ 0 ] = (rand() % 10000)/10000.0f;
 				temp_box_color[ 1 ] = (rand() % 10000)/10000.0f;
 				temp_box_color[ 2 ] = (rand() % 10000)/10000.0f;
 				temp_box_color[ 3 ] = 0.35f;
-				
-				//main_device->getBuilder()->buildBox(main_device, temp_box_id, 2, temp_box_color );
-				
+								
 				inter_cube->requestCreateCube( d, evt->getArgs()[ "id" ].asString(), Kaleidoscope::Vec3D( d->room_width - (rand() % 10000)/10000.0f * d->room_width * 2.0f,  
 																						d->room_width - (rand() % 10000)/10000.0f * d->room_width * 2.0f , 
 																						d->room_width - (rand() % 10000)/10000.0f * d->room_width * 2.0f ),
 											 2.0f, &temp_box_color[ 0 ]  );
-				
-				
-				
-				
 			}
 			
-			d->getVoxel()->update(d, 3, 0.45f);
+			//d->getVoxel()->update(d, 3, 0.45f);
 		}
 		else if( event_type == "Object.Place" )
 		{
@@ -203,12 +189,13 @@ namespace Grids
 		}
 		else if( event_type == "Room.Object.Create" )
 		{
-			object_controller->createObject(d, evt->getArgs() );
+			
+			object_controller->createObject( d, evt->getArgsPtr() );
 
 		}
 		else if( event_type == "Room.Object.Update" )
 		{
-			object_controller->updateValue( d, evt->getArgs()[ "id" ].asString(), evt->getArgs() );
+			object_controller->updateValue( d, evt->getArgs()[ "id" ].asString(), evt->getArgsPtr() );
 		}
 
 	}
@@ -217,9 +204,9 @@ namespace Grids
 	{
 		std::cout << "Attempting to add room" << std::endl;
 
-		Value temp_type = Value();
+		Value * temp_type = new Value();
 
-		temp_type[ "_method" ] = "Room.Create";
+		(*temp_type)[ "_method" ] = "Room.Create";
 
 		sendEvent( "Room.Create", temp_type );
 	}
@@ -228,7 +215,7 @@ namespace Grids
 	{
 		Event temp_event;
 		// Simplate the actions of the server
-		Value request;
+		Value request = Value();
 		
 		GridsID temp_id;
 		std::stringstream temp_stream;

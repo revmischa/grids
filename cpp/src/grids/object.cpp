@@ -3,7 +3,21 @@
  *  grids_view_01
  *
  *  Created by Patrick Tierney on 8/8/08.
- *  Copyright 2008 Patrick Tierney. All rights reserved.
+ *
+ *	 This file is part of Grids/Kaleidoscope.
+ *	 
+ *	 Grids/Kaleidoscope is free software: you can redistribute it and/or modify
+ *	 it under the terms of the GNU General Public License as published by
+ *	 the Free Software Foundation, either version 3 of the License, or
+ *	 (at your option) any later version.
+ *	 
+ *	 Grids/Kaleidoscope is distributed in the hope that it will be useful,
+ *	 but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *	 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *	 GNU General Public License for more details.
+ *	 
+ *	 You should have received a copy of the GNU General Public License
+ *	 along with Grids/Kaleidoscope.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -22,19 +36,29 @@ namespace Grids
 	void Object::requestUpdatePosition( Kaleidoscope::Device * d, Vec3D in_pos, Vec3D in_rot, Vec3D in_scl )
 	// Called when an event is received
 	{
-		Value temp_value;
+		Value * temp_value = new Value();
 		// generate actual value
+		
+		(*temp_value)[ "position" ][ 0u ] = in_pos.X;
+		(*temp_value)[ "position" ][ 1u ] = in_pos.Y;
+		(*temp_value)[ "position" ][ 2u ] = in_pos.Z;
+		
+		(*temp_value)[ "rotation" ][ 0u ] = in_rot.X;
+		(*temp_value)[ "rotation" ][ 1u ] = in_rot.Y;
+		(*temp_value)[ "rotation" ][ 2u ] = in_rot.Z;
+		
+		(*temp_value)[ "scale" ][ 0u ] = in_scl.X;
+		(*temp_value)[ "scale" ][ 1u ] = in_scl.Y;
+		(*temp_value)[ "scale" ][ 2u ] = in_scl.Z;
 		
 		d->getInterface()->getObjectController()->requestUpdateValue(d, this,  temp_value );
-
 	}
 
-	void Object::updatePosition( Kaleidoscope::Device * d, Vec3D in_pos, Vec3D in_rot, Vec3D in_scl )
+	void Object::updatePosition( Kaleidoscope::Device * d, Value * in_value )
 	{
-		Value temp_value;
 		// generate actual value
 		
-		d->getInterface()->getObjectController()->updateValue( d, this, temp_value );
+		d->getInterface()->getObjectController()->updateValue( d, this, in_value );
 	}
 	
 	void Object::create( Kaleidoscope::Device * d, Value in_value )
@@ -49,6 +73,7 @@ namespace Grids
 	
 	void Object::selectObject( Kaleidoscope::Device * d )
 	{
+		std::cerr << "Object method should exist in parent object" << std::endl;     
 		
 	}
 

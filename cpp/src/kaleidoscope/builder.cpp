@@ -3,7 +3,21 @@
  *  kaleidoscope_06
  *
  *  Created by Patrick Tierney on 8/20/08.
- *  Copyright 2008 Patrick Tierney. All rights reserved.
+ *
+ *	 This file is part of Grids/Kaleidoscope.
+ *	 
+ *	 Grids/Kaleidoscope is free software: you can redistribute it and/or modify
+ *	 it under the terms of the GNU General Public License as published by
+ *	 the Free Software Foundation, either version 3 of the License, or
+ *	 (at your option) any later version.
+ *	 
+ *	 Grids/Kaleidoscope is distributed in the hope that it will be useful,
+ *	 but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *	 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *	 GNU General Public License for more details.
+ *	 
+ *	 You should have received a copy of the GNU General Public License
+ *	 along with Grids/Kaleidoscope.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -362,23 +376,32 @@ namespace Kaleidoscope
 		else
 		{
 			int temp_index = d->world_hash[ Room_ID ][ "objects" ].size();
-
-			d->world_hash[ Room_ID ][ "objects" ][ temp_index ] = new_id;
+			
+			bool id_in_room = false;
+			
+			for( int i = 0; i < temp_index; i++ )
+			{
+				if( new_id == d->world_hash[ Room_ID ][ "objects" ][ i ].asString() )
+				{
+					id_in_room = true;
+				}
+			}
+			
+			if( !id_in_room ){
+				d->world_hash[ Room_ID ][ "objects" ][ temp_index ] = new_id;
+			}
 		}
 
 		d->world_hash[ new_id ][ "room" ] = Room_ID;
 
-		d->world_hash[ new_id ][ "position" ] = Grids::Value();
 		d->world_hash[ new_id ][ "position" ][ 0u ] = new_position.X;
 		d->world_hash[ new_id ][ "position" ][ 1u ] = new_position.Y;
 		d->world_hash[ new_id ][ "position" ][ 2u ] = new_position.Z;
 
-		d->world_hash[ new_id ][ "scale" ] = Grids::Value();
 		d->world_hash[ new_id ][ "scale" ][ 0u ] = new_scale.X;
 		d->world_hash[ new_id ][ "scale" ][ 1u ] = new_scale.Y;
 		d->world_hash[ new_id ][ "scale" ][ 2u ] = new_scale.Z;
 
-		d->world_hash[ new_id ][ "rotation" ] = Grids::Value();
 		d->world_hash[ new_id ][ "rotation" ][ 0u ] = new_rotation.X;
 		d->world_hash[ new_id ][ "rotation" ][ 1u ] = new_rotation.Y;
 		d->world_hash[ new_id ][ "rotation" ][ 2u ] = new_rotation.Z;
