@@ -27,7 +27,7 @@
 #include <grids/event.h>
 #include <grids/person.h>
 
-#include <kaleidoscope/kaleidoscope.h>
+#include <kaleidoscope/device.h>
 
 #include <vector>
 #include <map>

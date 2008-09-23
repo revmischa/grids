@@ -24,6 +24,12 @@
 
 #pragma once
 
+#include <iostream>
+#include <string>
+#include <sstream>
+
+#include <stdlib.h>
+#include <assert.h>
 #include <stdlib.h>    // For malloc() etc.
 #include <stdio.h>     // For printf(), fopen() etc.
 #include <math.h>      // For sin(), cos() etc.
@@ -37,31 +43,23 @@
 #include <kaleidoscope/room.h>
 #include <kaleidoscope/builder.h>
 #include <kaleidoscope/autodesk3dsLoader.h>
+#include <kaleidoscope/voxelSpace.h>
+#include <kaleidoscope/simpleCube.h> 
 
-
-#include <iostream>
+#include <grids/interface.h>
+#include <grids/define.h>
+#include <grids/protocol.h>
+#include <grids/object.h>
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_opengl.h>
+#include <SDL_ttf/SDL_ttf.h>
+#include <SDL_image/SDL_image.h>
 
-namespace Kaleidoscope
-{
-	class Camera;
-	class CursorController;
-	class EventController;
-	class Renderer;
-	class Device;
-	class Builder;
-	class Autodesk3dsLoader;
 
-	//void createDevice( Device * new_device, int width, int height )
-//	{
-//		new_device->setCursorController( new Kaleidoscope::CursorController( new_device ) );
-//		new_device->setRenderer( new Kaleidoscope::Renderer( new_device, width, height) ) ;
-//		new_device->setEventController( new Kaleidoscope::EventController( new_device ) );
-//		new_device->setCamera( new Kaleidoscope::Camera( new_device ) );
-//		
-//		std::cout << "Created Device" << std::endl;
-//	}
 
-} // end namespace Kaleidoscope
+
+
+
+
+

@@ -49,46 +49,46 @@ namespace Grids
 
 	class Interface
 	{
-		public:
+	public:
 
-			Interface( Kaleidoscope::Device *, char * );
+		Interface( Kaleidoscope::Device *, std::string );
 
-			Interface( Kaleidoscope::Device *, char *, ObjectController *, PersonController *, MessengerController * );
+		Interface( Kaleidoscope::Device *, std::string, ObjectController *, PersonController *, MessengerController * );
 
-			~Interface( );
+		~Interface( );
 
-			void sendEvent( std::string , Value * ); // Sends an event upstream with the grids protocol
-			static void receiveEvent( Protocol *, Event *, void *  ); // Grids protocol object hooks into this
-			static void connectionCallback(   Protocol *, Event *, void *  );
+		void sendEvent( std::string , Value * ); // Sends an event upstream with the grids protocol
+		static void receiveEvent( Protocol *, Event *, void *  ); // Grids protocol object hooks into this
+		static void connectionCallback(   Protocol *, Event *, void *  );
 
-			ObjectController * getObjectController();
-			PersonController * getPersonController();
-			MessengerController * getMessengerController();
+		ObjectController * getObjectController();
+		PersonController * getPersonController();
+		MessengerController * getMessengerController();
 
-			void setDevice( Kaleidoscope::Device * );
+		void setDevice( Kaleidoscope::Device * );
 
-			void createRoom( );
+		void createRoom( );
 
-			std::string addRoomDebug( Kaleidoscope::Device * );
-		
-			void sendEventDebug( std::string, Value * );
-			void receiveEventDebug( Protocol *, Event *, void * );
-		
-			void createRoomDebug();
+		std::string addRoomDebug( Kaleidoscope::Device * );
+	
+		void sendEventDebug( std::string, Value * );
+		void receiveEventDebug( Protocol *, Event *, void * );
+	
+		void createRoomDebug();
 
-		private:
+	private:
 
-			Kaleidoscope::Device * d;
+		Kaleidoscope::Device * d;
 
-			ObjectController * object_controller;
-			PersonController * person_controller;
-			MessengerController * messenger_controller;
+		ObjectController * object_controller;
+		PersonController * person_controller;
+		MessengerController * messenger_controller;
 
-			Protocol * protocol;
+		Protocol * protocol;
 
-			char * node_address;
+		std::string node_address;
 
-			void parseEventType( Event *);
+		void parseEventType( Event *);
 
 	};
 

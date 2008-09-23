@@ -39,28 +39,28 @@ namespace Grids
 
 	class Object
 	{
-		public:
+	public:
 
-			Object( );
-		
-			void requestUpdatePosition( Kaleidoscope::Device *, Vec3D, Vec3D, Vec3D );
-			void updatePosition( Kaleidoscope::Device *, Value * );
-		
-			void create( Kaleidoscope::Device *, Value );
+		Object( );
+	
+		void requestUpdatePosition( Kaleidoscope::Device *, Vec3D, Vec3D, Vec3D );
+		void updatePosition( Kaleidoscope::Device *, Value * );
+	
+		void create( Kaleidoscope::Device *, Value );
 
-			void setController( ObjectController * );
+		void setController( ObjectController * );
+	
+		float detectSelection( Kaleidoscope::Device *, Vec3D, Vec3D );
 		
-			float detectSelection( Kaleidoscope::Device *, Vec3D, Vec3D );
-			
-			void selectObject( Kaleidoscope::Device * );
-		
-			float calculateRadiusFromVertices( Kaleidoscope::Device *, GridsID );
-		
-			float distanceToSphereAlongRay( Vec3D, Vec3D, Vec3D, float );
+		void selectObject( Kaleidoscope::Device * );
+	
+		float calculateRadiusFromVertices( Kaleidoscope::Device *, GridsID );
+	
+		float distanceToSphereAlongRay( Vec3D, Vec3D, Vec3D, float );
 
-		private:
+	private:
 
-			ObjectController * controller;
+		ObjectController * controller;
 
 	};
 

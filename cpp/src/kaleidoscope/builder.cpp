@@ -22,6 +22,7 @@
  */
 
 #include <kaleidoscope/builder.h>
+#include <kaleidoscope/simpleCube.h>
 
 #include <grids/define.h>
 
@@ -624,9 +625,29 @@ namespace Kaleidoscope
 		d->world_hash[ new_id ][ "lines" ][ 0u ][ "indices" ][ 11u ][ 0u ] = 3u;
 		d->world_hash[ new_id ][ "lines" ][ 0u ][ "indices" ][ 11u ][ 1u ] = 7u;
 		
-		
-
 	}
+	
+	void Builder::createRandomBoxes( Device * d, Grids::GridsID room_id, int num_boxes )
+	{
+		SimpleCube * inter_cube = new SimpleCube( );
+		float temp_box_color[ 4 ];
+		
+		for( int i = 0; i < num_boxes; i++ )
+		{
+			temp_box_color[ 0 ] = (rand() % 10000)/10000.0f;
+			temp_box_color[ 1 ] = (rand() % 10000)/10000.0f;
+			temp_box_color[ 2 ] = (rand() % 10000)/10000.0f;
+			temp_box_color[ 3 ] = 0.35f;
+			
+			inter_cube->requestCreateCube( d, room_id, Vec3D( d->room_width - (rand() % 10000)/10000.0f * d->room_width * 2.0f,  
+																									 d->room_width - (rand() % 10000)/10000.0f * d->room_width * 2.0f , 
+																									 d->room_width - (rand() % 10000)/10000.0f * d->room_width * 2.0f ),
+										  2.0f, &temp_box_color[ 0 ]  );
+		}
+		
+		delete inter_cube;
+	}
+	
 	
 	int Builder::packImage( Device * d, GridsID in_id, SDL_Surface * in_surface )
 	{

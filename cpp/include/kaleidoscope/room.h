@@ -30,15 +30,12 @@
 #include <kaleidoscope/RenderObject.h>
 #include <grids/define.h>
 
-namespace Grids
-{
-	class Object;
-}
+
 
 namespace Kaleidoscope
 {
-
-class RenderObject;	
+	class RenderObject;	
+	
 	class Room 
 	{
 		public:

@@ -52,13 +52,15 @@ namespace Grids
 		(*temp_value)[ "scale" ][ 2u ] = in_scl.Z;
 		
 		d->getInterface()->getObjectController()->requestUpdateValue(d, this,  temp_value );
+		
+		delete temp_value;
 	}
 
 	void Object::updatePosition( Kaleidoscope::Device * d, Value * in_value )
 	{
 		// generate actual value
 		
-		d->getInterface()->getObjectController()->updateValue( d, this, in_value );
+		//d->getInterface()->getObjectController()->updateValue( d, this, in_value );
 	}
 	
 	void Object::create( Kaleidoscope::Device * d, Value in_value )

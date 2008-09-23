@@ -46,23 +46,18 @@ namespace Grids
 		d->getInterface()->sendEventDebug( (*obj_value)[ "_method" ].asString() , obj_value );
 	}
 	
-	void ObjectController::createObject( Kaleidoscope::Device * d, Value * obj_value )
+	void ObjectController::createObject( Kaleidoscope::Device * d, Value obj_value )
 	{
-		// how do I know what pointer this ID belongs to?
-		// do I create a new cube?
-		// Yes
 		
-		//std::cout << "ObjectController creating object" << std::endl;
-		
-		if( (*obj_value)[ "Kaleidoscope" ][ "Object.Type" ][ "Class.Name" ] == "SimpleCube" )
+		if( obj_value[ "Kaleidoscope" ][ "Object.Type" ][ "Class.Name" ] == "SimpleCube" )
 		{
 			
 			Kaleidoscope::SimpleCube * new_cube = new Kaleidoscope::SimpleCube();
 			
-			// register this fucker with the object controller
-			registerObject( (*obj_value)[ "id" ].asString(), new_cube );
+			// register this with the object controller
+			registerObject( obj_value[ "id" ].asString(), new_cube );
 			
-			new_cube->create( d, obj_value );
+			new_cube->create( d, &obj_value );
 		}
 		
 	}
@@ -99,7 +94,7 @@ namespace Grids
 	{
 		GridsID temp_id;
 		GridsID closest_id;
-		float closest_dist = 1000000.0f;  // FIX
+		float closest_dist = d->Far; // You shouldn't be able to select objects farther than you can see.
 		float temp_dist;
 		
 		// calculate the Ray from mouse position
@@ -172,18 +167,22 @@ namespace Grids
 		
 	}
 	
-	void ObjectController::updateValue( Kaleidoscope::Device * d, Object * obj_ptr, Value * obj_value)
+	void ObjectController::updateValue( Kaleidoscope::Device * d, Object * obj_ptr, Value obj_value)
 	{
 		GridsID temp_id = pointer_id_hash[ obj_ptr ];
 		
 		if(  temp_id.size() != 0  )
 		{
-			updateValue(d, temp_id, obj_value );
+			updateValue(d, temp_id, &obj_value );
 		}
-		
+	}	
+	
+	void ObjectController::updateValue( Kaleidoscope::Device * d, GridsID obj_id, Value obj_value)
+	{
+		updateValue(d, obj_id, &obj_value);
 	}
 	
-	void ObjectController::updateValue( Kaleidoscope::Device * d, GridsID obj_id, Value * obj_value)
+	void ObjectController::updateValue( Kaleidoscope::Device * d, GridsID obj_id, Value * obj_value )
 	{
 		if( !( d->world_hash[ obj_id ] ) == false ) // if the object hash position has been created
 		{
@@ -210,6 +209,7 @@ namespace Grids
 			d->world_hash[ obj_id ][ "scale" ][ 2u ] = obj_scl.Z;
 		}
 	}
+		
 	
 	float ObjectController::intersectRaySphere(Vec3D rayPos, Vec3D rayDir, Vec3D sphereOrigin, float sphereRadius) 
 	{

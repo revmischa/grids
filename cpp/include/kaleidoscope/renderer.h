@@ -24,11 +24,11 @@
 
 #pragma once
 
-#include <kaleidoscope/kaleidoscope.h>
+#include <kaleidoscope/device.h>
 
 #include <SDL/SDL_opengl.h>
 
-#include <kaleidoscope/device.h>
+#include <iostream>
 
 namespace Kaleidoscope
 {

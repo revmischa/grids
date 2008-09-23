@@ -25,9 +25,9 @@
 #pragma once
 
 #include <kaleidoscope/device.h>
+
 #include <grids/interface.h>
 #include <grids/object.h>
-
 
 namespace Grids
 {
@@ -41,19 +41,19 @@ namespace Kaleidoscope
 	class SimpleCube : public Grids::Object
 	// makes a cube in the specified room
 	{
-		public:
-			
-			// Params: Device, room, position, color_array
-			// Interface generates
-			SimpleCube( );//Device *, GridsID, Vec3D, float, float * );
+	public:
 		
-			void requestCreateCube( Device *, GridsID, Vec3D, float, float * );
+		// Params: Device, room, position, color_array
+		// Interface generates
+		SimpleCube( );//Device *, GridsID, Vec3D, float, float * );
+	
+		void requestCreateCube( Device *, GridsID, Vec3D, float, float * );
+	
+		void create( Device *, Grids::Value *);
 		
-			void create( Device *, Grids::Value *);
-			
-			float detectSelection( Device *, Vec3D, Vec3D );
-			
-			void selectObject( Device * d );
+		float detectSelection( Device *, Vec3D, Vec3D );
+		
+		void selectObject( Device * d );
 			
 	};
 	

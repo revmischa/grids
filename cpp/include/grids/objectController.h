@@ -55,13 +55,13 @@ namespace Grids
 		// GridsID, confirming the request
 		void requestCreateObject( Kaleidoscope::Device *, Value * ); // creates an object 
 	
-		void createObject( Kaleidoscope::Device *, Value * ); // params, object id
+		void createObject( Kaleidoscope::Device *, Value ); // params, object id
 	
 		void requestUpdateValue( Kaleidoscope::Device *, Object *, Value *);
 		void requestUpdateValue( Kaleidoscope::Device *, GridsID, Value * );
 		
-		void updateValue( Kaleidoscope::Device *, Object *, Value * );
-		void updateValue( Kaleidoscope::Device *, GridsID, Value * );
+		void updateValue( Kaleidoscope::Device *, Object *, Value );
+		void updateValue( Kaleidoscope::Device *, GridsID, Value );
 				
 		void detectSelection( Kaleidoscope::Device *, int, int );
 	
@@ -80,6 +80,8 @@ namespace Grids
 		std::vector< GridsID > object_ids;
 		std::map< GridsID, Object * > id_pointer_hash;
 		std::map< Object *, GridsID > pointer_id_hash;
+		
+		void updateValue( Kaleidoscope::Device *, GridsID, Value * );
 
 	};
 

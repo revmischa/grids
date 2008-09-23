@@ -21,20 +21,16 @@
  *
  */
 
-#include <kaleidoscope/kaleidoscope.h>
 #include <kaleidoscope/camera.h>
-
-#include <SDL/SDL_opengl.h>
-
-#include <SDL/SDL.h>
 #include <kaleidoscope/define.h> // for vector3df lameness 
 
+#include <SDL/SDL_opengl.h>
+#include <SDL/SDL.h>
+
 #include <iostream>
+
 #include <math.h>
 #include <time.h> // for clock
-
-#include <SDL/SDL_opengl.h> // Attempting to remove gluLookAt error
-
 
 
 namespace Kaleidoscope

@@ -34,12 +34,12 @@
 
 namespace Grids
 {
-	Interface::Interface( Kaleidoscope::Device * in_device, char * address )
+	Interface::Interface( Kaleidoscope::Device * in_device, std::string address )
 	{
 		Interface(  in_device, address, new ObjectController(), new PersonController(), new MessengerController() );
 	}
 
-	Interface::Interface( Kaleidoscope::Device * in_device, char * address, ObjectController * o_c_in, PersonController * p_c_in, MessengerController * m_c_in )
+	Interface::Interface( Kaleidoscope::Device * in_device, std::string address, ObjectController * o_c_in, PersonController * p_c_in, MessengerController * m_c_in )
 	{
 		d = in_device;
 		node_address = address;
@@ -55,7 +55,7 @@ namespace Grids
 		protocol->setConnectedCallback( &connectionCallback, this );
 		protocol->setEventCallback( &receiveEvent, this );
 
-		if (! protocol->connectToNode( node_address ) )
+		if (! protocol->connectToNode( node_address.c_str() ) )
 		{
 			std::cerr << "Could not connect to " << node_address << "\n";
 			return;
@@ -71,9 +71,14 @@ namespace Grids
 	{
 		std::cout << "Destroying Interface" << std::endl;
 
-		delete object_controller;
-		delete person_controller;
-		delete messenger_controller;
+		if( object_controller )
+			delete object_controller;
+		
+		if( person_controller )
+			delete person_controller;
+		
+		if( messenger_controller )
+			delete messenger_controller;
 
 		protocol->stopEventLoopThread();
 		protocol->closeConnection();
@@ -84,9 +89,9 @@ namespace Grids
 	void Interface::sendEvent( std::string type, Value * request)
 	// Sends an event upstream
 	{
-		std::cout << "Interface, attempting to send request" << std::endl;
+		//std::cout << "Interface, attempting to send request" << std::endl;
 
-		protocol->sendRequest( type );
+		protocol->sendRequest( type, request );
 	}
 	
 	void Interface::sendEventDebug( std::string type, Value * request )
@@ -108,14 +113,14 @@ namespace Grids
 		
 		receiveEventDebug( NULL, temp_event , NULL );
 		
+		delete temp_event;
+		
 	}
 	
 	void Interface::receiveEventDebug( Protocol * proto, Event * evt, void * self )
 	{
-		
 		parseEventType( evt );
 	}
-
 
 	void Interface::receiveEvent( Protocol * proto, Event * evt, void * self )
 	{
@@ -137,67 +142,27 @@ namespace Grids
 	void Interface::parseEventType(  Event * evt )
 	// NOTE: This call runs inside of its own thread, started by Grids protocol
 	{
-		//std::cout << "parse event" << std::endl;
-
 		std::string event_type = evt->getEventType();
-
-		std::cout << evt->getEventType() << std::endl;
-		std::cout << evt->getArgs()[ "id" ].asString() << std::endl;
 
 		if( event_type == "Room.Create" )
 		{
-			// NOTA BENE: Even though Kaleidoscope doesn't send out a UUID method
-			// It expects one back in the ID
-			//std::cout << "Created Room" << std::endl;
-
 			d->getBuilder()->placeRoom( d,  evt->getArgs()[ "id" ].asString() );
 			d->getBuilder()->buildRoom( d,  evt->getArgs()[ "id" ].asString() );
 			
-			std::stringstream out;
-			float temp_box_color[ 4 ];
-			GridsID temp_box_id;
-			Kaleidoscope::SimpleCube * inter_cube = new Kaleidoscope::SimpleCube( );
-			
-			for( int i = 0; i < 17; i++ )
-			{
-				temp_box_color[ 0 ] = (rand() % 10000)/10000.0f;
-				temp_box_color[ 1 ] = (rand() % 10000)/10000.0f;
-				temp_box_color[ 2 ] = (rand() % 10000)/10000.0f;
-				temp_box_color[ 3 ] = 0.35f;
-								
-				inter_cube->requestCreateCube( d, evt->getArgs()[ "id" ].asString(), Kaleidoscope::Vec3D( d->room_width - (rand() % 10000)/10000.0f * d->room_width * 2.0f,  
-																						d->room_width - (rand() % 10000)/10000.0f * d->room_width * 2.0f , 
-																						d->room_width - (rand() % 10000)/10000.0f * d->room_width * 2.0f ),
-											 2.0f, &temp_box_color[ 0 ]  );
-			}
+			d->getBuilder()->createRandomBoxes(d, evt->getArgs()[ "id" ].asString(), 20);
 			
 			//d->getVoxel()->update(d, 3, 0.45f);
 		}
-		else if( event_type == "Object.Place" )
-		{
-			d->getBuilder()->placeObject( d, evt->getArgs()[ "id" ].asString(),
-					evt->getArgs()[ "roomId" ].asString(),
-					Vec3D(	evt->getArgs()[ "position" ][ 0u ].asDouble(),
-							evt->getArgs()[ "position" ][ 1u ].asDouble(),
-							evt->getArgs()[ "position" ][ 2u ].asDouble()  ),
-					Vec3D(	evt->getArgs()[ "scale" ][ 0u ].asDouble(),
-							evt->getArgs()[ "scale" ][ 1u ].asDouble(),
-							evt->getArgs()[ "scale" ][ 2u ].asDouble() ),
-					Vec3D(	evt->getArgs()[ "rotation" ][ 0u ].asDouble(),
-							evt->getArgs()[ "rotation" ][ 1u ].asDouble(),
-							evt->getArgs()[ "rotation" ][ 2u ].asDouble() )		);
-		}
 		else if( event_type == "Room.Object.Create" )
 		{
-			
-			object_controller->createObject( d, evt->getArgsPtr() );
+			object_controller->createObject( d, evt->getArgs() );
 
 		}
 		else if( event_type == "Room.Object.Update" )
 		{
-			object_controller->updateValue( d, evt->getArgs()[ "id" ].asString(), evt->getArgsPtr() );
+			object_controller->updateValue( d, evt->getArgs()[ "id" ].asString(), evt->getArgs() );
 		}
-
+		
 	}
 
 	void Interface::createRoom( )
@@ -209,6 +174,8 @@ namespace Grids
 		(*temp_type)[ "_method" ] = "Room.Create";
 
 		sendEvent( "Room.Create", temp_type );
+		
+		delete temp_type;
 	}
 	
 	void Interface::createRoomDebug()

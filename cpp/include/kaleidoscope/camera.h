@@ -23,19 +23,17 @@
 
 #pragma once
 
-#include <kaleidoscope/kaleidoscope.h>
-
-
-#include <SDL/SDL_opengl.h>
-
-#include <time.h>
-
-#include <grids/vector3d.h>
-#include <grids/define.h>
 
 #include <kaleidoscope/define.h>
 #include <kaleidoscope/cursorController.h>
 #include <kaleidoscope/renderer.h>
+
+#include <grids/vector3d.h>
+#include <grids/define.h>
+
+#include <SDL/SDL_opengl.h>
+
+#include <time.h>
 
 namespace Kaleidoscope
 {
