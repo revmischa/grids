@@ -44,7 +44,7 @@ namespace Grids
 	{
 		(*obj_value)[ "_method" ] = GRIDS_CREATE_OBJECT;
 				
-		d->getInterface()->sendEventDebug( (*obj_value)[ "_method" ].asString() , obj_value );
+		d->getInterface()->sendEvent( (*obj_value)[ "_method" ].asString() , obj_value );
 	}
 	
 	void ObjectController::createObject( Kaleidoscope::Device * d, Value obj_value )
