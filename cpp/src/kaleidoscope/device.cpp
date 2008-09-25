@@ -366,13 +366,13 @@ namespace Kaleidoscope
 
 	void Device::lockWorldHash()
 	{
-		std::cout << "Lock World Hash" << std::endl;
+		//std::cout << "Lock World Hash" << std::endl;
 		SDL_LockMutex( world_hash_mutex );
 	}
 
 	void Device::unlockWorldHash()
 	{
-		std::cout << "Unlock World Hash" << std::endl;
+		//std::cout << "Unlock World Hash" << std::endl;
 		SDL_UnlockMutex( world_hash_mutex );
 	}
 

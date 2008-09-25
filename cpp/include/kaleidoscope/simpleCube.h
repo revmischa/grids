@@ -54,6 +54,7 @@ namespace Kaleidoscope
 		float detectSelection( Device *, Vec3D, Vec3D );
 		
 		void selectObject( Device * d );
+		
 			
 	};
 	

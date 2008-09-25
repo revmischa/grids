@@ -12,8 +12,8 @@
 
 #define GRIDS_ID_ERROR "ID ERROR"
 #define GRIDS_CREATE_ROOM "Room.Create" 
-#define GRIDS_CREATE_OBJECT "Room.Object.Create"
-#define GRIDS_UPDATE_OBJECT "Room.Object.Update"
+#define GRIDS_CREATE_OBJECT "Room.CreateObject"
+#define GRIDS_UPDATE_OBJECT "Room.UpdateObject"
 
 
 namespace Grids {

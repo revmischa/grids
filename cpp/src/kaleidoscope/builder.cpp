@@ -420,7 +420,7 @@ namespace Kaleidoscope
 		d->world_hash[ new_id ][ "rotation" ][ 1u ] = new_rotation.Y;
 		d->world_hash[ new_id ][ "rotation" ][ 2u ] = new_rotation.Z;
 		
-		d->lockWorldHash();
+		d->unlockWorldHash();
 
 	}
 
