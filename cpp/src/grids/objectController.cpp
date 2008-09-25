@@ -52,6 +52,7 @@ namespace Grids
 		
 		if( obj_value[ "Kaleidoscope" ][ "Object.Type" ][ "Class.Name" ] == "SimpleCube" )
 		{
+			std::cout << "FOO" << std::endl;
 			
 			Kaleidoscope::SimpleCube * new_cube = new Kaleidoscope::SimpleCube();
 			

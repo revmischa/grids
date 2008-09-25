@@ -143,6 +143,8 @@ namespace Grids
 	// NOTE: This call runs inside of its own thread, started by Grids protocol
 	{
 		std::string event_type = evt->getEventType();
+		
+		std::cout << event_type << std::endl;
 
 		if( event_type == GRIDS_CREATE_ROOM )
 		{
@@ -154,7 +156,7 @@ namespace Grids
 			//d->getVoxel()->update(d, 3, 0.45f);
 		}
 		else if( event_type == GRIDS_CREATE_OBJECT )
-		{
+		{			
 			object_controller->createObject( d, evt->getArgs() );
 
 		}

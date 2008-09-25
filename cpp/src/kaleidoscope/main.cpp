@@ -61,7 +61,7 @@ int main( int argc, char **argv )
 	main_device->getGui()->addText(main_device, Kaleidoscope::Vec3D( -50.0f, 0.0f, -50.0f ), "point < -50, 0, -50 >" );
 	
 	
-	main_device->getBuilder()->createRandomBoxes( main_device, main_device->getMyRoom(), 3 );
+	main_device->getBuilder()->createRandomBoxes( main_device, main_device->getMyRoom(), 5 );
 	
 	
 //	main_device->createVoxel();
