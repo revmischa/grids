@@ -32,7 +32,7 @@
 int main( int argc, char **argv )
 {
 	// Specify the width and heigh of the window
-	Kaleidoscope::Device * main_device = new Kaleidoscope::Device( 1000, 700 );
+	Kaleidoscope::Device * main_device = new Kaleidoscope::Device( 640, 480 );
 	
 
 	main_device->setRoomWidth( ROOM_SIZE ); // How wide the rooms are, I as of yet dont know the exact "scale"

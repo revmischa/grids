@@ -49,8 +49,9 @@ namespace Grids
 	
 	void ObjectController::createObject( Kaleidoscope::Device * d, Value obj_value )
 	{
+		std::cout << "blah  " << obj_value[ "Kaleidoscope" ][ "Object.Type" ][ "Class.Name" ].asString() << std::endl;
 		
-		if( obj_value[ "Kaleidoscope" ][ "Object.Type" ][ "Class.Name" ] == "SimpleCube" )
+		if( obj_value[ "Kaleidoscope" ][ "Object.Type" ][ "Class.Name" ].asString() == "SimpleCube" )
 		{
 			std::cout << "FOO" << std::endl;
 			
