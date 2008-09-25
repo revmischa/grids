@@ -49,6 +49,8 @@ namespace Kaleidoscope
 		
 		srand ( time(NULL) );
 		
+		gScreen = NULL;
+		
 		createMutexes();
 		
 		initSDL();
@@ -87,6 +89,46 @@ namespace Kaleidoscope
 		
 		if( interface )
 			delete interface;
+		
+		
+		
+		if( device_mutex )
+			SDL_DestroyMutex( device_mutex );
+		
+		if( cursor_controller_mutex )
+			SDL_DestroyMutex( cursor_controller_mutex );
+		
+		if( renderer_mutex )
+			SDL_DestroyMutex( renderer_mutex );
+		
+		if( event_controller_mutex )
+			SDL_DestroyMutex( event_controller_mutex );
+		
+		if( cam_mutex )
+			SDL_DestroyMutex( cam_mutex );
+		
+		if( builder_mutex )
+			SDL_DestroyMutex( builder_mutex );
+		
+		if( loader_mutex )
+			SDL_DestroyMutex( loader_mutex );
+		
+		if( thread_controller_mutex )
+			SDL_DestroyMutex( thread_controller_mutex );
+		
+		if( voxel_mutex )
+			SDL_DestroyMutex( voxel_mutex );
+		
+		if( gui_mutex )
+			SDL_DestroyMutex( gui_mutex );
+		
+		if( interface_mutex )
+			SDL_DestroyMutex( interface_mutex );
+		
+		if( world_hash_mutex )
+			SDL_DestroyMutex( world_hash_mutex );
+		
+		
 		
 	}
 	
@@ -314,22 +356,24 @@ namespace Kaleidoscope
 	
 	void Device::lockDevice()
 	{
-		SDL_mutexP( device_mutex );
+		SDL_LockMutex( device_mutex );
 	}
 	
 	void Device::unlockDevice()
 	{
-		SDL_mutexV( device_mutex );
+		SDL_UnlockMutex( device_mutex );
 	}
 	
 	void Device::lockWorldHash()
 	{
-		SDL_mutexP( world_hash_mutex );
+		std::cout << "Lock World Hash" << std::endl;
+		SDL_LockMutex( world_hash_mutex );
 	}
 	
 	void Device::unlockWorldHash()
 	{
-		SDL_mutexV( world_hash_mutex );
+		std::cout << "Unlock World Hash" << std::endl;
+		SDL_UnlockMutex( world_hash_mutex );
 	}
 	
 	void Device::createMutexes()
@@ -364,8 +408,10 @@ namespace Kaleidoscope
 	
 	float Device::getRoomWidth( )
 	{
+		float temp_room_width;
+		
 		lockDevice();
-		float temp_room_width = room_width;
+		temp_room_width = room_width;
 		unlockDevice();
 		
 		return temp_room_width;

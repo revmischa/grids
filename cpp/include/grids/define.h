@@ -11,6 +11,10 @@
 #include <grids/value.h>
 
 #define GRIDS_ID_ERROR "ID ERROR"
+#define GRIDS_CREATE_ROOM "Room.Create" 
+#define GRIDS_CREATE_OBJECT "Room.Object.Create"
+#define GRIDS_UPDATE_OBJECT "Room.Object.Update"
+
 
 namespace Grids {
 	typedef irr::core::vector3df Vec3D;

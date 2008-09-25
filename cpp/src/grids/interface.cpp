@@ -144,7 +144,7 @@ namespace Grids
 	{
 		std::string event_type = evt->getEventType();
 
-		if( event_type == "Room.Create" )
+		if( event_type == GRIDS_CREATE_ROOM )
 		{
 			d->getBuilder()->placeRoom( d,  evt->getArgs()[ "id" ].asString() );
 			d->getBuilder()->buildRoom( d,  evt->getArgs()[ "id" ].asString() );
@@ -153,12 +153,12 @@ namespace Grids
 			
 			//d->getVoxel()->update(d, 3, 0.45f);
 		}
-		else if( event_type == "Room.Object.Create" )
+		else if( event_type == GRIDS_CREATE_OBJECT )
 		{
 			object_controller->createObject( d, evt->getArgs() );
 
 		}
-		else if( event_type == "Room.Object.Update" )
+		else if( event_type == GRIDS_UPDATE_OBJECT )
 		{
 			object_controller->updateValue( d, evt->getArgs()[ "id" ].asString(), evt->getArgs() );
 		}
@@ -171,15 +171,16 @@ namespace Grids
 
 		Value * temp_type = new Value();
 
-		(*temp_type)[ "_method" ] = "Room.Create";
+		(*temp_type)[ "_method" ] = GRIDS_CREATE_ROOM;
 
-		sendEvent( "Room.Create", temp_type );
+		sendEvent(  GRIDS_CREATE_ROOM, temp_type );
 		
 		delete temp_type;
 	}
 	
 	void Interface::createRoomDebug()
 	{
+		
 		Event temp_event;
 		// Simplate the actions of the server
 		Value request = Value();
@@ -187,10 +188,10 @@ namespace Grids
 		GridsID temp_id;
 		std::stringstream temp_stream;
 		
-		temp_stream << SDL_GetTicks();
+		temp_stream << SDL_GetTicks()*rand();
 		temp_id = temp_stream.str();
 		
-		temp_event.setEvent( "Room.Create" );
+		temp_event.setEvent( GRIDS_CREATE_ROOM );
 		
 		request[ "id" ] = temp_id;
 		

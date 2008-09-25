@@ -23,6 +23,7 @@
 
 #include <grids/objectController.h>
 #include <kaleidoscope/simpleCube.h>
+#include <grids/define.h>
 
 
 namespace Grids
@@ -41,7 +42,7 @@ namespace Grids
 
 	void ObjectController::requestCreateObject( Kaleidoscope::Device * d, Value * obj_value )
 	{
-		(*obj_value)[ "_method" ] = "Room.Object.Create";
+		(*obj_value)[ "_method" ] = GRIDS_CREATE_OBJECT;
 				
 		d->getInterface()->sendEventDebug( (*obj_value)[ "_method" ].asString() , obj_value );
 	}
@@ -163,7 +164,7 @@ namespace Grids
 		
 		// Need details for what the position, etc will be
 		
-		d->getInterface()->sendEvent( "Room.Object.Update", in_value );
+		d->getInterface()->sendEvent( GRIDS_UPDATE_OBJECT, in_value );
 		
 	}
 	

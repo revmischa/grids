@@ -62,12 +62,12 @@ namespace Kaleidoscope
 	
 	void CursorController::lock( Device * d )
 	{
-		SDL_mutexP( d->cursor_controller_mutex );
+		SDL_LockMutex( d->cursor_controller_mutex );
 	}
 	
 	void CursorController::unlock( Device * d )
 	{
-		SDL_mutexV( d->cursor_controller_mutex );
+		SDL_UnlockMutex( d->cursor_controller_mutex );
 		
 	}
 	

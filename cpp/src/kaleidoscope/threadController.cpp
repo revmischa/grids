@@ -76,12 +76,12 @@ namespace Kaleidoscope
 	
 	void ThreadController::lock( Device * d )
 	{
-		SDL_mutexP( d->thread_controller_mutex );
+		SDL_LockMutex( d->thread_controller_mutex );
 	}
 	
 	void ThreadController::unlock( Device * d )
 	{
-		SDL_mutexV( d->thread_controller_mutex );
+		SDL_UnlockMutex( d->thread_controller_mutex );
 	}
 	
 	

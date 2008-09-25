@@ -256,12 +256,12 @@ namespace Kaleidoscope
 	
 	void EventController::lock( Device * d )
 	{
-		SDL_mutexP( d->event_controller_mutex );
+		SDL_LockMutex( d->event_controller_mutex );
 	}
 	
 	void EventController::unlock( Device * d )
 	{
-		SDL_mutexV( d->event_controller_mutex );
+		SDL_UnlockMutex( d->event_controller_mutex );
 		
 	}
 

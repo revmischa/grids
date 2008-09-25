@@ -870,12 +870,12 @@ namespace Kaleidoscope
 	
 	void Renderer::lock( Device * d )
 	{
-		SDL_mutexP( d->renderer_mutex );
+		SDL_LockMutex( d->renderer_mutex );
 	}
 	
 	void Renderer::unlock( Device * d )
 	{
-		SDL_mutexV( d->renderer_mutex );
+		SDL_UnlockMutex( d->renderer_mutex );
 		
 	}
 

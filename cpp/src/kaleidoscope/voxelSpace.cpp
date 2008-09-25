@@ -426,12 +426,12 @@ namespace Kaleidoscope
 	
 	void VoxelSpace::lock( Device * d )
 	{
-		SDL_mutexP( d->voxel_mutex );
+		SDL_LockMutex( d->voxel_mutex );
 	}
 	
 	void VoxelSpace::unlock( Device * d )
 	{
-		SDL_mutexV( d->voxel_mutex );
+		SDL_UnlockMutex( d->voxel_mutex );
 		
 	}
 

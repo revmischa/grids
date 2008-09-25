@@ -648,12 +648,12 @@ namespace Kaleidoscope
 	
 	void Gui::lock( Device * d )
 	{
-		SDL_mutexP( d->gui_mutex );
+		SDL_LockMutex( d->gui_mutex );
 	}
 	
 	void Gui::unlock( Device * d )
 	{
-		SDL_mutexV( d->gui_mutex );
+		SDL_UnlockMutex( d->gui_mutex );
 	}
 
 }

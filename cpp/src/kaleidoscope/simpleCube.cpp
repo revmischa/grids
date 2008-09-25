@@ -39,7 +39,7 @@ namespace Kaleidoscope
 	{
 		Grids::Value * temp_value = new Grids::Value();
 		
-		(*temp_value)[ "_method" ] = "Room.Object.Create";
+		(*temp_value)[ "_method" ] = GRIDS_CREATE_OBJECT;
 		(*temp_value)[ "Room.Id" ] = cube_room;
 		
 		(*temp_value)[ "Kaleidoscope" ][ "Object.Type" ][ "Class.Name" ] = "SimpleCube";

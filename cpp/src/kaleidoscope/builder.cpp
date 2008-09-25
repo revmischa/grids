@@ -45,11 +45,12 @@ namespace Kaleidoscope
 		//		if none, place at center
 		//		if many, randomly position room in the closest position
 		
+		std::cout << "Placing room" << std::endl;
+		
 		float room_width = d->getRoomWidth();
 		
-		
 		d->lockWorldHash();
-
+	
 		if( !( d->world_hash[ "rooms" ] ) )
 		{
 			d->world_hash[ "rooms" ] = Grids::Value();
@@ -156,6 +157,7 @@ namespace Kaleidoscope
 		}
 		
 		d->unlockWorldHash();
+		
 	} // end placeRoom
 
 
@@ -831,12 +833,12 @@ namespace Kaleidoscope
 	
 	void Builder::lock( Device * d )
 	{
-		SDL_mutexP( d->builder_mutex );
+		SDL_LockMutex( d->builder_mutex );
 	}
 	
 	void Builder::unlock( Device * d )
 	{
-		SDL_mutexV( d->builder_mutex );
+		SDL_UnlockMutex( d->builder_mutex );
 	}
 
 } // end namespace Kaleidoscope

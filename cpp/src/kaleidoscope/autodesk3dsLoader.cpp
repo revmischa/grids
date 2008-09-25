@@ -126,12 +126,12 @@ namespace Kaleidoscope
 	
 	void Autodesk3dsLoader::lock( Device * d )
 	{
-		SDL_mutexP( d->loader_mutex );
+		SDL_LockMutex( d->loader_mutex );
 	}
 	
 	void Autodesk3dsLoader::unlock( Device * d )
 	{
-		SDL_mutexV( d->loader_mutex );
+		SDL_UnlockMutex( d->loader_mutex );
 	}
 
 
