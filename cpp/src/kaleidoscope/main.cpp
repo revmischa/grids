@@ -34,9 +34,10 @@ int main( int argc, char **argv )
 	// Specify the width and heigh of the window
 	Kaleidoscope::Device * main_device = new Kaleidoscope::Device( 1000, 700 );
 	
-	main_device->room_width = ROOM_SIZE; // How wide the rooms are, I as of yet dont know the exact "scale"
+
+	main_device->setRoomWidth( ROOM_SIZE ); // How wide the rooms are, I as of yet dont know the exact "scale"
 										// of grids
-	
+		
 	//Sets your room.  This should idealy be through grids
 	main_device->setMyRoom( "Room1" );
 

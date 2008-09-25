@@ -423,6 +423,17 @@ namespace Kaleidoscope
 		} // end for y = 0
 		//endShape();
 	} // end renderSlice()
+	
+	void VoxelSpace::lock( Device * d )
+	{
+		SDL_mutexP( d->voxel_mutex );
+	}
+	
+	void VoxelSpace::unlock( Device * d )
+	{
+		SDL_mutexV( d->voxel_mutex );
+		
+	}
 
 	
 } // end namespace Kaleidoscope

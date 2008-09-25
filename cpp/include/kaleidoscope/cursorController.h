@@ -32,24 +32,21 @@ namespace Kaleidoscope
 	
 	class CursorController
 	{
-		public:
-			
-			CursorController( Device * );
-			
-			void setDevice( Device * );
-			
-			// 0.5f, 0.5f sets the cursor the the center of the window
-			void setPosition( float, float, Device * );
-			void setToCenter();
-			
-			Vec2D getRelativePosition( Device *);
-			
-			void setNotches( int );
-			void getNotches( );
+	public:
 		
-		private:
-			
-			Device * device;
+		CursorController( Device * );
+				
+		// 0.5f, 0.5f sets the cursor the the center of the window
+		void setPosition( float, float, Device * );
+		void setToCenter( Device * );
+		
+		Vec2D getRelativePosition( Device *);
+		
+		void lock( Device * );
+		void unlock( Device *);
+	
+	private:
+		
 	
 	};
 	

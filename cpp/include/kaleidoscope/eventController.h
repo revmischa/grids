@@ -34,36 +34,39 @@ namespace Kaleidoscope
 	
 	class EventController
 	{
-		public:
-			
-			EventController( Device *);
-			
-			void setDevice( Device * );
-			
-			void checkEvents( Device * );
-			
-			void mousePressedCall( int, int, int, int );
-			void mouseMovedCall( int, int );
-			void mouseDraggedCall( int, int );
-			
-			void keyPressedCall( unsigned char, int, int );
-			void specialKeyPressedCall( int, int, int );
-			
-			void keyUpCall( unsigned char, int, int );
-			void specialKeyUpCall( int, int, int );
-			
-			int getMouseX();
-			int getMouseY();
-			
-			bool keyPressed(); // Returns true if a key is held down
-			bool specialKeyPressed();
-			
-			unsigned char key();
-			int specialKey();
+	public:
 		
-		private:
-			
-			Device * device;
+		EventController( Device *);
+		
+		void setDevice( Device * );
+		
+		void checkEvents( Device * );
+		
+		void mousePressedCall( int, int, int, int );
+		void mouseMovedCall( int, int );
+		void mouseDraggedCall( int, int );
+		
+		void keyPressedCall( unsigned char, int, int );
+		void specialKeyPressedCall( int, int, int );
+		
+		void keyUpCall( unsigned char, int, int );
+		void specialKeyUpCall( int, int, int );
+		
+		int getMouseX();
+		int getMouseY();
+		
+		bool keyPressed(); // Returns true if a key is held down
+		bool specialKeyPressed();
+		
+		unsigned char key();
+		int specialKey();
+		
+		void lock( Device * );
+		void unlock( Device * );
+	
+	private:
+		
+		Device * device;
 	
 	};
 	

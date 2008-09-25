@@ -66,6 +66,9 @@ namespace Kaleidoscope
 		// Create num boxes in specified room ID
 		void createRandomBoxes( Device *, Grids::GridsID, int );
 		
+		void lock( Device * d );
+		void unlock( Device * d );
+		
 	private:
 		
 		Uint32 getPixel( SDL_Surface *, int, int );

@@ -866,6 +866,18 @@ namespace Kaleidoscope
 		d->text_modes[2] = GL_BLEND;
 		d->text_modes[3] = GL_REPLACE;
 	}
+	
+	
+	void Renderer::lock( Device * d )
+	{
+		SDL_mutexP( d->renderer_mutex );
+	}
+	
+	void Renderer::unlock( Device * d )
+	{
+		SDL_mutexV( d->renderer_mutex );
+		
+	}
 
 	
 }

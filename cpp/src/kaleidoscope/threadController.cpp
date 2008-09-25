@@ -74,6 +74,16 @@ namespace Kaleidoscope
 		d->create_room_debug_thread = SDL_CreateThread( runCreateRoomDebugThreadEntryPoint, d  );
 	}
 	
+	void ThreadController::lock( Device * d )
+	{
+		SDL_mutexP( d->thread_controller_mutex );
+	}
+	
+	void ThreadController::unlock( Device * d )
+	{
+		SDL_mutexV( d->thread_controller_mutex );
+	}
+	
 	
 	
 } // end namespace Kaleidoscope

@@ -49,6 +49,8 @@ namespace Kaleidoscope
 		
 		srand ( time(NULL) );
 		
+		createMutexes();
+		
 		initSDL();
 	}
 	
@@ -190,12 +192,18 @@ namespace Kaleidoscope
 	
 	void Device::setMyRoom( Grids::GridsID my_id )
 	{ 
+		lockDevice();
 		my_room = my_id ;
+		unlockDevice();
 	}
 	
 	Grids::GridsID Device::getMyRoom( )
 	{
-		return my_room;
+		lockDevice();
+		Grids::GridsID temp_room = my_room;
+		unlockDevice();
+		
+		return temp_room;
 	}
 			
 	Renderer * Device::getRenderer()
@@ -303,6 +311,65 @@ namespace Kaleidoscope
 	{
 		//rooms.push_back( r );
 	}
+	
+	void Device::lockDevice()
+	{
+		SDL_mutexP( device_mutex );
+	}
+	
+	void Device::unlockDevice()
+	{
+		SDL_mutexV( device_mutex );
+	}
+	
+	void Device::lockWorldHash()
+	{
+		SDL_mutexP( world_hash_mutex );
+	}
+	
+	void Device::unlockWorldHash()
+	{
+		SDL_mutexV( world_hash_mutex );
+	}
+	
+	void Device::createMutexes()
+	{
+		device_mutex = SDL_CreateMutex();
+		cursor_controller_mutex = SDL_CreateMutex();
+		renderer_mutex = SDL_CreateMutex();
+		event_controller_mutex = SDL_CreateMutex();
+		
+		cam_mutex = SDL_CreateMutex();
+		builder_mutex = SDL_CreateMutex();
+		loader_mutex = SDL_CreateMutex();
+		thread_controller_mutex = SDL_CreateMutex();
+		
+		voxel_mutex = SDL_CreateMutex();
+		gui_mutex = SDL_CreateMutex();
+		interface_mutex = SDL_CreateMutex();
+		world_hash_mutex = SDL_CreateMutex();
+	}
+	
+	
+	////////////////////////////////////
+	// METHODS
+	///////////////////////////////////
+	
+	void Device::setRoomWidth( float in_width )
+	{
+		lockDevice();
+		room_width = in_width;
+		unlockDevice();
+	}	
+	
+	float Device::getRoomWidth( )
+	{
+		lockDevice();
+		float temp_room_width = room_width;
+		unlockDevice();
+		
+		return temp_room_width;
+	}	
 
 
 }

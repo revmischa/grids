@@ -123,6 +123,16 @@ namespace Kaleidoscope
 		}
 	
 	} // end load3ds
+	
+	void Autodesk3dsLoader::lock( Device * d )
+	{
+		SDL_mutexP( d->loader_mutex );
+	}
+	
+	void Autodesk3dsLoader::unlock( Device * d )
+	{
+		SDL_mutexV( d->loader_mutex );
+	}
 
 
 } // end namespace Kaleidoscope

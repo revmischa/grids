@@ -75,6 +75,9 @@ namespace Grids
 		void receiveEventDebug( Protocol *, Event *, void * );
 	
 		void createRoomDebug();
+		
+		void lock( Kaleidoscope::Device * );
+		void unlock( Kaleidoscope::Device * ); 
 
 	private:
 

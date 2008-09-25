@@ -237,6 +237,17 @@ namespace Grids
 	ObjectController * Interface::getObjectController() { return object_controller; }
 	PersonController * Interface::getPersonController() { return person_controller; }
 	MessengerController * Interface::getMessengerController() { return messenger_controller; }
+	
+	
+	void Interface::lock( Kaleidoscope::Device * d )
+	{
+		SDL_mutexP( d->interface_mutex );
+	}
+	
+	void Interface::unlock( Kaleidoscope::Device * d )
+	{
+		SDL_mutexV( d->interface_mutex );
+	}
 
 
 

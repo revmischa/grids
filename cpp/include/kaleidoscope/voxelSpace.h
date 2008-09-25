@@ -73,7 +73,8 @@ namespace Kaleidoscope {
 		
 		Grids::GridsID voxel_id;
 		
-		
+		void lock( Device * );
+		void unlock( Device * );
 		
 	private:
 		

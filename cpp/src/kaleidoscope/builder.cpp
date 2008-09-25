@@ -44,7 +44,11 @@ namespace Kaleidoscope
 		//	See how many other rooms exist
 		//		if none, place at center
 		//		if many, randomly position room in the closest position
-		//
+		
+		float room_width = d->getRoomWidth();
+		
+		
+		d->lockWorldHash();
 
 		if( !( d->world_hash[ "rooms" ] ) )
 		{
@@ -65,8 +69,6 @@ namespace Kaleidoscope
 		else
 		{
 			int world_size = 5; // 20 x 20 x 20 = 8000 total rooms
-
-			int room_width = d->room_width;
 			
 			// The default position is the position to place new rooms if all of the rooms are filled up
 			// It is the farthest possible position
@@ -132,7 +134,8 @@ namespace Kaleidoscope
 		if( false )
 		{
 			int num_rooms = d->world_hash[ "rooms" ].size();
-			float room_width = d->room_width;
+			
+			
 
 			d->world_hash[ "rooms" ][ num_rooms ] = new_id;
 
@@ -151,12 +154,19 @@ namespace Kaleidoscope
 			d->world_hash[ new_id ][ "rotation" ][ 2u ] = 0.0f;
 
 		}
-	}
+		
+		d->unlockWorldHash();
+	} // end placeRoom
 
 
 
 	void Builder::buildRoom( Device * d, GridsID new_id )
 	{
+		float room_width = d->getRoomWidth();
+		int num_lines = room_width;
+		
+		d->lockWorldHash();
+		
 		d->world_hash[ new_id ][ "quads" ] = Grids::Value();
 		d->world_hash[ new_id ][ "lines" ] = Grids::Value();
 
@@ -176,8 +186,7 @@ namespace Kaleidoscope
 
 		d->world_hash[ new_id ][ "vertices" ] = Grids::Value();
 
-		int num_lines = d->room_width;
-		float room_width = d->room_width;
+
 
 		for(int i = 0; i <= num_lines * 2; i += 4 ) // i * 2 from -num_lines to num_lines --  + 4 Vertices
 		{
@@ -363,12 +372,14 @@ namespace Kaleidoscope
 
 		d->world_hash[ new_id ][ "lines" ][ 1u ][ "indices" ][ 11u ][ 0u ] = k + 6u;
 		d->world_hash[ new_id ][ "lines" ][ 1u ][ "indices" ][ 11u ][ 1u ] = k + 2u;
-
-
-	}
+		
+		d->unlockWorldHash();
+		
+	} // end BuildRoom
 
 	void Builder::placeObject( Device * d, GridsID new_id, GridsID Room_ID, Vec3D new_position, Vec3D new_scale, Vec3D new_rotation )
 	{
+		d->lockWorldHash();
 
 		if( !( d->world_hash[ Room_ID ][ "objects" ] ) )
 		{
@@ -406,6 +417,8 @@ namespace Kaleidoscope
 		d->world_hash[ new_id ][ "rotation" ][ 0u ] = new_rotation.X;
 		d->world_hash[ new_id ][ "rotation" ][ 1u ] = new_rotation.Y;
 		d->world_hash[ new_id ][ "rotation" ][ 2u ] = new_rotation.Z;
+		
+		d->lockWorldHash();
 
 	}
 
@@ -418,6 +431,8 @@ namespace Kaleidoscope
 
 	void Builder::buildChair( Device * d, GridsID new_id )
 	{
+		d->lockWorldHash();
+		
 		d->world_hash[ new_id ][ "quads" ] = Grids::Value();
 
 		d->world_hash[ new_id ][ "color" ] = Grids::Value();
@@ -490,6 +505,8 @@ namespace Kaleidoscope
 		d->world_hash[ new_id ][ "quads" ][ 0u ][ "indices" ][ 1u ][ 1u ] = 5u;
 		d->world_hash[ new_id ][ "quads" ][ 0u ][ "indices" ][ 1u ][ 2u ] = 6u;
 		d->world_hash[ new_id ][ "quads" ][ 0u ][ "indices" ][ 1u ][ 3u ] = 7u;
+		
+		d->unlockWorldHash();
 	}
 	
 	void Builder::buildBillboard( Device * d, GridsID new_id, std::string image_name )
@@ -507,6 +524,8 @@ namespace Kaleidoscope
 
 	void Builder::buildBox( Device * d, GridsID new_id, float box_size, float * color )
 	{
+		d->lockWorldHash();
+		
 		d->world_hash[ new_id ][ "vertices" ][ 0u ][ 0u ] = -box_size;
 		d->world_hash[ new_id ][ "vertices" ][ 0u ][ 1u ] = -box_size;
 		d->world_hash[ new_id ][ "vertices" ][ 0u ][ 2u ] = -box_size;
@@ -625,12 +644,16 @@ namespace Kaleidoscope
 		d->world_hash[ new_id ][ "lines" ][ 0u ][ "indices" ][ 11u ][ 0u ] = 3u;
 		d->world_hash[ new_id ][ "lines" ][ 0u ][ "indices" ][ 11u ][ 1u ] = 7u;
 		
+		d->unlockWorldHash();
+		
 	}
 	
 	void Builder::createRandomBoxes( Device * d, Grids::GridsID room_id, int num_boxes )
 	{
 		SimpleCube * inter_cube = new SimpleCube( );
 		float temp_box_color[ 4 ];
+		
+		float room_width = d->getRoomWidth();
 		
 		for( int i = 0; i < num_boxes; i++ )
 		{
@@ -639,9 +662,9 @@ namespace Kaleidoscope
 			temp_box_color[ 2 ] = (rand() % 10000)/10000.0f;
 			temp_box_color[ 3 ] = 0.35f;
 			
-			inter_cube->requestCreateCube( d, room_id, Vec3D( d->room_width - (rand() % 10000)/10000.0f * d->room_width * 2.0f,  
-																									 d->room_width - (rand() % 10000)/10000.0f * d->room_width * 2.0f , 
-																									 d->room_width - (rand() % 10000)/10000.0f * d->room_width * 2.0f ),
+			inter_cube->requestCreateCube( d, room_id, Vec3D( room_width - (rand() % 10000)/10000.0f * room_width * 2.0f,  
+																									 room_width - (rand() % 10000)/10000.0f * room_width * 2.0f , 
+																									 room_width - (rand() % 10000)/10000.0f * room_width * 2.0f ),
 										  2.0f, &temp_box_color[ 0 ]  );
 		}
 		
@@ -804,6 +827,16 @@ namespace Kaleidoscope
 				*(Uint32 *)p = pixel;
 				break;
 		}
+	}
+	
+	void Builder::lock( Device * d )
+	{
+		SDL_mutexP( d->builder_mutex );
+	}
+	
+	void Builder::unlock( Device * d )
+	{
+		SDL_mutexV( d->builder_mutex );
 	}
 
 } // end namespace Kaleidoscope

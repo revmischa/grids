@@ -682,6 +682,16 @@ namespace Kaleidoscope
 	
 	
 	}
+	
+	void Camera::lock( Device * d )
+	{
+		SDL_mutexP( d->cam_mutex );
+	}
+	
+	void Camera::unlock( Device * d )
+	{
+		SDL_mutexV( d->cam_mutex );
+	}
 
 
 }

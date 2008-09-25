@@ -35,15 +35,18 @@ namespace Kaleidoscope
 {
 	class Autodesk3dsLoader
 	{
-		public:
-			
-			Autodesk3dsLoader();
-			
-			// Args: device, UUID, file name ( ie "test_model.3ds" )
-			void load3ds( Device *, GridsID, std::string, bool );
-			
-			// Args: device, UUID, file name ( ie "test_model.3ds" ), color array
-			void load3ds( Device *, GridsID, std::string, float *, bool );
+	public:
+		
+		Autodesk3dsLoader();
+		
+		// Args: device, UUID, file name ( ie "test_model.3ds" )
+		void load3ds( Device *, GridsID, std::string, bool );
+		
+		// Args: device, UUID, file name ( ie "test_model.3ds" ), color array
+		void load3ds( Device *, GridsID, std::string, float *, bool );
+		
+		void lock( Device * );
+		void unlock( Device * );
 	
 	};
 

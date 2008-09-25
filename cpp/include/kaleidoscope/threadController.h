@@ -34,13 +34,16 @@ namespace Kaleidoscope
 	
 	class ThreadController
 	{
-		public:
-			ThreadController();
-			
-			void updateVoxelThreaded( Device * );
-			void detectSelectionThreaded( Device * );
+	public:
+		ThreadController();
 		
-			void createRoomDebugThreaded( Device * );
+		void updateVoxelThreaded( Device * );
+		void detectSelectionThreaded( Device * );
+	
+		void createRoomDebugThreaded( Device * );
+		
+		void lock( Device * d );
+		void unlock( Device * );
 	};
 	
 	

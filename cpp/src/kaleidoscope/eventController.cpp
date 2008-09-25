@@ -251,6 +251,19 @@ namespace Kaleidoscope
 	{
 		return device->special_key_pressed;
 	}
+	
+	
+	
+	void EventController::lock( Device * d )
+	{
+		SDL_mutexP( d->event_controller_mutex );
+	}
+	
+	void EventController::unlock( Device * d )
+	{
+		SDL_mutexV( d->event_controller_mutex );
+		
+	}
 
 
 } // end namespace Kaleidoscope

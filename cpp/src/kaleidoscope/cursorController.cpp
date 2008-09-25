@@ -28,24 +28,19 @@
 namespace Kaleidoscope
 {
 	CursorController::CursorController( Device * dvc )
-		: device( dvc )
 	{
 	
 	}
 	
-	void CursorController::setDevice( Device * dvc )
-	{
-		device = dvc;
-	}
-	
+
 	void CursorController::setPosition( float xScale, float yScale, Device * d )
 	{
-		SDL_WarpMouse( (int)( xScale * d->width), (int)(  yScale * device->height ) );
+		SDL_WarpMouse( (int)( xScale * d->width), (int)(  yScale * d->height ) );
 	}
 	
-	void CursorController::setToCenter( )
+	void CursorController::setToCenter( Device * d )
 	{
-		//setPosition( 0.5f, 0.5f );
+		setPosition( 0.5f, 0.5f, d );
 	}
 	
 	Vec2D CursorController::getRelativePosition( Device * d )
@@ -65,14 +60,15 @@ namespace Kaleidoscope
 		}
 	}
 	
-	void CursorController::setNotches( int new_notches )
+	void CursorController::lock( Device * d )
 	{
-	
+		SDL_mutexP( d->cursor_controller_mutex );
 	}
 	
-	void CursorController::getNotches()
+	void CursorController::unlock( Device * d )
 	{
-	
+		SDL_mutexV( d->cursor_controller_mutex );
+		
 	}
 	
 

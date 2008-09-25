@@ -66,6 +66,7 @@ namespace Kaleidoscope
 	class Gui;
 	class VoxelSpace;
 	class ThreadController;
+	class Autodesk3dsLoader;
 
 	class Device
 	{
@@ -94,7 +95,6 @@ namespace Kaleidoscope
 	
 		Grids::Interface * getInterface( );
 		
-
 		void setRenderer( Renderer * );
 		void setEventController( EventController * );
 		void setCamera( Camera * );
@@ -105,6 +105,20 @@ namespace Kaleidoscope
 		void setVoxel( VoxelSpace * );
 		void setThreadController( ThreadController * );
 		void setInterface( Grids::Interface * );
+		
+		void lockDevice();
+		void unlockDevice();
+		
+		void lockWorldHash();
+		void unlockWorldHash();
+		
+		//////////////////////////////////
+		// METHODS
+		/////////////////////////////////
+		
+		void setRoomWidth( float );
+		float getRoomWidth();
+		
 
 
 		// ******  MAKE THIS A POINTER
@@ -259,6 +273,23 @@ namespace Kaleidoscope
 		///////////////
 		
 		SDL_mutex * device_mutex;
+		
+		SDL_mutex * cursor_controller_mutex;
+		SDL_mutex * renderer_mutex;
+		SDL_mutex * event_controller_mutex;
+		SDL_mutex * cam_mutex;
+		
+		SDL_mutex * builder_mutex;
+		SDL_mutex * loader_mutex;
+		SDL_mutex * thread_controller_mutex;
+		SDL_mutex * voxel_mutex;
+		
+		SDL_mutex * gui_mutex;
+		SDL_mutex * interface_mutex;
+		
+		SDL_mutex * world_hash_mutex;
+		
+		
 		SDL_Thread * voxel_update_thread;
 		SDL_Thread * create_room_debug_thread;
 		SDL_Thread * selection_thread;
@@ -286,6 +317,8 @@ namespace Kaleidoscope
 		
 		ThreadController * thread_controller;
 		Grids::Interface * interface;
+		
+		void createMutexes();
 		
 		
 	};
