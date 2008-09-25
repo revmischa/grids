@@ -10,17 +10,19 @@ Grids::Node->register_hooks(
                             );
 
 sub warn {
-    my ($node, $info) = @_;
+    my ($node, $evt) = @_;
 
-    $node->warn("\nGot Debug.Warn: $info->{args}->{message}\n");
+    $node->warn("\nGot Debug.Warn: " .
+                $evt->args->{message} . "\n");
     return undef;
 }
 
 sub echo {
-    my ($node, $info) = @_;
+    my ($node, $evt) = @_;
 
-    $node->warn("\nGot Debug.Echo: $info->{args}->{message}\n");
-    return $node->event_hook_success(%{$info->{args}});
+    $node->warn("\nGot Debug.Evcho: " .
+                $evt->args->{message} . "\n");
+    return $node->event_hook_success(%{$evt->args});
 }
 
 

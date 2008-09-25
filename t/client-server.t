@@ -45,24 +45,24 @@ sub c_req {
 }
 
 sub client_service_list {
-    my ($c, $info) = @_;
-    ok($info->{args}{services}, "Services list");
+    my ($c, $evt) = @_;
+    ok($evt->args->{services}, "Services list");
     return 0;
 }
 
 sub client_storage_list {
-    my ($c, $info) = @_;
+    my ($c, $evt) = @_;
 
-    is_deeply($info->{args}{storage}, $storage, "Storage list");
+    is_deeply($evt->args->{storage}, $storage, "Storage list");
     return 0;
 }
 
 sub client_login_hook {
-    my ($c, $info) = @_;
+    my ($c, $evt) = @_;
 
-    my $args = $info->{args};
+    my $args = $evt->args;
     is ($c, $client, "Got client in hook info");
-    is ($info->{event}, 'Authentication.Login', "Got correct event in hook info");
+    is ($evt->name, 'Authentication.Login', "Got correct event in hook info");
 
     if ($login_good) {
         is($args->{success}, 1, 'Login successful');

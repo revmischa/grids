@@ -190,12 +190,27 @@ sub do_next_event {
 
     my $conn = delete $evt->args->{_conn};
 
-    my $hook_results = $self->run_event_hooks({
-        event => $evt->event_name,
-        args => $evt->args,
-        trans => $trans,
-        proto => $proto,
-    });
+    # create event record instance
+#    my $event = new Grids::Protocol::Event(
+#                                           params => $info->{args},
+#                                           event_name => $info->{event},
+#                                          trans => $trans,
+#                                           proto => $proto,
+#                                           );
+    # FIXME: clean this all up
+    $evt->trans($trans);
+    $evt->proto($proto);
+
+    my $hook_results = eval {
+        $self->run_event_hooks($evt);
+    };
+
+    if ($@) {
+        warn "Error while running hooks for event " . $evt->event_name . ": " .
+            $@ . "\n";
+
+        return 0;
+    }
 
     # were there any results?
     if ($hook_results && @$hook_results) {
@@ -240,9 +255,9 @@ sub services {
 }
 
 sub check_authentication {
-    my ($self, $req) = @_;
+    my ($self, $evt) = @_;
 
-    my $session_token = delete $req->{args}{_session_token} or return 0;
+    my $session_token = $evt->{args}->{_session_token} or return 0;
     return $self->check_session_token($session_token);
 }
 

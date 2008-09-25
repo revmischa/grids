@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use Class::Autouse;
 use Grids::Hooks;
+
 use Carp qw/croak/;
 
 our %HOOKS; # package->hookname
@@ -27,30 +28,30 @@ sub test_all_hooks {
 
 # run hooks and require at least one to return true
 sub test_any_hook {
-    my ($self, $hookname, $info) = @_;
+    my ($self, $hookname, $evt) = @_;
 
-    my $res = $self->run_hooks($hookname, $info);
+    my $res = $self->run_hooks($hookname, $evt);
     return grep { $_ } @$res;
 }
 
 # find hooks on instance/package
 sub run_hooks {
-    my ($self, $hookname, $info) = @_;
+    my ($self, $hookname, $evt) = @_;
 
     my @res;
 
     if (ref $self) {
         # look for hooks registered on this instance
-        push @res, $self->run_hooks_on($self->{hooks}, $hookname, $info);
+        push @res, $self->run_hooks_on($self->{hooks}, $hookname, $evt);
     }
 
     # look for hooks registered in this package
     my $package = ref $self || $self;
-    push @res, $self->run_hooks_on($HOOKS{$package}, $hookname, $info)
+    push @res, $self->run_hooks_on($HOOKS{$package}, $hookname, $evt)
         if (! ref $package && $package ne 'Grids::Hooks');
 
     # look for global hooks
-    push @res, $self->run_hooks_on(\%Grids::Hooks::HOOKS, $hookname, $info);
+    push @res, $self->run_hooks_on(\%Grids::Hooks::HOOKS, $hookname, $evt);
 
     @res = grep { $_ } @res;
 
@@ -59,13 +60,14 @@ sub run_hooks {
 
 # finds and runs hooks on all matching hooks stored in $hook_desc
 sub run_hooks_on {
-    my ($self, $hook_desc, $hookname, $info) = @_;
+    my ($self, $hook_desc, $hookname, $evt) = @_;
 
     my @res;
+
         
     foreach my $hooks (values %$hook_desc) {
         foreach my $hook_info (@$hooks) {
-            push @res, $self->_run_hook($self, $hook_info->{callback}, $info)
+            push @res, $self->_run_hook($self, $hook_info->{callback}, $evt)
                 if $self->hook_matches($hookname, $hook_info->{hookname});
         }
     }
@@ -89,20 +91,20 @@ sub hook_matches {
 
 
 sub run_event_hooks {
-    my ($self, $info) = @_;
+    my ($self, $evt) = @_;
 
-    my $event = $info->{event};
-    my $r = $self->run_hooks($event, $info);
+    my $event_name = $evt->event_name;
+    my $r = $self->run_hooks($event_name, $evt);
 
-    return $self->run_hooks($event, $info);
+    return $r; #$self->run_hooks($event_name, $evt);
 }
 
 # actually runs hook
 sub _run_hook {
-    my ($pkg, $self, $cb, $info) = @_;
+    my ($pkg, $self, $cb, $evt) = @_;
 
     return unless $cb;
-    return $cb->($self, $info);
+    return $cb->($self, $evt);
 }
 
 sub register_hooks {

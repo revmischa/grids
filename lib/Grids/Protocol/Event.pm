@@ -8,7 +8,7 @@ use Grids::UUID;
 
 use base qw/Class::Accessor::Fast/;
 
-__PACKAGE__->mk_accessors(qw/event_name args time expires target source message_id signed_message_id/);
+__PACKAGE__->mk_accessors(qw/event_name trans proto args time expires target source message_id signed_message_id/);
 
 sub new {
     my ($class, %opts) = @_;
@@ -26,13 +26,15 @@ sub new {
         event_name => $evt_name,
     };
 
-    foreach my $opt (qw/expires target source message_id signed_message_id/) {
+    foreach my $opt (qw/proto trans expires target source message_id signed_message_id/) {
         $self->{$opt} = $opts{$opt} if exists $opts{$opt};
     }
 
     bless $self, $class;
     return $self;
 }
+
+sub name { $_[0]->event_name }
 
 # uuid identifying this event
 sub message_id {

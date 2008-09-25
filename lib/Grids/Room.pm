@@ -5,9 +5,10 @@ package Grids::Room;
 use strict;
 use warnings;
 use Grids::UUID;
-use base qw/Class::Accessor::Fast/;
+use Grids::Room::Object;
 
-__PACKAGE__->mk_accessors(qw/id/);
+use base qw/Class::Accessor::Fast/;
+__PACKAGE__->mk_accessors(qw/id objects people/);
 
 sub create {
     my ($class, %opts) = @_;
@@ -16,9 +17,27 @@ sub create {
 
     my $self = {
         id => $id,
+        objects => [],
+        people => [],
     };
 
     return bless $self, $class;
 }
+
+sub create_object {
+    my ($self, $attr) = @_;
+
+    my $obj = new Grids::Room::Object($attr);
+    $self->add_object($obj);
+
+    return $obj;
+}
+
+sub add_object {
+    my ($self, $obj) = @_;
+    $self->objects->{$obj->id} = $obj;
+}
+
+
 
 1

@@ -69,10 +69,7 @@ sub do_next_event {
     my $args_disp = %$args ? ' (' . join(', ', map { $_ . ' = ' . $args->{$_} } keys %$args) . ')' : '';
     $self->dbg("Handling event " . $event->event_name . "$args_disp");
 
-    my @hook_results = $self->run_event_hooks({
-        event => $event->event_name,
-        args => $args,
-    });
+    my @hook_results = $self->run_event_hooks($event);
 
     # were there any results?
     if (@hook_results) {
