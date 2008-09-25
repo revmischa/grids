@@ -88,7 +88,7 @@ void gotEvent(Protocol *proto, Event *evt, void *userData) {
 void connected(Protocol *proto, Event *, void *userData) {
   std::cout << "Connected!\n";
 
-  gridsmap_t m;
+  Value m;
   m["message"] = "LOL HI";
   std::string evt = "Debug.Warn";
   proto->sendRequest(evt, &m);
