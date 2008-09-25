@@ -44,7 +44,7 @@ int main(int argc, char **argv) {
 
   std::cout << "Type quit to exit\n";
 
-  gridsmap_t m;
+  Value m;
 
   while (! finished) {
     std::cout << "> ";
