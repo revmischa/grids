@@ -24,7 +24,6 @@
 #include <kaleidoscope/device.h>
 #include <assert.h>
 
-
 namespace Kaleidoscope
 {
 
