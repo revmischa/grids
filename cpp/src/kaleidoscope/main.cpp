@@ -39,7 +39,7 @@ int main( int argc, char **argv )
 										// of grids
 		
 	//Sets your room.  This should idealy be through grids
-	main_device->setMyRoom( "Room1" );
+	main_device->setMyRoom( "123" );
 
 	main_device->getBuilder()->placeRoom( main_device, main_device->getMyRoom() );
 	main_device->getBuilder()->buildRoom( main_device, main_device->getMyRoom() );

@@ -89,7 +89,8 @@ namespace Grids
 	void Interface::sendEvent( std::string type, Value * request)
 	// Sends an event upstream
 	{
-		//std::cout << "Interface, attempting to send request" << std::endl;
+		std::cout << "Interface, attempting to send request" << std::endl;
+		std::cout << (*request)[ "room_id" ].asString() << std::endl;
 
 		protocol->sendRequest( type, request );
 	}
@@ -124,7 +125,7 @@ namespace Grids
 
 	void Interface::receiveEvent( Protocol * proto, Event * evt, void * self )
 	{
-		std::cout << "Receive Event" << std::endl;
+		//std::cout << "Receive Event" << std::endl;
 		( (Interface*)self)->parseEventType( evt );
 	}
 
@@ -144,7 +145,10 @@ namespace Grids
 	{
 		std::string event_type = evt->getEventType();
 		
-		std::cout << event_type << std::endl;
+		std::cout << "Parse Event Type: " << event_type << std::endl;
+		std::cout << "Parse ID: " << evt->getArgs()[ "id" ].asString() << std::endl;
+		std::cout << "Parse Method: " << evt->getArgs()[ "_method" ].asString() << std::endl;
+		std::cout << "Parse size(): " << evt->getArgs().size() << std::endl;
 
 		if( event_type == GRIDS_CREATE_ROOM )
 		{

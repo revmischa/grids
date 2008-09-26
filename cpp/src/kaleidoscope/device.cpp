@@ -29,15 +29,16 @@ namespace Kaleidoscope
 
 	Device::Device( int screen_width, int screen_height )
 	{
+		createMutexes(); // This must be called first
+		
 		cursor_controller = new CursorController( this );
 		renderer = new Renderer( this, screen_width, screen_height );
 		event_controller = new EventController( this );
 		cam = new Camera( this );
-
 		builder = new Builder( );
 		loader = new Autodesk3dsLoader( );
 		thread_controller = new ThreadController( );
-
+		
 		voxel = NULL;
 		gui = NULL;
 		interface = NULL;
@@ -50,9 +51,10 @@ namespace Kaleidoscope
 
 		gScreen = NULL;
 
-		createMutexes();
 
 		initSDL();
+		
+		
 	}
 
 	Device::~Device( )

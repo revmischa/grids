@@ -40,30 +40,30 @@ namespace Kaleidoscope
 		Grids::Value * temp_value = new Grids::Value();
 		
 		(*temp_value)[ "_method" ] = GRIDS_CREATE_OBJECT;
-		(*temp_value)[ "Room.Id" ] = cube_room;
+		(*temp_value)[ "room_id" ] = cube_room;
 		
-		(*temp_value)[ "Kaleidoscope" ][ "Object.Type" ][ "Class.Name" ] = "SimpleCube";
+		(*temp_value)[ "attr" ][ "type" ][ "name" ] = "SimpleCube";
 		
 		// Start all the variables specific to this object type
-		(*temp_value)[ "Kaleidoscope" ][ "Object.Type" ][ "CubeColor" ][ 0u ] = cube_color[ 0u ];
-		(*temp_value)[ "Kaleidoscope" ][ "Object.Type" ][ "CubeColor" ][ 1u ] = cube_color[ 1u ];
-		(*temp_value)[ "Kaleidoscope" ][ "Object.Type" ][ "CubeColor" ][ 2u ] = cube_color[ 2u ];
-		(*temp_value)[ "Kaleidoscope" ][ "Object.Type" ][ "CubeColor" ][ 3u ] = cube_color[ 3u ];
+		(*temp_value)[ "attr" ][ "type" ][ "CubeColor" ][ 0u ] = cube_color[ 0u ];
+		(*temp_value)[ "attr" ][ "type" ][ "CubeColor" ][ 1u ] = cube_color[ 1u ];
+		(*temp_value)[ "attr" ][ "type" ][ "CubeColor" ][ 2u ] = cube_color[ 2u ];
+		(*temp_value)[ "attr" ][ "type" ][ "CubeColor" ][ 3u ] = cube_color[ 3u ];
 		
-		(*temp_value)[ "Kaleidoscope" ][ "Object.Type" ][ "SideLength" ] = side_length;
+		(*temp_value)[ "attr" ][ "type" ][ "SideLength" ] = side_length;
 		// End all the variables specific to this object type
 		
-		(*temp_value)[ "Kaleidoscope" ][ "Object.Position" ][ 0u ] = cube_position.X; // Position
-		(*temp_value)[ "Kaleidoscope" ][ "Object.Position" ][ 1u ] = cube_position.Y;
-		(*temp_value)[ "Kaleidoscope" ][ "Object.Position" ][ 2u ] = cube_position.Z;
+		(*temp_value)[ "attr" ][ "pos" ][ 0u ] = cube_position.X; // Position
+		(*temp_value)[ "attr" ][ "pos" ][ 1u ] = cube_position.Y;
+		(*temp_value)[ "attr" ][ "pos" ][ 2u ] = cube_position.Z;
 		
-		(*temp_value)[ "Kaleidoscope" ][ "Object.Rotation" ][ 0u ] = 0.0f; // Rotation
-		(*temp_value)[ "Kaleidoscope" ][ "Object.Rotation" ][ 1u ] = 0.0f;
-		(*temp_value)[ "Kaleidoscope" ][ "Object.Rotation" ][ 2u ] = 0.0f;
+		(*temp_value)[ "attr" ][ "rot" ][ 0u ] = 0.0f; // Rotation
+		(*temp_value)[ "attr" ][ "rot" ][ 1u ] = 0.0f;
+		(*temp_value)[ "attr" ][ "rot" ][ 2u ] = 0.0f;
 		
-		(*temp_value)[ "Kaleidoscope" ][ "Object.Scale" ][ 0u ] = 1.0f; // Scale
-		(*temp_value)[ "Kaleidoscope" ][ "Object.Scale" ][ 1u ] = 1.0f;
-		(*temp_value)[ "Kaleidoscope" ][ "Object.Scale" ][ 2u ] = 1.0f;
+		(*temp_value)[ "attr" ][ "scl" ][ 0u ] = 1.0f; // Scale
+		(*temp_value)[ "attr" ][ "scl" ][ 1u ] = 1.0f;
+		(*temp_value)[ "attr" ][ "scl" ][ 2u ] = 1.0f;
 		
 		d->getInterface()->getObjectController()->requestCreateObject(d, temp_value );
 	}
@@ -71,23 +71,23 @@ namespace Kaleidoscope
 	void SimpleCube::create( Device * d, Grids::Value * in_value )
 	{		
 		Grids::GridsID cube_id = (*in_value)[ "id" ].asString();
-		Grids::GridsID room_id = (*in_value)[ "Room.Id" ].asString();
+		Grids::GridsID room_id = (*in_value)[ "room_id" ].asString();
 		
-		d->world_hash[ cube_id ][ "Object.Type" ][ "Class.Name" ] = "SimpleCube";
+		d->world_hash[ cube_id ][ "type" ][ "name" ] = "SimpleCube";
 		
 		//std::cout << cube_id << "    "  << room_id << std::endl;
 		
-		Vec3D cube_position = Vec3D( (*in_value)[ "Kaleidoscope" ][ "Object.Position" ][ 0u ].asDouble(), 
-									(*in_value)[ "Kaleidoscope" ][ "Object.Position" ][ 1u ].asDouble(), 
-									(*in_value)[ "Kaleidoscope" ][ "Object.Position" ][ 2u ].asDouble()	);
+		Vec3D cube_position = Vec3D( (*in_value)[ "attr" ][ "pos" ][ 0u ].asDouble(), 
+									(*in_value)[ "attr" ][ "pos" ][ 1u ].asDouble(), 
+									(*in_value)[ "attr" ][ "pos" ][ 2u ].asDouble()	);
 		
-		Vec3D cube_rotation = Vec3D( (*in_value)[ "Kaleidoscope" ][ "Object.Rotation" ][ 0u ].asDouble(), 
-									(*in_value)[ "Kaleidoscope" ][ "Object.Rotation" ][ 1u ].asDouble(), 
-									(*in_value)[ "Kaleidoscope" ][ "Object.Rotation" ][ 2u ].asDouble()	);
+		Vec3D cube_rotation = Vec3D( (*in_value)[ "attr" ][ "rot" ][ 0u ].asDouble(), 
+									(*in_value)[ "attr" ][ "rot" ][ 1u ].asDouble(), 
+									(*in_value)[ "attr" ][ "rot" ][ 2u ].asDouble()	);
 		
-		Vec3D cube_scale = Vec3D( (*in_value)[ "Kaleidoscope" ][ "Object.Scale" ][ 0u ].asDouble(), 
-								 (*in_value)[ "Kaleidoscope" ][ "Object.Scale" ][ 1u ].asDouble(), 
-								(*in_value)[ "Kaleidoscope" ][ "Object.Scale" ][ 2u ].asDouble()	);
+		Vec3D cube_scale = Vec3D( (*in_value)[ "attr" ][ "scl" ][ 0u ].asDouble(), 
+								 (*in_value)[ "attr" ][ "scl" ][ 1u ].asDouble(), 
+								(*in_value)[ "attr" ][ "scl" ][ 2u ].asDouble()	);
 	
 //		std::cout << "Pos:  " << cube_position.X << " : " << cube_position.Y << " : " << cube_position.Z << std::endl;
 //		std::cout << "Scale:  " << cube_scale.X << " : " << cube_scale.Y << " : " << cube_scale.Z << std::endl;
@@ -96,10 +96,10 @@ namespace Kaleidoscope
 		d->getBuilder()->placeObject( d, cube_id, room_id, cube_position, cube_scale, cube_rotation );
 		
 		float cube_color[4];
-		cube_color[ 0 ] = (*in_value)[ "Kaleidoscope" ][ "Object.Type" ][ "CubeColor" ][ 0u ].asDouble();
-		cube_color[ 1 ] = (*in_value)[ "Kaleidoscope" ][ "Object.Type" ][ "CubeColor" ][ 1u ].asDouble();
-		cube_color[ 2 ] = (*in_value)[ "Kaleidoscope" ][ "Object.Type" ][ "CubeColor" ][ 2u ].asDouble();
-		cube_color[ 3 ] = (*in_value)[ "Kaleidoscope" ][ "Object.Type" ][ "CubeColor" ][ 3u ].asDouble();
+		cube_color[ 0 ] = (*in_value)[ "attr" ][ "type" ][ "CubeColor" ][ 0u ].asDouble();
+		cube_color[ 1 ] = (*in_value)[ "attr" ][ "type" ][ "CubeColor" ][ 1u ].asDouble();
+		cube_color[ 2 ] = (*in_value)[ "attr" ][ "type" ][ "CubeColor" ][ 2u ].asDouble();
+		cube_color[ 3 ] = (*in_value)[ "attr" ][ "type" ][ "CubeColor" ][ 3u ].asDouble();
 				
 		//std::cout << "side:  " << in_value[ "Kaleidoscope" ][ "Object.Type" ][ "SideLength" ].asDouble() << std::endl;
 		
@@ -110,7 +110,7 @@ namespace Kaleidoscope
 //		std::cout << cube_color[0] << " : " << cube_color[1] << " : " << cube_color[2] << " : " << cube_color[3] << std::endl;
 //		std::cout << "*******" << std::endl;
 
-		d->getBuilder()->buildBox( d, cube_id, (*in_value)[ "Kaleidoscope" ][ "Object.Type" ][ "SideLength" ].asDouble(), &cube_color[0] );
+		d->getBuilder()->buildBox( d, cube_id, (*in_value)[ "attr" ][ "type" ][ "SideLength" ].asDouble(), &cube_color[0] );
 						
 	}
 	

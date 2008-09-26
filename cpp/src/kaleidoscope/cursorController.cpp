@@ -35,7 +35,8 @@ namespace Kaleidoscope
 
 	void CursorController::setPosition( float xScale, float yScale, Device * d )
 	{
-		SDL_WarpMouse( (int)( xScale * d->width), (int)(  yScale * d->height ) );
+		SDL_WarpMouse( (int)( xScale * d->getRenderer()->getWidth(d) ), 
+					  (int)(  yScale * d->getRenderer()->getHeight(d) ) );
 	}
 	
 	void CursorController::setToCenter( Device * d )
@@ -53,10 +54,14 @@ namespace Kaleidoscope
 		{
 			int x, y;
 			SDL_GetMouseState( &x, &y );
+			
+			lock( d );
 			d->mouse_x = x;
 			d->mouse_y = y;
+			unlock( d );
 							
-			return Vec2D( (float)( x ) / (float) d->width, (float)( y ) / (float) d->height );	
+			return Vec2D( (float)( x ) / (float) d->getRenderer()->getWidth(d), 
+						  (float)( y ) / (float) d->getRenderer()->getHeight(d) );	
 		}
 	}
 	

@@ -119,17 +119,36 @@ namespace Kaleidoscope
 	{		
 		node_positions.clear();
 		
+		int num_objects;
+		Grids::GridsID temp_room;
+		bool objects_dont_exist;
+		
+		d->lockWorldHash();
 		// set the vector node_positions from the relevant people and objects
 		int num_rooms = d->world_hash[ "rooms" ].size();
+		d->unlockWorldHash();
+			
 		
 		for( int i = 0; i < num_rooms; i++ )
 		{
-			Grids::GridsID temp_room = d->world_hash[ "rooms" ][ i ].asString();
+			d->lockWorldHash();
+			temp_room = d->world_hash[ "rooms" ][ i ].asString();
+			objects_dont_exist = !(d->world_hash[ temp_room ][ "objects" ]);
 			
-			if( !(d->world_hash[ temp_room ][ "objects" ]) == false )
+			if( !objects_dont_exist )
 			{
-				for( int g = 0; g < d->world_hash[ temp_room ][ "objects" ].size(); g++ )
+				num_objects = d->world_hash[ temp_room ][ "objects" ].size();
+			}
+			
+			d->unlockWorldHash();
+			
+			
+			if(  objects_dont_exist == false )
+			{
+				for( int g = 0; g < num_objects; g++ )
 				{
+					d->lockWorldHash();
+				
 					GridsID temp_object = d->world_hash[ temp_room ][ "objects" ][ g ].asString();
 					
 					node_positions.push_back( Vec3D( d->world_hash[ temp_object ][ "position" ][ 0u ].asDouble() + 
@@ -140,6 +159,7 @@ namespace Kaleidoscope
 													
 													d->world_hash[ temp_object ][ "position" ][ 2u ].asDouble()	+ 
 													d->world_hash[ temp_room ][ "position" ][ 2u ].asDouble()  )  );
+					d->unlockWorldHash();
 					
 				}
 			}
@@ -172,6 +192,9 @@ namespace Kaleidoscope
 		vertex_counter = 0;
 		line_counter = 0;
 		
+		d->lockWorldHash();
+		//I think that this block of code the updates the world hash is not necessory
+		
 		// If I clear these JSon values
 		//d->world_hash[ voxel_id ][ "vertices" ].clear(); // clear the vertices
 		//d->world_hash[ voxel_id ][ "lines" ].clear(); // stores the color and indices
@@ -187,6 +210,8 @@ namespace Kaleidoscope
 		d->world_hash[ voxel_id ][ "position" ][ 0u ] = w / 2.0f;
 		d->world_hash[ voxel_id ][ "position" ][ 1u ] = 0.0f;
 		d->world_hash[ voxel_id ][ "position" ][ 2u ] = depth / 2.0f;
+		
+		d->unlockWorldHash();
 				
 		vCount=0;
 		for(float i=-depth/2.0f; i<= depth/2.0f; i+=s)
@@ -387,6 +412,8 @@ namespace Kaleidoscope
 							// add the render pipeline and vertex cache
 							if (zSlice)
 							{	
+								d->lockWorldHash();
+								
 								d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter ][ 0u ] = vx1;
 								d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter ][ 1u ] = vy1;
 								d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter ][ 2u ] = currSlice;
@@ -398,9 +425,13 @@ namespace Kaleidoscope
 								d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter ][ 2u ] = currSlice;
 																
 								d->world_hash[ voxel_id ][ "lines" ][ 0u ][ "indices" ][ line_counter++ ][ 1u ] = vertex_counter++;
+								
+								d->unlockWorldHash();
 							}
 							else
 							{
+								d->lockWorldHash();
+								
 								d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter ][ 0u ] = currSlice;
 								d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter ][ 1u ] = vy1;
 								d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter ][ 2u ] = vx1;
@@ -412,6 +443,8 @@ namespace Kaleidoscope
 								d->world_hash[ voxel_id ][ "vertices" ][ vertex_counter ][ 2u ] = vx2;
 								
 								d->world_hash[ voxel_id ][ "lines" ][ 0u ][ "indices" ][ line_counter++ ][ 1u ] = vertex_counter++;
+								
+								d->unlockWorldHash();
 							}
 							// set edge as already processed
 							_edgeFlags[x][y] = true;

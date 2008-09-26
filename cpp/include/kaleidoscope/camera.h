@@ -64,8 +64,8 @@ namespace Kaleidoscope
 		Vec3D getUp( Device *);
 		Vec3D getRotation( Device *);
 		
-		void setPosition( Vec3D );
-		void setPosition( float, float, float );
+		void setPosition( Device * , Vec3D );
+		void setPosition( Device *,  float, float, float );
 		void setTarget( Device *, Vec3D );
 		void setTarget( Device *, float, float, float );
 		void setLook( Device *, Vec3D );
@@ -74,23 +74,22 @@ namespace Kaleidoscope
 		void setRotation( Device *, float, float, float );
 		void lookAtPoint( Device *, Vec3D );
 		void lookAtPoint( Device *, float, float, float );
-		void setUp( Vec3D );
-		void setUp( float, float, float );
-		void setRotateSpeed( float );
-		void setMoveSpeed( float );
-		void setTranslateSpeed( float );
-		void setZoomSpeed( float );
-		void setMaxVerticalAngle( float );
-		void setCameraToFPS();
-		void setCameraToMaya();
-		void swapCameraType(Device *);
+		void setUp( Device *, Vec3D );
+		void setUp( Device *, float, float, float );
+		void setRotateSpeed( Device *, float );
+		void setMoveSpeed( Device *, float );
+		void setTranslateSpeed( Device *, float );
+		void setZoomSpeed( Device *, float );
+		void setMaxVerticalAngle( Device *, float );
+		void setCameraToFPS( Device * );
+		void setCameraToMaya( Device * );
+		void swapCameraType( Device * );
 		void setPerspective( Device *, float, float, float, float );
 		
-		int getType(Device *);
+		int getType( Device * );
 		void setType( Device *, int );
 		
-		
-		void doMovementFPS(Device *);
+		void doMovementFPS( Device *);
 		void doMovementMaya( Device * );
 		void callgluLookAt( Device *);
 	
@@ -101,9 +100,7 @@ namespace Kaleidoscope
 	
 		
 	private:
-		
-		Device * device;
-		
+			
 		Vec3D findRotationFromVector( Vec3D );
 		bool Equals( float, float );
 		Vec3D rotateAroundAxis( Vec3D *, Vec3D *, float theta );

@@ -44,16 +44,16 @@ namespace Grids
 	{
 		(*obj_value)[ "_method" ] = GRIDS_CREATE_OBJECT;
 				
-		d->getInterface()->sendEvent( (*obj_value)[ "_method" ].asString() , obj_value );
+		d->getInterface()->sendEventDebug( (*obj_value)[ "_method" ].asString() , obj_value );
 	}
 	
 	void ObjectController::createObject( Kaleidoscope::Device * d, Value obj_value )
 	{
-		std::cout << "blah  " << obj_value[ "Kaleidoscope" ][ "Object.Type" ][ "Class.Name" ].asString() << std::endl;
+		std::cout << "ObjectController Creating object  " << obj_value[ "attr" ][ "type" ][ "names" ].asString() << std::endl;
 		
-		if( obj_value[ "Kaleidoscope" ][ "Object.Type" ][ "Class.Name" ].asString() == "SimpleCube" )
+		if( obj_value[ "attr" ][ "type" ][ "name" ].asString() == "SimpleCube" )
 		{
-			std::cout << "FOO" << std::endl;
+			std::cout << "Object Controller Creating passed" << std::endl;
 			
 			Kaleidoscope::SimpleCube * new_cube = new Kaleidoscope::SimpleCube();
 			
@@ -105,6 +105,9 @@ namespace Grids
 		
 		d->getCamera()->getRayFromScreenCoordinates( d, Vec2D( mouse_x, mouse_y ), &screen_ray[ 0 ] );
 		
+//		std::cout << screen_ray[ 0 ] << " : " << screen_ray[ 1 ] << " : " << screen_ray[ 2 ] << " : " 
+//			<< screen_ray[ 3 ] << " : " << screen_ray[ 4 ] << " : " << screen_ray[ 5 ] << std::endl;
+		
 		Vec3D ray_pos = Vec3D( screen_ray[ 0 ], screen_ray[ 1 ], screen_ray[ 2 ] );
 		Vec3D ray_target = Vec3D( screen_ray[ 3 ], screen_ray[4 ], screen_ray[ 5 ] );
 				
@@ -130,7 +133,11 @@ namespace Grids
 	
 	float ObjectController::getDistFromRay( Kaleidoscope::Device * d, GridsID in_id, Vec3D ray_pos, Vec3D ray_target )
 	{
-		if( d->world_hash[ in_id ][ "Object.Type" ][ "Class.Name" ] == "SimpleCube" )
+		d->lockWorldHash();
+		std::string object_name = d->world_hash[ in_id ][ "type" ][ "name" ].asString();
+		d->unlockWorldHash();
+		
+		if( object_name == "SimpleCube" )
 		{
 			return ( (Kaleidoscope::SimpleCube *) id_pointer_hash[ in_id ])->detectSelection( d, ray_pos, ray_target );
 		}
@@ -140,7 +147,11 @@ namespace Grids
 	
 	void ObjectController::selectObject( Kaleidoscope::Device * d, GridsID in_id )
 	{
-		if( d->world_hash[ in_id ][ "Object.Type" ][ "Class.Name" ] == "SimpleCube" )
+		d->lockWorldHash();
+		std::string object_name = d->world_hash[ in_id ][ "type" ][ "name" ].asString();
+		d->unlockWorldHash();
+
+		if( object_name == "SimpleCube" )
 		{
 			( (Kaleidoscope::SimpleCube *) id_pointer_hash[ in_id ])->selectObject( d );
 		}
@@ -187,7 +198,11 @@ namespace Grids
 	
 	void ObjectController::updateValue( Kaleidoscope::Device * d, GridsID obj_id, Value * obj_value )
 	{
-		if( !( d->world_hash[ obj_id ] ) == false ) // if the object hash position has been created
+		d->lockWorldHash();
+		bool object_doesnt_exist = !( d->world_hash[ obj_id ] );
+		d->unlockWorldHash();
+		
+		if( object_doesnt_exist == false ) // if the object hash position has been created
 		{
 			Vec3D obj_pos = Vec3D( (*obj_value)[ "position" ][ 0u ].asDouble(), 
 								  (*obj_value)[ "position" ][ 1u ].asDouble(), 
@@ -198,6 +213,8 @@ namespace Grids
 			Vec3D obj_scl = Vec3D( (*obj_value)[ "scale" ][ 0u ].asDouble(), 
 								  (*obj_value)[ "scale" ][ 1u ].asDouble(), 
 								  (*obj_value)[ "scale" ][ 2u ].asDouble()	);
+			
+			d->lockWorldHash();
 			
 			d->world_hash[ obj_id ][ "position" ][ 0u ] = obj_pos.X;
 			d->world_hash[ obj_id ][ "position" ][ 1u ] = obj_pos.Y;
@@ -210,7 +227,10 @@ namespace Grids
 			d->world_hash[ obj_id ][ "scale" ][ 0u ] = obj_scl.X;
 			d->world_hash[ obj_id ][ "scale" ][ 1u ] = obj_scl.Y;
 			d->world_hash[ obj_id ][ "scale" ][ 2u ] = obj_scl.Z;
+			
+			d->unlockWorldHash();
 		}
+		
 	}
 		
 	

@@ -45,11 +45,9 @@ namespace Kaleidoscope
 		
 		void renderAll( Device *);
 		void resizeScene( Device *, int, int );
-		
-		void drawBox(Device *);
-					
-		int getWidth();
-		int getHeight();
+							
+		int getWidth( Device *);
+		int getHeight( Device *);
 					
 		void prepare( Device *);
 		//void buildTextures();
@@ -63,8 +61,8 @@ namespace Kaleidoscope
 	private:
 		Device * device;
 		
-		void setWidth( int );
-		void setHeight( int );
+		void setWidth( Device *, int );
+		void setHeight( Device *, int );
 		
 		void loadLights( Device *);
 		void loadTextModes( Device *);

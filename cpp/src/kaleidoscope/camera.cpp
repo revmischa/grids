@@ -54,6 +54,7 @@ namespace Kaleidoscope
 	
 	Camera::Camera( Device * d, int in_type, Vec3D position, Vec3D target, Vec3D up, float rotate_speed, float translate_speed )
 	{
+		lock( d );
 		
 		d->type = in_type;
 		d->Position = position;
@@ -82,46 +83,82 @@ namespace Kaleidoscope
 		d->Translating = false;
 		d->Rotating = false;
 		d->Zooming = false;
+		
+		unlock( d );
 	}
 	
 	Vec3D Camera::getPosition( Device * d )
 	{
-		return d->Position;
+		Vec3D temp_pos;
+		
+		lock( d );
+		temp_pos = d->Position;
+		unlock( d );
+		
+		return temp_pos;
 	}
 	
 	Vec3D Camera::getTarget( Device * d)
 	{
-		return d->Target;
+		Vec3D temp_tar;
+		
+		lock( d );
+		temp_tar = d->Target;
+		unlock( d );
+		
+		return temp_tar;
 	}
 	
 	Vec3D Camera::getLook( Device * d)
 	{
-		return d->Target - d->Position;
+		Vec3D temp_look;
+		
+		lock( d );
+		temp_look = d->Target - d->Position;
+		unlock( d );
+		
+		return temp_look;
 	}
 	
 	Vec3D Camera::getUp( Device * d)
 	{
-		return d->UpVector;
+		Vec3D temp_up;
+		
+		lock( d );
+		temp_up = d->UpVector;
+		unlock( d );
+		
+		return temp_up;
 	}
 	
 	Vec3D Camera::getRotation( Device * d)
 	{
-		return d->Rotation;
+		Vec3D temp_rot;
+		
+		lock( d );
+		temp_rot = d->Rotation;
+		unlock( d );
+		
+		return temp_rot;
 	}
 	
-	void Camera::setPosition( Vec3D vec )
+	void Camera::setPosition( Device * d, Vec3D vec )
 	{
-		device->Position.set( vec );
+		lock( d );
+		d->Position.set( vec );
+		unlock( d );
 	}
 	
-	void Camera::setPosition( float x, float y, float z)
+	void Camera::setPosition( Device * d, float x, float y, float z)
 	{
-		setPosition( Vec3D( x, y, z ) );
+		setPosition( d, Vec3D( x, y, z ) );
 	}
 	
 	void Camera::setTarget( Device * d, Vec3D vec )
 	{
+		lock( d );
 		d->Target.set( vec );
+		unlock( d );
 	}
 	
 	void Camera::setTarget(Device * d, float x, float y, float z )
@@ -129,12 +166,29 @@ namespace Kaleidoscope
 		setTarget( d, Vec3D( x, y, z ) );
 	}
 	
+	void Camera::setUp( Device * d, Vec3D vec )
+	{
+		lock( d );
+		d->UpVector.set( vec );
+		unlock( d );
+	}
+	
+	void Camera::setUp(Device * d, float x, float y, float z )
+	{
+		setUp( d, Vec3D( x, y, z ) );
+	}
+	
+	
 	void Camera::setLook( Device * d, Vec3D vec )
 	{
 		if( getType( d ) == MAYA )
 		{
 			vec.normalize();
+			
+			lock( d );
 			d->Target = d->Position + vec ;
+			unlock( d );
+			
 		}
 		else if( getType(d ) == FPS )
 		{
@@ -149,7 +203,9 @@ namespace Kaleidoscope
 	
 	void Camera::setRotation( Device * d, Vec3D vec )
 	{
+		lock( d );
 		d->Rotation.set( vec );
+		unlock( d );
 	}
 	
 	void Camera::setRotation(  Device * d, float x, float y, float z  )
@@ -159,35 +215,54 @@ namespace Kaleidoscope
 	
 	void Camera::setPerspective( Device * d, float fovy, float aspect, float zNear, float zFar )
 	{
+		lock( d );
 		d->Fov = fovy;
 		d->Aspect = aspect;
 		d->Near = zNear;
 		d->Far = zFar;
+		unlock( d );
 		
 		gluPerspective( fovy, aspect, zNear, zFar );
 	}
 	
 	void Camera::getRayFromScreenCoordinates( Device * d, Vec2D coords, float * screen_ray )
-	{
+	{		
 		Vec3D farLeftUp, farRightUp, farLeftDown;
 		Vec3D nearLeftUp, nearRightUp, nearLeftDown;
+		Vec3D tarVec, upVec, posVec;
 		
-		float Hnear =  tan(d->Fov / 2) * d->Near;
-		float Wnear = Hnear * d->Aspect;
+		float temp_fov, temp_near, temp_far, temp_aspect;
+		int temp_width, temp_height;
 		
-		float Hfar =  tan(d->Fov / 2) * d->Far;
-		float Wfar = Hfar * d->Aspect;
+		lock( d );
+		
+		temp_fov = d->Fov;
+		temp_near = d->Near;
+		temp_far = d->Far;
+		temp_aspect = d->Aspect;
+		posVec = d->Position;
+		tarVec = d->Target - d->Position;
+		upVec = d->UpVector;
+		temp_width = d->width;
+		temp_height = d->height;
+		
+		unlock( d );
+		
+		float Hnear =  tan(temp_fov / 2) * temp_near;
+		float Wnear = Hnear * temp_aspect;
+		
+		float Hfar =  tan(temp_fov / 2) * temp_far;
+		float Wfar = Hfar * temp_aspect;
 				
-		Vec3D tarVec = d->Target - d->Position; 
 		tarVec.normalize();
 		
-		Vec3D strafeVec = tarVec.crossProduct( d->UpVector );
+		Vec3D strafeVec = tarVec.crossProduct( upVec );
 		strafeVec.normalize();
 		
 		Vec3D elVec = tarVec.crossProduct( strafeVec );
 		elVec.normalize();
 		
-		Vec3D farCenter = d->Position + ( tarVec * d->Far ); 
+		Vec3D farCenter = posVec + ( tarVec * temp_far ); 
 		
 		farLeftUp = farCenter + ( elVec * ( Hfar / 2.0f ) )  - ( strafeVec * ( Wfar / 2.0f ) );      
 		
@@ -196,7 +271,7 @@ namespace Kaleidoscope
 		farLeftDown = farCenter - ( elVec * ( Hfar / 2.0f ) )  - ( strafeVec * ( Wfar / 2.0f ) ); 
 		
 		
-		Vec3D nearCenter = d->Position + ( tarVec * d->Near ); 
+		Vec3D nearCenter = posVec + ( tarVec * temp_near ); 
 		
 		nearLeftUp = nearCenter + ( elVec * ( Hnear / 2.0f ) )  - ( strafeVec * ( Wnear / 2.0f ) );      
 		
@@ -213,8 +288,8 @@ namespace Kaleidoscope
 		Vec3D uptodownNear = nearLeftDown - nearLeftUp ;
 		
 		
-		float dx = ( float )( coords.X ) / (float)( d->width );
-		float dy = ( float )( coords.Y ) / (float)( d->height );   
+		float dx = ( float )( coords.X ) / (float)( temp_width );
+		float dy = ( float )( coords.Y ) / (float)( temp_height );   
 		
 		Vec3D directionFar =  farLeftUp + ( lefttorightFar * dx )  + ( uptodownFar * dy );
 		Vec3D directionNear =  nearLeftUp + ( lefttorightNear * dx )  + ( uptodownNear * dy );
@@ -235,7 +310,13 @@ namespace Kaleidoscope
 	
 	void Camera::lookAtPoint( Device * d,  Vec3D vec )
 	{
-		setLook( d, vec - d->Position );
+		Vec3D posVec;
+		
+		lock( d );
+		posVec = d->Position;
+		unlock( d );
+		
+		setLook( d, vec - posVec );
 	}
 	
 	void Camera::lookAtPoint( Device * d,  float x, float y, float z )
@@ -243,47 +324,62 @@ namespace Kaleidoscope
 		lookAtPoint( d, Vec3D( x, y, z ) );
 	}
 	
-	void Camera::setRotateSpeed( float rot )
+	void Camera::setRotateSpeed( Device * d, float rot )
 	{
-		device->RotateSpeed = rot;
+		lock( d );
+		d->RotateSpeed = rot;
+		unlock( d );
 	}
 	
-	void Camera::setMoveSpeed( float move )
+	void Camera::setMoveSpeed( Device * d, float move )
 	{
-		device->MoveSpeed = move ;
+		lock( d );
+		d->MoveSpeed = move ;
+		unlock( d );
 	}
 	
-	void Camera::setTranslateSpeed( float trans )
+	void Camera::setTranslateSpeed( Device * d, float trans )
 	{
-		device->TranslateSpeed = trans;
+		lock( d );
+		d->TranslateSpeed = trans;
+		unlock( d );
 	}
 	
-	void Camera::setZoomSpeed( float zoom )
+	void Camera::setZoomSpeed( Device * d, float zoom )
 	{
-		device->ZoomSpeed = zoom;
+		lock( d );
+		d->ZoomSpeed = zoom;
+		unlock( d );
 	}
 	
-	void Camera::setMaxVerticalAngle( float newAngle )
+	void Camera::setMaxVerticalAngle( Device * d, float newAngle )
 	{
-		device->MAX_VERTICAL_ANGLE = newAngle;
+		lock( d );
+		d->MAX_VERTICAL_ANGLE = newAngle;
+		unlock( d );
 	}
 	
-	void Camera::setCameraToFPS()
+	void Camera::setCameraToFPS( Device * d )
 	{
-		device->type = FPS;
+		lock( d );
+		d->type = FPS;
+		unlock( d );
 	}
 	
-	void Camera::setCameraToMaya()
+	void Camera::setCameraToMaya( Device * d )
 	{
-		device->type = MAYA;
+		lock( d );
+		d->type = MAYA;
+		unlock( d );
 	}
 	
-	void Camera::swapCameraType( Device * d)
+	void Camera::swapCameraType( Device * d )
 	{
 		if( getType( d ) == FPS )
 		{
 			// Attempting to set the center rotation to a point 30 units away from the 
 			// camera based on targetr
+			lock( d );
 			
 			Vec3D new_center =  d->Target - d->Position ;
 			new_center.normalize();
@@ -292,33 +388,49 @@ namespace Kaleidoscope
 			
 			setType( d, MAYA );
 			//lookAtPoint( d, d->CenterOfRotation );
+			
+			unlock( d );
 		}
 		else if ( getType( d ) == MAYA )
 		{
+			lock( d );
+			
 			std::cout << "Changed Camera from MAYA" << std::endl;
 			setType( d, FPS );
 			d->UpVector.set( 0.0f, 1.0f, 0.0f);
 			lookAtPoint( d, d->CenterOfRotation );
 			SDL_ShowCursor( 0 );
+			
+			unlock( d );
 		}
 	}
 	
 	int Camera::getType(Device * d)
 	{
-		return d->type;
+		int temp_type;
+		
+		lock( d );
+		temp_type = d->type;
+		unlock( d );
+		
+		return temp_type;
 	}
 	
 	void Camera::setType( Device * d, int in_type )
 	{
+		lock( d );
 		d->type = in_type;
+		unlock( d );
 	}
 	
 	void Camera::callgluLookAt( Device * d)
 	// This is where the magic happens
 	{ 
+		lock( d );
 		gluLookAt( d->Target.X, d->Target.Y, d->Target.Z, // eyex, eyey, eyez
 			d->Position.X, d->Position.Y, d->Position.Z, // centerx, centery, centerz
 			d->UpVector.X, d->UpVector.Y, d->UpVector.Z); 	
+		unlock( d );
 		
 //		std::cout << getPosition( d ).X << " : " << getPosition( d ).Y << " : " << getPosition( d ).Z << std::endl;
 //		std::cout << getTarget( d ).X << " : " << getTarget( d ).Y << " : " << getTarget( d ).Z << std::endl;
@@ -328,6 +440,7 @@ namespace Kaleidoscope
 	
 	void Camera::doMovementFPS( Device * d)
 	{
+		lock( d );
 		if( d->firstUpdate )
 		{
 			if( d->getCursorController() )
@@ -411,13 +524,17 @@ namespace Kaleidoscope
 		d->Rotation = Vec3D( temp_rotation );
 		
 		d->TargetNormal = ( d->Position - d->Target ).normalize();
+	
+		unlock( d );
 		
-	}
+	} // end doMovementFPS
 	
 	
 	
 	void Camera::doMovementMaya( Device * d )
 	{
+		lock( d );
+		
 		if( d->firstUpdate )
 		{
 			if( d->getCursorController() )
@@ -614,7 +731,10 @@ namespace Kaleidoscope
 				SDL_ShowCursor( 1 );
 			}
 		} 
-	}
+		
+		unlock( d );
+		
+	} // end doMovementMaya
 	
 	
 	
