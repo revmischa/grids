@@ -15,6 +15,7 @@ Grids::Node->register_hooks(
                             "$prefix.List" => \&list_rooms,
                             "$prefix.CreateObject" => \&create_object,
                             "$prefix.UpdateObject" => \&update_object,
+							"$prefix.ListObjects" => \&list_objects,
                             );
 
 our %ROOMS;
@@ -35,6 +36,12 @@ sub list_rooms {
     my ($node, $evt) = @_;
 
     return $node->event_hook_success(rooms => [ keys %ROOMS ]);
+}
+
+sub list_objects {
+    my ($node, $evt) = @_;
+
+    return $node->event_hook_success(rooms => [ keys %OBJECTS ]);
 }
 
 # args: room_id, [\%attr]
