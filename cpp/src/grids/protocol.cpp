@@ -206,7 +206,6 @@ namespace Grids {
       // allocate space for incoming message + null byte
       buf = (char *)malloc(incomingLength + 1);
 
-      std::cout << "incoming: " << incomingLength << "\n";
       uint32_t bytesRemaining = incomingLength;
       bufIncoming = buf;
 
