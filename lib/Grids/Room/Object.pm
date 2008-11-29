@@ -5,13 +5,18 @@ package Grids::Room::Object;
 use strict;
 use warnings;
 
-use base qw/Class::Accessor/;
-__PACKAGE__->mk_accessors(qw/attr/);
+use Grids::UUID;
 
-sub new {
+use base qw/Class::Accessor/;
+__PACKAGE__->mk_accessors(qw/id attr/);
+
+sub create {
     my ($class, $attr) = @_;
 
+    my $id = Grids::UUID->new_id;
+
     my $self = bless {
+        id => $id,
         attr => $attr,
     }, $class;
 

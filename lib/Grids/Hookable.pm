@@ -63,7 +63,6 @@ sub run_hooks_on {
     my ($self, $hook_desc, $hookname, $evt) = @_;
 
     my @res;
-
         
     foreach my $hooks (values %$hook_desc) {
         foreach my $hook_info (@$hooks) {
@@ -152,6 +151,7 @@ sub event_hook_success {
     return { success => 1, %opts };
 }
 
+*hook_error = \&event_hook_error;
 sub event_hook_error {
     my ($self, $errcode, %opts) = @_;
     return { error => $errcode, %opts };

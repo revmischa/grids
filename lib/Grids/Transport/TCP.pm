@@ -142,8 +142,20 @@ sub select {
 
                 if ($read && $incoming_len) {
                     $read = $rh->sysread($buf, $incoming_len);
-                    if ($read != $incoming_len) { # o shit
-                        warn "Message received did not match expected length $incoming_len";
+                    if ($read != $incoming_len) { # sit and read in the rest
+                        my $read_bytes = $read;
+                        my $remaining_bytes = $incoming_len - $read_bytes;
+
+                        # keep reading until we get everything
+                        do {
+                            my $buf_2;
+                            $read = $rh->sysread($buf_2, $remaining_bytes);
+                            $buf .= $buf_2;
+
+                            $read_bytes += $read;
+                            $remaining_bytes -= $read;
+                            warn "$read_bytes / $remaining_bytes\n";
+                        } while ($remaining_bytes);
                     } else {
                         # chill, got out message, process it
                         $self->data_received($rh, $buf);

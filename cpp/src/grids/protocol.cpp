@@ -183,7 +183,7 @@ namespace Grids {
 
       if (bytesRead <= 0) {
         std::cerr << "Socket read error " << bytesRead << ": " << SDLNet_GetError() << "\n";
-        continue;
+        return;
       }
 
       incomingLength = SDLNet_Read32(&incomingLength);
@@ -254,6 +254,8 @@ namespace Grids {
 
   void Protocol::handleMessage(std::string &msg) {
     if (msg.size() < 2) return; // obv. bogus
+
+    std::cout << msg << "\n";
 
     if (msg.find("==", 0, 2) == 0) {
       // protocol initiation message

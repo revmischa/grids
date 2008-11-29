@@ -29,35 +29,50 @@ sub create {
 
     $ROOMS{$room->id} = $room;
 
-    return $node->event_hook_success(id => $room->id);
+    return $node->hook_ok(id => $room->id);
 }
+
+sub get_room {
+    my ($evt) = @_;
+
+    my $roomid = $evt->args->{room_id}
+        or return undef;
+
+    return $ROOMS{$roomid};
+}
+
+
+########
+
 
 sub list_rooms {
     my ($node, $evt) = @_;
 
-    return $node->event_hook_success(rooms => [ keys %ROOMS ]);
+    return $node->hook_ok(rooms => [ keys %ROOMS ]);
 }
 
-sub list_objects {
+# args: room_id
+sub list_objects_in_room {
     my ($node, $evt) = @_;
 
-    return $node->event_hook_success(rooms => [ keys %OBJECTS ]);
+    my $room = get_room($evt)
+        or return $node->hook_error("Invalid room_id");
+
+    my $objects = $room->objects;
+    return $node->hook_ok(objects => [ keys %$objects ]);
 }
 
 # args: room_id, [\%attr]
 sub create_object {
     my ($node, $evt) = @_;
 
-    my $roomid = $evt->args->{room_id}
-       or return $node->event_hook_error('No room_id specified');
-
-    my $room = $ROOMS{$roomid}
-       or return $node->event_hook_error("Invalid room_id: $roomid");
+    my $room = get_room($evt)
+        or return $node->hook_error("Invalid room_id");
 
     my $object = $room->create_object($evt->args->{attr});
     $OBJECTS{$object->id} = $object;
 
-    return $node->event_hook_success(id => $object->id);
+    return $node->hook_ok(id => $object->id);
 }
 
 # args: id, \%new_attr
@@ -65,17 +80,17 @@ sub update_object {
     my ($node, $evt) = @_;
 
     my $objid = $evt->args->{id}
-       or return $node->event_hook_error('No id specified');
+        or return $node->event_hook_error('No id specified');
 
     my $obj = $OBJECTS{$objid}
-       or return $node->event_hook_error("Invalid id: $objid");
+        or return $node->event_hook_error("Invalid id: $objid");
 
     my $new_attr = $evt->args->{attr} || {};
 
     # for now just replace attr, in future should only update keys that exist in $new_attr
     $obj->attr($new_attr);
 
-    return $node->event_hook_success;
+    return $node->hook_ok;
 }
 
 1;

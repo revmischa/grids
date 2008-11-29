@@ -82,7 +82,8 @@ int main(int argc, char **argv) {
 }
 
 void gotEvent(Protocol *proto, Event *evt, void *userData) {
-  std::cout << "Received event " << evt->getEventType() << "\n";
+  std::cout << "Received event " << evt->getEventType() << ":\n";
+  //  std::cout << " " << evt->getArgs().c_str() << "\n";
 }
 
 void connected(Protocol *proto, Event *, void *userData) {

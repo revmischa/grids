@@ -17,8 +17,8 @@ sub create {
 
     my $self = {
         id => $id,
-        objects => [],
-        people => [],
+        objects => {},
+        people => {},
     };
 
     return bless $self, $class;
@@ -27,7 +27,7 @@ sub create {
 sub create_object {
     my ($self, $attr) = @_;
 
-    my $obj = new Grids::Room::Object($attr);
+    my $obj = Grids::Room::Object->create($attr);
     $self->add_object($obj);
 
     return $obj;
