@@ -157,7 +157,7 @@ namespace Grids
 			
 			d->getBuilder()->createRandomBoxes(d, evt->getArgs()[ "id" ].asString(), 20);
 			
-			//d->getVoxel()->update(d, 3, 0.45f);
+			d->getVoxel()->update(d, 3, 0.45f);
 		}
 		else if( event_type == GRIDS_CREATE_OBJECT )
 		{			

@@ -42,7 +42,7 @@ int main( int argc, char **argv )
 	main_device->setMyRoom( "123" );
 
 	main_device->getBuilder()->placeRoom( main_device, main_device->getMyRoom() );
-	main_device->getBuilder()->buildRoom( main_device, main_device->getMyRoom() );
+	//main_device->getBuilder()->buildRoom( main_device, main_device->getMyRoom() );
 	
 	// This is the proper way to create a room, through grids, though at the moment I cannot tell the ID of the room created
 	//main_device->getInterface()->createRoom();
@@ -64,8 +64,8 @@ int main( int argc, char **argv )
 	main_device->getBuilder()->createRandomBoxes( main_device, main_device->getMyRoom(), 5 );
 	
 	
-//	main_device->createVoxel();
-//	main_device->getThreadController()->updateVoxelThreaded( main_device );
+	main_device->createVoxel();
+	main_device->getThreadController()->updateVoxelThreaded( main_device );
 
 	
 //	SDL_Surface * temp_image = IMG_Load( "corona.png" );
