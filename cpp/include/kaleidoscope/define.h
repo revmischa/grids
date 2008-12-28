@@ -39,6 +39,8 @@
 //#define FPS 1
 //#define MAYA 2
 
+#define UPDATE_POSITION "updatePosition"
+#define UPDATE_TYPE "updateType"
 
 // Time in milliseconds of a click ( vs a drag )
 #define CLICK_LENGTH 200 

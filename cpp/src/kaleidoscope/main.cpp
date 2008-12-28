@@ -39,9 +39,10 @@ int main( int argc, char **argv )
 										// of grids
 		
 	//Sets your room.  This should idealy be through grids
-	main_device->setMyRoom( "123" );
+	//main_device->setMyRoom( "62688B92-D3AA-11DD-8EC7-91669DFFFA79" );
 
-	main_device->getBuilder()->placeRoom( main_device, main_device->getMyRoom() );
+	//main_device->getBuilder()->placeRoom( main_device, main_device->getMyRoom() );
+
 	//main_device->getBuilder()->buildRoom( main_device, main_device->getMyRoom() );
 	
 	// This is the proper way to create a room, through grids, though at the moment I cannot tell the ID of the room created
@@ -55,13 +56,11 @@ int main( int argc, char **argv )
 //							  Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f )	);
 //	main_device->getLoader()->load3ds( main_device, loaded_id, "torus.3ds", true );
 	
-	
 	int text_id = main_device->getGui()->addText(main_device, Kaleidoscope::Vec2D( -0.95f, 0.95f ), " " );
 	main_device->getGui()->addText(main_device, Kaleidoscope::Vec3D( 50.0f, 50.0f, 50.0f ), "point < 50, 50, 50 >" );
 	main_device->getGui()->addText(main_device, Kaleidoscope::Vec3D( -50.0f, 0.0f, -50.0f ), "point < -50, 0, -50 >" );
 	
-	
-	main_device->getBuilder()->createRandomBoxes( main_device, main_device->getMyRoom(), 5 );
+	//main_device->getBuilder()->createRandomBoxes( main_device, main_device->getMyRoom(), 5 );
 	
 	
 	main_device->createVoxel();

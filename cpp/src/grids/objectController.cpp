@@ -22,8 +22,11 @@
  */
 
 #include <grids/objectController.h>
-#include <kaleidoscope/simpleCube.h>
 #include <grids/define.h>
+
+#include <kaleidoscope/simpleCube.h>
+#include <kaleidoscope/define.h>
+
 
 
 namespace Grids
@@ -41,26 +44,34 @@ namespace Grids
 	
 
 	void ObjectController::requestCreateObject( Kaleidoscope::Device * d, Value * obj_value )
-	{
-		(*obj_value)[ "_method" ] = GRIDS_CREATE_OBJECT;
+	{		
+		Value * temp_type = new Value();
+		
+		(*temp_type)[ "_method" ] = GRIDS_CREATE_OBJECT;
+		(*temp_type)[ "room_id" ] = (*obj_value)[ "room_id" ].asString();
+		(*temp_type)[ "attr" ] = (*obj_value);
 				
-		d->getInterface()->sendEventDebug( (*obj_value)[ "_method" ].asString() , obj_value );
+		d->getInterface()->sendEvent( GRIDS_CREATE_OBJECT, temp_type );
+		
+		delete temp_type;
 	}
 	
-	void ObjectController::createObject( Kaleidoscope::Device * d, Value obj_value )
+	void ObjectController::createObject( Kaleidoscope::Device * d, Value * obj_value )
 	{
-		std::cout << "ObjectController Creating object  " << obj_value[ "attr" ][ "type" ][ "names" ].asString() << std::endl;
+		std::cout << "ObjectController Creating object  " << (*obj_value)[ "req" ][ "attr" ][ "type" ][ "name" ].asString() << std::endl;
 		
-		if( obj_value[ "attr" ][ "type" ][ "name" ].asString() == "SimpleCube" )
-		{
-			std::cout << "Object Controller Creating passed" << std::endl;
-			
+		//std::string temp_string = "SimpleCube";
+		
+		d->temp_box_id = (*obj_value)[ "id" ].asString();
+		
+		if( (*obj_value)[ "req" ][ "attr" ][ "type" ][ "name" ].asString() == "SimpleCube" )
+		{			
 			Kaleidoscope::SimpleCube * new_cube = new Kaleidoscope::SimpleCube();
 			
 			// register this with the object controller
-			registerObject( obj_value[ "id" ].asString(), new_cube );
+			registerObject( (*obj_value)[ "id" ].asString(), new_cube );
 			
-			new_cube->create( d, &obj_value );
+			new_cube->create( d, obj_value );
 		}
 		
 	}
@@ -156,6 +167,52 @@ namespace Grids
 			( (Kaleidoscope::SimpleCube *) id_pointer_hash[ in_id ])->selectObject( d );
 		}
 	}
+	
+	void ObjectController::parseUpdate( Kaleidoscope::Device * d, Value * in_value )
+	{
+		if( (*in_value)[ "req" ][ "attr" ][ UPDATE_TYPE ].asString() == UPDATE_POSITION )
+		{
+			updatePosition( d, in_value );
+		}
+	}
+	
+	
+	void ObjectController::requestUpdatePasition( Kaleidoscope::Device * d, GridsID obj_id, GridsID room_id, Vec3D new_position )
+	{
+		Value * temp_type = new Value();
+		Value * attr_value = new Value();
+		
+		( *attr_value )[ "pos" ][ 0u ] = new_position.X;
+		( *attr_value )[ "pos" ][ 1u ] = new_position.Y;
+		( *attr_value )[ "pos" ][ 2u ] = new_position.Z;
+		
+		( *attr_value )[ UPDATE_TYPE ] = UPDATE_POSITION;
+		
+		( *attr_value )[ "room_id" ] = room_id;
+		
+		(*temp_type)[ "_method" ] = GRIDS_UPDATE_OBJECT;
+		(*temp_type)[ "room_id" ] = room_id;
+		(*temp_type)[ "id" ] = obj_id;
+		(*temp_type)[ "attr" ] = (*attr_value);
+		
+		d->getInterface()->sendEvent( GRIDS_UPDATE_OBJECT, temp_type );
+		
+		delete temp_type;
+		delete attr_value;
+	}
+	
+	void ObjectController::updatePosition( Kaleidoscope::Device * d, Value * in_value )
+	{
+		GridsID object_id = (*in_value)[ "id" ].asString();
+		float temp_x = (*in_value)[ "req" ][ "attr" ][ "pos" ][ 0u ].asDouble();
+		float temp_y = (*in_value)[ "req" ][ "attr" ][ "pos" ][ 1u ].asDouble();
+		float temp_z = (*in_value)[ "req" ][ "attr" ][ "pos" ][ 2u ].asDouble();
+		
+		d->world_hash[ object_id ][ "position" ][ 0u ] = temp_x;
+		d->world_hash[ object_id ][ "position" ][ 1u ] = temp_y;
+		d->world_hash[ object_id ][ "position" ][ 2u ] = temp_z;
+	}
+	
 	
 	void ObjectController::requestUpdateValue( Kaleidoscope::Device * d, Object * obj_ptr, Value * in_value )
 	{

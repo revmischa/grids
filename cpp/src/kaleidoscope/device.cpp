@@ -50,6 +50,8 @@ namespace Kaleidoscope
 		srand ( time(NULL) );
 
 		gScreen = NULL;
+		
+		my_room = "NULL";
 
 
 		initSDL();
@@ -87,7 +89,7 @@ namespace Kaleidoscope
 
 		if( thread_controller )
 			delete thread_controller;
-
+		
 		if( interface )
 			delete interface;
 
@@ -147,7 +149,7 @@ namespace Kaleidoscope
 			assert( false ); // end the program and tell us where it ended
 		}
 
-		createInterface( "happiland.net" );
+		interface = createInterface( "happiland.net" );
 
 		// Don't set color bit sizes (SDL_GL_RED_SIZE, etc)
 		//    Mac OS X will always use 8-8-8-8 ARGB for 32-bit screens and

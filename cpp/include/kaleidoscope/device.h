@@ -134,6 +134,8 @@ namespace Kaleidoscope
 		float room_width;
 	
 		SDL_Event device_event;
+		
+		std::string temp_room_id;
 
 
 		///////////
@@ -297,7 +299,7 @@ namespace Kaleidoscope
 		void setMyRoom( Grids::GridsID );
 		Grids::GridsID getMyRoom();
 		
-		
+		Grids::GridsID temp_box_id;
 
 	private:
 		

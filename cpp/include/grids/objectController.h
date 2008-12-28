@@ -55,7 +55,12 @@ namespace Grids
 		// GridsID, confirming the request
 		void requestCreateObject( Kaleidoscope::Device *, Value * ); // creates an object 
 	
-		void createObject( Kaleidoscope::Device *, Value ); // params, object id
+		void createObject( Kaleidoscope::Device *, Value *); // params, object id
+		
+		void parseUpdate( Kaleidoscope::Device *, Value *);
+		
+		void requestUpdatePasition( Kaleidoscope::Device *, GridsID, GridsID, Vec3D );
+		void updatePosition( Kaleidoscope::Device *, Value * );
 	
 		void requestUpdateValue( Kaleidoscope::Device *, Object *, Value *);
 		void requestUpdateValue( Kaleidoscope::Device *, GridsID, Value * );

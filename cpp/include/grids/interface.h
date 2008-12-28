@@ -78,6 +78,9 @@ namespace Grids
 		
 		void lock( Kaleidoscope::Device * );
 		void unlock( Kaleidoscope::Device * ); 
+		
+		void addObject( Kaleidoscope::Device *, std::string);
+		void addObject( Kaleidoscope::Device *, Value *  );
 
 	private:
 

@@ -32,6 +32,7 @@
 
 
 
+
 namespace Grids
 {
 	Interface::Interface( Kaleidoscope::Device * in_device, std::string address )
@@ -90,7 +91,7 @@ namespace Grids
 	// Sends an event upstream
 	{
 		std::cout << "Interface, attempting to send request" << std::endl;
-		std::cout << (*request)[ "room_id" ].asString() << std::endl;
+		std::cout << "Operation in room:  " << (*request)[ "room_id" ].asString() << std::endl;
 
 		protocol->sendRequest( type, request );
 	}
@@ -115,7 +116,6 @@ namespace Grids
 		receiveEventDebug( NULL, temp_event , NULL );
 		
 		delete temp_event;
-		
 	}
 	
 	void Interface::receiveEventDebug( Protocol * proto, Event * evt, void * self )
@@ -144,31 +144,40 @@ namespace Grids
 	// NOTE: This call runs inside of its own thread, started by Grids protocol
 	{
 		std::string event_type = evt->getEventType();
+		Grids::GridsID object_id = evt->getArgs()[ "id" ].asString();
 		
 		std::cout << "Parse Event Type: " << event_type << std::endl;
-		std::cout << "Parse ID: " << evt->getArgs()[ "id" ].asString() << std::endl;
+		std::cout << "Parse ID: " << object_id << std::endl;
+		
 		std::cout << "Parse Method: " << evt->getArgs()[ "_method" ].asString() << std::endl;
 		std::cout << "Parse size(): " << evt->getArgs().size() << std::endl;
 
 		if( event_type == GRIDS_CREATE_ROOM )
 		{
-			d->getBuilder()->placeRoom( d,  evt->getArgs()[ "id" ].asString() );
-			d->getBuilder()->buildRoom( d,  evt->getArgs()[ "id" ].asString() );
+			if( d->getMyRoom() == "NULL" )
+			{
+				d->setMyRoom( object_id );
+			}
 			
-			d->getBuilder()->createRandomBoxes(d, evt->getArgs()[ "id" ].asString(), 20);
+			d->getBuilder()->placeRoom( d,  object_id );
+			d->getBuilder()->buildRoom( d,  object_id );
 			
-			d->getVoxel()->update(d, 3, 0.45f);
+			std::cout << "Creating room with ID:  " << object_id << std::endl;
+			std::cout << "My room ID:  " << d->getMyRoom() << std::endl;
+						
+			//d->getVoxel()->update(d, 3, 0.45f);
 		}
 		else if( event_type == GRIDS_CREATE_OBJECT )
 		{			
-			object_controller->createObject( d, evt->getArgs() );
-
+			std::cout << "Interface Creating object with id:  " << object_id << std::endl;
+			std::cout << "Interface Creating object in room:  " << evt->getArgs()[ "req" ][ "room_id" ].asString() << std::endl;
+						
+			object_controller->createObject( d, &(evt->getArgs() ) );
 		}
 		else if( event_type == GRIDS_UPDATE_OBJECT )
 		{
-			object_controller->updateValue( d, evt->getArgs()[ "id" ].asString(), evt->getArgs() );
+			object_controller->parseUpdate( d, &( evt->getArgs() ) );
 		}
-		
 	}
 
 	void Interface::createRoom( )
@@ -232,7 +241,40 @@ namespace Grids
 	//
 	// maybe Update Object Position and Update Person Position can be combined?
 	
+	void Interface::addObject( Kaleidoscope::Device * d, std::string room_id )
+	{
+		std::cout << std::endl << "Attempting to add object in room " << d->getMyRoom() <<  std::endl;
+		
+		Value * temp_type = new Value();
+		
+		Value * temp_attr = new Value();
+		
+		(*temp_attr)[ "position_x" ] = 100.0f;
+
+		(*temp_attr)[ "position_y" ] = 200.0f;
+
+		(*temp_attr)[ "position_z" ] = 300.0f;
+		
+		(*temp_attr)[ "type" ][ "names" ] = "SimpleCube";
+		
+		(*temp_attr)[ "room_id" ] = d->getMyRoom();
+
+		(*temp_type)[ "_method" ] = GRIDS_CREATE_OBJECT;
+		
+		(*temp_type)[ "room_id" ] = d->getMyRoom();
+		(*temp_type)[ "attr" ] = (*temp_attr) ;
+		
+		sendEvent(  GRIDS_CREATE_OBJECT, temp_type );
+		
+		delete temp_type;
+		
+	}
 	
+	void Interface::addObject( Kaleidoscope::Device * d, Value * obj_value )
+	{
+		
+		
+	}
 	
 	// Update person ( 
 
@@ -244,7 +286,6 @@ namespace Grids
 	ObjectController * Interface::getObjectController() { return object_controller; }
 	PersonController * Interface::getPersonController() { return person_controller; }
 	MessengerController * Interface::getMessengerController() { return messenger_controller; }
-	
 	
 	void Interface::lock( Kaleidoscope::Device * d )
 	{

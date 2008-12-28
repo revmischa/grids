@@ -24,6 +24,7 @@
 #include <kaleidoscope/gui.h>
 #include <kaleidoscope/rect.h>
 #include <kaleidoscope/device.h>
+#include <kaleidoscope/simpleCube.h>
 
 #include <SDL/SDL_opengl.h>
 #include <SDL_ttf/SDL_ttf.h>
@@ -591,6 +592,32 @@ namespace Kaleidoscope
 			d->getInterface()->createRoom();
 		}
 		
+		if( (in_string == " obj") || (in_string == " add object" )	) 
+		{
+			d->getInterface()->addObject( d, d->getMyRoom() );
+		}
+		
+		if( in_string == " add cube" ) 
+		{
+			SimpleCube * temp_cube = new SimpleCube();
+			
+			float temp_color[ 4u ];
+			temp_color[ 0u ] = 1.0f;
+			temp_color[ 1u ] = 0.25f;
+			temp_color[ 2u ] = 0.25f;
+			temp_color[ 3u ] = 0.45f;
+			
+			// Create a cube giving it the device, the room, the position, the size, and the color
+			temp_cube->requestCreateCube(d, d->getMyRoom(), Vec3D( 50.0f, 50.0f, 50.0f), 10.0f, &temp_color[ 0 ] );
+		}
+		
+		if( in_string == " update cube" )
+		{
+		   d->getInterface()->getObjectController()->requestUpdatePasition(d, d->temp_box_id, d->getMyRoom(), Vec3D( -50.0f, -50.0f, -50.0f ) );
+		   
+		}
+		
+		
 		if( in_string == " update" ) 
 		{
 			d->getThreadController()->updateVoxelThreaded( d );
@@ -611,7 +638,14 @@ namespace Kaleidoscope
 		std::string temp_string = d->text_hash[ text_type ][ text_id ][ "text" ].asString();
 		int string_length = temp_string.size();
 
-		d->text_hash[ text_type ][ text_id ][ "text" ] = temp_string.substr(0, string_length - 1);
+		if( string_length <= 1 )
+		{
+			d->text_hash[ text_type ][ text_id ][ "text" ] = " ";
+		}
+		else
+		{
+			d->text_hash[ text_type ][ text_id ][ "text" ] = temp_string.substr(0, string_length - 1);
+		}
 
 		if( text_type == 1u )
 		{
