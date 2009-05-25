@@ -112,21 +112,28 @@ namespace Kaleidoscope
 		
 		void lockWorldHash();
 		void unlockWorldHash();
-		
-		//////////////////////////////////
-		// METHODS
-		/////////////////////////////////
-		
+				
 		void setRoomWidth( float );
 		float getRoomWidth();
-		
 
+		void addRoom( Room * );
+		
+		//////////////////////////////////
+		// MEMEBERS
+		/////////////////////////////////
+
+		// Debug levels
+		// 1 - 
+		// 2 - 
+		// 3 - 
+		// 4 - Key presses
+		
+		int DEBUG;
 
 		// ******  MAKE THIS A POINTER
 
 		Grids::Value  world_hash;
 
-		void addRoom( Room * );
 
 		int running;
 
@@ -140,7 +147,7 @@ namespace Kaleidoscope
 
 
 		///////////
-		// Camera Variables
+		// Camera members
 		//////////
 
 		int type;
@@ -184,7 +191,7 @@ namespace Kaleidoscope
 
 
 		/////////////////
-		//Rendere Variables
+		// Render members
 		////////////////
 
 
@@ -213,7 +220,7 @@ namespace Kaleidoscope
 
 
 		//////////////
-		// Event Variables
+		// Event members
 		/////////////
 
 		int mouse_x;
@@ -246,14 +253,14 @@ namespace Kaleidoscope
 
 
 		/////////////////
-		//  Cursor Variables
+		//  Cursor members
 		///////////////
 
 		int last_x;
 		int last_y;
 	
 		///////////////
-		//  Gui Variables
+		//  Gui members
 		///////////////
 		
 		Grids::Value text_hash;
