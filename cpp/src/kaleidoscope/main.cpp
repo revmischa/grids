@@ -69,6 +69,8 @@ int main( int argc, char **argv )
 //							  Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f )	);
 //	main_device->getLoader()->load3ds( main_device, loaded_id, "torus.3ds", true );
 
+
+	
 	if( main_device->DEBUG )
 	  std::cout << "Creating guitext" << std::endl;
 	
