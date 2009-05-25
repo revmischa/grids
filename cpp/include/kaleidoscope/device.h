@@ -75,7 +75,8 @@ namespace Kaleidoscope
 		Device( int, int );
 		~Device();
 		
-		void initSDL();
+        // return 0 if succeed, -1 if fail 
+		int initSDL();
 		
 		void run();
 		

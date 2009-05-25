@@ -134,8 +134,9 @@ namespace Kaleidoscope
 
 
 	}
-
-	void Device::initSDL()
+  
+  
+	int Device::initSDL()
 	{
 		// Initialize SDL
 
@@ -150,6 +151,11 @@ namespace Kaleidoscope
 		}
 
 		interface = createInterface( "happiland.net" );
+
+		if( interface == NULL )
+		  return -1;
+		
+
 
 		// Don't set color bit sizes (SDL_GL_RED_SIZE, etc)
 		//    Mac OS X will always use 8-8-8-8 ARGB for 32-bit screens and
@@ -183,6 +189,8 @@ namespace Kaleidoscope
 		getRenderer()->prepare( this );
 
 		last_clock = SDL_GetTicks();
+        
+        return 0;
 
 	}
 

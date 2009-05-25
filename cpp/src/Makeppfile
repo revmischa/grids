@@ -1,6 +1,7 @@
 
 # Top level Makeppfile for Grids
-# Is there a way to install the json library, 
+# Is there a way to not have to recompile the json library for each platform?
+# Maybe just embedding the c++ code into grids, since it doesn't really do much.  
 
 CPP := g++
 LIBTOOL := g++
