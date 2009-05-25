@@ -29,6 +29,8 @@ namespace Kaleidoscope
 
 	Device::Device( int screen_width, int screen_height )
 	{
+		DEBUG = 1;
+	  
 		createMutexes(); // This must be called first
 		
 		cursor_controller = new CursorController( this );
@@ -52,7 +54,9 @@ namespace Kaleidoscope
 		gScreen = NULL;
 		
 		my_room = "NULL";
-
+		
+		screen_font = NULL;
+		space_font = NULL;
 
 		initSDL();
 		
@@ -149,12 +153,19 @@ namespace Kaleidoscope
 			std::cout << "SDLNet_Init: " << SDLNet_GetError() << std::endl;
 			assert( false ); // end the program and tell us where it ended
 		}
+		
 
-		interface = createInterface( "happiland.net" );
+		// This is not part of SDL, but SDL_net needs to be initiated
+		
+		interface = createInterface( "67.223.239.201" );
 
 		if( interface == NULL )
 		  return -1;
-		
+		else {
+		  if( DEBUG ) {
+		  std::cout << "Connected to server, continuing to init SDL" << std::endl;
+		  }
+		}
 
 
 		// Don't set color bit sizes (SDL_GL_RED_SIZE, etc)

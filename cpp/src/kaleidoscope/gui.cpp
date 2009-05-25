@@ -38,13 +38,24 @@ namespace Kaleidoscope
 
 	Gui::Gui( Device * d )
 	{
+				
 		TTF_Init();
-
+		
+		if( d->DEBUG )
+			std::cout << "Initialized TTF" << std::endl;
+		
 		d->text_hash[ 1u ] = Grids::Value();
 		d->text_hash[ 2u ] = Grids::Value();
 
-		d->screen_font = TTF_OpenFont( "Helvetica LT 25 Ultra Light.ttf", 108 );
-		d->space_font = TTF_OpenFont( "Helvetica LT 55 Roman.ttf", 108 );
+		if( d->DEBUG )
+			std::cout << "Loading fonts" << std::endl;
+
+		d->screen_font = TTF_OpenFont( "../media/Helvetica LT 25 Ultra Light.ttf", 108 );
+		d->space_font = TTF_OpenFont( "../media/Helvetica LT 55 Roman.ttf", 108 );
+
+		if( d->DEBUG ) 
+			std::cout << "Loaded fonts" << std::endl;
+
 		SDL_Color text_color = { 255, 255, 255, 0 };
 		d->text_color = text_color;
 
@@ -445,15 +456,27 @@ namespace Kaleidoscope
 		d->text_hash[ 1u ][ new_index ][ "position" ][ 1u ] = text_position.Y;
 		d->text_hash[ 1u ][ new_index ][ "text" ] = text_string;
 
+		if( d->DEBUG )
+			std::cout << "Attempting to create surface" << std::endl;
+
+		if( d->screen_font == NULL ) {
+			std::cerr << "No font loaded, returning" << std::endl;
+			return -1;
+		}
+	
 		SDL_Surface * temp_surface = createSDLTextSurface( d, text_string, d->screen_font );
+
+		if( d->DEBUG )
+			std::cout << "Created surface" << std::endl;
 
 		d->text_hash[ 1u ][ new_index ][ "x" ] = temp_surface->w;
 		d->text_hash[ 1u ][ new_index ][ "y" ] = temp_surface->h;
 
 		d->screen_texts.push_back( temp_surface );
-
-		//std::cout << temp_surface << std::endl;
-
+	
+		if( d->DEBUG )
+			std::cout << "Pushed surface, returing" << std::endl;
+		
 		return new_index;
 	}
 
@@ -482,8 +505,14 @@ namespace Kaleidoscope
 
 	SDL_Surface * Gui::createSDLTextSurface( Device * d, std::string in_string, TTF_Font * in_font )
 	{
+		if( d->DEBUG > 3)
+			std::cout << "Attempting TTF_RenderText_Blended" << std::endl;
+
 		SDL_Surface * new_text_surface_1 = TTF_RenderText_Blended( in_font, in_string.c_str(), d->text_color );
 
+		if( d->DEBUG > 3)
+			std::cout << "Succeeded in TTF_RenderTextBlended" << std::endl; 
+		
 		int x = 1;
 		while(x < new_text_surface_1->w)
 		{
@@ -556,6 +585,8 @@ namespace Kaleidoscope
 		}
 	}
 
+
+	// What does text_type mean
 	void Gui::parseText( Device * d, int text_type, int text_id )
 	{
 

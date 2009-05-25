@@ -87,6 +87,9 @@ namespace Kaleidoscope
 				}
 				else if( ( event.key.keysym.sym > 96 && event.key.keysym.sym <= 122 ) || event.key.keysym.sym == SDLK_SPACE )
 				{
+					if( d->DEBUG > 3 )
+						std::cout << "Key pressed" << std::endl;
+
 					temp_string = "";
 					temp_string += (char)event.key.keysym.sym;
 					d->getGui()->appendText( d, 1u, 0u, temp_string);
