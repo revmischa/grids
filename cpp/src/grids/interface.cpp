@@ -145,12 +145,16 @@ namespace Grids
 	{
 		std::string event_type = evt->getEventType();
 		Grids::GridsID object_id = evt->getArgs()[ "id" ].asString();
-		
-		std::cout << "Parse Event Type: " << event_type << std::endl;
-		std::cout << "Parse ID: " << object_id << std::endl;
-		
-		std::cout << "Parse Method: " << evt->getArgs()[ "_method" ].asString() << std::endl;
-		std::cout << "Parse size(): " << evt->getArgs().size() << std::endl;
+
+		if( d->DEBUG > 2 ){		
+			std::cout << "Parse Event Type: " << event_type << std::endl;
+			std::cout << "Parse ID: " << object_id << std::endl;
+			
+			std::cout << "Parse Method: " << evt->getArgs()[ "_method" ].asString() << std::endl;
+			std::cout << "Parse size(): " << evt->getArgs().size() << std::endl;
+			std::cout << "req size(): " << evt->getArgs()["req"].size() << std::endl;
+			std::cout << "attr size(): " << evt->getArgs()["attr"].size() << std::endl;
+		}
 
 		if( event_type == GRIDS_CREATE_ROOM )
 		{
@@ -171,6 +175,7 @@ namespace Grids
 		{			
 			std::cout << "Interface Creating object with id:  " << object_id << std::endl;
 			std::cout << "Interface Creating object in room:  " << evt->getArgs()[ "req" ][ "room_id" ].asString() << std::endl;
+			std::cout << "Args [attr][room_id]:  " << evt->getArgs()[ "attr" ][ "room_id" ].asString() << std::endl;
 						
 			object_controller->createObject( d, &(evt->getArgs() ) );
 		}
@@ -255,7 +260,7 @@ namespace Grids
 
 		(*temp_attr)[ "position_z" ] = 300.0f;
 		
-		(*temp_attr)[ "type" ][ "names" ] = "SimpleCube";
+		(*temp_attr)[ "type" ][ "name" ] = "SimpleCube";
 		
 		(*temp_attr)[ "room_id" ] = d->getMyRoom();
 

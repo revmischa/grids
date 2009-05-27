@@ -58,7 +58,7 @@ namespace Grids
 	
 	void ObjectController::createObject( Kaleidoscope::Device * d, Value * obj_value )
 	{
-		std::cout << "ObjectController Creating object  " << (*obj_value)[ "req" ][ "attr" ][ "type" ][ "name" ].asString() << std::endl;
+		std::cout << "ObjectController Creating object <  " << (*obj_value)[ "req" ][ "attr" ][ "type" ][ "name" ].asString() << " >" << std::endl;
 		
 		//std::string temp_string = "SimpleCube";
 		

@@ -29,7 +29,7 @@ namespace Kaleidoscope
 
 	Device::Device( int screen_width, int screen_height )
 	{
-		DEBUG = 1;
+		DEBUG = 3;
 	  
 		createMutexes(); // This must be called first
 		
@@ -158,6 +158,7 @@ namespace Kaleidoscope
 		// This is not part of SDL, but SDL_net needs to be initiated
 		
 		interface = createInterface( "67.223.239.201" );
+		//interface = createInterface( "happiland.net" );
 
 		if( interface == NULL )
 		  return -1;

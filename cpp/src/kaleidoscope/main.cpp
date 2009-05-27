@@ -54,23 +54,36 @@ int main( int argc, char **argv )
 	//Sets your room.  This should idealy be through grids
 	//main_device->setMyRoom( "62688B92-D3AA-11DD-8EC7-91669DFFFA79" );
 
-	//main_device->getBuilder()->placeRoom( main_device, main_device->getMyRoom() );
+	//main_device->getBuilder()->placeRoom( main_device, main_device->getMyRoom() );ccccc
 
 	//main_device->getBuilder()->buildRoom( main_device, main_device->getMyRoom() );
 	
 	// This is the proper way to create a room, through grids, though at the moment I cannot tell the ID of the room created
+	if( main_device->DEBUG )
+	  std::cout << "Creating Room" << std::endl;
+	
 	main_device->getInterface()->createRoom();
 	
-
-//	main_device->getBuilder()->placeObject( main_device, "torus123", 
-//							  my_room_id, 
-//							  Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f ), 
-//							  Kaleidoscope::Vec3D( 1.0f, 1.0f, 1.0f ), 
-//							  Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f )	);
-//	main_device->getLoader()->load3ds( main_device, loaded_id, "torus.3ds", true );
-
-
+	std::cout << "Creating room";
 	
+	while( main_device->getMyRoom().compare("NULL") == 0 ){
+		sleep(1);
+		std::cout << "."; 
+	}
+	
+	if( main_device->DEBUG > 1 ){
+		std::cout << "Created room:  " << main_device->getMyRoom() << std::endl;
+	}
+	
+	
+	/*main_device->getBuilder()->placeObject( main_device, "torus123", 
+									main_device->getMyRoom(), 
+							  		Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f ), 
+							  		Kaleidoscope::Vec3D( 1.0f, 1.0f, 1.0f ), 
+							  		Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f )	);
+	main_device->getLoader()->load3ds( main_device, "dongs", "../media/torus.3ds", true );
+	*/
+
 	if( main_device->DEBUG )
 	  std::cout << "Creating guitext" << std::endl;
 	
@@ -78,6 +91,10 @@ int main( int argc, char **argv )
 	main_device->getGui()->addText(main_device, Kaleidoscope::Vec3D( 50.0f, 50.0f, 50.0f ), "point < 50, 50, 50 >" );
 	main_device->getGui()->addText(main_device, Kaleidoscope::Vec3D( -50.0f, 0.0f, -50.0f ), "point < -50, 0, -50 >" );
 	
+	if( main_device->DEBUG > 2 ){
+		std::cout << "Creating boxes" << std::endl;
+	}
+
 	main_device->getBuilder()->createRandomBoxes( main_device, main_device->getMyRoom(), 5 );
 
 	if( main_device->DEBUG )

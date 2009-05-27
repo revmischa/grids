@@ -664,6 +664,10 @@ namespace Kaleidoscope
 			temp_box_color[ 2 ] = (rand() % 10000)/10000.0f;
 			temp_box_color[ 3 ] = 0.35f;
 			
+			if( d->DEBUG > 2 ){
+				std::cout << "Builder, requesting cube" << std::endl;
+			}
+
 			inter_cube->requestCreateCube( d, room_id, Vec3D( room_width - (rand() % 10000)/10000.0f * room_width * 2.0f,  
 																									 room_width - (rand() % 10000)/10000.0f * room_width * 2.0f , 
 																									 room_width - (rand() % 10000)/10000.0f * room_width * 2.0f ),
