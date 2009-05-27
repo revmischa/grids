@@ -62,6 +62,15 @@ sub list_objects_in_room {
     return $node->hook_ok(objects => [ keys %$objects ]);
 }
 
+sub object_hook_ok {
+    my ($self, $node, $object, $evt, %args) = @_;
+
+    my $room = get_room($evt)
+        or return $node->hook_error("Invalid room_id");
+
+    return $node->hook_ok(id => $object->id, req => $evt->args, %args);
+}
+
 # args: room_id, [\%attr]
 sub create_object {
     my ($node, $evt) = @_;
@@ -72,7 +81,7 @@ sub create_object {
     my $object = $room->create_object($evt->args->{attr});
     $OBJECTS{$object->id} = $object;
 
-    return $node->hook_ok(id => $object->id);
+    return __PACKAGE__->object_hook_ok($node, $object, $evt);
 }
 
 # args: id, \%new_attr
@@ -90,7 +99,7 @@ sub update_object {
     # for now just replace attr, in future should only update keys that exist in $new_attr
     $obj->attr($new_attr);
 
-    return $node->hook_ok;
+    return __PACKAGE__->object_hook_ok($node, $obj, $evt);
 }
 
 1;
