@@ -243,11 +243,13 @@ namespace Kaleidoscope
 	VoxelSpace * Device::createVoxel()
 	{
 		Grids::GridsID voxel_id = "Voxel1234";
-
-		voxel = new VoxelSpace( voxel_id , room_width*10, room_width*10, room_width*10,
+		
+		// Voxel (id, node_potential = the distance to create mesh from each node,
+		// 		scan area x,y,z,  steps x,y,z
+		voxel = new VoxelSpace( voxel_id, 300.0f, room_width*10, room_width*10, room_width*10,
 							   room_width/2, room_width/2, room_width/2  );
 
-		getBuilder()->placeObject(	this, voxel_id, "Room1",
+		getBuilder()->placeObject(	this, voxel_id, getMyRoom(),
 								  Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f ),
 								  Kaleidoscope::Vec3D( 1.0f, 1.0f, 1.0f ),
 								  Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f )	);

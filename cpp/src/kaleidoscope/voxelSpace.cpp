@@ -29,12 +29,13 @@
 namespace Kaleidoscope 
 {
 		
-	VoxelSpace::VoxelSpace( Grids::GridsID in_id, float ww, float hh, float dd, float xs, float ys, float zs ) 
+	VoxelSpace::VoxelSpace( Grids::GridsID in_id, float pot, float ww, float hh, float dd, float xs, float ys, float zs ) 
 	// ww, hh, dd = the width, height, and depth of the space to analize
 	// xs, ys, zs = the number of steps along each axis
 	
 	{
 		voxel_id = in_id;
+		node_potential = pot;
 		
 		std::vector< int > temp_vector( 2 );
 		std::vector< int > temp_vector_2( 5 );
@@ -177,7 +178,7 @@ namespace Kaleidoscope
 		
 		for( int i = 0; i < node_positions.size(); i++ )
 		{
-			node_potentials.push_back( NODE_POTENTIAL );
+			node_potentials.push_back( node_potential );
 		}
 	}                            
 		

@@ -176,7 +176,7 @@ namespace Grids
 			std::cout << "Interface Creating object with id:  " << object_id << std::endl;
 			std::cout << "Interface Creating object in room:  " << evt->getArgs()[ "req" ][ "room_id" ].asString() << std::endl;
 			std::cout << "Args [attr][room_id]:  " << evt->getArgs()[ "attr" ][ "room_id" ].asString() << std::endl;
-						
+			//object_controller
 			object_controller->createObject( d, &(evt->getArgs() ) );
 		}
 		else if( event_type == GRIDS_UPDATE_OBJECT )

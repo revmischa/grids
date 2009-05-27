@@ -35,7 +35,7 @@ namespace Kaleidoscope {
 		
 	public:
 		
-		VoxelSpace( Grids::GridsID, float ww, float hh, float dd, float xs, float ys, float zs );
+		VoxelSpace( Grids::GridsID, float pot, float ww, float hh, float dd, float xs, float ys, float zs );
 		
 		void setNodes( Device * d );
 		void createPotentials( );
@@ -79,6 +79,7 @@ namespace Kaleidoscope {
 	private:
 		
 		std::vector< float > node_potentials;
+		float node_potential;
 		
 		int vertex_counter;
 		int line_counter;

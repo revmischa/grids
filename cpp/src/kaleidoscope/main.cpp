@@ -76,14 +76,6 @@ int main( int argc, char **argv )
 	}
 	
 	
-	/*main_device->getBuilder()->placeObject( main_device, "torus123", 
-									main_device->getMyRoom(), 
-							  		Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f ), 
-							  		Kaleidoscope::Vec3D( 1.0f, 1.0f, 1.0f ), 
-							  		Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f )	);
-	main_device->getLoader()->load3ds( main_device, "dongs", "../media/torus.3ds", true );
-	*/
-
 	if( main_device->DEBUG )
 	  std::cout << "Creating guitext" << std::endl;
 	
@@ -105,14 +97,25 @@ int main( int argc, char **argv )
 
 	if( main_device->DEBUG )
 	  std::cout << "Created Voxel" << std::endl;
-	
+
+	//////////////////////////////////
+	// IMAGES AND MODEL LOADING STILL BUGGY!
+	/////////////////////////////////////
+
 //	SDL_Surface * temp_image = IMG_Load( "corona.png" );
 //
 //  main_builder->packImage(main_device, "temp_image232", temp_image );
 //
 //	delete temp_image;
 
-	
+//main_device->getBuilder()->placeObject( main_device, "torus123", 
+	//main_device->getMyRoom(), 
+	//					  		Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f ), 
+	//					  		Kaleidoscope::Vec3D( 1.0f, 1.0f, 1.0f ), 
+	//					  		Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f )	);
+	//main_device->getLoader()->load3ds( main_device, "dongs", "../media/torus.3ds", true );
+
+
 	
     // Main rendering loop
     do
