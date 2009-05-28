@@ -58,7 +58,8 @@ namespace Grids
 		void createObject( Kaleidoscope::Device *, Value *); // params, object id
 		
 		void parseUpdate( Kaleidoscope::Device *, Value *);
-		
+   		void parseListRooms(  Kaleidoscope::Device * d, Value *);
+				
 		void requestUpdatePasition( Kaleidoscope::Device *, GridsID, GridsID, Vec3D );
 		void updatePosition( Kaleidoscope::Device *, Value * );
 	

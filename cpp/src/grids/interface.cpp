@@ -140,9 +140,9 @@ namespace Grids
 		proto->sendRequest(e, &m);
 	}
 
-	void Interface::parseEventType(  Event * evt )
+	void Interface::parseEventType(  Event * evt ){
 	// NOTE: This call runs inside of its own thread, started by Grids protocol
-	{
+	
 		std::string event_type = evt->getEventType();
 		Grids::GridsID object_id = evt->getArgs()[ "id" ].asString();
 
@@ -156,10 +156,8 @@ namespace Grids
 			std::cout << "attr size(): " << evt->getArgs()["attr"].size() << std::endl;
 		}
 
-		if( event_type == GRIDS_CREATE_ROOM )
-		{
-			if( d->getMyRoom() == "NULL" )
-			{
+		if( event_type == GRIDS_CREATE_ROOM ){
+			if( d->getMyRoom() == "NULL" ){
 				d->setMyRoom( object_id );
 			}
 			
@@ -171,22 +169,23 @@ namespace Grids
 						
 			//d->getVoxel()->update(d, 3, 0.45f);
 		}
-		else if( event_type == GRIDS_CREATE_OBJECT )
-		{			
+		else if( event_type == GRIDS_CREATE_OBJECT ){			
 			std::cout << "Interface Creating object with id:  " << object_id << std::endl;
 			std::cout << "Interface Creating object in room:  " << evt->getArgs()[ "req" ][ "room_id" ].asString() << std::endl;
 			std::cout << "Args [attr][room_id]:  " << evt->getArgs()[ "attr" ][ "room_id" ].asString() << std::endl;
 			//object_controller
 			object_controller->createObject( d, &(evt->getArgs() ) );
 		}
-		else if( event_type == GRIDS_UPDATE_OBJECT )
-		{
+		else if( event_type == GRIDS_UPDATE_OBJECT ){
 			object_controller->parseUpdate( d, &( evt->getArgs() ) );
+		}
+		else if( event_type == GRIDS_LIST_ROOMS ){
+			std::cout << std::endl << "List Rooms" << std::endl << std::endl;
+			object_controller->parseListRooms( d, &( evt->getArgs() ) );
 		}
 	}
 
-	void Interface::createRoom( )
-	{
+	void Interface::createRoom( ){
 		std::cout << "Attempting to add room" << std::endl;
 
 		Value * temp_type = new Value();
@@ -279,6 +278,26 @@ namespace Grids
 	{
 		
 		
+	}
+
+	void Interface::requestServerRooms( GridsID requesting_room, GridsID requesting_object )
+	{		
+		std::cout << "Requesting server rooms" << std::endl;
+
+		Value * temp_type = new Value();
+		Value * temp_attr = new Value();
+
+		(*temp_attr)["room_id"] = requesting_room;
+		(*temp_attr)["requester"] = requesting_object;
+
+		(*temp_type)["attr"] = (*temp_attr);
+		(*temp_type)["room_id"] = requesting_room;
+		(*temp_type)[ "_method" ] = GRIDS_LIST_ROOMS;
+
+		sendEvent(  GRIDS_LIST_ROOMS, temp_type );
+		
+		delete temp_type;
+
 	}
 	
 	// Update person ( 

@@ -33,6 +33,7 @@
 
 #include <string>
 #include <map>
+#include <vector>
 
 namespace Kaleidoscope
 {
@@ -68,6 +69,7 @@ namespace Grids
 		void setDevice( Kaleidoscope::Device * );
 
 		void createRoom( );
+	    	void requestServerRooms( GridsID, GridsID ); // prams: requesting room, requesting object
 
 		std::string addRoomDebug( Kaleidoscope::Device * );
 	

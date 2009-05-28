@@ -98,6 +98,12 @@ int main( int argc, char **argv )
 	if( main_device->DEBUG )
 	  std::cout << "Created Voxel" << std::endl;
 
+	Kaleidoscope::Utility * main_utility = new Kaleidoscope::Utility();
+
+	main_utility->displayRooms( main_device, main_device->getMyRoom() );
+
+
+
 	//////////////////////////////////
 	// IMAGES AND MODEL LOADING STILL BUGGY!
 	/////////////////////////////////////

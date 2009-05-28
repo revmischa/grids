@@ -47,13 +47,17 @@ namespace Kaleidoscope
 		// Interface generates
 		SimpleCube( );//Device *, GridsID, Vec3D, float, float * );
 	
-		void requestCreateCube( Device *, GridsID, Vec3D, float, float * );
+		void requestCreate( Device *, GridsID, Vec3D, float, float * );
 	
 		void create( Device *, Grids::Value *);
 		
 		float detectSelection( Device *, Vec3D, Vec3D );
 		
 		void selectObject( Device * d );
+
+		void loadPosition( Grids::Value *, Vec3D, Vec3D, Vec3D);
+
+	private:
 		
 			
 	};

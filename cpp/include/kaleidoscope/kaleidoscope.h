@@ -45,6 +45,7 @@
 #include <kaleidoscope/autodesk3dsLoader.h>
 #include <kaleidoscope/voxelSpace.h>
 #include <kaleidoscope/simpleCube.h> 
+#include <kaleidoscope/utility.h>
 
 #include <grids/interface.h>
 #include <grids/define.h>

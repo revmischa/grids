@@ -306,6 +306,7 @@ namespace Kaleidoscope
 		
 		void setMyRoom( Grids::GridsID );
 		Grids::GridsID getMyRoom();
+		std::vector< Grids::GridsID > getKnownRooms();
 		
 		Grids::GridsID temp_box_id;
 

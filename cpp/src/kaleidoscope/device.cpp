@@ -272,6 +272,14 @@ namespace Kaleidoscope
 
 		return temp_room;
 	}
+	
+	// getKnownRooms -- lists all the rooms on the server 
+	// some rooms may be hidden / private...
+	std::vector< Grids::GridsID > Device::getKnownRooms()
+	{
+		//return interface->getServerRooms( getMyRoom() );
+
+	}
 
 	Renderer * Device::getRenderer()
 	{

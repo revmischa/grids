@@ -35,7 +35,7 @@ namespace Kaleidoscope
 	}
 	
 	
-	void SimpleCube::requestCreateCube( Device * d, GridsID cube_room, Vec3D cube_position, float side_length, float * cube_color )
+	void SimpleCube::requestCreate( Device * d, GridsID cube_room, Vec3D cube_position, float side_length, float * cube_color )
 	{
 		Grids::Value * temp_value = new Grids::Value();
 		
@@ -52,19 +52,9 @@ namespace Kaleidoscope
 		
 		(*temp_value)[ "type" ][ "SideLength" ] = side_length;
 		// End all the variables specific to this object type
-		
-		(*temp_value)[ "pos" ][ 0u ] = cube_position.X; // Position
-		(*temp_value)[ "pos" ][ 1u ] = cube_position.Y;
-		(*temp_value)[ "pos" ][ 2u ] = cube_position.Z;
-		
-		(*temp_value)[ "rot" ][ 0u ] = 0.0f; // Rotation
-		(*temp_value)[ "rot" ][ 1u ] = 0.0f;
-		(*temp_value)[ "rot" ][ 2u ] = 0.0f;
-		
-		(*temp_value)[ "scl" ][ 0u ] = 1.0f; // Scale
-		(*temp_value)[ "scl" ][ 1u ] = 1.0f;
-		(*temp_value)[ "scl" ][ 2u ] = 1.0f;
-		
+
+		loadPosition( temp_value, cube_position, Vec3D( 0.0f, 0.0f, 0.0f), Vec3D( 1.0f, 1.0f, 1.0f) );
+				
 		d->getInterface()->getObjectController()->requestCreateObject(d, temp_value );
 	}
 	
@@ -157,6 +147,24 @@ namespace Kaleidoscope
 		std::cout << "selected object -- " << this << std::endl;
 		
 	}
+
+	//Private
+
+	void SimpleCube::loadPosition( Grids::Value * temp_value, Vec3D pos, Vec3D rot, Vec3D scl ){
+		(*temp_value)[ "pos" ][ 0u ] = pos.X; // Position
+		(*temp_value)[ "pos" ][ 1u ] = pos.Y;
+		(*temp_value)[ "pos" ][ 2u ] = pos.Z;
+		
+		(*temp_value)[ "rot" ][ 0u ] = rot.X; // Rotation
+		(*temp_value)[ "rot" ][ 1u ] = rot.Y;
+		(*temp_value)[ "rot" ][ 2u ] = rot.Z;
+		
+		(*temp_value)[ "scl" ][ 0u ] = scl.X; // Scale
+		(*temp_value)[ "scl" ][ 1u ] = scl.Y;
+		(*temp_value)[ "scl" ][ 2u ] = scl.Z;
+	}
+
+
 	
 } // end namespace Kaleidoscope
 

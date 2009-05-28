@@ -14,7 +14,7 @@
 #define GRIDS_CREATE_ROOM "Room.Create" 
 #define GRIDS_CREATE_OBJECT "Room.CreateObject"
 #define GRIDS_UPDATE_OBJECT "Room.UpdateObject"
-
+#define GRIDS_LIST_ROOMS "Room.ListRooms"
 
 namespace Grids {
 	typedef irr::core::vector3df Vec3D;

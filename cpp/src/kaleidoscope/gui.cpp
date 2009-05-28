@@ -631,15 +631,19 @@ namespace Kaleidoscope
 		if( in_string == " add cube" ) 
 		{
 			SimpleCube * temp_cube = new SimpleCube();
+			float room_width = d->getRoomWidth();
 			
 			float temp_color[ 4u ];
-			temp_color[ 0u ] = 1.0f;
-			temp_color[ 1u ] = 0.25f;
-			temp_color[ 2u ] = 0.25f;
-			temp_color[ 3u ] = 0.45f;
+			temp_color[ 0u ] = (rand() % 10000)/10000.0f;
+			temp_color[ 1u ] = (rand() % 10000)/10000.0f;
+			temp_color[ 2u ] = (rand() % 10000)/10000.0f;
+			temp_color[ 3u ] = 0.35f;
 			
 			// Create a cube giving it the device, the room, the position, the size, and the color
-			temp_cube->requestCreateCube(d, d->getMyRoom(), Vec3D( 50.0f, 50.0f, 50.0f), 10.0f, &temp_color[ 0 ] );
+			temp_cube->requestCreate(d, d->getMyRoom(), Vec3D( 	room_width - (rand() % 10000)/10000.0f * room_width * 2.0f, 
+														room_width - (rand() % 10000)/10000.0f * room_width * 2.0f, 
+														room_width - (rand() % 10000)/10000.0f * room_width * 2.0f ), 
+								2.0f, &temp_color[ 0 ] );
 		}
 		
 		if( in_string == " update cube" )

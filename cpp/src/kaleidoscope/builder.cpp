@@ -668,7 +668,7 @@ namespace Kaleidoscope
 				std::cout << "Builder, requesting cube" << std::endl;
 			}
 
-			inter_cube->requestCreateCube( d, room_id, Vec3D( room_width - (rand() % 10000)/10000.0f * room_width * 2.0f,  
+			inter_cube->requestCreate( d, room_id, Vec3D( room_width - (rand() % 10000)/10000.0f * room_width * 2.0f,  
 																									 room_width - (rand() % 10000)/10000.0f * room_width * 2.0f , 
 																									 room_width - (rand() % 10000)/10000.0f * room_width * 2.0f ),
 										  2.0f, &temp_box_color[ 0 ]  );

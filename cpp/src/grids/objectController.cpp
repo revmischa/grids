@@ -36,10 +36,12 @@ namespace Grids
 
 	}
 	
-	ObjectController::~ObjectController( )
-	{
+	ObjectController::~ObjectController( ){
 		// go through all the pointers and delete the objects
-		
+
+		for(std::map< GridsID, Object * >::const_iterator it = id_pointer_hash.begin(); it != id_pointer_hash.end(); ++it){
+			delete it->second;
+		}		
 	}
 	
 
@@ -320,6 +322,10 @@ namespace Grids
 		{
 			return GRIDS_ID_ERROR;
 		}
+	}
+
+	void ObjectController::parseListRooms(  Kaleidoscope::Device * d, Value * in_value ){
+		std::cout << "PARSE ROOM Callback" << std::endl;
 	}
 
 
