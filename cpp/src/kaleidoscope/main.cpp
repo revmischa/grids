@@ -21,6 +21,24 @@
  *
  *
  */
+
+// Some thoughts:
+// I. The builder / objects that request to be created will have to embed within themselves a tagging ID, so that whet the GridsID is returned, Kaleidoscope knows which objects was just created.  In other words, there needs to be some emulation of the ability to do 
+// my_cube = new SimpleCube(), as things are created with requests to the gridsServer.  
+// Opions:
+// 1. is_loaded variable, so my_cube->is_loaded is false until the request is satisfied.
+// 2. Callbacks -- (will this interfere with threading?)
+//
+// II. Should Kaleidoscope object classes even exist?  Selection, physics, etc seems appropriately handeled in GridsObject.  Should Kaleidoscope classes simply exist as "built" / loaded objects.  IE Create an object, then build up the appropriate geometry.
+// Options
+// 1. Visual representation should not have its own class, that is simply loaded
+// 2. Inherently different devices should have their own class
+//    a, Dumb, static objects
+// 	 b, Utility, gets information about the server, etc
+//    c, other 
+//
+// III. There should be a Kaleidoscope::Math namespace, stuff like DistanceToSphereAlongRay should not be in Grids::object.....
+
 		
 
 #include <kaleidoscope/kaleidoscope.h>
@@ -107,10 +125,12 @@ int main( int argc, char **argv )
 	//////////////////////////////////
 	// IMAGES AND MODEL LOADING STILL BUGGY!
 	/////////////////////////////////////
+	std::cout << "Attempting to load image" << std::endl;
+	SDL_Surface * temp_image = IMG_Load( "../media/mario.png" );
+	std::cout << "Loaded image, packing image." << std::endl;
 
-	SDL_Surface * temp_image = IMG_Load( "../../media/mario.png" );
-
-	main_builder->packImage(main_device, "temp_image232", temp_image );
+	main_device->getBuilder()->packImage(main_device, "Temp_id", temp_image );
+	std::cout << "Packed image" << std::endl;
 
 	delete temp_image;
 
