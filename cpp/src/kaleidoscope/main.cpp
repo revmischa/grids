@@ -108,11 +108,11 @@ int main( int argc, char **argv )
 	// IMAGES AND MODEL LOADING STILL BUGGY!
 	/////////////////////////////////////
 
-//	SDL_Surface * temp_image = IMG_Load( "corona.png" );
-//
-//  main_builder->packImage(main_device, "temp_image232", temp_image );
-//
-//	delete temp_image;
+	SDL_Surface * temp_image = IMG_Load( "../../media/mario.png" );
+
+	main_builder->packImage(main_device, "temp_image232", temp_image );
+
+	delete temp_image;
 
 //main_device->getBuilder()->placeObject( main_device, "torus123", 
 	//main_device->getMyRoom(), 

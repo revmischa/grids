@@ -325,7 +325,14 @@ namespace Grids
 	}
 
 	void ObjectController::parseListRooms(  Kaleidoscope::Device * d, Value * in_value ){
-		std::cout << "PARSE ROOM Callback" << std::endl;
+		int test = 0;
+
+		// How the fuck do I access the rooms???
+		//std::string (*in_value)["req"][ "
+	
+		std::cout << std::endl << "PARSE ROOM Callback" << std::endl << std::endl;
+		
+		std::cout << "Rooms = " << test << std::endl;
 	}
 
 
