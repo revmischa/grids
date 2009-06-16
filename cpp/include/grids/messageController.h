@@ -1,5 +1,5 @@
 /*
- *  messenger.cpp
+ *  messengerController.h
  *  grids_view_01
  *
  *  Created by Patrick Tierney on 8/8/08.
@@ -21,32 +21,36 @@
  *
  */
 
-#include <grids/messenger.h>
+#pragma once
 
+#include <grids/interface.h>
+#include <grids/event.h>
+#include <grids/message.h>
+
+#include <vector>
+#include <map>
 
 namespace Grids
 {
+	class Message;
 
-	Messenger::Messenger( )
+	class MessageController
 	{
+		public:
+			MessageController( );
 
-	}
+			void setInterface( Interface * );
+			
+			void sendEvent( std::string, Value );
 
-	void Messenger::giveEvent( Event * evt )
-	// Called when an event is received
-	{
+			void giveEvent( Event * );
 
-	}
+		private:
+			Interface * controller_interface;
 
-	void Messenger::sendEvent( std::string in_type, Value args )
-	{
-		controller->sendEvent( in_type, args );
-	}
+			std::map< std::string, int > uuid_map;
 
-	void Messenger::setController( MessengerController *cont )
-	{
-		controller = cont;
-	}
+			std::vector< Message * >  messages;
+	};
 
 } // end namespace Grids
-

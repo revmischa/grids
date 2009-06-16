@@ -37,19 +37,19 @@ namespace Grids
 {
 	Interface::Interface( Kaleidoscope::Device * in_device, std::string address )
 	{
-		Interface(  in_device, address, new ObjectController(), new PersonController(), new MessengerController() );
+		Interface(  in_device, address, new ObjectController(), new PersonController(), new MessageController() );
 	}
 
-	Interface::Interface( Kaleidoscope::Device * in_device, std::string address, ObjectController * o_c_in, PersonController * p_c_in, MessengerController * m_c_in )
+	Interface::Interface( Kaleidoscope::Device * in_device, std::string address, ObjectController * o_c_in, PersonController * p_c_in, MessageController * m_c_in )
 	{
 		d = in_device;
 		node_address = address;
 		object_controller = o_c_in;
 		person_controller = p_c_in;
-		messenger_controller = m_c_in;
+		message_controller = m_c_in;
 
 		person_controller->setInterface( this );
-		messenger_controller->setInterface( this );
+		message_controller->setInterface( this );
 
 		protocol = new Protocol();
 
@@ -78,8 +78,8 @@ namespace Grids
 		if( person_controller )
 			delete person_controller;
 		
-		if( messenger_controller )
-			delete messenger_controller;
+		if( message_controller )
+			delete message_controller;
 
 		protocol->stopEventLoopThread();
 		protocol->closeConnection();
@@ -309,7 +309,7 @@ namespace Grids
 
 	ObjectController * Interface::getObjectController() { return object_controller; }
 	PersonController * Interface::getPersonController() { return person_controller; }
-	MessengerController * Interface::getMessengerController() { return messenger_controller; }
+	MessageController * Interface::getMessageController() { return message_controller; }
 	
 	void Interface::lock( Kaleidoscope::Device * d )
 	{

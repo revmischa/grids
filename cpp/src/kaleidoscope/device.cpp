@@ -235,7 +235,7 @@ namespace Kaleidoscope
 		interface = new Grids::Interface( this, server_name ,
 										 new Grids::ObjectController(),
 										 new Grids::PersonController(),
-										 new Grids::MessengerController()	);
+										 new Grids::MessageController()	);
 
 		return interface;
 	}

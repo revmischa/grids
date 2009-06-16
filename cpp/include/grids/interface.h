@@ -26,7 +26,7 @@
 #include <grids/define.h>
 #include <grids/objectController.h>
 #include <grids/personController.h>
-#include <grids/messengerController.h>
+#include <grids/messageController.h>
 #include <grids/event.h>
 #include <grids/protocol.h>
 #include <kaleidoscope/device.h>
@@ -45,7 +45,7 @@ namespace Grids
 
 	//typedef void (*gevent_callback_t)(Protocol *, Event *);
 	class ObjectController;
-	class MessengerController;
+	class MessageController;
 	class PersonController;
 
 	class Interface
@@ -54,7 +54,7 @@ namespace Grids
 
 		Interface( Kaleidoscope::Device *, std::string );
 
-		Interface( Kaleidoscope::Device *, std::string, ObjectController *, PersonController *, MessengerController * );
+		Interface( Kaleidoscope::Device *, std::string, ObjectController *, PersonController *, MessageController * );
 
 		~Interface( );
 
@@ -64,7 +64,7 @@ namespace Grids
 
 		ObjectController * getObjectController();
 		PersonController * getPersonController();
-		MessengerController * getMessengerController();
+		MessageController * getMessageController();
 
 		void setDevice( Kaleidoscope::Device * );
 
@@ -90,7 +90,7 @@ namespace Grids
 
 		ObjectController * object_controller;
 		PersonController * person_controller;
-		MessengerController * messenger_controller;
+		MessageController * message_controller;
 
 		Protocol * protocol;
 
