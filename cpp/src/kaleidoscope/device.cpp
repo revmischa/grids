@@ -32,6 +32,10 @@ namespace Kaleidoscope
 		DEBUG = 3;
 	  
 		createMutexes(); // This must be called first
+
+		loadIDFromFile();
+
+		initOtr(); // This has a wacky setup due to c structures
 		
 		cursor_controller = new CursorController( this );
 		renderer = new Renderer( this, screen_width, screen_height );
@@ -41,7 +45,6 @@ namespace Kaleidoscope
 		loader = new Autodesk3dsLoader( );
 		thread_controller = new ThreadController( );
 	
-		loadIDFromFile();
 	
 		voxel = NULL;
 		gui = NULL;
@@ -141,6 +144,12 @@ namespace Kaleidoscope
 
 
 
+	}
+
+	void Device::initOtr()
+	{
+		Grids::otr.otr_device = this;
+		Grids::otr.init();
 	}
   
   
@@ -290,30 +299,16 @@ namespace Kaleidoscope
 
 	}
 
-	OtrlUserState Device::getOtrUserState()
-	{
-		return otr_user_state;
-	}
+	OtrlUserState 		Device::getOtrUserState() { return otr_user_state; }
+	void 			Device::setOtrUserState( OtrlUserState new_state ) { otr_user_state = new_state; }
+	OtrlMessageAppOps* 	Device::getOtrOps() { }
+	std::string 		Device::getKeyFile() { return keyfile; }
+	void 			Device::setKeyFile( std::string new_file ) { keyfile = new_file; }
+	std::string 		Device::getFingerprintFile() { return fprfile; }
+	void 			Device::setFingerprintFile( std::string new_file ) { fprfile = new_file; }
 
-	void Device::setOtrUserState( OtrlUserState new_state )
-	{
-		otr_user_state = new_state;
-	}
-
-	OtrlMessageAppOps * Device::getOtrOps()
-	{
-
-	}
-
-	Renderer * Device::getRenderer()
-	{
-		return renderer;
-	}
-
-	EventController * Device::getEventController()
-	{
-		return event_controller;
-	}
+	Renderer* 		Device::getRenderer() { return renderer; }
+	EventController* 	Device::getEventController() { return event_controller; }
 
 	Camera * Device::getCamera()
 	{

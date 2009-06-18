@@ -40,6 +40,7 @@
 #include <grids/interface.h>
 #include <grids/value.h>
 #include <grids/utility.h>
+#include <grids/otr.h>
 
 #include <SDL/SDL.h>
 
@@ -60,6 +61,7 @@ namespace Grids
 {
 	class Interface;
 	class Utility;
+	class OTR;
 }
 
 
@@ -144,7 +146,13 @@ namespace Kaleidoscope
 		OtrlUserState getOtrUserState();
 		void setOtrUserState( OtrlUserState );
 
-		OtrlMessageAppOps * getOtrOps();
+		OtrlMessageAppOps*  getOtrOps();
+
+		std::string getKeyFile();
+		void setKeyFile( std::string );
+		std::string getFingerprintFile();
+		void setFingerprintFile( std::string );
+
 		
 		//////////////////////////////////
 		// MEMEBERS
@@ -344,6 +352,9 @@ namespace Kaleidoscope
 		Grids::GridsID my_room;
 		Grids::GridsID my_id;
 
+		std::string keyfile;
+		std::string fprfile;
+
 		Renderer * renderer;
 		EventController * event_controller;
 		Camera * cam;
@@ -360,6 +371,8 @@ namespace Kaleidoscope
 		void createMutexes();
 
 		OtrlUserState otr_user_state;
+
+		void initOtr();
 		
 		
 	};

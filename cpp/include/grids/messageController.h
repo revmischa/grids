@@ -33,6 +33,7 @@
 namespace Grids
 {
 	class Message;
+	class Interface;
 
 	class MessageController
 	{

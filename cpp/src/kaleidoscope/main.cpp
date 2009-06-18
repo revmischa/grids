@@ -59,7 +59,7 @@ int main( int argc, char **argv )
 		return -1;
 	}
 
-	Grids::OTR * temp_otr = new Grids::OTR( main_device );
+	Grids::OTR * temp_otr = new Grids::OTR( );
 
 	std::cout << "******  MY ID:  " << main_device->getMyID() << std::endl;
 
