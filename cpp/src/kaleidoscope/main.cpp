@@ -58,8 +58,11 @@ int main( int argc, char **argv )
 		std::cerr << "Could not create device" << std::endl;
 		return -1;
 	}
-		
-	  
+
+	Grids::OTR * temp_otr = new Grids::OTR( main_device );
+
+	std::cout << "******  MY ID:  " << main_device->getMyID() << std::endl;
+
 	if( main_device->DEBUG )
 	  std::cout << "Created device" << std::endl;
 

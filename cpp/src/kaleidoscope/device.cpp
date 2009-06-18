@@ -40,7 +40,9 @@ namespace Kaleidoscope
 		builder = new Builder( );
 		loader = new Autodesk3dsLoader( );
 		thread_controller = new ThreadController( );
-		
+	
+		loadIDFromFile();
+	
 		voxel = NULL;
 		gui = NULL;
 		interface = NULL;
@@ -54,6 +56,8 @@ namespace Kaleidoscope
 		gScreen = NULL;
 		
 		my_room = "NULL";
+
+		otr_user_state = NULL;
 		
 		screen_font = NULL;
 		space_font = NULL;
@@ -257,6 +261,11 @@ namespace Kaleidoscope
 		return voxel;
 	}
 
+	Grids::GridsID Device::getMyID()
+	{
+		return my_id;				
+	}
+
 	void Device::setMyRoom( Grids::GridsID my_id )
 	{
 		lockDevice();
@@ -278,6 +287,21 @@ namespace Kaleidoscope
 	std::vector< Grids::GridsID > Device::getKnownRooms()
 	{
 		//return interface->getServerRooms( getMyRoom() );
+
+	}
+
+	OtrlUserState Device::getOtrUserState()
+	{
+		return otr_user_state;
+	}
+
+	void Device::setOtrUserState( OtrlUserState new_state )
+	{
+		otr_user_state = new_state;
+	}
+
+	OtrlMessageAppOps * Device::getOtrOps()
+	{
 
 	}
 
@@ -448,6 +472,21 @@ namespace Kaleidoscope
 		unlockDevice();
 
 		return temp_room_width;
+	}
+
+	void Device::loadIDFromFile()
+	{
+		std::string temp_id;
+
+		temp_id  = Grids::Utility::readIDFromFile();
+
+		if( temp_id.empty( ) ) {
+			std::cout << "******************************************" << std::endl;
+			std::cout << "No GridsID found in file, create one first" << std::endl;
+			std::cout << "******************************************" << std::endl;
+		}
+
+		my_id = temp_id;
 	}
 
 

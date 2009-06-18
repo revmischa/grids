@@ -39,6 +39,7 @@
 
 #include <grids/interface.h>
 #include <grids/value.h>
+#include <grids/utility.h>
 
 #include <SDL/SDL.h>
 
@@ -47,9 +48,18 @@
 
 #include <SDL_ttf/SDL_ttf.h>
 
+extern "C" {
+
+     #include <libotr/proto.h>
+     #include <libotr/message.h>
+     #include <libotr/privkey.h>
+}
+
+
 namespace Grids
 {
 	class Interface;
+	class Utility;
 }
 
 
@@ -112,11 +122,29 @@ namespace Kaleidoscope
 		
 		void lockWorldHash();
 		void unlockWorldHash();
+
+		Grids::GridsID getMyID();
 				
 		void setRoomWidth( float );
 		float getRoomWidth();
 
 		void addRoom( Room * );
+
+		void setMyRoom( Grids::GridsID );
+		Grids::GridsID getMyRoom();
+		std::vector< Grids::GridsID > getKnownRooms();
+
+		////////////////////////////////////
+		//// OTR Methods
+		///////////////////////////////////
+
+		// Nota Bene : typedef struct s_OtrlUserState* OtrlUserState;
+		// OtrlUserStates are already pointers
+
+		OtrlUserState getOtrUserState();
+		void setOtrUserState( OtrlUserState );
+
+		OtrlMessageAppOps * getOtrOps();
 		
 		//////////////////////////////////
 		// MEMEBERS
@@ -146,9 +174,9 @@ namespace Kaleidoscope
 		std::string temp_room_id;
 
 
-		///////////
+		///////////////////////////////
 		// Camera members
-		//////////
+		/////////////////////////////
 
 		int type;
 
@@ -201,7 +229,7 @@ namespace Kaleidoscope
 		int y_pos; // stores the window's upper right y position
 
 		int current_text_mode;
-		char *text_mode_string[4];
+		char * text_mode_string[4];
 		GLint text_modes[4];
 
 		int texture_id;
@@ -304,17 +332,17 @@ namespace Kaleidoscope
 		SDL_Thread * create_room_debug_thread;
 		SDL_Thread * selection_thread;
 		
-		void setMyRoom( Grids::GridsID );
-		Grids::GridsID getMyRoom();
-		std::vector< Grids::GridsID > getKnownRooms();
 		
 		Grids::GridsID temp_box_id;
 
 	private:
+
+		void loadIDFromFile();
 		
 		SDL_Surface *gScreen;
 		
 		Grids::GridsID my_room;
+		Grids::GridsID my_id;
 
 		Renderer * renderer;
 		EventController * event_controller;
@@ -330,6 +358,8 @@ namespace Kaleidoscope
 		Grids::Interface * interface;
 		
 		void createMutexes();
+
+		OtrlUserState otr_user_state;
 		
 		
 	};

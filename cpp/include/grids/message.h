@@ -27,8 +27,15 @@
  #include <grids/event.h>
  #include <grids/messageController.h>
 
+extern "C" {
 
- namespace Grids
+     #include <libotr/proto.h>
+     #include <libotr/message.h>
+     #include <libotr/privkey.h>
+}
+
+
+namespace Grids
  {
 	class MessageController;
 

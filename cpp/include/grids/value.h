@@ -1,6 +1,6 @@
 #pragma once
 
-#include "grids/define.h"
+#include <grids/define.h>
 
 #include <json/value.h>
 
