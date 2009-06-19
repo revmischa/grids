@@ -53,4 +53,31 @@ namespace Grids
 
 	}
 
+	void MessageController::handleOtrMessage( Kaleidoscope::Device * d, std::string sender, std::string target, std::string message )
+	{
+
+	}
+
+	Value MessageController::convertStringToValue( std::string in_string )
+	{
+
+
+	}
+
+	void MessageController::handleOtrNotify( Kaleidoscope::Device * d, std::string sender, std::string notify_type, std::string primary_notify, std::string secondary_notify )
+	{
+
+
+	}
+
+	void MessageController::handleOtrNewFingerprint( Kaleidoscope::Device * d, std::string sender, std::string fingerprint )
+	{
+
+	}
+
+	void MessageController::handleOtrLog( Kaleidoscope::Device * d, std::string log )
+	{
+
+	}
+
 } // end namespace Grids

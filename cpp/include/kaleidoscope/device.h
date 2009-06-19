@@ -153,6 +153,8 @@ namespace Kaleidoscope
 		std::string getFingerprintFile();
 		void setFingerprintFile( std::string );
 
+		std::string getProtocol();
+
 		
 		//////////////////////////////////
 		// MEMEBERS

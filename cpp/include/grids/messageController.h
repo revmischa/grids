@@ -46,12 +46,27 @@ namespace Grids
 
 			void giveEvent( Event * );
 
+			// Constructs a Message and sends it to the target
+			void handleOtrMessage( Kaleidoscope::Device * d, std::string sender, std::string target, std::string message );
+
+			// Constructs a notify message and sends it to the sender
+			void handleOtrNotify( Kaleidoscope::Device * d, std::string sender, std::string notify_type, std::string primary_notify, std::string secondary_notify );
+
+			// Construct a notify message and sends it the appropriate person
+			void handleOtrNewFingerprint( Kaleidoscope::Device *, std::string sender, std::string fingerprint );
+
+			// Deal with a log message
+			void handleOtrLog( Kaleidoscope::Device * d, std::string log )
+
+
 		private:
 			Interface * controller_interface;
 
 			std::map< std::string, int > uuid_map;
 
 			std::vector< Message * >  messages;
+
+			Value convertStringToValue( std::string );
 	};
 
 } // end namespace Grids
