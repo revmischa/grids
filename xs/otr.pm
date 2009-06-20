@@ -1,4 +1,3 @@
-
 #!/usr/bin/perl
 
 use warnings;
@@ -24,15 +23,18 @@ use Inline C => << 'END_OF_C_CODE';
 #include <string.h>
 
 #define PROTOCOL "Grids"
+#define ACCOUNT "GridsAccount"
 
 char *expandFilename(const char *fname);
 void otrCreatePrivKey( char* account_name, char* protocol );
+ConnContext* otrGetContext( SV* sv_target );
 
 void cSetKeyFile( SV* sv_keyfile );
 void cSetFingerprintFile( SV* sv_fprfile );
 void cSetUserState( SV* sv_userstate );
 void cSetID( SV* sv_id );
-
+SV* cGetUserState();
+SV* cGetID();
 
 ////////////////////////////////////
 //// OTR Struct Functions
@@ -80,6 +82,9 @@ static void       cb_still_secure       (void *opdata, ConnContext *context,
 								 int is_reply);
 static void       cb_log_message        (void *opdata, const char *message);
 static int        cb_max_message_size   (void *opdata, ConnContext *context);
+static char*	   cb_account_name		(void *opdata, const char* account, const char* protocol);
+static void	   cb_account_name_free	(void *opdata, const char* account);		
+
 
 
 static OtrlMessageAppOps otrOps = 
@@ -100,8 +105,8 @@ static OtrlMessageAppOps otrOps =
 		cb_still_secure,
 		cb_log_message,
 		cb_max_message_size,
-		NULL, /*account_name*/
-		NULL  /*account_name_free*/
+		cb_account_name, /*account_name*/
+		cb_account_name_free  /*account_name_free*/
 	};
 
 
@@ -118,6 +123,8 @@ int otrInit( SV * client_id, SV * userstate )
 	char* temp_fingerprintfile;
 	char* my_id = SvPV_nolen( client_id );
 
+	Inline_Stack_Vars;
+	
 	if( SvIV( userstate ) ){
 		return 0;
 	}
@@ -135,7 +142,7 @@ int otrInit( SV * client_id, SV * userstate )
 	temp_fingerprintfile = malloc( (strlen(root) + strlen( my_id) + strlen(".fpr") + 1)*sizeof(char) );
 	sprintf( temp_keyfile, "%s%s.key", root, my_id);
 	sprintf( temp_fingerprintfile, "%s%s.fpr", root, my_id);
-
+	
 	SV* sv_temp_keyfile = newSVpv( temp_keyfile, strlen( temp_keyfile ) + 1 );
 	SV* sv_temp_fingerprintfile = newSVpv( temp_fingerprintfile, strlen( temp_fingerprintfile ) + 1 );
 		
@@ -157,15 +164,76 @@ int otrInit( SV * client_id, SV * userstate )
 }
 
 
+int otrSend(SV* sv_msg, SV* sv_target)
+{
+	int err;
+	int return_val = 0;
+   
+	SV* sv_user_state = cGetUserState();
+	OtrlUserState userstate = SvIV( sv_user_state );
+
+	SV* sv_account_name = cGetID();
+	char* account_name = SvPV_nolen( sv_account_name );
+	
+	char* target = SvPV_nolen( sv_target );
+	
+	char *newmessage = NULL;
+	char *msg;
+	ConnContext * ctx = otrGetContext( sv_target );
+
+	msg = strdup( SvPV_nolen(sv_msg) );
+	
+	err = otrl_message_sending(userstate, &otrOps, NULL, account_name, PROTOCOL, target,
+						  msg, NULL, &newmessage, NULL, NULL);
+	
+	if (err)
+		msg = NULL; /*something went wrong, don't send the plain-message! */
+
+	if (!err && newmessage) {
+		free( msg );
+		msg = strdup(newmessage);
+		otrl_message_free(newmessage);
+		if (cb_policy(NULL, ctx) & OTRL_POLICY_REQUIRE_ENCRYPTION ||
+		    ctx->msgstate == OTRL_MSGSTATE_ENCRYPTED)
+			return_val = 1;
+	}
+	
+	sv_setpv( sv_msg, msg ); // set the correct return message
+
+	return return_val;
+}
+
+// Looks up the context for the target in a global hash (stored on the Perl side
+ConnContext* otrGetContext( SV* sv_target )
+{
+	int null = 0;
+	ConnContext* ctx;
+	char* target = SvPV_nolen( sv_target );
+	
+	SV* sv_account_name = cGetID();
+	char* account_name = SvPV_nolen( sv_account_name );
+
+	SV* perl_userstate = cGetUserState();
+	OtrlUserState userstate = SvIV( perl_userstate );
+
+	ctx = otrl_context_find( userstate, target, account_name, PROTOCOL, 1, &null, NULL, NULL );
+
+	return ctx;
+}
+
+
 void cSetKeyFile( SV* sv_keyfile )
 {
 	Inline_Stack_Vars;
-
+	
+	printf( "Setting %s\n", SvPV_nolen( sv_keyfile ) );
+	
 	PUSHMARK(sp) ; 
 	XPUSHs(sv_2mortal(newSVsv(sv_keyfile))); 
 	PUTBACK; 
-	
+		
 	perl_call_pv( "main::perlSetKeyFile", 0 );
+	Inline_Stack_Void;
 }
 
 SV* cGetKeyFile()
@@ -182,12 +250,13 @@ SV* cGetKeyFile()
 void cSetFingerprintFile( SV* sv_fprfile )
 {
 	Inline_Stack_Vars;
-
+	
 	PUSHMARK( sp );
 	XPUSHs(sv_2mortal(newSVsv(sv_fprfile)));
 	PUTBACK;
 	
 	perl_call_pv( "main::perlSetFingerprintFile", 0 );
+	Inline_Stack_Void;	
 }
 
 SV* cGetFingerprintFile()
@@ -230,7 +299,7 @@ void cSetID( SV* sv_id )
 	PUSHMARK( sp );
 	XPUSHs(sv_2mortal(newSVsv(sv_id)));
 	PUTBACK;
-	
+			
 	perl_call_pv( "main::perlSetID", 0 );
 }
 
@@ -239,7 +308,7 @@ SV* cGetID()
 	Inline_Stack_Vars;
 	
 	perl_call_pv("main::perlGetID", G_SCALAR|G_NOARGS );
-	SPAGAIN;
+	
 	SV* perl_id = POPs;
 	
 	return newSVsv( perl_id );
@@ -451,6 +520,24 @@ static int        cb_max_message_size   (void *opdata, ConnContext *context)
 {
 	return 32768; // A bit of a guess, I don't suppose there's any limit really
 }
+
+/* Return a newly allocated string containing a human-friendly
+ * representation for the given account */
+static char*	   cb_account_name		(void *opdata, const char* account, const char* protocol)
+{
+	SV* perl_account_name = cGetID();
+	char* account_name = SvPV_nolen( perl_account_name );
+
+	return strdup( account_name );
+}
+
+
+static void	   cb_account_name_free	(void *opdata, const char* account)
+{
+	// free perl stuff? I don't know how this is going to work
+}
+
+
 
 
 
