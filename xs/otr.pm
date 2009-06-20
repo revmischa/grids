@@ -29,6 +29,14 @@ char *expandFilename(const char *fname);
 void otrCreatePrivKey( char* account_name, char* protocol );
 ConnContext* otrGetContext( SV* sv_target );
 
+int otrReceive( SV* sv_otr_data, SV* sv_target );
+int otrSend(SV* sv_msg, SV* sv_target);
+
+void cHandleOtrMessage( char* accountname, char* username, char* msg );
+void cHandleOtrInjectMessage( char* accountname, char* protocol, char* recipient, char* msg );
+static void otrMessageDisconnect( ConnContext* ctx );
+
+
 void cSetKeyFile( SV* sv_keyfile );
 void cSetFingerprintFile( SV* sv_fprfile );
 void cSetUserState( SV* sv_userstate );
@@ -166,28 +174,43 @@ int otrInit( SV * client_id, SV * userstate )
 
 int otrSend(SV* sv_msg, SV* sv_target)
 {
+	Inline_Stack_Vars;
+	
 	int err;
 	int return_val = 0;
    
+	printf( "hi\n" ); 
+	
 	SV* sv_user_state = cGetUserState();
 	OtrlUserState userstate = SvIV( sv_user_state );
 
+	printf( "otrSend userstate = %i\n", userstate );
+
 	SV* sv_account_name = cGetID();
 	char* account_name = SvPV_nolen( sv_account_name );
+	
+	printf( "otrSend using account name: %s\n", account_name);
 	
 	char* target = SvPV_nolen( sv_target );
 	
 	char *newmessage = NULL;
 	char *msg;
-	ConnContext * ctx = otrGetContext( sv_target );
+	ConnContext * ctx;
+	ctx = otrGetContext( sv_target );
 
 	msg = strdup( SvPV_nolen(sv_msg) );
+	
+	printf( "otrl sending message: %s\n", msg );
 	
 	err = otrl_message_sending(userstate, &otrOps, NULL, account_name, PROTOCOL, target,
 						  msg, NULL, &newmessage, NULL, NULL);
 	
-	if (err)
+	printf( "msg = %s\nnewmsg = %s\n", msg, newmessage);
+	
+	if (err){
+		free( msg );
 		msg = NULL; /*something went wrong, don't send the plain-message! */
+	}
 
 	if (!err && newmessage) {
 		free( msg );
@@ -199,9 +222,127 @@ int otrSend(SV* sv_msg, SV* sv_target)
 	}
 	
 	sv_setpv( sv_msg, msg ); // set the correct return message
+	
+	if( msg )
+		free( msg );
 
 	return return_val;
 }
+
+
+/*
+ * returns whether a otr_message was received
+ * sets *otr_data to NULL, when it was an internal otr message
+ */
+int otrReceive( SV* sv_otr_data, SV* sv_target )
+{
+	int return_value = 0;
+	int ignore_message;
+	char *newmessage = NULL;
+	OtrlTLV *tlvs = NULL;
+	OtrlTLV *tlv = NULL;
+	ConnContext * ctx;
+	
+	SV* perl_userstate = cGetUserState();
+	OtrlUserState userstate = SvIV( perl_userstate );
+	
+	SV* perl_account = cGetID();
+	char* account = SvPV_nolen( perl_account );
+		
+	char* target = SvPV_nolen( sv_target );
+
+	char* otr_data = strdup( SvPV_nolen( sv_otr_data ) );
+	
+	int free_msg = 0;
+	ignore_message = otrl_message_receiving(userstate, &otrOps, NULL, account,
+									PROTOCOL, target, otr_data, &newmessage, &tlvs, NULL, NULL);
+
+	ctx = otrGetContext( sv_target );
+
+	tlv = otrl_tlv_find(tlvs, OTRL_TLV_DISCONNECTED);
+	if (tlv) {
+		/* Notify the user that the other side disconnected. */
+		if (ctx) {
+			cb_gone_insecure(NULL, ctx);
+			otrDisconnect( sv_target );
+		}
+	}
+
+	otr_handle_smp_tlvs(tlvs, ctx);
+
+	if (tlvs != NULL)
+		otrl_tlv_free(tlvs);
+
+	if (ignore_message)
+		otr_data = NULL;
+
+	if (!ignore_message && newmessage) {
+		free( otr_data );
+		otr_data = strdup(newmessage);
+		otrl_message_free(newmessage);
+		if (ctx->msgstate == OTRL_MSGSTATE_ENCRYPTED)
+			return_value = 1;
+	}
+
+   	sv_setpv( sv_otr_data, otr_data ); // set the correct return message
+	
+	free( otr_data );
+	
+	return return_value;
+}
+
+
+void otrEstablish( SV* target )
+{
+	otrStartstop( target, 1 );
+}
+
+
+void otrDisconnect( SV* target )
+{
+	otrStartstop( target, 0 );
+}
+
+void otrStartstop( SV* target, IV start )
+{
+	char* msg = NULL;
+	ConnContext* ctx = otrGetContext( target );
+	
+	SV* perl_userstate = cGetUserState();
+	OtrlUserState userstate = SvIV( perl_userstate );
+
+	if( !userstate || !ctx )
+		return;
+
+	if( start && ctx->msgstate == OTRL_MSGSTATE_ENCRYPTED )
+		otrMessageDisconnect( ctx );
+
+	if( start ) {
+		OtrlPolicy policy = cb_policy( NULL, ctx );
+		// check policy here to make sure it iss set to encrypted
+			
+		printf( "Injecting OTR message\n" );
+			
+		msg = otrl_proto_default_query_msg( ctx->accountname, policy );
+		cb_inject_message( NULL, ctx->accountname, ctx->protocol, ctx->username, msg );
+	
+		free( msg );
+	}
+	else
+		otrMessageDisconnect( ctx );
+}
+
+static void otrMessageDisconnect( ConnContext* ctx )
+{
+	SV* perl_userstate = cGetUserState();
+	OtrlUserState userstate = SvIV( perl_userstate );
+	
+	if( ctx->msgstate == OTRL_MSGSTATE_ENCRYPTED )
+		cb_gone_insecure( NULL, ctx );
+
+	otrl_message_disconnect( userstate, &otrOps, NULL, ctx->accountname, ctx->protocol, ctx->username );
+}
+
 
 // Looks up the context for the target in a global hash (stored on the Perl side
 ConnContext* otrGetContext( SV* sv_target )
@@ -219,6 +360,12 @@ ConnContext* otrGetContext( SV* sv_target )
 	ctx = otrl_context_find( userstate, target, account_name, PROTOCOL, 1, &null, NULL, NULL );
 
 	return ctx;
+}
+
+
+void otrCreatePrivKey( char* account_name, char* protocol )
+{	  
+	cb_create_privkey( NULL, account_name, protocol );
 }
 
 
@@ -283,12 +430,14 @@ void cSetUserState( SV* sv_userstate )
 
 SV* cGetUserState()
 {
+	
 	Inline_Stack_Vars; // Set up stack shit
 
 	perl_call_pv("main::perlGetUserState", G_SCALAR|G_NOARGS );
 	SPAGAIN; // Adjust stack pointer for new addition
 	SV* perl_user_state = POPs; // Pop it off
 		
+	printf( "Got userstate %i\n", SvIV( perl_user_state ) );
 	return newSVsv( perl_user_state );
 }
 
@@ -315,30 +464,30 @@ SV* cGetID()
 }
 
 
-void otrCreatePrivKey( char* account_name, char* protocol )
-{	  
-	cb_create_privkey( NULL, account_name, protocol );
-}
-
 
 
 void cOtrNotify( char* accountname, char* type, char* primary, char* secondary )
 {
 
-
 }
 
 void cHandleOtrMessage( char* accountname, char* username, char* msg )
 {
-
-
+	printf( "cHandleOtrMessage: ");
+	printf( "%s\n", msg );
 }
 
-cHandleOtrNewFingerprint( char* accountname, char* readable )
+void cHandleOtrNewFingerprint( char* accountname, char* readable )
 {
 
-
 }
+
+void cHandleOtrInjectMessage( char* accountname, char* protocol, char* recipient, char* msg )
+{
+	printf( "cHandleOtrInjectMessage: ");
+	printf( "%s\n", msg );
+}
+
 
 
 /////////////////////////////////////////////////////
@@ -405,7 +554,7 @@ static void       cb_inject_message     (void *opdata, const char *accountname, 
 								 const char *recipient, const char *message)
 {
 	/*I don't know what to put here exactly, sending messages is handled elsewhere. */
-
+	cHandleOtrInjectMessage( accountname, protocol, recipient, message );
 }
 
 
@@ -425,7 +574,6 @@ static void       cb_notify             (void *opdata, OtrlNotifyLevel level, co
 	}
 
 	cOtrNotify(  accountname, type, primary, secondary );
-
 }
 
 /* Display an OTR control message for a particular
@@ -585,6 +733,8 @@ $userstate = 0; # Set the "pointer" to NULL
 $keyfile = "";
 $fingerprintfile = "";
 
+
+
 sub perlGetID {
 	return $client_id;
 }
@@ -595,6 +745,7 @@ sub perlSetID {
 }
 
 sub perlGetUserState {
+	print "Getting userstate of " . $userstate . "\n";
 	return $userstate;
 }
 
@@ -626,7 +777,20 @@ sub perlSetFingerprintFile {
 
 print "loldongs\n";
 
+$message = "Hello world";
+$target = "mrmischa";
 
 otrInit( $client_id, $userstate );
+
+print "Userstate = " . $userstate_a . "\n" ;
+
+otrEstablish( $target );
+
+print "Message start = " . $message . "\n";
+
+#otrSend( $message, $target );
+
+print "Message end = " . $message . "\n";
+
 
 
