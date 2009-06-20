@@ -426,6 +426,7 @@ void cSetUserState( SV* sv_userstate )
 	PUTBACK;
 	
 	perl_call_pv( "main::perlSetUserState", 0 );
+	Inline_Stack_Void;
 }
 
 SV* cGetUserState()
@@ -450,6 +451,7 @@ void cSetID( SV* sv_id )
 	PUTBACK;
 			
 	perl_call_pv( "main::perlSetID", 0 );
+	Inline_Stack_Void;
 }
 
 SV* cGetID()
@@ -464,8 +466,6 @@ SV* cGetID()
 }
 
 
-
-
 void cOtrNotify( char* accountname, char* type, char* primary, char* secondary )
 {
 
@@ -473,19 +473,43 @@ void cOtrNotify( char* accountname, char* type, char* primary, char* secondary )
 
 void cHandleOtrMessage( char* accountname, char* username, char* msg )
 {
-	printf( "cHandleOtrMessage: ");
-	printf( "%s\n", msg );
+	Inline_Stack_Vars;
+
+	printf( "cHandleOtrMessage: \n");
+	printf( "username: %s\naccountname: %s\n%s\n", username, accountname, msg );
+		
+	PUSHMARK( sp );
+	XPUSHs(sv_2mortal(newSVpv( accountname, strlen(accountname) + 1 )));
+	XPUSHs(sv_2mortal(newSVpv( username, strlen( username ) + 1 )));
+	XPUSHs(sv_2mortal(newSVpv( msg, strlen( msg ) + 1)));
+	PUTBACK;
+	
+	perl_call_pv( "main::perlHandleOtrMessage", 0 );
+	Inline_Stack_Void;
+}
+
+void cHandleOtrInjectMessage( char* accountname, char* protocol, char* recipient, char* msg )
+{	
+	Inline_Stack_Vars;
+	
+	printf( "cHandleOtrInjectMessage: \n");
+	printf( "recipient: %s\naccountname: %s\n%sprotocol: %s\n%s\n", recipient, accountname, recipient, msg );
+	
+	PUSHMARK( sp );
+	XPUSHs(sv_2mortal(newSVpv( accountname, strlen(accountname) + 1 )));
+	XPUSHs(sv_2mortal(newSVpv( recipient, strlen( recipient ) + 1 )));
+	XPUSHs(sv_2mortal(newSVpv( recipient, strlen( recipient ) + 1 )));
+	XPUSHs(sv_2mortal(newSVpv( msg, strlen( msg ) + 1)));
+	PUTBACK;
+	
+	perl_call_pv( "main::perlHandleOtrInjectMessage", 0 );
+	Inline_Stack_Void;
+
 }
 
 void cHandleOtrNewFingerprint( char* accountname, char* readable )
 {
 
-}
-
-void cHandleOtrInjectMessage( char* accountname, char* protocol, char* recipient, char* msg )
-{
-	printf( "cHandleOtrInjectMessage: ");
-	printf( "%s\n", msg );
 }
 
 
@@ -512,6 +536,8 @@ static void cb_create_privkey( void *opdata, const char *accountname,
 						 const char *protocol)
 {
 	int key_error;
+	
+	//puts( "cb_create_privkey" );
 	
 	SV* perl_user_state = cGetUserState();	
 	OtrlUserState user_state = SvIV( perl_user_state ); // extract the pointer
@@ -554,6 +580,9 @@ static void       cb_inject_message     (void *opdata, const char *accountname, 
 								 const char *recipient, const char *message)
 {
 	/*I don't know what to put here exactly, sending messages is handled elsewhere. */
+
+Inline_Stack_Vars;
+
 	cHandleOtrInjectMessage( accountname, protocol, recipient, message );
 }
 
@@ -585,6 +614,8 @@ static void       cb_notify             (void *opdata, OtrlNotifyLevel level, co
 static int        cb_display_otr_message(void *opdata, const char *accountname, const char *protocol,
 								 const char *username, const char *msg)
 {
+	Inline_Stack_Vars;
+
 	cHandleOtrMessage( accountname, username, msg );
 
 	return 0;
@@ -602,7 +633,7 @@ static void       cb_update_context_list(void *opdata)
  * for the given protocol id */
 static const char *cb_protocol_name     (void *opdata, const char *protocol)
 {
-	return protocol;
+	return strdup( protocol );
 }
 
 /* Deallocate a string allocated by protocol_name */
@@ -734,7 +765,6 @@ $keyfile = "";
 $fingerprintfile = "";
 
 
-
 sub perlGetID {
 	return $client_id;
 }
@@ -774,6 +804,23 @@ sub perlSetFingerprintFile {
 	$fingerprintfile = $new_file;
 }
 
+# NOTE: Thise two subroutines should call other subroutines that do the actual sending
+
+sub perlHandleOtrMessage {
+	my( $h_accountname, $h_username, $h_msg ) = @_;
+
+	printf( "perlHandleOtrMessage: \n");
+	printf( "username: %s\naccountname: %s\n%s\n", $h_username, $h_accountname, $h_msg );
+}
+
+
+sub perlHandleOtrInjectMessage {
+	my( $h_accountname, $h_recipient, $h_protocol, $h_msg ) = @_;
+
+	printf( "perlHandleOtrInjectMessage: \n");
+	printf( "recipient: %s\naccountname: %s\nprotocol: %s\n%s\n", $h_recipient, $h_accountname, $h_protocol, $h_msg );
+}
+
 
 print "loldongs\n";
 
@@ -782,7 +829,7 @@ $target = "mrmischa";
 
 otrInit( $client_id, $userstate );
 
-print "Userstate = " . $userstate_a . "\n" ;
+print "Userstate = " . $userstate . "\n" ;
 
 otrEstablish( $target );
 
