@@ -17,7 +17,7 @@
 #      perl program.  In short, at present it does not seem possible to reliably incorporate perl threads into the C code.  
 
 # Notes on use
-
+# still in progess
 
 
 use lib "$ENV{HOME}/perllib";
