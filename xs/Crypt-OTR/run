@@ -1,0 +1,1 @@
+clear && make clean && perl Makefile.PL LIB=~/perllib && make && make install

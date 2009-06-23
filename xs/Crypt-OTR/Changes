@@ -1,0 +1,6 @@
+Revision history for Perl extension Crypt::OTR.
+
+0.01  Sun Jun 21 09:19:14 2009
+	- original version; created by h2xs 1.23 with options
+		-P -g -n Crypt::OTR
+

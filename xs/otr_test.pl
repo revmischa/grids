@@ -19,7 +19,7 @@
 # Notes on use
 # still in progess
 
-
+use warnings;
 use lib "$ENV{HOME}/perllib";
 
 use Crypt::OTR;
@@ -28,10 +28,14 @@ package main;
 
 $accountname = $ARGV[0];
 $username = $ARGV[1];
+print "username  " .  $username . "\n";
+
 $write_file = '>' . $accountname . '.txt';
 $read_file = '<' . $username . '.txt';
 $msg_receive = "";
 $msg_receive_out = "lolhi";
+
+print "readfile  " . $read_file . "\n";
 
 
 Crypt::OTR::crypt_otr_set_accountname( $accountname );
@@ -46,19 +50,30 @@ Crypt::OTR::crypt_otr_set_display_cb( "main::perl_notify_error" );
 Crypt::OTR::crypt_otr_set_display_cb( "main::perl_notify_warning" );
 Crypt::OTR::crypt_otr_set_display_cb( "main::perl_notify_info" );
 
+Crypt::OTR::crypt_otr_set_connected_cb( "main::perl_connected" );
+Crypt::OTR::crypt_otr_set_unverified_cb( "main::perl_unverified" );
+
+
 
 
 sub write_to_file {
 	my( $msg ) = @_;
 
+	print "Writing to file $write_file, press any key to continue...\n";
+	print $msg . "\n";
+	<STDIN>;
+	
 	open (MYFILE, $write_file );
 	print MYFILE $msg;
 	close (MYFILE);
 }
 
 sub read_from_file{
-	open( MYFILE, );
+	print "Reading from file $read_file, pressany key to continue...\n";
+	<STDIN>;
 	
+	open( MYFILE, $read_file);
+		
 	@raw_data = <MYFILE>;
 	$big_msg = "";
 	
@@ -66,22 +81,28 @@ sub read_from_file{
 		$big_msg = $big_msg . $line_var;
 	}
 	
-	print "read_from_file \n" . $big_msg . "\n";
-
+	close(MYFILE);
+	
+	print "Read from file $read_file the following, press any key...\n";
+	print  $big_msg . "\n";
+	
+	
+	print "Read end\n";
 	return $big_msg;
 }
-
 
 sub perl_inject_message {
 	my( $actname, $proto, $them, $msg ) = @_;
 	
-	printf( "perl_inject\naccount: %s\nproto: %s\nthem: %s\nmsg: >\n%s\n<\n", $actname, $proto, $them, $msg );
+	printf( "perl_inject\naccount: %s -- proto: %s -- them: %s -- msg: %s\n", $actname, $proto, $them, $msg );
+	
+	write_to_file( $msg );
 }
 
 sub perl_display_message {
 	my( $actname, $proto, $them, $msg ) = @_;
 	
-	printf( "perl_display\naccount: %s\nproto: %s\nthem: %s\nmsg: >\n%s\n<\n", $actname, $proto, $them, $msg );
+	printf( "perl_display -- account: %s -- proto: %s -- them: %s -- msg: %s\n", $actname, $proto, $them, $msg );
 }
 
 sub perl_notify_error {
@@ -102,15 +123,38 @@ sub perl_notify_info {
 	printf( "perl_notify_info\n%s\n%s\n%s\n%s\n%s\n%s\n", $account, $proto, $user, $title, $primary, $secondary );
 }
 
+sub perl_connected {
+	my( $connected_user ) = @_;
+	
+	printf( "**********\nConnection with %s started\n**********\n", $connected_user );
+}
+
+sub perl_unverified {
+	my( $connected_user ) = @_;
+	
+	printf( "**********\nUnverified Connection with %s started\n**********\n", $connected_user );
+}
+
+
+
 
 Crypt::OTR::crypt_otr_init( );
 
 Crypt::OTR::crypt_otr_establish( $username );
 
-
-while( <> ) {
+while( 1 ) {
 	$msg_receive = read_from_file(); 
-	print "While loop before:\n" . $msg_receive . "\n";
+	
+	print "Decrypting the following message, press any key to continue...\n";
+	print $msg_receive . "\n";
+	<STDIN>;
+	
+	#print "While loop before:\n" . $msg_receive . "\n";
 	$msg_receive_out = Crypt::OTR::crypt_otr_process_receiving( $username, $msg_receive );
-	print "while loop after:\n" . $msg_receive_out . "\n";	
+	#print "while loop after:\n" . $msg_receive_out . "\n";	
+	
+	print "Decrypted the following message, press any key to continue...\n";
+	print $msg_receive_out . "\n";
+	<STDIN>;
+	
 }
