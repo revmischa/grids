@@ -1,4 +1,5 @@
 /* An attempt to use perl's threadsafe storage for static data failed */ 
+/* This is how you could implement threading */
 
 /*
 OtrlUserState crypt_otr_get_userstate() { return MY_CXT.userstate; }

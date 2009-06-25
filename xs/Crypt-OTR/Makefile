@@ -6,7 +6,7 @@
 #
 #       ANY CHANGES MADE HERE WILL BE LOST!
 #
-#   MakeMaker ARGV: (q[LIB=/home/lazarus/perllib])
+#   MakeMaker ARGV: ()
 #
 #   MakeMaker Parameters:
 
@@ -78,17 +78,17 @@ PREFIX = /usr
 PERLPREFIX = $(PREFIX)
 SITEPREFIX = $(PREFIX)/local
 VENDORPREFIX = $(PREFIX)
-INSTALLPRIVLIB = /home/lazarus/perllib
+INSTALLPRIVLIB = $(PERLPREFIX)/share/perl/5.10
 DESTINSTALLPRIVLIB = $(DESTDIR)$(INSTALLPRIVLIB)
-INSTALLSITELIB = /home/lazarus/perllib
+INSTALLSITELIB = $(SITEPREFIX)/share/perl/5.10.0
 DESTINSTALLSITELIB = $(DESTDIR)$(INSTALLSITELIB)
-INSTALLVENDORLIB = /home/lazarus/perllib
+INSTALLVENDORLIB = $(VENDORPREFIX)/share/perl5
 DESTINSTALLVENDORLIB = $(DESTDIR)$(INSTALLVENDORLIB)
-INSTALLARCHLIB = /home/lazarus/perllib/i486-linux-gnu-thread-multi
+INSTALLARCHLIB = $(PERLPREFIX)/lib/perl/5.10
 DESTINSTALLARCHLIB = $(DESTDIR)$(INSTALLARCHLIB)
-INSTALLSITEARCH = /home/lazarus/perllib/i486-linux-gnu-thread-multi
+INSTALLSITEARCH = $(SITEPREFIX)/lib/perl/5.10.0
 DESTINSTALLSITEARCH = $(DESTDIR)$(INSTALLSITEARCH)
-INSTALLVENDORARCH = /home/lazarus/perllib/i486-linux-gnu-thread-multi
+INSTALLVENDORARCH = $(VENDORPREFIX)/lib/perl5
 DESTINSTALLVENDORARCH = $(DESTDIR)$(INSTALLVENDORARCH)
 INSTALLBIN = $(PERLPREFIX)/bin
 DESTINSTALLBIN = $(DESTDIR)$(INSTALLBIN)
@@ -313,8 +313,7 @@ CCCMD = $(CC) -c $(PASTHRU_INC) $(INC) \
 
 # --- MakeMaker pasthru section:
 
-PASTHRU = LIB="$(LIB)"\
-	LIBPERL_A="$(LIBPERL_A)"\
+PASTHRU = LIBPERL_A="$(LIBPERL_A)"\
 	LINKTYPE="$(LINKTYPE)"\
 	OPTIMIZE="$(OPTIMIZE)"\
 	PREFIX="$(PREFIX)"\
@@ -668,7 +667,7 @@ distdir : create_distdir distmeta
 
 # --- MakeMaker dist_test section:
 disttest : distdir
-	cd $(DISTVNAME) && $(ABSPERLRUN) Makefile.PL "LIB=/home/lazarus/perllib"
+	cd $(DISTVNAME) && $(ABSPERLRUN) Makefile.PL 
 	cd $(DISTVNAME) && $(MAKE) $(PASTHRU)
 	cd $(DISTVNAME) && $(MAKE) test $(PASTHRU)
 
@@ -855,7 +854,7 @@ $(FIRST_MAKEFILE) : Makefile.PL $(CONFIGDEP)
 	-$(NOECHO) $(RM_F) $(MAKEFILE_OLD)
 	-$(NOECHO) $(MV)   $(FIRST_MAKEFILE) $(MAKEFILE_OLD)
 	- $(MAKE) $(USEMAKEFILE) $(MAKEFILE_OLD) clean $(DEV_NULL)
-	$(PERLRUN) Makefile.PL "LIB=/home/lazarus/perllib"
+	$(PERLRUN) Makefile.PL 
 	$(NOECHO) $(ECHO) "==> Your Makefile has been rebuilt. <=="
 	$(NOECHO) $(ECHO) "==> Please rerun the $(MAKE) command.  <=="
 	false
@@ -876,8 +875,7 @@ $(MAKE_APERL_FILE) : $(FIRST_MAKEFILE) pm_to_blib
 	$(NOECHO) $(PERLRUNINST) \
 		Makefile.PL DIR= \
 		MAKEFILE=$(MAKE_APERL_FILE) LINKTYPE=static \
-		MAKEAPERL=1 NORECURS=1 CCCDLFLAGS= \
-		LIB=/home/lazarus/perllib
+		MAKEAPERL=1 NORECURS=1 CCCDLFLAGS=
 
 
 # --- MakeMaker test section:
