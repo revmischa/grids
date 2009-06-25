@@ -34,7 +34,7 @@ int crypt_otr_init(  )
 	crypt_otr_set_userstate( userstate );
 	printf( "userstate ptr = %i\n", userstate );
 				
-	root = expand_filename( "~/.grids/otr/" );
+	root = expand_filename( crypt_otr_get_root() );
 	
 	temp_keyfile = malloc( (strlen(root) + strlen(accountname) + strlen(".key") + 1)*sizeof(char) ); // +1 for the \0
 	temp_fingerprintfile = malloc( (strlen(root) + strlen( accountname) + strlen(".fpr") + 1)*sizeof(char) );
@@ -72,14 +72,18 @@ void crypt_otr_disconnect( char* username )
 }
 
 
-SV* crypt_otr_process_sending(char* who, char* message )
+SV* crypt_otr_process_sending(char* who, char* sv_message )
 {
 	char* newmessage = NULL;
+	char* message = strdup( sv_message );
 	OtrlUserState userstate = crypt_otr_get_userstate();
 	const char* accountname = crypt_otr_get_accountname();
 	const char* protocol = crypt_otr_get_protocol();
 	char* username = who;
 	int err;
+	
+	printf( "crypt_otr_process_sending enrcypting %s\n%s\n%s\n%i\n", 
+		   message, accountname, username, userstate );
 	
 	if( !who || !message )
 		return sv_2mortal( newSVpv( newmessage, 0 ));
@@ -88,6 +92,8 @@ SV* crypt_otr_process_sending(char* who, char* message )
 						   accountname, protocol, username, 
 						   message, NULL, &newmessage, NULL, NULL);
 
+	puts( "done sending" );
+	
 	if( err && newmessage == NULL ) {
 		/* Be *sure* not to send out plaintext */
 		char* ourm = strdup( "" );
@@ -105,8 +111,13 @@ SV* crypt_otr_process_sending(char* who, char* message )
 									  newmessage, OTRL_FRAGMENT_SEND_ALL_BUT_LAST, message);
 		otrl_message_free(newmessage);
 	}
+	
+	printf( "Finished otrl_sending\n" );
+	printf( "Returning message:\n%s\n", message );
+
+	SV* temp_return = sv_2mortal( newSVpv( message, 0 ));		 
 		
-	return sv_2mortal( newSVpv( message, 0 ));		
+	return temp_return;
 }
 
 

@@ -59,6 +59,9 @@ BOOT:
 	MY_CXT.warning_cb = NULL;
 	MY_CXT.info_cb = NULL;
 	MY_CXT.new_fpr_cb = NULL;
+	
+	crypt_otr_root = "~/.otr/";
+	crypt_otr_max_size = 32000;
 }
 
 
@@ -72,9 +75,7 @@ void
 crypt_otr_disconnect( IN char* perl_username )
 
 SV*
-crypt_otr_process_sending( IN char* perl_username, IN char* perl_message )
-	CODE:
-		RETVAL = 
+crypt_otr_process_sending( IN char* perl_username, IN char* perl_message )	
 	OUTPUT:
 		RETVAL
 
@@ -89,6 +90,9 @@ crypt_otr_set_keyfile( IN char* perl_set )
 
 void 
 crypt_otr_set_fprfile( IN char* perl_set )
+
+void
+crypt_otr_set_root( IN char* perl_set )
 
 void 
 crypt_otr_set_accountname( IN char* perl_set )

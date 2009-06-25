@@ -24,7 +24,11 @@ void crypt_otr_set_max_message_size ( int max_size ) { MY_CXT.max_message_size =
 */
 
 
+
+
+
 OtrlUserState crypt_otr_userstate;
+char* crypt_otr_root;
 char* crypt_otr_keyfile;
 char* crypt_otr_fprfile;
 char* crypt_otr_accountname;
@@ -45,6 +49,7 @@ char* crypt_otr_new_fpr_cb;
 OtrlUserState crypt_otr_get_userstate() { return crypt_otr_userstate; }
 char* crypt_otr_get_keyfile() { return crypt_otr_keyfile; }
 char* crypt_otr_get_fprfile() { return crypt_otr_fprfile; }
+char* crypt_otr_get_root() { return crypt_otr_root; }
 char* crypt_otr_get_accountname() { return crypt_otr_accountname; }
 char* crypt_otr_get_protocol() { return crypt_otr_protocol; }
 unsigned int crypt_otr_get_max_message_size() { return crypt_otr_max_size; }
@@ -64,6 +69,7 @@ char* crypt_otr_get_new_fpr_cb() { return crypt_otr_new_fpr_cb; }
 void crypt_otr_set_userstate( OtrlUserState in_userstate ) { crypt_otr_userstate = in_userstate; }
 void crypt_otr_set_keyfile( char* in_keyfile ) { crypt_otr_keyfile = in_keyfile; }
 void crypt_otr_set_fprfile( char* in_fprfile ) { crypt_otr_fprfile = in_fprfile; }
+void crypt_otr_set_root( char* in_root ) { crypt_otr_root = in_root; }
 void crypt_otr_set_accountname( char* in_accountname ) { crypt_otr_accountname = in_accountname; }
 void crypt_otr_set_protocol( char* in_protocol ) { crypt_otr_protocol = in_protocol; }
 void crypt_otr_set_max_message_size ( int in_max_size ) { crypt_otr_max_size = in_max_size; }
