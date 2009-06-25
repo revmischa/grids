@@ -1,4 +1,4 @@
-
+#!/usr/bin/perl
 
 # Notes on process
 # 1 -- Establish OTR with user, sending any generated inject messages to user
@@ -34,6 +34,8 @@ $write_file = '>' . $accountname . '.txt';
 $read_file = '<' . $username . '.txt';
 $msg_receive = "";
 $msg_receive_out = "lolhi";
+$secure_connection = 1;
+$my_message_send;
 
 print "readfile  " . $read_file . "\n";
 
@@ -41,6 +43,7 @@ print "readfile  " . $read_file . "\n";
 Crypt::OTR::crypt_otr_set_accountname( $accountname );
 Crypt::OTR::crypt_otr_set_protocol( "Grids" );
 Crypt::OTR::crypt_otr_set_max_message_size( 10000 );
+Crypt::OTR::crypt_otr_set_root( "~/.grids/otr/" ); # default is ~/.otr
 
 #These two functions are the most important.  
 Crypt::OTR::crypt_otr_set_inject_cb( "main::perl_inject_message" );
@@ -127,12 +130,16 @@ sub perl_connected {
 	my( $connected_user ) = @_;
 	
 	printf( "**********\nConnection with %s started\n**********\n", $connected_user );
+	
+	$secure_connection = 1;
 }
 
 sub perl_unverified {
 	my( $connected_user ) = @_;
 	
 	printf( "**********\nUnverified Connection with %s started\n**********\n", $connected_user );
+
+	$secure_connection = 1;
 }
 
 
@@ -156,5 +163,16 @@ while( 1 ) {
 	print "Decrypted the following message, press any key to continue...\n";
 	print $msg_receive_out . "\n";
 	<STDIN>;
+	
+	if( $secure_connection > 0) {
+		print "Send  message message, type in message to continue...\n";		
+		$my_message_send = <STDIN>;
+
+		chomp( $my_message_send );
+
+		$my_message_send_encrypt = Crypt::OTR::crypt_otr_process_sending( $username, $my_message_send );
+		
+		write_to_file( $my_message_send_encrypt );
+	}
 	
 }
