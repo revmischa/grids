@@ -47,6 +47,11 @@
 #include <kaleidoscope/simpleCube.h> 
 #include <kaleidoscope/utility.h>
 
+#include <kaleidoscope/entryBox.h>
+#include <kaleidoscope/textBox.h>
+#include <kaleidoscope/image.h>
+#include <kaleidoscope/gui_window.h> /* It's probably best not to call it window.h for win32 compatabilite */
+
 #include <grids/interface.h>
 #include <grids/define.h>
 #include <grids/protocol.h>

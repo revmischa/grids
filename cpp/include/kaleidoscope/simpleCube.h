@@ -39,27 +39,27 @@ namespace Kaleidoscope
 {
 	
 	class SimpleCube : public Grids::Object
-	// makes a cube in the specified room
-	{
-	public:
+		// makes a cube in the specified room
+		{
+		public:
 		
-		// Params: Device, room, position, color_array
-		// Interface generates
-		SimpleCube( );//Device *, GridsID, Vec3D, float, float * );
+			// Params: Device, room, position, color_array
+			// Interface generates
+			SimpleCube( );//Device *, GridsID, Vec3D, float, float * );
 	
-		void requestCreate( Device *, GridsID, Vec3D, float, float * );
+			void requestCreate( Device *, GridsID, Vec3D, float, float * );
 	
-		void create( Device *, Grids::Value *);
+			void create( Device *, Grids::Value *);
 		
-		float detectSelection( Device *, Vec3D, Vec3D );
+			float detectSelection( Device *, Vec3D, Vec3D );
 		
-		void selectObject( Device * d );
+			void selectObject( Device * d );
 
-		void loadPosition( Grids::Value *, Vec3D, Vec3D, Vec3D);
+			void loadPosition( Grids::Value *, Vec3D, Vec3D, Vec3D);
 
-	private:
+		private:
 		
 			
-	};
+		};
 	
 } // end namespace Kaleidoscope

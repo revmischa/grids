@@ -60,7 +60,7 @@ namespace Grids
 		void parseUpdate( Kaleidoscope::Device *, Value *);
    		void parseListRooms(  Kaleidoscope::Device * d, Value *);
 				
-		void requestUpdatePasition( Kaleidoscope::Device *, GridsID, GridsID, Vec3D );
+		void requestUpdatePosition( Kaleidoscope::Device *, GridsID, GridsID, Vec3D );
 		void updatePosition( Kaleidoscope::Device *, Value * );
 	
 		void requestUpdateValue( Kaleidoscope::Device *, Object *, Value *);
@@ -79,6 +79,7 @@ namespace Grids
 		float getDistFromRay( Kaleidoscope::Device *, GridsID, Vec3D, Vec3D );
 		void selectObject( Kaleidoscope::Device *, GridsID );
 
+		std::map< GridsID, Object * > getIdPointerHash();
 	private:
 	
 		void addIdToVector( GridsID );

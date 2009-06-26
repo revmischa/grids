@@ -27,6 +27,7 @@
 #include <grids/objectController.h>
 
 #include <kaleidoscope/device.h>
+#include <kaleidoscope/geo.h>
 
 namespace Kaleidoscope
 {
@@ -50,13 +51,18 @@ namespace Grids
 
 		void setController( ObjectController * );
 	
-		float detectSelection( Kaleidoscope::Device *, Vec3D, Vec3D );
+		static float detectSelection( Kaleidoscope::Device *, GridsID, Vec3D, Vec3D );
 		
 		void selectObject( Kaleidoscope::Device * );
+		
+		/* This should be overloaded for more complex objects (models, etc) */
+		float calculateRadius( Kaleidoscope::Device *, GridsID );
 	
+		/* calculateRadiusFromVertices adds a [ this_id ][ "radius" ] entry to the world value LOCALLY */
 		float calculateRadiusFromVertices( Kaleidoscope::Device *, GridsID );
 	
-		float distanceToSphereAlongRay( Vec3D, Vec3D, Vec3D, float );
+		static void loadPosition( Value* temp_value, Vec3D pos, Vec3D rot, Vec3D scl );
+		static void setRoom( Value*, GridsID );
 
 	private:
 

@@ -103,7 +103,6 @@ namespace Grids
 			object_ids.push_back( obj_id );
 		}
 	}
-		
 	
 	
 	void ObjectController::detectSelection( Kaleidoscope::Device * d, int mouse_x, int mouse_y )
@@ -152,7 +151,8 @@ namespace Grids
 		
 		if( object_name == "SimpleCube" )
 		{
-			return ( (Kaleidoscope::SimpleCube *) id_pointer_hash[ in_id ])->detectSelection( d, ray_pos, ray_target );
+			//return ( (Kaleidoscope::SimpleCube *) id_pointer_hash[ in_id ])->detectSelection( d, ray_pos, ray_target );
+			return Object::detectSelection( d, in_id, ray_pos, ray_target );
 		}
 		
 		return -1.0f;
@@ -179,7 +179,7 @@ namespace Grids
 	}
 	
 	
-	void ObjectController::requestUpdatePasition( Kaleidoscope::Device * d, GridsID obj_id, GridsID room_id, Vec3D new_position )
+	void ObjectController::requestUpdatePosition( Kaleidoscope::Device * d, GridsID obj_id, GridsID room_id, Vec3D new_position )
 	{
 		Value * temp_type = new Value();
 		Value * attr_value = new Value();
@@ -289,7 +289,6 @@ namespace Grids
 			
 			d->unlockWorldHash();
 		}
-		
 	}
 		
 	
@@ -334,7 +333,10 @@ namespace Grids
 		
 		std::cout << "Rooms = " << test << std::endl;
 	}
-
+		
+	std::map< GridsID, Object * > ObjectController::getIdPointerHash() {
+		return id_pointer_hash;
+	}
 
 	
 } // end namespace Grids

@@ -76,7 +76,7 @@ namespace Kaleidoscope
 		void updateText( Device *, int, int, std::string );
 		void appendText( Device *, int, int, std::string );
 	
-		SDL_Surface * createSDLTextSurface( Device *, std::string, TTF_Font * );
+		static SDL_Surface * createSDLTextSurface( Device *, std::string, TTF_Font * );
 		
 		// camX, camY, camZ,  objPosX, Y, Z
 		void billboardSphericalBegin( float, float, float, float, float, float );

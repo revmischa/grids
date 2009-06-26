@@ -68,10 +68,33 @@ namespace Grids
 		
 	}
 	
-	float Object::detectSelection( Kaleidoscope::Device * d, Vec3D ray_position, Vec3D ray_target )
+
+	float Object::detectSelection( Kaleidoscope::Device * d, GridsID object_id, Vec3D ray_position, Vec3D ray_target )
 	{
-		return -1.0f;
+		//Grids::GridsID this_id = d->getInterface()->getObjectController()->getIdFromPointer( this );
+		GridsID this_id = object_id;
+		
+		if( this_id == GRIDS_ID_ERROR )
+		{
+			return -1;
+		}  
+		
+		Vec3D this_position = Vec3D( d->world_hash[ this_id ][ "position" ][ 0u ].asDouble(),
+							    d->world_hash[ this_id ][ "position" ][ 1u ].asDouble(),
+							    d->world_hash[ this_id ][ "position" ][ 2u ].asDouble()	);
+		
+		if( !( d->world_hash[ this_id ][ "radius" ] ) ) // if there is no "radius" entry
+		{
+			// Get the object's pointer, and 
+			Grids::Object* temp_object = (Grids::Object*)(d->getInterface()->getObjectController()->getIdPointerHash())[ object_id ]; 
+			temp_object->calculateRadius( d, this_id );		
+		}
+		
+		return Kaleidoscope::Geo::distanceToSphereAlongRay( ray_position, ray_target, this_position, d->world_hash[ this_id ][ "radius" ].asDouble() );// ray_pos, ray_tar, obj_pos, obj_radius )
+		
+		// detect intersection with radius
 	}
+
 	
 	void Object::selectObject( Kaleidoscope::Device * d )
 	{
@@ -84,6 +107,10 @@ namespace Grids
 		controller = cont ;
 	}
 	
+	float Object::calculateRadius( Kaleidoscope::Device * d, GridsID this_id ){
+		return calculateRadiusFromVertices( d, this_id );
+	}
+	
 	float Object::calculateRadiusFromVertices( Kaleidoscope::Device * d, GridsID this_id )
 	{
 		// calculate the radius by looking at all vertices and the average scale
@@ -93,10 +120,10 @@ namespace Grids
 		Vec3D temp_rad_vec;
 		
 		for( int i = 0; i < d->world_hash[ this_id ][ "vertices" ].size(); i++ )
-		{
-			temp_rad_vec = Vec3D(  d->world_hash[ this_id ][ "vertices" ][ i ][ 0u ].asDouble(),
-								 d->world_hash[ this_id ][ "vertices" ][ i ][ 1u ].asDouble(),
-								 d->world_hash[ this_id ][ "vertices" ][ i ][ 2u ].asDouble()	);
+			{
+				temp_rad_vec = Vec3D(  d->world_hash[ this_id ][ "vertices" ][ i ][ 0u ].asDouble(),
+								   d->world_hash[ this_id ][ "vertices" ][ i ][ 1u ].asDouble(),
+								   d->world_hash[ this_id ][ "vertices" ][ i ][ 2u ].asDouble()	);
 			
 			if( temp_rad_vec.getLength() > radius )
 			{
@@ -109,22 +136,24 @@ namespace Grids
 		return radius;
 	}
 	
-	float Object::distanceToSphereAlongRay( Vec3D ray_pos, Vec3D ray_tar, Vec3D sphere_pos, float sphere_radius )
-	{
-		Vec3D q = sphere_pos - ray_pos;
-		float c = q.getLength();
-		float v = q.dotProduct(ray_tar);
-		float d = sphere_radius * sphere_radius - (c * c - v * v);
+	void Object::loadPosition( Value * temp_value, Vec3D pos, Vec3D rot, Vec3D scl ){
+		(*temp_value)[ "pos" ][ 0u ] = pos.X; // Position
+		(*temp_value)[ "pos" ][ 1u ] = pos.Y;
+		(*temp_value)[ "pos" ][ 2u ] = pos.Z;
 		
-		// If there was no intersection, return -1
-		if (d < 0.0f)
-			return -1;
+		(*temp_value)[ "rot" ][ 0u ] = rot.X; // Rotation
+		(*temp_value)[ "rot" ][ 1u ] = rot.Y;
+		(*temp_value)[ "rot" ][ 2u ] = rot.Z;
 		
-		// Return the distance to the [first] intersecting point
-		return v - (float) sqrt(d);             
-		
-		
+		(*temp_value)[ "scl" ][ 0u ] = scl.X; // Scale
+		(*temp_value)[ "scl" ][ 1u ] = scl.Y;
+		(*temp_value)[ "scl" ][ 2u ] = scl.Z;
 	}
+
+	void Object::setRoom( Value* temp_value, GridsID in_room ){
+		(*temp_value)[ "room_id" ] = in_room;
+	}
+
 
 
 

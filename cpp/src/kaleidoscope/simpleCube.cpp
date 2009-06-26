@@ -129,7 +129,7 @@ namespace Kaleidoscope
 			calculateRadiusFromVertices( d, this_id );
 		}
 		
-		return distanceToSphereAlongRay( ray_position, ray_target, this_position, d->world_hash[ this_id ][ "radius" ].asDouble() );// ray_pos, ray_tar, obj_pos, obj_radius )
+		return Geo::distanceToSphereAlongRay( ray_position, ray_target, this_position, d->world_hash[ this_id ][ "radius" ].asDouble() );// ray_pos, ray_tar, obj_pos, obj_radius )
 		
 		// detect intersection with radius
 	}

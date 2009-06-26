@@ -35,10 +35,8 @@
 
 namespace Kaleidoscope
 {
-
 	Gui::Gui( Device * d )
 	{
-				
 		TTF_Init();
 		
 		if( d->DEBUG )
@@ -61,26 +59,14 @@ namespace Kaleidoscope
 
 		glGenTextures( 1, &(d->texture) );
 	}
-
+	
+	////// DEPRECATED
 	void Gui::drawGui( Device * d )
 	{
 		// But, for fun, let's make the text partially transparent too.
 		glColor4f(0.6,1.0,0.6,.75);
 
-		// Load a string into a buffer, and then print the buffer
-
 		glRasterPos2i(2,2);
-		// *** PRINT BUFFER
-
-		// Now we want to render the calulated FPS at the top.
-
-		// To ease, simply translate up.  Note we're working in screen
-		// pixels in this projection.
-
-		//glTranslatef(0.0f, d->height , 0.0f);
-
-		// Make sure we can read the FPS section by first placing a
-		// dark, mostly opaque backdrop rectangle.
 		irr::core::rect<int> temp_rect = irr::core::rect<int>( 0, 0, d->width / 8, d->height / 8 );
 
 		drawRect( temp_rect );
@@ -101,7 +87,6 @@ namespace Kaleidoscope
 		drawScreenText( d );
 		finishText( d );
 	}
-
 
 	void Gui::drawScreenText( Device * d )
 	{
@@ -144,11 +129,7 @@ namespace Kaleidoscope
 
 			glPopMatrix();
 		} // end for screen texts
-
-
-
 	}
-
 
 	void Gui::drawSpaceText( Device * d )
 	// This text floats in 3D space, though always faces the camera.  Billboarded text.
@@ -218,12 +199,8 @@ namespace Kaleidoscope
 
 			billboardEnd();
 
-
 			glPopMatrix();
-
-
 		} // end for screen texts
-
 	}
 
 	void Gui::prepareSpaceText( )
@@ -242,7 +219,6 @@ namespace Kaleidoscope
 	{
 		glPopMatrix();
 	}
-
 
 	void Gui::billboardSphericalBegin(	float camX, float camY, float camZ,
 									float objPosX, float objPosY, float objPosZ)
@@ -281,7 +257,6 @@ namespace Kaleidoscope
 			glRotatef( acos(angleCosine)*180/irr::core::PI, upAuxVec.X, upAuxVec.Y, upAuxVec.Z );
 		}
 
-
 		// so far it is just like the cylindrical billboard. The code for the
 		// second rotation comes now
 		// The second part tilts the object so that it faces the camera
@@ -315,8 +290,6 @@ namespace Kaleidoscope
 				glRotatef(acos(angleCosine)*180/irr::core::PI,-1,0,0);
 			}
 		}
-
-
 	}
 
 	void Gui::billboardEnd()
@@ -399,7 +372,6 @@ namespace Kaleidoscope
 		}
 	}
 
-
 	void Gui::drawRect( irr::core::rect< int > in_rect )
 	{
 		float rect_color[] = { 0.2, 0.2, 0.2, 0.75 };
@@ -480,8 +452,6 @@ namespace Kaleidoscope
 		return new_index;
 	}
 
-
-
 	int Gui::addText( Device * d, Vec3D text_position, std::string text_string )
 	{
 		int new_index = d->space_texts.size();
@@ -501,7 +471,6 @@ namespace Kaleidoscope
 
 		return new_index;
 	}
-
 
 	SDL_Surface * Gui::createSDLTextSurface( Device * d, std::string in_string, TTF_Font * in_font )
 	{
@@ -648,7 +617,7 @@ namespace Kaleidoscope
 		
 		if( in_string == " update cube" )
 		{
-		   d->getInterface()->getObjectController()->requestUpdatePasition(d, d->temp_box_id, d->getMyRoom(), Vec3D( -50.0f, -50.0f, -50.0f ) );
+		   d->getInterface()->getObjectController()->requestUpdatePosition(d, d->temp_box_id, d->getMyRoom(), Vec3D( -50.0f, -50.0f, -50.0f ) );
 		   
 		}
 		
@@ -662,11 +631,7 @@ namespace Kaleidoscope
 		{
 			d->getThreadController()->createRoomDebugThreaded( d );
 		}
-		
 	}
-	
-	
-		
 
 	void Gui::removeLastCharacter( Device * d, int text_type, int text_id )
 	{
@@ -684,7 +649,6 @@ namespace Kaleidoscope
 
 		if( text_type == 1u )
 		{
-
 			SDL_Surface * temp_surface = createSDLTextSurface( d, d->text_hash[ text_type ][ text_id ][ "text" ].asString(), d->screen_font );
 
 			d->text_hash[ 1u ][ text_id ][ "x" ] = temp_surface->w;
@@ -694,7 +658,6 @@ namespace Kaleidoscope
 
 			d->screen_texts[ text_id ] = temp_surface;
 		}
-
 	}
 
 	void Gui::clearText( Device * d, int text_type, int text_id )

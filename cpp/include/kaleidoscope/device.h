@@ -315,6 +315,8 @@ namespace Kaleidoscope
 	
 		GLuint texture;
 	
+		std::map< Grids::GridsID, SDL_mutex* > text_box_suface_mutexes;
+	
 	
 		///////////////
 		//  Multithreading Variables

@@ -56,7 +56,7 @@ namespace Grids
 			void handleOtrNewFingerprint( Kaleidoscope::Device *, std::string sender, std::string fingerprint );
 
 			// Deal with a log message
-			void handleOtrLog( Kaleidoscope::Device * d, std::string log )
+			void handleOtrLog( Kaleidoscope::Device * d, std::string log );
 
 
 		private:

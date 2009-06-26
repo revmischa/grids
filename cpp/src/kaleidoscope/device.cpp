@@ -26,7 +26,6 @@
 
 namespace Kaleidoscope
 {
-
 	Device::Device( int screen_width, int screen_height )
 	{
 		DEBUG = 3;
@@ -66,8 +65,6 @@ namespace Kaleidoscope
 		space_font = NULL;
 
 		initSDL();
-		
-		
 	}
 
 	Device::~Device( )
@@ -141,16 +138,13 @@ namespace Kaleidoscope
 
 		if( world_hash_mutex )
 			SDL_DestroyMutex( world_hash_mutex );
-
-
-
 	}
 
 	void Device::initOtr()
 	{
-		Grids::otr.otr_device = this;
+		//Grids::otr.otr_device = this;
 		otr_user_state = NULL;
-		Grids::otr.init();
+		//Grids::otr.init();
 	}
   
   
@@ -181,7 +175,6 @@ namespace Kaleidoscope
 		  std::cout << "Connected to server, continuing to init SDL" << std::endl;
 		  }
 		}
-
 
 		// Don't set color bit sizes (SDL_GL_RED_SIZE, etc)
 		//    Mac OS X will always use 8-8-8-8 ARGB for 32-bit screens and
@@ -234,7 +227,6 @@ namespace Kaleidoscope
 		}
 
 		getRenderer()->renderAll( this );
-
 	}
 
 	Gui * Device::createGui( )
@@ -307,7 +299,7 @@ namespace Kaleidoscope
 	void 			Device::setKeyFile( std::string new_file ) { keyfile = new_file; }
 	std::string 		Device::getFingerprintFile() { return fprfile; }
 	void 			Device::setFingerprintFile( std::string new_file ) { fprfile = new_file; }
-	std::string 		Device::getPrococol() { return "Grids"; }
+	std::string 		Device::getProtocol() { return "Grids"; }
 
 
 	Renderer* 		Device::getRenderer() { return renderer; }
