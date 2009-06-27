@@ -51,8 +51,8 @@ Crypt::OTR - Do Off-The-Record message encryption
 
     # create OTR object, set up callbacks
     my $otr = new Crypt::OTR(
-        account_name => "crypt_otr_user",    # name of account associated with this keypair
-        protocol_name => "my_protocol_name", # e.g. 'AIM'
+        account_name     => "alice",    # name of account associated with this keypair
+        protocol_name    => "my_protocol_name", # e.g. 'AIM'
         max_message_size => 1024,            # how much to fragment
     );
     $otr->set_callback('inject' => \&otr_inject);
@@ -60,9 +60,26 @@ Crypt::OTR - Do Off-The-Record message encryption
     $otr->set_callback('connect' => \&otr_connect);
     $otr->set_callback('display' => \&otr_display);
 
-    # create a context for user "alice"
-    $otr->establish("alice");  # calls otr_inject($account_name, $protocol, $dest_account, $message)
+    # create a context for user "bob"
+    $otr->establish("bob");  # calls otr_inject($account_name, $protocol, $dest_account, $message)
 
+    # send a message to bob
+    my $plaintext = "hello, bob! this is a message from alice";
+    if (my $ciphertext = $otr->encrypt("bob", $plaintext)) {
+        $my_app->send_message_to_user("bob", $ciphertext);
+    } else {
+        warn "Your message was not sent - no encrypted conversation is established\n";
+    }
+
+    # called from bob's end
+    if (my $plaintext = $otr->decrypt("alice", $ciphertext)) {
+        print "alice: $plaintext\n";
+    } else {
+        warn "We received an encrypted message from alice but were unable to decrypt it\n";
+    }
+
+    # done with chats
+    $otr->disconnect("bob");
     
     # CALLBACKS 
     #  (if writing a multithreaded application you will
