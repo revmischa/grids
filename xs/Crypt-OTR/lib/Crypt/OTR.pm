@@ -5,27 +5,7 @@ use strict;
 use warnings;
 use Carp;
 
-require Exporter;
 use AutoLoader;
-
-our @ISA = qw(Exporter);
-
-# Items to export into callers namespace by default. Note: do not export
-# names by default without a very good reason. Use EXPORT_OK instead.
-# Do not simply export all your public functions/methods/constants.
-
-# This allows declaration	use Crypt::OTR ':all';
-# If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
-# will save memory.
-our %EXPORT_TAGS = ( 'all' => [ qw(
-	
-) ] );
-
-our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
-
-our @EXPORT = qw(
-	
-);
 
 our $VERSION = '0.01';
 
@@ -55,9 +35,132 @@ sub AUTOLOAD {
 require XSLoader;
 XSLoader::load('Crypt::OTR', $VERSION);
 
-# Preloaded methods go here.
+#########################
 
-# Autoload methods go after __END__, and are processed by the autosplit program.
+=head1 NAME
+
+Crypt::OTR - Do Off-The-Record message encryption
+
+=head1 SYNOPSIS
+
+    use Crypt::OTR;
+    
+    # call near the beginning of your program, should only be one per
+    # process
+    Crypt::OTR->init;
+
+    # create OTR object, set up callbacks
+    my $otr = new Crypt::OTR(
+        account_name => "crypt_otr_user",    # name of account associated with this keypair
+        protocol_name => "my_protocol_name", # e.g. 'AIM'
+        max_message_size => 1024,            # how much to fragment
+    );
+    $otr->set_callback('inject' => \&otr_inject);
+    $otr->set_callback('display' => \&otr_display);
+    $otr->set_callback('connect' => \&otr_connect);
+    $otr->set_callback('display' => \&otr_display);
+
+    # create a context for user "alice"
+    $otr->establish("alice");  # calls otr_inject($account_name, $protocol, $dest_account, $message)
+
+    
+    # CALLBACKS 
+    #  (if writing a multithreaded application you will
+    #   probably want to lock a mutex when sending/receiving)
+
+    # called when OTR is ready to send a message after massaging it.
+    # this method should transmit $message over a socket or somesuch
+    sub otr_inject {
+        my ($self, $account_name, $protocol, $dest_account, $message) = @_;
+        $my_app->send_message_to_user($dest_account, $message);
+    }
+
+    # called after OTR has massaged an incoming message, possibly decrypting it
+    sub otr_display {
+        my ($self, $account_name, $protocol, $from_account, $message) = @_;
+        $my_app->display_message($from_account, $message);
+    }
+
+    # called when a verified conversation is established with $from_account
+    sub connect {
+        my ($self, $from_account) = @_;
+        print "Started verified conversation with $from_account\n";
+    }
+
+    # called when an unverified conversation is established with $from_account
+    sub connect {
+        my ($self, $from_account) = @_;
+        print "Started unverified conversation with $from_account\n";
+    }
+
+
+=head1 DESCRIPTION
+
+Perl wrapper around libotr2 - see
+http://www.cypherpunks.ca/otr/README-libotr-3.2.0.txt
+
+=head2 EXPORT
+
+None by default.
+
+=head1 METHODS
+
+=over 4
+
+
+=item init()
+
+This method sets up OTR and initializes the global OTR context. It is
+probably unsafe to call this more than once
+
+=cut
+
+sub init {
+    crypt_otr_init();
+}
+
+
+=item new (%opts)
+
+Options:
+ 'account_name'     => name of the account in your application
+ 'protocol_name'    => string identifying your application
+ 'max_message_size' => how many bytes messages should be fragmented into
+
+=cut
+
+sub new {
+    my ($class, %opts) = @_;
+
+    my $self = {
+
+    };
+
+    return bless $self, $class;
+}
+
+
+
+
+=head1 SEE ALSO
+
+http://www.cypherpunks.ca/otr
+
+=head1 AUTHOR
+
+Patrick Tierney, E<lt>patrick.l.tierney@gmail.comE<gt>
+Mischa Spiegelmock, E<lt>mspiegelmock@gmail.comE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2009 by Patrick Tierney, Mischa Spiegelmock
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.8.8 or,
+at your option, any later version of Perl 5 you may have available.
+
+=cut
+
 
 1;
 __END__
