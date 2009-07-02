@@ -23,14 +23,17 @@
 
 #include <grids/object.h>
 
+#include <grids/event.h>
+#include <grids/objectController.h>
+
+#include <kaleidoscope/device.h>
+#include <kaleidoscope/geo.h>
+
 
 namespace Grids
 {
-
-
-	Object::Object( )
-	{
-
+	Object::Object( Kal::Device* d, Value* in_val ){
+		d->getInterface()->getObjectController()->registerObject( (*in_val)[ "id" ].asString(), this );
 	}
 
 	void Object::requestUpdatePosition( Kaleidoscope::Device * d, Vec3D in_pos, Vec3D in_rot, Vec3D in_scl )
@@ -39,17 +42,7 @@ namespace Grids
 		Value * temp_value = new Value();
 		// generate actual value
 		
-		(*temp_value)[ "position" ][ 0u ] = in_pos.X;
-		(*temp_value)[ "position" ][ 1u ] = in_pos.Y;
-		(*temp_value)[ "position" ][ 2u ] = in_pos.Z;
-		
-		(*temp_value)[ "rotation" ][ 0u ] = in_rot.X;
-		(*temp_value)[ "rotation" ][ 1u ] = in_rot.Y;
-		(*temp_value)[ "rotation" ][ 2u ] = in_rot.Z;
-		
-		(*temp_value)[ "scale" ][ 0u ] = in_scl.X;
-		(*temp_value)[ "scale" ][ 1u ] = in_scl.Y;
-		(*temp_value)[ "scale" ][ 2u ] = in_scl.Z;
+		loadPosition( temp_value, in_pos, in_rot, in_scl );
 		
 		d->getInterface()->getObjectController()->requestUpdateValue(d, this,  temp_value );
 		
@@ -63,10 +56,7 @@ namespace Grids
 		//d->getInterface()->getObjectController()->updateValue( d, this, in_value );
 	}
 	
-	void Object::create( Kaleidoscope::Device * d, Value in_value )
-	{
-		
-	}
+	//fvoid Object::create( Kaleidoscope::Device * d, Value in_value )
 	
 
 	float Object::detectSelection( Kaleidoscope::Device * d, GridsID object_id, Vec3D ray_position, Vec3D ray_target )
@@ -152,6 +142,34 @@ namespace Grids
 
 	void Object::setRoom( Value* temp_value, GridsID in_room ){
 		(*temp_value)[ "room_id" ] = in_room;
+	}
+	
+	GridsID Object::getID( Kal::Device* d ){		
+		return d->getInterface()->getObjectController()->getIdFromPointer( this );
+	}
+	
+	GridsID Object::getID( ){
+		return this_id;
+	}
+	
+	void Object::setID( GridsID new_id ){
+		this_id = new_id;
+	}
+	
+	GridsID Object::getRoomID(){
+		return room_id;
+	}
+
+	void Object::setRoomID( GridsID new_room ){
+		room_id = new_room;
+	}
+	
+	Value* Object::getAttr( Value* in_value ){
+		return new Value( (*in_value)[ "req" ][ "attr" ] );	
+	}
+
+	std::string Object::getNameFromValue( Value* in_val ){
+		return (*in_val)[ "req" ][ "attr" ][ "type" ][ "name" ].asString();
 	}
 
 

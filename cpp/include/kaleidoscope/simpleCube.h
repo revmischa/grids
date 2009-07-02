@@ -24,10 +24,10 @@
 
 #pragma once
 
-#include <kaleidoscope/device.h>
-
 #include <grids/interface.h>
 #include <grids/object.h>
+
+#include <sstream>
 
 namespace Grids
 {
@@ -45,9 +45,9 @@ namespace Kaleidoscope
 		
 			// Params: Device, room, position, color_array
 			// Interface generates
-			SimpleCube( );//Device *, GridsID, Vec3D, float, float * );
+			SimpleCube( Device*, Grids::Value* );//Device *, GridsID, Vec3D, float, float * );
 	
-			void requestCreate( Device *, GridsID, Vec3D, float, float * );
+			static void requestCreate( Device *, GridsID, Vec3D, float, float * );
 	
 			void create( Device *, Grids::Value *);
 		
@@ -55,7 +55,7 @@ namespace Kaleidoscope
 		
 			void selectObject( Device * d );
 
-			void loadPosition( Grids::Value *, Vec3D, Vec3D, Vec3D);
+			static void loadPosition( Grids::Value *, Vec3D, Vec3D, Vec3D);
 
 		private:
 		

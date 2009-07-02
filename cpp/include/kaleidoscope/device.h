@@ -25,12 +25,14 @@
 
 #pragma once
 
+#include <kaleidoscope/define.h> 
 #include <kaleidoscope/renderer.h>
 #include <kaleidoscope/eventController.h>
 #include <kaleidoscope/camera.h>
 #include <kaleidoscope/cursorController.h>
 #include <kaleidoscope/room.h>
 #include <kaleidoscope/builder.h>
+#include <kaleidoscope/guiItem.h>
 #include <kaleidoscope/gui.h>
 #include <kaleidoscope/RenderObject.h>
 #include <kaleidoscope/autodesk3dsLoader.h>
@@ -79,6 +81,8 @@ namespace Kaleidoscope
 	class VoxelSpace;
 	class ThreadController;
 	class Autodesk3dsLoader;
+	class GuiItem;
+
 
 	class Device
 	{
@@ -306,7 +310,7 @@ namespace Kaleidoscope
 		std::vector< SDL_Surface * > space_texts;
 	
 		SDL_Surface * loaded_image;
-		
+				
 		//int screen_font;
 		//int space_font;
 		TTF_Font * screen_font;
@@ -316,6 +320,7 @@ namespace Kaleidoscope
 		GLuint texture;
 	
 		std::map< Grids::GridsID, SDL_mutex* > text_box_suface_mutexes;
+		std::map< Grids::GridsID, SDL_Surface* > text_box_surfaces;
 	
 	
 		///////////////
@@ -373,6 +378,9 @@ namespace Kaleidoscope
 		Grids::Interface * interface;
 		
 		void createMutexes();
+
+		void deleteSDLTextSurfaces();
+		void deleteSDLFonts();
 
 		OtrlUserState otr_user_state;
 

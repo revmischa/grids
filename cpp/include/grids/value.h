@@ -5,7 +5,7 @@
 #include <json/value.h>
 
 namespace Grids {
-    class Value : public Json::Value {
-
-    };
+	//class Value : public Json::Value {
+	//};
+		
 }

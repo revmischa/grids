@@ -652,7 +652,7 @@ namespace Kaleidoscope
 	
 	void Builder::createRandomBoxes( Device * d, Grids::GridsID room_id, int num_boxes )
 	{
-		SimpleCube * inter_cube = new SimpleCube( );
+		
 		float temp_box_color[ 4 ];
 		
 		float room_width = d->getRoomWidth();
@@ -668,13 +668,13 @@ namespace Kaleidoscope
 				std::cout << "Builder, requesting cube" << std::endl;
 			}
 
-			inter_cube->requestCreate( d, room_id, Vec3D( room_width - (rand() % 10000)/10000.0f * room_width * 2.0f,  
+			SimpleCube::requestCreate( d, room_id, Vec3D( room_width - (rand() % 10000)/10000.0f * room_width * 2.0f,  
 																									 room_width - (rand() % 10000)/10000.0f * room_width * 2.0f , 
 																									 room_width - (rand() % 10000)/10000.0f * room_width * 2.0f ),
 										  2.0f, &temp_box_color[ 0 ]  );
 		}
 		
-		delete inter_cube;
+		
 	}
 	
 	

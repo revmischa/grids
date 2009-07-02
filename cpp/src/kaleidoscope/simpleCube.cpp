@@ -22,12 +22,14 @@
  */
 
 #include <kaleidoscope/simpleCube.h>
-#include <sstream>
+
+#include <kaleidoscope/device.h>
+#include <kaleidoscope/geo.h>
 
 namespace Kaleidoscope
 {
 	
-	SimpleCube::SimpleCube( ) // Device * d, GridsID cube_room, Vec3D cube_position, float side_length, float * cube_color )
+	SimpleCube::SimpleCube( Device* d, Grids::Value* in_val ) : Object( d, in_val ) // Device * d, GridsID cube_room, Vec3D cube_position, float side_length, float * cube_color )
 	{
 		// Notify grids that we're making an object, etc.
 		// requestCreateCube( d, cube_room, cube_position, side_length, cube_color );

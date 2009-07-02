@@ -59,18 +59,18 @@ int main( int argc, char **argv )
 		return -1;
 	}
 
-	Grids::OTR * temp_otr = new Grids::OTR( );
+	//Grids::OTR * temp_otr = new Grids::OTR( );
 
 	std::cout << "******  MY ID:  " << main_device->getMyID() << std::endl;
 
 	if( main_device->DEBUG )
-	  std::cout << "Created device" << std::endl;
+		std::cout << "Created device" << std::endl;
 
 	main_device->setRoomWidth( ROOM_SIZE ); // How wide the rooms are, I as of yet dont know the exact "scale"
-										// of grids
+	// of grids
 	
 	if( main_device->DEBUG )
-	  std::cout << "Set room width" << std::endl;
+		std::cout << "Set room width" << std::endl;
 		
 	//Sets your room.  This should idealy be through grids
 	//main_device->setMyRoom( "62688B92-D3AA-11DD-8EC7-91669DFFFA79" );
@@ -81,7 +81,7 @@ int main( int argc, char **argv )
 	
 	// This is the proper way to create a room, through grids, though at the moment I cannot tell the ID of the room created
 	if( main_device->DEBUG )
-	  std::cout << "Creating Room" << std::endl;
+		std::cout << "Creating Room" << std::endl;
 	
 	main_device->getInterface()->createRoom();
 	
@@ -98,26 +98,29 @@ int main( int argc, char **argv )
 	
 	
 	if( main_device->DEBUG )
-	  std::cout << "Creating guitext" << std::endl;
+		std::cout << "Creating guitext" << std::endl;
 	
 	int text_id = main_device->getGui()->addText(main_device, Kaleidoscope::Vec2D( -0.95f, 0.95f ), " " );
 	main_device->getGui()->addText(main_device, Kaleidoscope::Vec3D( 50.0f, 50.0f, 50.0f ), "point < 50, 50, 50 >" );
 	main_device->getGui()->addText(main_device, Kaleidoscope::Vec3D( -50.0f, 0.0f, -50.0f ), "point < -50, 0, -50 >" );
 	
+	main_device->getGui()->requestCreateTextBox( main_device, Kal::Vec3D( -0.95f, 0.0f, 0.0f ), Kal::Vec3D( 1.0f, 1.0f, 0.0f ), "lol dongs" );
+
+	if( main_device->DEBUG )
+		std::cout << "Created guitext" << std::endl;	
+
+
 	if( main_device->DEBUG > 2 ){
 		std::cout << "Creating boxes" << std::endl;
 	}
-
 	main_device->getBuilder()->createRandomBoxes( main_device, main_device->getMyRoom(), 5 );
 
-	if( main_device->DEBUG )
-	  std::cout << "Created guitext" << std::endl;	
 	
 	main_device->createVoxel();
 	main_device->getThreadController()->updateVoxelThreaded( main_device );
 
 	if( main_device->DEBUG )
-	  std::cout << "Created Voxel" << std::endl;
+		std::cout << "Created Voxel" << std::endl;
 
 	Kaleidoscope::Utility * main_utility = new Kaleidoscope::Utility();
 
@@ -137,25 +140,24 @@ int main( int argc, char **argv )
 
 	delete temp_image;
 
-//main_device->getBuilder()->placeObject( main_device, "torus123", 
+	//main_device->getBuilder()->placeObject( main_device, "torus123", 
 	//main_device->getMyRoom(), 
 	//					  		Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f ), 
 	//					  		Kaleidoscope::Vec3D( 1.0f, 1.0f, 1.0f ), 
 	//					  		Kaleidoscope::Vec3D( 0.0f, 0.0f, 0.0f )	);
 	//main_device->getLoader()->load3ds( main_device, "dongs", "../media/torus.3ds", true );
-
-
 	
-    // Main rendering loop
-    do
-    {
+	// Main rendering loop
+	do{
 		main_device->run();
 
-        // Swap front and back buffers (we use a double buffered display)
+		// Swap front and back buffers (we use a double buffered display)
 		SDL_GL_SwapBuffers();
 	}
-    while( main_device->running );
+	while( main_device->running );
+
 	
+	SDL_FreeSurface( temp_image);
 	
 	// Cleanup	
 	delete main_device; // Also deletes renderer, cam, interface, loader, etc
@@ -164,7 +166,7 @@ int main( int argc, char **argv )
 	SDLNet_Quit();
 	SDL_Quit();
 	
-    return 0;
+	return 0;
 }
 
 

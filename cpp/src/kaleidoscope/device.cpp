@@ -21,8 +21,10 @@
  *
  */
 
+#include <kaleidoscope/utility.h>
 #include <kaleidoscope/device.h>
 #include <assert.h>
+
 
 namespace Kaleidoscope
 {
@@ -34,15 +36,22 @@ namespace Kaleidoscope
 
 		loadIDFromFile();
 
-		initOtr(); // This has a wacky setup due to c structures
+		//initOtr(); // This has a wacky setup due to c structures
 		
 		cursor_controller = new CursorController( this );
+		Utility::puts( "Created cursorController" );
 		renderer = new Renderer( this, screen_width, screen_height );
+		Utility::puts( "Created renderer" );
 		event_controller = new EventController( this );
+		Utility::puts( "Created eventController" );
 		cam = new Camera( this );
+		Utility::puts( "Created camera" );
 		builder = new Builder( );
+		Utility::puts( "Created builder" );
 		loader = new Autodesk3dsLoader( );
+		Utility::puts( "Created loader" );
 		thread_controller = new ThreadController( );
+		Utility::puts( "Created threadController" );
 	
 	
 		voxel = NULL;
@@ -65,6 +74,7 @@ namespace Kaleidoscope
 		space_font = NULL;
 
 		initSDL();
+		Utility::puts( "Initialized SDL" );
 	}
 
 	Device::~Device( )
@@ -101,7 +111,8 @@ namespace Kaleidoscope
 		if( interface )
 			delete interface;
 
-
+		deleteSDLTextSurfaces();
+		deleteSDLFonts();
 
 		if( device_mutex )
 			SDL_DestroyMutex( device_mutex );
@@ -167,14 +178,14 @@ namespace Kaleidoscope
 		
 		interface = createInterface( "67.223.239.201" );
 		//interface = createInterface( "happiland.net" );
+		Utility::puts( "Created interface" );
 
 		if( interface == NULL )
-		  return -1;
-		else {
-		  if( DEBUG ) {
-		  std::cout << "Connected to server, continuing to init SDL" << std::endl;
-		  }
-		}
+			return -1;
+		else 
+			Utility::puts( "Connected to server, continuing to init SDL" );
+		  
+		
 
 		// Don't set color bit sizes (SDL_GL_RED_SIZE, etc)
 		//    Mac OS X will always use 8-8-8-8 ARGB for 32-bit screens and
@@ -203,9 +214,12 @@ namespace Kaleidoscope
 			assert( false ); // end the prognam and tell us where it ended
 		}
 
+		
 		createGui();
+		Utility::puts( "Created Gui" );
 
 		getRenderer()->prepare( this );
+		Utility::puts( "Created Renderer" );
 
 		last_clock = SDL_GetTicks();
         
@@ -214,7 +228,7 @@ namespace Kaleidoscope
 	}
 
 	void Device::run()
-	{
+	{		
 		getEventController()->checkEvents( this );
 
 		if( type == FPS )
@@ -231,8 +245,11 @@ namespace Kaleidoscope
 
 	Gui * Device::createGui( )
 	{
-		gui = new Gui( this );
-
+		Grids::Value* temp_value = new Grids::Value();
+		(*temp_value)[ "id" ] = "12345678";
+		
+		gui = new Gui( this, temp_value);
+			
 		return gui;
 	}
 
@@ -354,6 +371,8 @@ namespace Kaleidoscope
 
 	void Device::createMutexes()
 	{
+		Utility::puts( "Create mutexes" );
+		
 		device_mutex = SDL_CreateMutex();
 		cursor_controller_mutex = SDL_CreateMutex();
 		renderer_mutex = SDL_CreateMutex();
@@ -408,5 +427,17 @@ namespace Kaleidoscope
 		my_id = temp_id;
 	}
 
+
+
+	void Device::deleteSDLTextSurfaces(){
+		for( int i = 0; i < screen_texts.size(); i++ ){
+ 			SDL_FreeSurface( screen_texts[i] );
+		}
+	}
+
+	void Device::deleteSDLFonts(){
+		TTF_CloseFont( screen_font);
+		TTF_CloseFont( space_font );
+	}
 
 }

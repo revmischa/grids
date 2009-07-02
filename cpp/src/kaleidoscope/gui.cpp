@@ -25,6 +25,7 @@
 #include <kaleidoscope/rect.h>
 #include <kaleidoscope/device.h>
 #include <kaleidoscope/simpleCube.h>
+#include <kaleidoscope/textBox.h>
 
 #include <SDL/SDL_opengl.h>
 #include <SDL_ttf/SDL_ttf.h>
@@ -35,29 +36,45 @@
 
 namespace Kaleidoscope
 {
-	Gui::Gui( Device * d )
+	Gui::Gui( Device * d, Grids::Value* in_val ) : GuiItem( d, in_val )
 	{
 		TTF_Init();
 		
-		if( d->DEBUG )
-			std::cout << "Initialized TTF" << std::endl;
+		Utility::puts( "Initialized TTF" );
 		
 		d->text_hash[ 1u ] = Grids::Value();
 		d->text_hash[ 2u ] = Grids::Value();
 
-		if( d->DEBUG )
-			std::cout << "Loading fonts" << std::endl;
+		Utility::puts( "Loading fonts" );
 
 		d->screen_font = TTF_OpenFont( "../media/Helvetica LT 25 Ultra Light.ttf", 108 );
 		d->space_font = TTF_OpenFont( "../media/Helvetica LT 55 Roman.ttf", 108 );
 
-		if( d->DEBUG ) 
-			std::cout << "Loaded fonts" << std::endl;
+		Utility::puts( "Loaded fonts" );
 
 		SDL_Color text_color = { 255, 255, 255, 0 };
 		d->text_color = text_color;
 
 		glGenTextures( 1, &(d->texture) );
+
+		setID( "1234567" );
+		setRoomID( d->getMyRoom() );
+		
+		d->world_hash[ getID() ][ "position" ][ 0u ] = 0.0f;
+		d->world_hash[ getID() ][ "position" ][ 1u ] = 0.0f;
+		d->world_hash[ getID() ][ "position" ][ 2u ] = 0.0f;
+
+		d->world_hash[ getID() ][ "rotation" ][ 0u ] = 0.0f;
+		d->world_hash[ getID() ][ "rotation" ][ 1u ] = 0.0f;
+		d->world_hash[ getID() ][ "rotation" ][ 2u ] = 0.0f;
+
+		d->world_hash[ getID() ][ "scale" ][ 0u ] = 1.0f;
+		d->world_hash[ getID() ][ "scale" ][ 1u ] = 1.0f;
+		d->world_hash[ getID() ][ "scale" ][ 2u ] = 1.0f;
+	}
+
+	void Gui::create( Device* d, Grids::Value* in_val ){
+
 	}
 	
 	////// DEPRECATED
@@ -76,8 +93,12 @@ namespace Kaleidoscope
 		glRasterPos2i(6,0);
 		// *** PRINT BUFFER
 	}
+	
+	void Gui::draw( Device* d ){
+		//drawAllOld( d );
+	}
 
-	void Gui::drawAll( Device * d )
+	void Gui::drawAllOld( Device * d )
 	{
 		prepareSpaceText();
 		drawSpaceText( d );
@@ -85,6 +106,9 @@ namespace Kaleidoscope
 
 		prepareText( d );
 		drawScreenText( d );
+		
+		drawAll( d ); // Draw all the GuiItem children
+
 		finishText( d );
 	}
 
@@ -599,7 +623,7 @@ namespace Kaleidoscope
 		
 		if( in_string == " add cube" ) 
 		{
-			SimpleCube * temp_cube = new SimpleCube();
+			
 			float room_width = d->getRoomWidth();
 			
 			float temp_color[ 4u ];
@@ -609,7 +633,7 @@ namespace Kaleidoscope
 			temp_color[ 3u ] = 0.35f;
 			
 			// Create a cube giving it the device, the room, the position, the size, and the color
-			temp_cube->requestCreate(d, d->getMyRoom(), Vec3D( 	room_width - (rand() % 10000)/10000.0f * room_width * 2.0f, 
+			SimpleCube::requestCreate(d, d->getMyRoom(), Vec3D( 	room_width - (rand() % 10000)/10000.0f * room_width * 2.0f, 
 														room_width - (rand() % 10000)/10000.0f * room_width * 2.0f, 
 														room_width - (rand() % 10000)/10000.0f * room_width * 2.0f ), 
 								2.0f, &temp_color[ 0 ] );
@@ -631,6 +655,10 @@ namespace Kaleidoscope
 		{
 			d->getThreadController()->createRoomDebugThreaded( d );
 		}
+	}
+
+	void Gui::requestCreateTextBox( Device* d, Vec3D in_pos, Vec3D in_scl, std::string box_text ){
+		TextBox::requestCreateTextBox( d, this, in_pos, in_scl, box_text );		
 	}
 
 	void Gui::removeLastCharacter( Device * d, int text_type, int text_id )
@@ -687,5 +715,7 @@ namespace Kaleidoscope
 	{
 		SDL_UnlockMutex( d->gui_mutex );
 	}
+	
+	
 
 }

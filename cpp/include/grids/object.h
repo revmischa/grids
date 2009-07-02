@@ -23,15 +23,12 @@
 
 #pragma once
 
-#include <grids/event.h>
-#include <grids/objectController.h>
-
-#include <kaleidoscope/device.h>
-#include <kaleidoscope/geo.h>
+#include <kaleidoscope/define.h>
+#include <grids/define.h>
 
 namespace Kaleidoscope
 {
-	class Device;
+	class Device;	
 }
 
 namespace Grids
@@ -42,12 +39,12 @@ namespace Grids
 	{
 	public:
 
-		Object( );
+		Object( Kal::Device*, Value* );
 	
 		void requestUpdatePosition( Kaleidoscope::Device *, Vec3D, Vec3D, Vec3D );
 		void updatePosition( Kaleidoscope::Device *, Value * );
 	
-		void create( Kaleidoscope::Device *, Value );
+		virtual void create( Kaleidoscope::Device *, Value* ) = 0;
 
 		void setController( ObjectController * );
 	
@@ -61,11 +58,24 @@ namespace Grids
 		/* calculateRadiusFromVertices adds a [ this_id ][ "radius" ] entry to the world value LOCALLY */
 		float calculateRadiusFromVertices( Kaleidoscope::Device *, GridsID );
 	
+		static std::string getNameFromValue( Value* );
 		static void loadPosition( Value* temp_value, Vec3D pos, Vec3D rot, Vec3D scl );
 		static void setRoom( Value*, GridsID );
 
-	private:
+		virtual GridsID getID( Kal::Device* );
+		virtual GridsID getID();
+		virtual void setID( GridsID );
+	
+		virtual GridsID getRoomID();
+		virtual void setRoomID( GridsID );
 
+	protected:
+		
+		static Value* getAttr( Value* in_val );		
+		
+		GridsID this_id;
+		GridsID room_id;
+		
 		ObjectController * controller;
 
 	};

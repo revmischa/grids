@@ -24,9 +24,10 @@
 
 #pragma once
 
+
+#include <SDL/SDL.h>
 #include <SDL_ttf/SDL_ttf.h>
 #include <SDL_image/SDL_image.h>
-#include <SDL/SDL.h>
 
 #include <grids/vector3d.h>
 #include <grids/vector2d.h>
@@ -44,6 +45,7 @@
 
 // Time in milliseconds of a click ( vs a drag )
 #define CLICK_LENGTH 200 
+
 
 namespace Kaleidoscope
 {
@@ -67,3 +69,5 @@ namespace Kaleidoscope
 	
 
 }
+
+namespace Kal = Kaleidoscope;

@@ -530,7 +530,7 @@ namespace Kaleidoscope
 		//d->getGui()->prepareGui( d );
 		//d->getGui()->drawGui( d );
 		//d->getGui()->finishGui( d );
-		d->getGui()->drawAll( d );
+		d->getGui()->drawAllOld( d );
 	}
 	
 	
@@ -573,8 +573,7 @@ namespace Kaleidoscope
 	
 	
 	void Renderer::resizeScene( Device * d, int new_width, int new_height )
-	{
-	
+	{	
 		// Let's not core dump, no matter what.
 		if (new_height == 0)
 		  new_height = 1;

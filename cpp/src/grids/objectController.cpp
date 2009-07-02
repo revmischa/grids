@@ -25,6 +25,7 @@
 #include <grids/define.h>
 
 #include <kaleidoscope/simpleCube.h>
+#include <kaleidoscope/textBox.h>
 #include <kaleidoscope/define.h>
 
 
@@ -58,24 +59,22 @@ namespace Grids
 		delete temp_type;
 	}
 	
-	void ObjectController::createObject( Kaleidoscope::Device * d, Value * obj_value )
-	{
-		std::cout << "ObjectController Creating object <  " << (*obj_value)[ "req" ][ "attr" ][ "type" ][ "name" ].asString() << " >" << std::endl;
+	void ObjectController::createObject( Kaleidoscope::Device* d, Value* obj_value )
+	{		
+		std::string obj_name = Object::getNameFromValue( obj_value ); 
 		
-		//std::string temp_string = "SimpleCube";
+		std::cout << "ObjectController Creating object < " << obj_name << " >" << std::endl;		 
+
+		Object* new_object;
 		
-		d->temp_box_id = (*obj_value)[ "id" ].asString();
-		
-		if( (*obj_value)[ "req" ][ "attr" ][ "type" ][ "name" ].asString() == "SimpleCube" )
-		{			
-			Kaleidoscope::SimpleCube * new_cube = new Kaleidoscope::SimpleCube();
-			
-			// register this with the object controller
-			registerObject( (*obj_value)[ "id" ].asString(), new_cube );
-			
-			new_cube->create( d, obj_value );
+		if( obj_name  == "SimpleCube" ){			
+			new_object = new Kaleidoscope::SimpleCube(d, obj_value );			
+		} 
+		else if( obj_name == "TextBox" ){
+			new_object = new Kaleidoscope::TextBox(d, obj_value );			
 		}
 		
+		new_object->create( d, obj_value );		
 	}
 	
 	void ObjectController::registerObject( GridsID in_id, Object * in_ptr )
@@ -321,6 +320,12 @@ namespace Grids
 		{
 			return GRIDS_ID_ERROR;
 		}
+	}
+	
+	Object* ObjectController::getPointerFromID( GridsID obj_id )
+	{
+		Object* temp_ptr = id_pointer_hash[ obj_id ];
+		return temp_ptr;		
 	}
 
 	void ObjectController::parseListRooms(  Kaleidoscope::Device * d, Value * in_value ){

@@ -23,27 +23,44 @@
  
 #pragma once
 
+
+#include <kaleidoscope/guiItem.h>
+#include <kaleidoscope/utility.h>
 #include <kaleidoscope/device.h>
 #include <kaleidoscope/rect.h>
+
+#include <grids/define.h>
+
 #include <SDL_ttf/SDL_ttf.h>
 
+#define FONT_SCALE_X 0.0008f
+#define FONT_SCALE_Y 0.00107f
+
+namespace Grids
+{
+	class Interface;
+	class Object;
+}
 
 namespace Kaleidoscope
 {
+	class GuiItem;
 	
-	
-	class Gui
+	class Gui : public GuiItem
 	{
 	public:
 		
-		Gui( Device * );
-		
+		Gui( Device *, Grids::Value* );
+
+		void create( Device*, Grids::Value* );
+				
+		void draw( Device* );
+
 		void drawGui( Device * );
-		void drawAll( Device * );
+		void drawAllOld( Device * );
 		void drawScreenText( Device * );
 		
 		void drawSpaceText( Device * );
-		
 		
 		// Prepare the transparency, view, and all onther things
 		// to draw on a 2D plane
@@ -57,6 +74,10 @@ namespace Kaleidoscope
 		
 		// Do cleanup, etc, restore settings for 3D drawing
 		void finishGui( Device *);
+
+		void drawGuiItems();
+		
+		void requestCreateTextBox( Device*, Vec3D, Vec3D, std::string );
 		
 		void drawRect( irr::core::rect< int > );
 		void drawRect( irr::core::rect< int >, float * );
@@ -97,4 +118,5 @@ namespace Kaleidoscope
 	};
 	
 } // end namespace Kaleidoscope
+
 

@@ -9,6 +9,7 @@
 #include <grids/vector2d.h>
 
 #include <grids/value.h>
+#include <json/value.h>
 
 #define GRIDS_ID_ERROR "ID ERROR"
 #define GRIDS_CREATE_ROOM "Room.Create" 
@@ -21,6 +22,8 @@ namespace Grids {
 	typedef irr::core::vector2df Vec2D;
 
 	typedef std::string GridsID;
+	
+	typedef Json::Value Value;
 
 }
 

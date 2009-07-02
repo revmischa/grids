@@ -37,6 +37,7 @@
 namespace Kaleidoscope
 {
 	class Device;
+	class TextBox;
 }
 
 namespace Grids
@@ -73,6 +74,8 @@ namespace Grids
 	
 		float intersectRaySphere( Vec3D, Vec3D, Vec3D, float );
 		GridsID getIdFromPointer( Object * );
+		Object* getPointerFromID( GridsID );
+
 	
 		void registerObject( GridsID, Object * );
 		
