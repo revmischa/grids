@@ -59,8 +59,8 @@ namespace Kaleidoscope
 		
 		setRoomID( d->getMyRoom() );
 		
-		d->world_hash[ getID() ][ "position" ][ 0u ] = 0.5f;
-		d->world_hash[ getID() ][ "position" ][ 1u ] = 0.25f;
+		d->world_hash[ getID() ][ "position" ][ 0u ] = 0.0f;
+		d->world_hash[ getID() ][ "position" ][ 1u ] = 0.0f;
 		d->world_hash[ getID() ][ "position" ][ 2u ] = 0.0f;
 
 		d->world_hash[ getID() ][ "rotation" ][ 0u ] = 0.0f;

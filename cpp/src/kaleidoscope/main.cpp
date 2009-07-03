@@ -87,7 +87,7 @@ int main( int argc, char **argv )
 		sleep(1);
 		std::cout << "."; 
 	}
-	sleep( 2 );
+	//sleep( 2 );
 	
 	Kal::Utility::puts( "Created room:  " );
 	Kal::Utility::puts( main_device->getMyRoom() );
@@ -98,10 +98,19 @@ int main( int argc, char **argv )
 	//main_device->getGui()->addText(main_device, Kaleidoscope::Vec3D( 50.0f, 50.0f, 50.0f ), "point < 50, 50, 50 >" );
 	//main_device->getGui()->addText(main_device, Kaleidoscope::Vec3D( -50.0f, 0.0f, -50.0f ), "point < -50, 0, -50 >" );
 	
-	Grids::GridsID box_id = main_device->getGui()->requestCreateTextBox( main_device, Kal::Vec3D( -0.95f, 0.0f, 0.0f ), Kal::Vec3D( 1.0f, 1.0f, 0.0f ), "lol dongs" );
+	Grids::GridsID box_id = main_device->getGui()->requestCreateTextBox( main_device, Kal::Vec3D( 0.5f, -0.3f, 0.0f ), Kal::Vec3D( 1.0f, 1.0f, 0.0f ), "lol dongs" );
 
-	Kal::Utility::puts( "** Created Text Box **" );
-	Kal::Utility::puts( box_id );
+	
+	Kal::TextBox::requestCreateTextBox( main_device, 
+								 Kal::TextBox::requestCreateTextBox( main_device, 
+															  Kal::TextBox::requestCreateTextBox( main_device, box_id, Kal::Vec3D( -0.2f, -0.2f, 0.0f ), Kal::Vec3D( 1.0f, 1.0f, 0.0f ), "foo hi lol" ),
+															  Kal::Vec3D( -0.2f, -0.2f, 0.0f ), Kal::Vec3D( 1.0f, 1.0f, 0.0f ), "foo hi lol" ),
+								 Kal::Vec3D( -0.2f, -0.2f, 0.0f ), Kal::Vec3D( 1.0f, 1.0f, 0.0f ), "foo hi lol" );
+
+	
+
+	//Kal::Utility::puts( "** Created Text Box **" );
+	//Kal::Utility::puts( box_id );
 		
 	//Kal::Utility::puts( "Created guitext" ); 
 
@@ -157,6 +166,8 @@ int main( int argc, char **argv )
 	TTF_Quit();
 	SDLNet_Quit();
 	SDL_Quit();
+	
+	std::cout << "Exited cleanly" << std::endl;
 	
 	return 0;
 }
