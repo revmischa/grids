@@ -9,3 +9,7 @@ INCLUDES := -I$(INCLUDE_DIR) -I/usr/include/SDL
 %.o : %.cpp
 	$(CPP) $(INCLUDES) -c $(input) -o $(output) 
 
+
+%.o : %.cc
+	$(CPP) $(INCLUDES) -c $(input) -o $(output) 
+

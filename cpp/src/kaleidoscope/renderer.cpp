@@ -42,6 +42,12 @@ namespace Kaleidoscope
 		loadTextModes(d);		
 	}
 	
+	Renderer::~Renderer(){ 
+		
+
+
+	}
+	
 	int Renderer::getWidth( Device * d )
 	{
 		int temp_width;

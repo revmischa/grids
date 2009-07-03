@@ -70,19 +70,29 @@ namespace Grids
 
 	Interface::~Interface()
 	{
-		std::cout << "Destroying Interface" << std::endl;
+		Kal::Utility::puts( "Destroying Interface" );
 
+		Kal::Utility::puts( "Deleting object_controller" );
+		
 		if( object_controller )
 			delete object_controller;
 		
+		Kal::Utility::puts( "Deleting person_controller" );
+	
 		if( person_controller )
 			delete person_controller;
+	
+		Kal::Utility::puts( "Deleting message_controller" );
 		
 		if( message_controller )
 			delete message_controller;
+	
+		Kal::Utility::puts( "Stopping threads" );
 
 		protocol->stopEventLoopThread();
 		protocol->closeConnection();
+
+		Kal::Utility::puts( "Deleting protocol" );
 
 		delete protocol;
 	}
@@ -170,9 +180,9 @@ namespace Grids
 			//d->getVoxel()->update(d, 3, 0.45f);
 		}
 		else if( event_type == GRIDS_CREATE_OBJECT ){			
-			std::cout << "Interface Creating object with id:  " << object_id << std::endl;
+			std::cout << "Interface Creating object with id:  " << evt->getArgs()[ "req" ][ "attr" ][ "id" ].asString() << std::endl;
 			std::cout << "Interface Creating object in room:  " << evt->getArgs()[ "req" ][ "room_id" ].asString() << std::endl;
-			std::cout << "Args [attr][room_id]:  " << evt->getArgs()[ "attr" ][ "room_id" ].asString() << std::endl;
+			std::cout << "Args [req][attr][room_id]:  " << evt->getArgs()[ "req" ][ "attr" ][ "room_id" ].asString() << std::endl;
 			//object_controller
 			object_controller->createObject( d, &(evt->getArgs() ) );
 		}
@@ -183,6 +193,8 @@ namespace Grids
 			std::cout << std::endl << "List Rooms" << std::endl << std::endl;
 			object_controller->parseListRooms( d, &( evt->getArgs() ) );
 		}
+	
+		//delete evt; ?Where are the events coming from?
 	}
 
 	void Interface::createRoom( ){

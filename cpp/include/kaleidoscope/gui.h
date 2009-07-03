@@ -77,7 +77,7 @@ namespace Kaleidoscope
 
 		void drawGuiItems();
 		
-		void requestCreateTextBox( Device*, Vec3D, Vec3D, std::string );
+		GridsID requestCreateTextBox( Device*, Vec3D, Vec3D, std::string );
 		
 		void drawRect( irr::core::rect< int > );
 		void drawRect( irr::core::rect< int >, float * );

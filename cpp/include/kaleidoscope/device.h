@@ -43,6 +43,7 @@
 #include <grids/value.h>
 #include <grids/utility.h>
 #include <grids/otr.h>
+#include <grids/uuid.h>
 
 #include <SDL/SDL.h>
 
@@ -186,7 +187,8 @@ namespace Kaleidoscope
 		SDL_Event device_event;
 		
 		std::string temp_room_id;
-
+		
+		std::string newUUID();
 
 		///////////////////////////////
 		// Camera members
@@ -243,7 +245,7 @@ namespace Kaleidoscope
 		int y_pos; // stores the window's upper right y position
 
 		int current_text_mode;
-		char * text_mode_string[4];
+		char * text_mode_string[4]; 
 		GLint text_modes[4];
 
 		int texture_id;
@@ -313,8 +315,8 @@ namespace Kaleidoscope
 				
 		//int screen_font;
 		//int space_font;
-		TTF_Font * screen_font;
-		TTF_Font * space_font;
+		TTF_Font * screen_font; // Deleted ~Device()->deleteSDLFonts()
+		TTF_Font * space_font;  // Deleted ~Device()->deleteSDLFonts()
 		SDL_Color text_color;
 	
 		GLuint texture;
@@ -327,7 +329,9 @@ namespace Kaleidoscope
 		//  Multithreading Variables
 		///////////////
 		
-		SDL_mutex * device_mutex;
+		// All deleted ~Device()
+		
+		SDL_mutex * device_mutex; 
 		
 		SDL_mutex * cursor_controller_mutex;
 		SDL_mutex * renderer_mutex;
@@ -339,13 +343,13 @@ namespace Kaleidoscope
 		SDL_mutex * thread_controller_mutex;
 		SDL_mutex * voxel_mutex;
 		
-		SDL_mutex * gui_mutex;
+		SDL_mutex * gui_mutex; // Deleted in ~ObjectController()
 		SDL_mutex * interface_mutex;
 		
 		SDL_mutex * world_hash_mutex;
 		
 		
-		SDL_Thread * voxel_update_thread;
+		SDL_Thread * voxel_update_thread; // Deleted ?
 		SDL_Thread * create_room_debug_thread;
 		SDL_Thread * selection_thread;
 		
@@ -353,6 +357,8 @@ namespace Kaleidoscope
 		Grids::GridsID temp_box_id;
 
 	private:
+
+		Grids::UUID device_uuid_obj;
 
 		void loadIDFromFile();
 		
@@ -364,6 +370,7 @@ namespace Kaleidoscope
 		std::string keyfile;
 		std::string fprfile;
 
+		// All deleted in ~Device()
 		Renderer * renderer;
 		EventController * event_controller;
 		Camera * cam;
@@ -379,12 +386,14 @@ namespace Kaleidoscope
 		
 		void createMutexes();
 
+		void deleteSDLSurfaces();
 		void deleteSDLTextSurfaces();
 		void deleteSDLFonts();
 
 		OtrlUserState otr_user_state;
 
 		void initOtr();
+
 		
 		
 	};

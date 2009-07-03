@@ -46,17 +46,21 @@ namespace Grids
 	}
 	
 
-	void ObjectController::requestCreateObject( Kaleidoscope::Device * d, Value * obj_value )
+	GridsID ObjectController::requestCreateObject( Kaleidoscope::Device * d, Value * obj_value )
 	{		
 		Value * temp_type = new Value();
+		GridsID new_id = d->newUUID();
 		
 		(*temp_type)[ "_method" ] = GRIDS_CREATE_OBJECT;
 		(*temp_type)[ "room_id" ] = (*obj_value)[ "room_id" ].asString();
 		(*temp_type)[ "attr" ] = (*obj_value);
+		(*temp_type)[ "attr" ][ "id" ] = new_id;
 				
 		d->getInterface()->sendEvent( GRIDS_CREATE_OBJECT, temp_type );
 		
 		delete temp_type;
+		
+		return new_id;
 	}
 	
 	void ObjectController::createObject( Kaleidoscope::Device* d, Value* obj_value )
@@ -79,6 +83,9 @@ namespace Grids
 	
 	void ObjectController::registerObject( GridsID in_id, Object * in_ptr )
 	{
+		Kal::Utility::puts( "Registering object" );
+		Kal::Utility::puts( in_id, (int)in_ptr );
+		
 		object_ids.push_back( in_id );
 		id_pointer_hash[ in_id ] = in_ptr;
 		pointer_id_hash[ in_ptr ] = in_id;

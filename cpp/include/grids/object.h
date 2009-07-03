@@ -72,6 +72,7 @@ namespace Grids
 	protected:
 		
 		static Value* getAttr( Value* in_val );		
+		static GridsID getIDFromValue( Value* );
 		
 		GridsID this_id;
 		GridsID room_id;

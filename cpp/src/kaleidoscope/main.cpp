@@ -39,13 +39,9 @@
 //
 // III. There should be a Kaleidoscope::Math namespace, stuff like DistanceToSphereAlongRay should not be in Grids::object.....
 
-		
-
 #include <kaleidoscope/kaleidoscope.h>
 
-
 #define ROOM_SIZE 100.0f
-
 
 
 int main( int argc, char **argv )
@@ -58,7 +54,7 @@ int main( int argc, char **argv )
 		std::cerr << "Could not create device" << std::endl;
 		return -1;
 	}
-
+		
 	//Grids::OTR * temp_otr = new Grids::OTR( );
 
 	std::cout << "******  MY ID:  " << main_device->getMyID() << std::endl;
@@ -91,54 +87,51 @@ int main( int argc, char **argv )
 		sleep(1);
 		std::cout << "."; 
 	}
+	sleep( 2 );
 	
-	if( main_device->DEBUG > 1 ){
-		std::cout << "Created room:  " << main_device->getMyRoom() << std::endl;
-	}
+	Kal::Utility::puts( "Created room:  " );
+	Kal::Utility::puts( main_device->getMyRoom() );
+			
+	//Kal::Utility::puts( "Creating guitext" );
 	
+	//int text_id = main_device->getGui()->addText(main_device, Kaleidoscope::Vec2D( -0.95f, 0.95f ), " " );
+	//main_device->getGui()->addText(main_device, Kaleidoscope::Vec3D( 50.0f, 50.0f, 50.0f ), "point < 50, 50, 50 >" );
+	//main_device->getGui()->addText(main_device, Kaleidoscope::Vec3D( -50.0f, 0.0f, -50.0f ), "point < -50, 0, -50 >" );
 	
-	if( main_device->DEBUG )
-		std::cout << "Creating guitext" << std::endl;
+	Grids::GridsID box_id = main_device->getGui()->requestCreateTextBox( main_device, Kal::Vec3D( -0.95f, 0.0f, 0.0f ), Kal::Vec3D( 1.0f, 1.0f, 0.0f ), "lol dongs" );
+
+	Kal::Utility::puts( "** Created Text Box **" );
+	Kal::Utility::puts( box_id );
+		
+	//Kal::Utility::puts( "Created guitext" ); 
+
+
+	//Kal::Utility::puts( "Creating boxes");
+	//main_device->getBuilder()->createRandomBoxes( main_device, main_device->getMyRoom(), 5 );
 	
-	int text_id = main_device->getGui()->addText(main_device, Kaleidoscope::Vec2D( -0.95f, 0.95f ), " " );
-	main_device->getGui()->addText(main_device, Kaleidoscope::Vec3D( 50.0f, 50.0f, 50.0f ), "point < 50, 50, 50 >" );
-	main_device->getGui()->addText(main_device, Kaleidoscope::Vec3D( -50.0f, 0.0f, -50.0f ), "point < -50, 0, -50 >" );
+	//main_device->createVoxel();
+	//main_device->getThreadController()->updateVoxelThreaded( main_device );
 	
-	main_device->getGui()->requestCreateTextBox( main_device, Kal::Vec3D( -0.95f, 0.0f, 0.0f ), Kal::Vec3D( 1.0f, 1.0f, 0.0f ), "lol dongs" );
+	//Kal::Utility::puts( "Created Voxel" );
 
-	if( main_device->DEBUG )
-		std::cout << "Created guitext" << std::endl;	
+	//Kaleidoscope::Utility * main_utility = new Kaleidoscope::Utility();
 
-
-	if( main_device->DEBUG > 2 ){
-		std::cout << "Creating boxes" << std::endl;
-	}
-	main_device->getBuilder()->createRandomBoxes( main_device, main_device->getMyRoom(), 5 );
-
-	
-	main_device->createVoxel();
-	main_device->getThreadController()->updateVoxelThreaded( main_device );
-
-	if( main_device->DEBUG )
-		std::cout << "Created Voxel" << std::endl;
-
-	Kaleidoscope::Utility * main_utility = new Kaleidoscope::Utility();
-
-	main_utility->displayRooms( main_device, main_device->getMyRoom() );
-
+	//main_utility->displayRooms( main_device, main_device->getMyRoom() );
 
 
 	//////////////////////////////////
 	// IMAGES AND MODEL LOADING STILL BUGGY!
 	/////////////////////////////////////
-	std::cout << "Attempting to load image" << std::endl;
+	/*
+	Kal::Utility::puts( "Attempting to load image");
 	SDL_Surface * temp_image = IMG_Load( "../media/mario.png" );
-	std::cout << "Loaded image, packing image." << std::endl;
+	Kal::Utility::puts( "Loaded image, packing image.");
 
 	main_device->getBuilder()->packImage(main_device, "Temp_id", temp_image );
-	std::cout << "Packed image" << std::endl;
+	Kal::Utility::puts( "Packed image" );
 
 	delete temp_image;
+	*/
 
 	//main_device->getBuilder()->placeObject( main_device, "torus123", 
 	//main_device->getMyRoom(), 
@@ -155,9 +148,8 @@ int main( int argc, char **argv )
 		SDL_GL_SwapBuffers();
 	}
 	while( main_device->running );
-
 	
-	SDL_FreeSurface( temp_image);
+	//SDL_FreeSurface( temp_image);
 	
 	// Cleanup	
 	delete main_device; // Also deletes renderer, cam, interface, loader, etc

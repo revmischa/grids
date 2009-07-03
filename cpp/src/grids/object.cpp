@@ -32,8 +32,15 @@
 
 namespace Grids
 {
-	Object::Object( Kal::Device* d, Value* in_val ){
-		d->getInterface()->getObjectController()->registerObject( (*in_val)[ "id" ].asString(), this );
+	Object::Object( Kal::Device* d, Value* in_val ){		
+		Kal::Utility::puts( "new Object" );
+
+		GridsID temp_id = getIDFromValue( in_val );
+		
+		Kal::Utility::puts( temp_id );
+		setID( temp_id );
+		
+		d->getInterface()->getObjectController()->registerObject( temp_id, this );
 	}
 
 	void Object::requestUpdatePosition( Kaleidoscope::Device * d, Vec3D in_pos, Vec3D in_rot, Vec3D in_scl )
@@ -162,6 +169,10 @@ namespace Grids
 
 	void Object::setRoomID( GridsID new_room ){
 		room_id = new_room;
+	}
+	
+	GridsID Object::getIDFromValue( Value* in_value ){
+		return (*in_value)[ "req" ][ "attr" ][ "id" ].asString();
 	}
 	
 	Value* Object::getAttr( Value* in_value ){

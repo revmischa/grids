@@ -40,6 +40,7 @@ namespace Kaleidoscope
 	public:
 		
 		Renderer( Device *, int, int );
+		~Renderer();
 		
 		void setDevice( Device * );
 		

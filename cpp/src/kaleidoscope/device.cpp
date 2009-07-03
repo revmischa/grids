@@ -79,7 +79,7 @@ namespace Kaleidoscope
 
 	Device::~Device( )
 	{
-		std::cout << "Deleting device" << std::endl;
+		Kal::Utility::puts( "Deleting device" );
 
 		if( renderer )
 			delete renderer;
@@ -96,8 +96,9 @@ namespace Kaleidoscope
 		if( builder )
 			delete builder;
 
-		if( gui )
-			delete gui;
+		// The Gui is now a Grids::Object, so it is automatically deleted
+		//if( gui )
+		//delete gui;
 
 		if( loader )
 			delete loader;
@@ -111,7 +112,7 @@ namespace Kaleidoscope
 		if( interface )
 			delete interface;
 
-		deleteSDLTextSurfaces();
+		deleteSDLSurfaces();
 		deleteSDLFonts();
 
 		if( device_mutex )
@@ -176,7 +177,7 @@ namespace Kaleidoscope
 
 		// This is not part of SDL, but SDL_net needs to be initiated
 		
-		interface = createInterface( "67.223.239.201" );
+		interface = createInterface( "block.hardchats.com" );
 		//interface = createInterface( "happiland.net" );
 		Utility::puts( "Created interface" );
 
@@ -186,7 +187,6 @@ namespace Kaleidoscope
 			Utility::puts( "Connected to server, continuing to init SDL" );
 		  
 		
-
 		// Don't set color bit sizes (SDL_GL_RED_SIZE, etc)
 		//    Mac OS X will always use 8-8-8-8 ARGB for 32-bit screens and
 		//    5-5-5 RGB for 16-bit screens
@@ -214,7 +214,7 @@ namespace Kaleidoscope
 			assert( false ); // end the prognam and tell us where it ended
 		}
 
-		
+		Utility::puts( "Creating Gui" );
 		createGui();
 		Utility::puts( "Created Gui" );
 
@@ -246,10 +246,13 @@ namespace Kaleidoscope
 	Gui * Device::createGui( )
 	{
 		Grids::Value* temp_value = new Grids::Value();
-		(*temp_value)[ "id" ] = "12345678";
+		std::string temp_id = newUUID();
+		(*temp_value)[ "req" ][ "attr" ][ "id" ] = temp_id;
 		
 		gui = new Gui( this, temp_value);
-			
+		
+		delete temp_value;
+					
 		return gui;
 	}
 
@@ -428,6 +431,11 @@ namespace Kaleidoscope
 	}
 
 
+	void Device::deleteSDLSurfaces(){
+		SDL_FreeSurface( gScreen );
+
+		deleteSDLTextSurfaces();
+	}
 
 	void Device::deleteSDLTextSurfaces(){
 		for( int i = 0; i < screen_texts.size(); i++ ){
@@ -439,5 +447,10 @@ namespace Kaleidoscope
 		TTF_CloseFont( screen_font);
 		TTF_CloseFont( space_font );
 	}
+
+	std::string Device::newUUID(){
+		return device_uuid_obj.getNewUUID();
+	}
+
 
 }

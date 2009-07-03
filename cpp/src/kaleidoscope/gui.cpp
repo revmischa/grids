@@ -56,12 +56,11 @@ namespace Kaleidoscope
 		d->text_color = text_color;
 
 		glGenTextures( 1, &(d->texture) );
-
-		setID( "1234567" );
+		
 		setRoomID( d->getMyRoom() );
 		
-		d->world_hash[ getID() ][ "position" ][ 0u ] = 0.0f;
-		d->world_hash[ getID() ][ "position" ][ 1u ] = 0.0f;
+		d->world_hash[ getID() ][ "position" ][ 0u ] = 0.5f;
+		d->world_hash[ getID() ][ "position" ][ 1u ] = 0.25f;
 		d->world_hash[ getID() ][ "position" ][ 2u ] = 0.0f;
 
 		d->world_hash[ getID() ][ "rotation" ][ 0u ] = 0.0f;
@@ -657,8 +656,9 @@ namespace Kaleidoscope
 		}
 	}
 
-	void Gui::requestCreateTextBox( Device* d, Vec3D in_pos, Vec3D in_scl, std::string box_text ){
-		TextBox::requestCreateTextBox( d, this, in_pos, in_scl, box_text );		
+	GridsID Gui::requestCreateTextBox( Device* d, Vec3D in_pos, Vec3D in_scl, std::string box_text ){
+		Utility::puts( "Gui::requestCreateTextBox" );
+		return TextBox::requestCreateTextBox( d, getID(), in_pos, in_scl, box_text );		
 	}
 
 	void Gui::removeLastCharacter( Device * d, int text_type, int text_id )

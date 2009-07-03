@@ -54,7 +54,7 @@ namespace Grids
 		/// *** NOTE Create object sends the request to create an object
 		// the creation actually occurs when the network bounces back a
 		// GridsID, confirming the request
-		void requestCreateObject( Kaleidoscope::Device *, Value * ); // creates an object 
+		GridsID requestCreateObject( Kaleidoscope::Device *, Value * ); // creates an object 
 	
 		void createObject( Kaleidoscope::Device *, Value *); // params, object id
 		
