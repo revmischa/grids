@@ -37,7 +37,7 @@ namespace Kaleidoscope
 	}
 	
 	
-	void SimpleCube::requestCreate( Device * d, GridsID cube_room, Vec3D cube_position, float side_length, float * cube_color )
+	GridsID SimpleCube::requestCreate( Device * d, GridsID cube_room, Vec3D cube_position, float side_length, float * cube_color )
 	{
 		Grids::Value * temp_value = new Grids::Value();
 		
@@ -58,6 +58,11 @@ namespace Kaleidoscope
 		loadPosition( temp_value, cube_position, Vec3D( 0.0f, 0.0f, 0.0f), Vec3D( 1.0f, 1.0f, 1.0f) );
 				
 		d->getInterface()->getObjectController()->requestCreateObject(d, temp_value );
+	}
+
+
+	void SimpleCube::draw( Device* d ){
+
 	}
 	
 	void SimpleCube::create( Device * d, Grids::Value * in_value )

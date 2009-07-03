@@ -27,7 +27,6 @@
 #include <grids/interface.h>
 #include <grids/object.h>
 
-#include <sstream>
 
 namespace Grids
 {
@@ -47,9 +46,10 @@ namespace Kaleidoscope
 			// Interface generates
 			SimpleCube( Device*, Grids::Value* );//Device *, GridsID, Vec3D, float, float * );
 	
-			static void requestCreate( Device *, GridsID, Vec3D, float, float * );
+			static GridsID requestCreate( Device *, GridsID parent, Vec3D, float, float * );
 	
 			void create( Device *, Grids::Value *);
+			void draw( Device* );
 		
 			float detectSelection( Device *, Vec3D, Vec3D );
 		

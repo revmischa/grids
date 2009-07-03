@@ -35,12 +35,40 @@ namespace Grids
 	Object::Object( Kal::Device* d, Value* in_val ){		
 		Kal::Utility::puts( "new Object" );
 
+		Object* parent_ptr = getParentFromValue( d, in_val );
+
+		Kal::Utility::puts( "Object::Object Parent: ", (int)parent_ptr );
+		
+		setParent( parent_ptr );
+		
+		if( parent_ptr )
+			parent_ptr->addChild( this );		
+
+
 		GridsID temp_id = getIDFromValue( in_val );
 		
-		Kal::Utility::puts( temp_id );
+		Kal::Utility::puts( "New Object id = ", temp_id );
 		setID( temp_id );
 		
 		d->getInterface()->getObjectController()->registerObject( temp_id, this );
+
+		initMutex();
+
+		Value* temp_attr = getAttr( in_val );		
+		attr = new Value( temp_attr );
+		delete temp_attr;		
+	
+	}
+
+	Object::~Object(){
+		deleteMutex();
+		
+		// All children should be deleted when the ObjectController goes through the id_pointer_hash and deletes 
+		// all objects stored in there
+		// In other words, ALL OBJECTS MUST BE REGISTERED
+		// to prevent memory leaks!
+		//
+		//deleteChildren();
 	}
 
 	void Object::requestUpdatePosition( Kaleidoscope::Device * d, Vec3D in_pos, Vec3D in_rot, Vec3D in_scl )
@@ -172,7 +200,12 @@ namespace Grids
 	}
 	
 	GridsID Object::getIDFromValue( Value* in_value ){
-		return (*in_value)[ "req" ][ "attr" ][ "id" ].asString();
+		Kal::Utility::puts( "Object getIDFromValue" );
+		
+		if( (*in_value)[ "_method" ].asString().compare( "Room.Create" ) == 0 )
+			return (*in_value)[ "id" ].asString();
+		else
+			return (*in_value)[ "req" ][ "attr" ][ "id" ].asString();
 	}
 	
 	Value* Object::getAttr( Value* in_value ){
@@ -183,6 +216,214 @@ namespace Grids
 		return (*in_val)[ "req" ][ "attr" ][ "type" ][ "name" ].asString();
 	}
 
+	void Object::setParent( Object* parent_ptr ){
+		parent = parent_ptr;		
+	}
+
+	void Object::setParentValue( Kal::Device* d, Value* in_val, GridsID parent_id ){		
+		
+		(*in_val)[ "parent" ] = parent_id;
+	}
+	
+	Object* Object::getParentFromAttr( Kal::Device* d, Value* item_val ){
+		Kal::Utility::puts( "Object::getParentFromAttr parent: ", getParentIDFromAttr(item_val) );
+		
+		void* temp_ptr = d->getInterface()->getObjectController()->getPointerFromID( getParentIDFromAttr(item_val) );
+		
+		Kal::Utility::puts( (int)temp_ptr, getParentIDFromAttr(item_val) );
+		
+		return (Object*)temp_ptr;
+	}
+	
+	GridsID Object::getParentIDFromAttr( Value* in_val ){
+		return (*in_val)[ "parent" ].asString();
+	} 
+
+
+	Object* Object::getParentFromValue( Kal::Device* d, Value* item_val ){				
+		return d->getInterface()->getObjectController()->getPointerFromID( getParentIDFromValue(item_val) );				
+	}
+	
+	GridsID Object::getParentIDFromValue( Value* in_val ){
+		return (*in_val)[ "req" ][ "attr" ][ "parent" ].asString();
+	} 
+	
+	void Object::prepDraw(){
+
+	}
+
+	void Object::finDraw(){
+
+	}	
+
+	void Object::drawAll( Kal::Device* d ){
+		lock();
+		std::vector< Object* > temp_children = getChildren();
+
+		for( int i = 0; i < temp_children.size(); i++ ){
+			temp_children[i]->drawAll( d );
+		}
+		
+		draw( d ); // draw yourself
+	
+		unlock();
+	}
+	
+	std::vector< Object* > Object::getChildren(){			
+		return children;
+	}
+
+
+	Vec3D Object::getPosition( Kal::Device* d ){
+		Vec3D parents_position = Vec3D();
+	
+		if( parent ){
+			parents_position = parent->getPosition( d );
+		}
+
+		return getGridsPosition( d ) + parents_position;
+	}
+
+	Vec3D Object::getGridsPosition( Kal::Device* d ){
+		GridsID this_id = getID();
+		
+		Vec3D temp_position;
+
+		d->lockWorldHash();
+		temp_position = Vec3D( d->world_hash[ this_id ][ "position" ][ 0u ].asDouble(),
+						   d->world_hash[ this_id ][ "position" ][ 1u ].asDouble(),
+						   d->world_hash[ this_id ][ "position" ][ 2u ].asDouble() );
+		d->unlockWorldHash();
+	
+		return temp_position;
+	}
+
+	Vec3D Object::getScale( Kal::Device* d ){
+		Vec3D parents_scale = Vec3D(1.0f, 1.0f, 1.0f );
+		
+		if( parent ){
+			parents_scale = parent->getScale( d );
+		}
+		
+		//Utility::puts( parents_scale );
+
+		return getGridsScale( d ) * parents_scale;
+	}
+
+	Vec3D Object::getGridsScale( Kal::Device* d ){
+		GridsID this_id = getID();
+		
+		Vec3D temp_scale;
+
+		d->lockWorldHash();
+		temp_scale = Vec3D( d->world_hash[ this_id ][ "scale" ][ 0u ].asDouble(),
+						d->world_hash[ this_id ][ "scale" ][ 1u ].asDouble(),
+						d->world_hash[ this_id ][ "scale" ][ 2u ].asDouble() );
+		d->unlockWorldHash();
+	
+		return temp_scale;
+	}
+
+
+	Vec3D Object::getRotation( Kal::Device* d ){
+		Vec3D parents_rot = Vec3D(0.0f, 0.0f, 0.0f );
+		
+		if( parent ){
+			parents_rot = parent->getRotation( d );
+		}
+		
+		//Utility::puts( parents_scale );
+
+		return getGridsRotation( d ) * parents_rot;
+	}
+
+	Vec3D Object::getGridsRotation( Kal::Device* d ){
+		GridsID this_id = getID();
+		
+		Vec3D temp_rotation;
+
+		d->lockWorldHash();
+		temp_rotation = Vec3D( d->world_hash[ this_id ][ "rotation" ][ 0u ].asDouble(),
+						d->world_hash[ this_id ][ "rotation" ][ 1u ].asDouble(),
+						d->world_hash[ this_id ][ "rotation" ][ 2u ].asDouble() );
+		d->unlockWorldHash();
+	
+		return temp_rotation;
+	}
+
+
+
+	
+	void Object::setPosition( Kal::Device* d, Vec3D new_position ){
+		d->getInterface()->getObjectController()->requestUpdatePosition( d, getID(), getRoomID(), new_position );
+	}	
+
+	void Object::storePositionFromAttr( Kal::Device* d, Value* in_val ){
+		d->lockWorldHash();
+		GridsID my_id = getID();
+
+		//Utility::puts( "YOYOYO" );
+		//Utility::puts( (*in_val)[ "pos" ][ 0u ].asDouble() );
+		//Utility::puts( my_id );
+		
+		d->world_hash[ my_id ][ "position" ][ 0u ] = (*in_val)[ "pos" ][ 0u ].asDouble();
+		d->world_hash[ my_id ][ "position" ][ 1u ] = (*in_val)[ "pos" ][ 1u ].asDouble();
+		d->world_hash[ my_id ][ "position" ][ 2u ] = (*in_val)[ "pos" ][ 2u ].asDouble();
+
+		d->world_hash[ my_id ][ "rotation" ][ 0u ] = (*in_val)[ "rot" ][ 0u ].asDouble();
+		d->world_hash[ my_id ][ "rotation" ][ 1u ] = (*in_val)[ "rot" ][ 1u ].asDouble();
+		d->world_hash[ my_id ][ "rotation" ][ 2u ] = (*in_val)[ "rot" ][ 2u ].asDouble();
+
+		d->world_hash[ my_id ][ "scale" ][ 0u ] = (*in_val)[ "scl" ][ 0u ].asDouble();
+		d->world_hash[ my_id ][ "scale" ][ 1u ] = (*in_val)[ "scl" ][ 1u ].asDouble();
+		d->world_hash[ my_id ][ "scale" ][ 2u ] = (*in_val)[ "scl" ][ 2u ].asDouble();
+		
+		d->unlockWorldHash();
+	}
+	
+	
+	GridsID Object::requestCreate( Kal::Device* d, GridsID parent, Value* in_val ){
+		setParentValue( d, in_val, parent );
+		
+		//Utility::puts( "Requesting Create" );		
+		return d->getInterface()->getObjectController()->requestCreateObject(d, in_val );
+	}
+	
+	
+	void Object::addChild( Object* item_ptr ) {
+		children.push_back( item_ptr );
+	}
+
+	void Object::deleteChild( Object* item_ptr ) {
+		
+	}
+
+	void Object::deleteChildren( ){
+		lock();
+		std::vector< Object* > temp_children = getChildren();
+	
+		for( int i = 0; i < temp_children.size(); i++ ){
+			delete temp_children[i];
+		}
+
+		unlock();
+	}
+
+	void Object::lock(){
+		SDL_LockMutex( object_mutex );
+	}
+
+	void Object::unlock(){
+		SDL_UnlockMutex( object_mutex );
+	}
+	
+	void Object::initMutex(){
+		object_mutex = SDL_CreateMutex();
+	}
+
+	void Object::deleteMutex() {
+		SDL_DestroyMutex( object_mutex );
+	}
 
 
 

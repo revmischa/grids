@@ -167,12 +167,8 @@ namespace Grids
 		}
 
 		if( event_type == GRIDS_CREATE_ROOM ){
-			if( d->getMyRoom() == "NULL" ){
-				d->setMyRoom( object_id );
-			}
-			
-			d->getBuilder()->placeRoom( d,  object_id );
-			d->getBuilder()->buildRoom( d,  object_id );
+						
+			Kal::Room* room_ptr = new Kal::Room( d, &(evt->getArgs()) );
 			
 			std::cout << "Creating room with ID:  " << object_id << std::endl;
 			std::cout << "My room ID:  " << d->getMyRoom() << std::endl;
@@ -198,7 +194,7 @@ namespace Grids
 	}
 
 	void Interface::createRoom( ){
-		std::cout << "Attempting to add room" << std::endl;
+		Kal::Utility::puts( "Attempting to add room" );
 
 		Value * temp_type = new Value();
 

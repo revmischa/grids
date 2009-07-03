@@ -50,23 +50,16 @@ int main( int argc, char **argv )
 	Kaleidoscope::Device * main_device = NULL;
 	main_device = new Kaleidoscope::Device( 640, 480 );
 
-	if( main_device == NULL ) {
-		std::cerr << "Could not create device" << std::endl;
-		return -1;
-	}
-		
-	//Grids::OTR * temp_otr = new Grids::OTR( );
-
+	if( main_device == NULL ) { std::cerr << "Could not create device" << std::endl; return -1; }
+			
 	std::cout << "******  MY ID:  " << main_device->getMyID() << std::endl;
 
-	if( main_device->DEBUG )
-		std::cout << "Created device" << std::endl;
+	Kal::Utility::puts( "Created device");
 
 	main_device->setRoomWidth( ROOM_SIZE ); // How wide the rooms are, I as of yet dont know the exact "scale"
 	// of grids
 	
-	if( main_device->DEBUG )
-		std::cout << "Set room width" << std::endl;
+	Kal::Utility::puts( "Set room width");
 		
 	//Sets your room.  This should idealy be through grids
 	//main_device->setMyRoom( "62688B92-D3AA-11DD-8EC7-91669DFFFA79" );
@@ -76,21 +69,15 @@ int main( int argc, char **argv )
 	//main_device->getBuilder()->buildRoom( main_device, main_device->getMyRoom() );
 	
 	// This is the proper way to create a room, through grids, though at the moment I cannot tell the ID of the room created
-	if( main_device->DEBUG )
-		std::cout << "Creating Room" << std::endl;
-	
-	main_device->getInterface()->createRoom();
-	
-	std::cout << "Creating room";
-	
-	while( main_device->getMyRoom().compare("NULL") == 0 ){
-		sleep(1);
-		std::cout << "."; 
-	}
-	//sleep( 2 );
-	
-	Kal::Utility::puts( "Created room:  " );
-	Kal::Utility::puts( main_device->getMyRoom() );
+
+	Grids::GridsID my_room = main_device->createRoomAndWait();
+
+	Kal::Utility::puts( "Created room: ", my_room );
+		
+	my_room = main_device->createRoomAndWait();
+	my_room = main_device->createRoomAndWait();
+	my_room = main_device->createRoomAndWait();
+
 			
 	//Kal::Utility::puts( "Creating guitext" );
 	
@@ -100,14 +87,14 @@ int main( int argc, char **argv )
 	
 	Grids::GridsID box_id = main_device->getGui()->requestCreateTextBox( main_device, Kal::Vec3D( 0.5f, -0.3f, 0.0f ), Kal::Vec3D( 1.0f, 1.0f, 0.0f ), "lol dongs" );
 
-	
+	/*
 	Kal::TextBox::requestCreateTextBox( main_device, 
 								 Kal::TextBox::requestCreateTextBox( main_device, 
 															  Kal::TextBox::requestCreateTextBox( main_device, box_id, Kal::Vec3D( -0.2f, -0.2f, 0.0f ), Kal::Vec3D( 1.0f, 1.0f, 0.0f ), "foo hi lol" ),
 															  Kal::Vec3D( -0.2f, -0.2f, 0.0f ), Kal::Vec3D( 1.0f, 1.0f, 0.0f ), "foo hi lol" ),
 								 Kal::Vec3D( -0.2f, -0.2f, 0.0f ), Kal::Vec3D( 1.0f, 1.0f, 0.0f ), "foo hi lol" );
 
-	
+	*/
 
 	//Kal::Utility::puts( "** Created Text Box **" );
 	//Kal::Utility::puts( box_id );

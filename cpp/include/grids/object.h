@@ -26,6 +26,9 @@
 #include <kaleidoscope/define.h>
 #include <grids/define.h>
 
+#include <vector>
+#include <SDL/SDL.h>
+
 namespace Kaleidoscope
 {
 	class Device;	
@@ -40,23 +43,14 @@ namespace Grids
 	public:
 
 		Object( Kal::Device*, Value* );
-	
+		~Object();
+
+		static GridsID requestCreate( Kal::Device* d, GridsID, Value* );
+		virtual void create( Kaleidoscope::Device *, Value* ) = 0;
+			
 		void requestUpdatePosition( Kaleidoscope::Device *, Vec3D, Vec3D, Vec3D );
 		void updatePosition( Kaleidoscope::Device *, Value * );
-	
-		virtual void create( Kaleidoscope::Device *, Value* ) = 0;
 
-		void setController( ObjectController * );
-	
-		static float detectSelection( Kaleidoscope::Device *, GridsID, Vec3D, Vec3D );
-		
-		void selectObject( Kaleidoscope::Device * );
-		
-		/* This should be overloaded for more complex objects (models, etc) */
-		float calculateRadius( Kaleidoscope::Device *, GridsID );
-	
-		/* calculateRadiusFromVertices adds a [ this_id ][ "radius" ] entry to the world value LOCALLY */
-		float calculateRadiusFromVertices( Kaleidoscope::Device *, GridsID );
 	
 		static std::string getNameFromValue( Value* );
 		static void loadPosition( Value* temp_value, Vec3D pos, Vec3D rot, Vec3D scl );
@@ -69,16 +63,80 @@ namespace Grids
 		virtual GridsID getRoomID();
 		virtual void setRoomID( GridsID );
 
+		virtual void prepDraw();
+		virtual void draw( Kal::Device* ) = 0; // pure virtual function
+		virtual void finDraw(); 
+	
+		virtual void drawAll( Kal::Device* );
+
+
+		virtual Vec3D getPosition( Kal::Device* );
+		virtual Vec3D getGridsPosition( Kal::Device* );
+			
+		virtual Vec3D getScale( Kal::Device* );
+		virtual Vec3D getGridsScale( Kal::Device* );
+
+		virtual Vec3D getRotation( Kal::Device* );
+		virtual Vec3D getGridsRotation( Kal::Device* );
+
+	
+		void storePositionFromAttr( Kal::Device* d, Value* in_val );
+	
+		void setPosition( Kal::Device*, Vec3D );
+
+		void setController( ObjectController * );
+	
+		static float detectSelection( Kaleidoscope::Device *, GridsID, Vec3D, Vec3D );
+		
+		void selectObject( Kaleidoscope::Device * );
+		
+		/* This should be overloaded for more complex objects (models, etc) */
+		float calculateRadius( Kaleidoscope::Device *, GridsID );
+	
+		/* calculateRadiusFromVertices adds a [ this_id ][ "radius" ] entry to the world value LOCALLY */
+		float calculateRadiusFromVertices( Kaleidoscope::Device *, GridsID );
+		
+		virtual std::vector< Object* > getChildren();
+		virtual void addChild( Object* );
+		virtual void deleteChild( Object* );
+		void deleteChildren( );		
+
+		void setParent( Object* );
+		static void setParentValue( Kal::Device*, Value*, GridsID );
+
+		Object* getParentFromAttr( Kal::Device*, Value* ); 
+		GridsID getParentIDFromAttr( Value* );
+
+		Object* getParentFromValue( Kal::Device*, Value* ); 
+		GridsID getParentIDFromValue( Value* );
+
+
+		/* Locking / unlocking should always be done through the base class. */
+		void initMutex();
+		void deleteMutex();
+		void lock();
+		void unlock();
+
 	protected:
 		
 		static Value* getAttr( Value* in_val );		
-		static GridsID getIDFromValue( Value* );
+		virtual GridsID getIDFromValue( Value* );
+
+		Value* attr;		
+		
 		
 		GridsID this_id;
 		GridsID room_id;
 		
 		ObjectController * controller;
-
+		
+		Object* parent;
+		
+		
+	private:
+		SDL_mutex * object_mutex;
+			
+		std::vector< Object* > children;
 	};
 
 } // end namespace Grids

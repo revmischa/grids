@@ -25,16 +25,43 @@
 
 namespace Kaleidoscope
 {
-	Room::Room()
-	{
-	
+	Room::Room( Device* d, Grids::Value* in_val ) : Object( d, in_val ) {
+
+		if( d->getMyRoom() == "NULL" ){
+			d->setMyRoom( getIDFromValue(in_val) );
+		}
+
+		d->getBuilder()->placeRoom( d,  this, getIDFromValue( in_val ) );
+		d->getBuilder()->buildRoom( d,  this, getIDFromValue( in_val ) );
 	}
 	
-	void Room::addObject( Device * d, std::map< std::string, std::vector< float > > user_input )
-	// Object should be in the form std::map< RenderObject *, std::vector< float > >
-	// where the floats
-	{
-	
+
+	void Room::draw( Device* d ){
+
+
 	}
+
+	void Room::requestCreateRoom( Device* d, float room_size ){
+
+
+
+	}
+	
+	void Room::create( Device* d, Grids::Value* in_val ){
+
+	}
+		
+	Grids::Object* Room::getParentFromValue( Device* d, Grids::Value* in_val ){
+		return NULL;
+	}
+	
+	GridsID Room::getIDFromValue( Grids::Value* in_val ){
+		Utility::puts( "Room getIDFromValue" );
+		
+		return (*in_val)[ "id" ].asString();
+	}
+
+
+
 		
 } // end namespace Kaleidoscope

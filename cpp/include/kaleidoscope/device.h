@@ -137,6 +137,8 @@ namespace Kaleidoscope
 
 		void addRoom( Room * );
 
+		Grids::GridsID createRoomAndWait();
+
 		void setMyRoom( Grids::GridsID );
 		Grids::GridsID getMyRoom();
 		std::vector< Grids::GridsID > getKnownRooms();

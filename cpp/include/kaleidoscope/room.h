@@ -36,22 +36,23 @@ namespace Kaleidoscope
 {
 	class RenderObject;	
 	
-	class Room 
-	{
+	class Room : public Grids::Object
+		{
 		public:
 			
-			Room( );
+			Room( Device*, Grids::Value* );
 			
-			// Add on object  ID => vertices  to the room
-			void addObject( Device *, std::map< std::string, std::vector< float > > );
+			void draw( Device* );
+			void create( Device*, Grids::Value* );
+
+			static void requestCreateRoom( Device*, float room_size );
 			
-			void moveRoom( Device *, Vec3D * );
-			// Moving a room updates the position vector in the vertex hash thing
+			Grids::Object* getParentFromValue( Device*, Grids::Value* );
 			
-			void deleteRoom( Device * );
-			
+		protected:
+			Grids::GridsID getIDFromValue( Grids::Value* );
 		private:
 		
-	};
+		};
 
 } // end namespace Kaleidoscope

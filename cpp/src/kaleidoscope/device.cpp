@@ -349,6 +349,17 @@ namespace Kaleidoscope
 	{
 		//rooms.push_back( r );
 	}
+	
+	Grids::GridsID Device::createRoomAndWait(){
+		getInterface()->createRoom();
+		
+		Utility::puts( "Creating room..." );
+		while( getMyRoom().compare("NULL") == 0 ){
+			sleep(1);
+		}
+		
+		return getMyRoom();	
+	}
 
 	void Device::lockDevice()
 	{

@@ -39,7 +39,7 @@ namespace Kaleidoscope
 
 	}
 
-	void Builder::placeRoom( Device * d, GridsID new_id )
+	void Builder::placeRoom( Device * d, Room* in_room, GridsID new_id )
 	{
 		//	See how many other rooms exist
 		//		if none, place at center
@@ -135,8 +135,7 @@ namespace Kaleidoscope
 		if( false )
 		{
 			int num_rooms = d->world_hash[ "rooms" ].size();
-			
-			
+						
 
 			d->world_hash[ "rooms" ][ num_rooms ] = new_id;
 
@@ -162,7 +161,7 @@ namespace Kaleidoscope
 
 
 
-	void Builder::buildRoom( Device * d, GridsID new_id )
+	void Builder::buildRoom( Device * d, Room* in_room, GridsID new_id )
 	{
 		float room_width = d->getRoomWidth();
 		int num_lines = room_width;
