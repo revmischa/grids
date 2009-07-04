@@ -81,11 +81,11 @@ int main( int argc, char **argv )
 			
 	//Kal::Utility::puts( "Creating guitext" );
 	
-	//int text_id = main_device->getGui()->addText(main_device, Kaleidoscope::Vec2D( -0.95f, 0.95f ), " " );
+	int text_id = main_device->getGui()->addText(main_device, Kaleidoscope::Vec2D( -0.95f, 0.95f ), " " );
 	//main_device->getGui()->addText(main_device, Kaleidoscope::Vec3D( 50.0f, 50.0f, 50.0f ), "point < 50, 50, 50 >" );
 	//main_device->getGui()->addText(main_device, Kaleidoscope::Vec3D( -50.0f, 0.0f, -50.0f ), "point < -50, 0, -50 >" );
 	
-	//Grids::GridsID box_id = main_device->getGui()->requestCreateTextBox( main_device, Kal::Vec3D( 0.5f, -0.3f, 0.0f ), Kal::Vec3D( 1.0f, 1.0f, 0.0f ), "lol dongs" );
+	Grids::GridsID box_id = main_device->getGui()->requestCreateTextBox( main_device, Kal::Vec3D( 0.5f, -0.3f, 0.0f ), Kal::Vec3D( 1.0f, 1.0f, 0.0f ), "lol dongs" );
 
 	/*
 	Kal::TextBox::requestCreateTextBox( main_device, 
@@ -138,6 +138,7 @@ int main( int argc, char **argv )
 	
 	// Main rendering loop
 	do{
+		//Kal::Utility::puts( "main do" );
 		main_device->run();
 
 		// Swap front and back buffers (we use a double buffered display)

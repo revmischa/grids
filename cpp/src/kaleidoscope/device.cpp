@@ -229,6 +229,7 @@ namespace Kaleidoscope
 
 	void Device::run()
 	{		
+		//Utility::puts( "Running" );
 		getEventController()->checkEvents( this );
 
 		if( type == FPS )

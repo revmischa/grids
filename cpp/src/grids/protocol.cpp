@@ -243,8 +243,8 @@ namespace Grids {
 
         // TODO: run in seperate thread
         std::string msg = buf;
-        handleMessage(msg);
-
+        handleMessage(msg);		
+	   
         free(buf);
     }
 
@@ -273,7 +273,11 @@ namespace Grids {
 
       Event *evt = new Event(root["_method"].asString(), root);
       eventCallback(this, evt, eventCallbackUserData);
+	
+	 //std::cout << "handleMessage deleting evt" << std::endl;
       delete evt;
+	 //std::cout << "handleMessage deleted evt" << std::endl;
+
     }
   }
 

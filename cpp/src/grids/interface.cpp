@@ -135,8 +135,14 @@ namespace Grids
 
 	void Interface::receiveEvent( Protocol * proto, Event * evt, void * self )
 	{
-		//std::cout << "Receive Event" << std::endl;
+		//Kal::Utility::puts( "Receive Event" );
 		( (Interface*)self)->parseEventType( evt );
+
+		//Kal::Utility::puts( "Deleting evt" );
+		//delete evt; // -- Deleted protocol::handleMessage are the events coming from?
+		//Kal::Utility::puts( "Deleted" );
+		
+		Kal::Utility::puts( "Returning to Protocol" );
 	}
 
 	void Interface::connectionCallback(  Protocol * proto, Event *evt, void * self )
@@ -189,8 +195,6 @@ namespace Grids
 			std::cout << std::endl << "List Rooms" << std::endl << std::endl;
 			object_controller->parseListRooms( d, &( evt->getArgs() ) );
 		}
-	
-		//delete evt; ?Where are the events coming from?
 	}
 
 	void Interface::createRoom( ){

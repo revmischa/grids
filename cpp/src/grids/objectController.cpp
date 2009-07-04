@@ -59,6 +59,7 @@ namespace Grids
 		d->getInterface()->sendEvent( GRIDS_CREATE_OBJECT, temp_type );
 		
 		delete temp_type;
+		delete obj_value;
 		
 		return new_id;
 	}
