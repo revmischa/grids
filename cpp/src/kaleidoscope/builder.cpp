@@ -39,33 +39,31 @@ namespace Kaleidoscope
 
 	}
 
-	void Builder::placeRoom( Device * d, Room* in_room, GridsID new_id )
+	void Builder::placeRoom( Device * d, Room* in_room )
 	{
-		//	See how many other rooms exist
-		//		if none, place at center
-		//		if many, randomly position room in the closest position
+		GridsID new_id = in_room->getID();
 		
 		std::cout << "Placing room" << std::endl;
 		
 		float room_width = d->getRoomWidth();
 		
 		d->lockWorldHash();
-	
+			
 		if( !( d->world_hash[ "rooms" ] ) )
-		{
-			d->world_hash[ "rooms" ] = Grids::Value();
+		{			
 			d->world_hash[ "rooms" ][ 0u ] = new_id;
-
-			d->world_hash[ new_id ] = Grids::Value();
-			d->world_hash[ new_id ][ "position" ][ 0u ] = 0.0f;
-			d->world_hash[ new_id ][ "position" ][ 1u ] = 0.0f;
-			d->world_hash[ new_id ][ "position" ][ 2u ] = 0.0f;
-			d->world_hash[ new_id ][ "scale" ][ 0u ] = 1.0f;
-			d->world_hash[ new_id ][ "scale" ][ 1u ] = 1.0f;
-			d->world_hash[ new_id ][ "scale" ][ 2u ] = 1.0f;
-			d->world_hash[ new_id ][ "rotation" ][ 0u ] = 0.0f;
-			d->world_hash[ new_id ][ "rotation" ][ 1u ] = 0.0f;
-			d->world_hash[ new_id ][ "rotation" ][ 2u ] = 0.0f;
+			
+			in_room->lock();
+			in_room->attr[ "pos" ][ 0u ] = 0.0f;
+			in_room->attr[ "pos" ][ 1u ] = 0.0f;
+			in_room->attr[ "pos" ][ 2u ] = 0.0f;
+			in_room->attr[ "scl" ][ 0u ] = 1.0f;
+			in_room->attr[ "scl" ][ 1u ] = 1.0f;
+			in_room->attr[ "scl" ][ 2u ] = 1.0f;
+			in_room->attr[ "rot" ][ 0u ] = 0.0f;
+			in_room->attr[ "rot" ][ 1u ] = 0.0f;
+			in_room->attr[ "rot" ][ 2u ] = 0.0f;
+			in_room->unlock();
 		}
 		else
 		{
@@ -81,21 +79,15 @@ namespace Kaleidoscope
 
 			Vec3D temp_position;
 			
-			for( int i = -world_size; i < world_size; i++)
-			{
-				for( int g = -world_size; g < world_size; g++)
-				{
-					for( int h = -world_size; h < world_size; h++)
-					{
+			for( int i = -world_size; i < world_size; i++) {
+				for( int g = -world_size; g < world_size; g++) {
+					for( int h = -world_size; h < world_size; h++) {
 						temp_position = Vec3D( i * 2 * room_width, g * 2 * room_width, h * 2 * room_width );
 						
-						for( int j = 0; j < d->world_hash[ "rooms" ].size(); j++ )
-						{
+						for( int j = 0; j < d->world_hash[ "rooms" ].size(); j++ ) {
 							GridsID temp_id = d->world_hash[ "rooms" ][ j ].asString();
 
-							Vec3D temp_room_position = Vec3D(	d->world_hash[ temp_id ][ "position" ][ 0u ].asDouble(),
-																d->world_hash[ temp_id ][ "position" ][ 1u ].asDouble(),
-																d->world_hash[ temp_id ][ "position" ][ 2u ].asDouble()	);
+							Vec3D temp_room_position = d->getInterface()->getObjectController()->getPointerFromID( temp_id )->getPosition();
 							
 							if( temp_position == temp_room_position )
 							{
@@ -118,102 +110,72 @@ namespace Kaleidoscope
 			int num_rooms = d->world_hash[ "rooms" ].size();
 
 			d->world_hash[ "rooms" ][ num_rooms ] = new_id;
+			
+			in_room->lock();
+			in_room->attr[ "pos" ][ 0u ] = closest_position.X;
+			in_room->attr[ "pos" ][ 1u ] = closest_position.Y;
+			in_room->attr[ "pos" ][ 2u ] = closest_position.Z;
+			in_room->attr[ "scl" ][ 0u ] = 1.0f;
+			in_room->attr[ "scl" ][ 1u ] = 1.0f;
+			in_room->attr[ "scl" ][ 2u ] = 1.0f;
+			in_room->attr[ "rot" ][ 0u ] = 0.0f;
+			in_room->attr[ "rot" ][ 1u ] = 0.0f;
+			in_room->attr[ "rot" ][ 2u ] = 0.0f;
+			in_room->unlock();
 
-			d->world_hash[ new_id ] = Grids::Value();
+		} // end else
 
-			d->world_hash[ new_id ][ "position" ][ 0u ] = closest_position.X;
-			d->world_hash[ new_id ][ "position" ][ 1u ] = closest_position.Y;
-			d->world_hash[ new_id ][ "position" ][ 2u ] = closest_position.Z;
-			d->world_hash[ new_id ][ "scale" ][ 0u ] = 1.0f;
-			d->world_hash[ new_id ][ "scale" ][ 1u ] = 1.0f;
-			d->world_hash[ new_id ][ "scale" ][ 2u ] = 1.0f;
-			d->world_hash[ new_id ][ "rotation" ][ 0u ] = 0.0f;
-			d->world_hash[ new_id ][ "rotation" ][ 1u ] = 0.0f;
-			d->world_hash[ new_id ][ "rotation" ][ 2u ] = 0.0f;
-		}
-
-		if( false )
-		{
-			int num_rooms = d->world_hash[ "rooms" ].size();
-						
-
-			d->world_hash[ "rooms" ][ num_rooms ] = new_id;
-
-			d->world_hash[ new_id ] = Grids::Value();
-
-			d->world_hash[ new_id ][ "width" ] = d->room_width;
-
-			d->world_hash[ new_id ][ "position" ][ 0u ] = num_rooms * 2 * room_width ;
-			d->world_hash[ new_id ][ "position" ][ 1u ] = 0.0f;
-			d->world_hash[ new_id ][ "position" ][ 2u ] = 0.0f;
-			d->world_hash[ new_id ][ "scale" ][ 0u ] = 1.0f;
-			d->world_hash[ new_id ][ "scale" ][ 1u ] = 1.0f;
-			d->world_hash[ new_id ][ "scale" ][ 2u ] = 1.0f;
-			d->world_hash[ new_id ][ "rotation" ][ 0u ] = 0.0f;
-			d->world_hash[ new_id ][ "rotation" ][ 1u ] = 0.0f;
-			d->world_hash[ new_id ][ "rotation" ][ 2u ] = 0.0f;
-
-		}
-		
 		d->unlockWorldHash();
 		
 	} // end placeRoom
 
 
-
-	void Builder::buildRoom( Device * d, Room* in_room, GridsID new_id )
+	void Builder::buildRoom( Device * d, Room* in_room )
 	{
+		GridsID new_id = in_room->getID();
+
 		float room_width = d->getRoomWidth();
 		int num_lines = room_width;
 		
-		d->lockWorldHash();
-		
-		d->world_hash[ new_id ][ "quads" ] = Grids::Value();
-		d->world_hash[ new_id ][ "lines" ] = Grids::Value();
-
-		d->world_hash[ new_id ][ "lines" ][ 0u ] = Grids::Value() ;
-
-		d->world_hash[ new_id ][ "color" ] = Grids::Value() ;
+		in_room->lock();
 
 		// Lines Color
-		d->world_hash[ new_id ][ "color" ][ 0u ] = Grids::Value();
-		d->world_hash[ new_id ][ "color" ][ 0u ][ 0u ] = 1.0f;
-		d->world_hash[ new_id ][ "color" ][ 0u ][ 1u ] = 1.0f;
-		d->world_hash[ new_id ][ "color" ][ 0u ][ 2u ] = 1.0f;
-		d->world_hash[ new_id ][ "color" ][ 0u ][ 3u ] = 0.1f;
+		in_room->attr[ "color" ][ 0u ][ 0u ] = 1.0f;
+		in_room->attr[ "color" ][ 0u ][ 1u ] = 1.0f;
+		in_room->attr[ "color" ][ 0u ][ 2u ] = 1.0f;
+		in_room->attr[ "color" ][ 0u ][ 3u ] = 0.1f;
 
-		d->world_hash[ new_id ][ "lines" ][ 0u ][ "indices" ] = Grids::Value();
-		d->world_hash[ new_id ][ "lines" ][ 0u ][ "color" ] = 0u;
+		in_room->attr[ "lines" ][ 0u ][ "indices" ] = Grids::Value();
+		in_room->attr[ "lines" ][ 0u ][ "color" ] = 0u;
 
-		d->world_hash[ new_id ][ "vertices" ] = Grids::Value();
-
+		in_room->attr[ "vertices" ] = Grids::Value();
 
 
 		for(int i = 0; i <= num_lines * 2; i += 4 ) // i * 2 from -num_lines to num_lines --  + 4 Vertices
 		{
-			d->world_hash[ new_id ][ "vertices" ][ i ] = Grids::Value();
+			in_room->attr[ "vertices" ][ i ] = Grids::Value();
 
-			d->world_hash[ new_id ][ "vertices" ][ i ][ 0u ] = (float)i - room_width;
-			d->world_hash[ new_id ][ "vertices" ][ i ][ 1u ] = 0.0f;
-			d->world_hash[ new_id ][ "vertices" ][ i ][ 2u ] = (float)-num_lines;
+			in_room->attr[ "vertices" ][ i ][ 0u ] = (float)i - room_width;
+			in_room->attr[ "vertices" ][ i ][ 1u ] = 0.0f;
+			in_room->attr[ "vertices" ][ i ][ 2u ] = (float)-num_lines;
 
-			d->world_hash[ new_id ][ "vertices" ][ i+1 ] = Grids::Value();
+			in_room->attr[ "vertices" ][ i+1 ] = Grids::Value();
 
-			d->world_hash[ new_id ][ "vertices" ][ i+1 ][ 0u ] = (float)i - room_width;
-			d->world_hash[ new_id ][ "vertices" ][ i+1 ][ 1u ] = 0.0f;
-			d->world_hash[ new_id ][ "vertices" ][ i+1 ][ 2u ] = (float)num_lines ;
+			in_room->attr[ "vertices" ][ i+1 ][ 0u ] = (float)i - room_width;
+			in_room->attr[ "vertices" ][ i+1 ][ 1u ] = 0.0f;
+			in_room->attr[ "vertices" ][ i+1 ][ 2u ] = (float)num_lines ;
 
-			d->world_hash[ new_id ][ "vertices" ][ i+2 ] = Grids::Value();
+			in_room->attr[ "vertices" ][ i+2 ] = Grids::Value();
 
-			d->world_hash[ new_id ][ "vertices" ][ i+2 ][ 0u ] = (float)num_lines;
-			d->world_hash[ new_id ][ "vertices" ][ i+2 ][ 1u ] = 0.0f;
-			d->world_hash[ new_id ][ "vertices" ][ i+2 ][ 2u ] = (float)i - room_width;
+			in_room->attr[ "vertices" ][ i+2 ][ 0u ] = (float)num_lines;
+			in_room->attr[ "vertices" ][ i+2 ][ 1u ] = 0.0f;
+			in_room->attr[ "vertices" ][ i+2 ][ 2u ] = (float)i - room_width;
 
-			d->world_hash[ new_id ][ "vertices" ][ i+3 ] = Grids::Value();
+			in_room->attr[ "vertices" ][ i+3 ] = Grids::Value();
 
-			d->world_hash[ new_id ][ "vertices" ][ i+3 ][ 0u ] = (float)-num_lines;
-			d->world_hash[ new_id ][ "vertices" ][ i+3 ][ 1u ] = 0.0f;
-			d->world_hash[ new_id ][ "vertices" ][ i+3 ][ 2u ] = (float)i - room_width;
+			in_room->attr[ "vertices" ][ i+3 ][ 0u ] = (float)-num_lines;
+			in_room->attr[ "vertices" ][ i+3 ][ 1u ] = 0.0f;
+			in_room->attr[ "vertices" ][ i+3 ][ 2u ] = (float)i - room_width;
 		}
 
 		// Indices are ordered pairs ( or triplets, or quintuplets ) of numbers that indicate whicu vertices belong to which line, triangle, or quadrilateral
@@ -222,159 +184,156 @@ namespace Kaleidoscope
 
 		for( int i = 0; i < num_lines + 1 ; i += 2 )
 		{
-			d->world_hash[ new_id ][ "lines" ][ 0u ][ "indices" ][ i ] = Grids::Value();
+			in_room->attr[ "lines" ][ 0u ][ "indices" ][ i ] = Grids::Value();
 
-			d->world_hash[ new_id ][ "lines" ][ 0u ][ "indices" ][ i ][ 0u ] = j;
-			d->world_hash[ new_id ][ "lines" ][ 0u ][ "indices" ][ i ][ 1u ] = j + 1;
+			in_room->attr[ "lines" ][ 0u ][ "indices" ][ i ][ 0u ] = j;
+			in_room->attr[ "lines" ][ 0u ][ "indices" ][ i ][ 1u ] = j + 1;
 
-			d->world_hash[ new_id ][ "lines" ][ 0u ][ "indices" ][ i + 1 ] = Grids::Value();
+			in_room->attr[ "lines" ][ 0u ][ "indices" ][ i + 1 ] = Grids::Value();
 
-			d->world_hash[ new_id ][ "lines" ][ 0u ][ "indices" ][ i + 1 ][ 0u ] = j + 2;
-			d->world_hash[ new_id ][ "lines" ][ 0u ][ "indices" ][ i + 1 ][ 1u ] = j + 3;
+			in_room->attr[ "lines" ][ 0u ][ "indices" ][ i + 1 ][ 0u ] = j + 2;
+			in_room->attr[ "lines" ][ 0u ][ "indices" ][ i + 1 ][ 1u ] = j + 3;
 
 			j += 4;
 		}
 
 		// Wall Color
 
-		d->world_hash[ new_id ][ "color" ][ 1u ] = Grids::Value();
-		d->world_hash[ new_id ][ "color" ][ 1u ][ 0u ] = 1.0f;
-		d->world_hash[ new_id ][ "color" ][ 1u ][ 1u ] = 1.0f;
-		d->world_hash[ new_id ][ "color" ][ 1u ][ 2u ] = 1.0f;
-		d->world_hash[ new_id ][ "color" ][ 1u ][ 3u ] = 0.01f;
+		in_room->attr[ "color" ][ 1u ] = Grids::Value();
+		in_room->attr[ "color" ][ 1u ][ 0u ] = 1.0f;
+		in_room->attr[ "color" ][ 1u ][ 1u ] = 1.0f;
+		in_room->attr[ "color" ][ 1u ][ 2u ] = 1.0f;
+		in_room->attr[ "color" ][ 1u ][ 3u ] = 0.01f;
 
 		// Outline Color -- faint white
-		d->world_hash[ new_id ][ "color" ][ 2u ] = Grids::Value();
-		d->world_hash[ new_id ][ "color" ][ 2u ][ 0u ] = 1.0f;
-		d->world_hash[ new_id ][ "color" ][ 2u ][ 1u ] = 1.0f;
-		d->world_hash[ new_id ][ "color" ][ 2u ][ 2u ] = 1.0f;
-		d->world_hash[ new_id ][ "color" ][ 2u ][ 3u ] = 0.15f;
+		in_room->attr[ "color" ][ 2u ] = Grids::Value();
+		in_room->attr[ "color" ][ 2u ][ 0u ] = 1.0f;
+		in_room->attr[ "color" ][ 2u ][ 1u ] = 1.0f;
+		in_room->attr[ "color" ][ 2u ][ 2u ] = 1.0f;
+		in_room->attr[ "color" ][ 2u ][ 3u ] = 0.15f;
 
-		d->world_hash[ new_id ][ "quads" ][ 0u ] = Grids::Value();
-		d->world_hash[ new_id ][ "quads" ][ 0u ][ "indices" ] = Grids::Value();
-		d->world_hash[ new_id ][ "quads" ][ 0u ][ "color" ] = 1; // Use color # 1 to shade this quad
+		in_room->attr[ "quads" ][ 0u ] = Grids::Value();
+		in_room->attr[ "quads" ][ 0u ][ "indices" ] = Grids::Value();
+		in_room->attr[ "quads" ][ 0u ][ "color" ] = 1; // Use color # 1 to shade this quad
 
-		int k = d->world_hash[ new_id ][ "vertices" ].size();
+		int k = in_room->attr[ "vertices" ].size();
 
-		for( int i = k; i < k + 8; i++ )
-		{
-			d->world_hash[ new_id ][ "vertices" ][ i ] = Grids::Value();
+		for( int i = k; i < k + 8; i++ ){
+			in_room->attr[ "vertices" ][ i ] = Grids::Value();
 		}
 
-		d->world_hash[ new_id ][ "vertices" ][ k ][ 0u ] = -room_width;
-		d->world_hash[ new_id ][ "vertices" ][ k ][ 1u ] = -room_width;
-		d->world_hash[ new_id ][ "vertices" ][ k ][ 2u ] = -room_width;
+		in_room->attr[ "vertices" ][ k ][ 0u ] = -room_width;
+		in_room->attr[ "vertices" ][ k ][ 1u ] = -room_width;
+		in_room->attr[ "vertices" ][ k ][ 2u ] = -room_width;
 
-		d->world_hash[ new_id ][ "vertices" ][ k + 1 ][ 0u ] = room_width;
-		d->world_hash[ new_id ][ "vertices" ][ k + 1 ][ 1u ] = -room_width;
-		d->world_hash[ new_id ][ "vertices" ][ k + 1 ][ 2u ] = -room_width;
+		in_room->attr[ "vertices" ][ k + 1 ][ 0u ] = room_width;
+		in_room->attr[ "vertices" ][ k + 1 ][ 1u ] = -room_width;
+		in_room->attr[ "vertices" ][ k + 1 ][ 2u ] = -room_width;
 
-		d->world_hash[ new_id ][ "vertices" ][ k + 2 ][ 0u ] = room_width;
-		d->world_hash[ new_id ][ "vertices" ][ k + 2 ][ 1u ] = room_width;
-		d->world_hash[ new_id ][ "vertices" ][ k + 2 ][ 2u ] = -room_width;
+		in_room->attr[ "vertices" ][ k + 2 ][ 0u ] = room_width;
+		in_room->attr[ "vertices" ][ k + 2 ][ 1u ] = room_width;
+		in_room->attr[ "vertices" ][ k + 2 ][ 2u ] = -room_width;
 
-		d->world_hash[ new_id ][ "vertices" ][ k + 3 ][ 0u ] = -room_width;
-		d->world_hash[ new_id ][ "vertices" ][ k + 3 ][ 1u ] = room_width;
-		d->world_hash[ new_id ][ "vertices" ][ k + 3 ][ 2u ] = -room_width;
+		in_room->attr[ "vertices" ][ k + 3 ][ 0u ] = -room_width;
+		in_room->attr[ "vertices" ][ k + 3 ][ 1u ] = room_width;
+		in_room->attr[ "vertices" ][ k + 3 ][ 2u ] = -room_width;
 
-		d->world_hash[ new_id ][ "vertices" ][ k + 4 ][ 0u ] = -room_width;
-		d->world_hash[ new_id ][ "vertices" ][ k + 4 ][ 1u ] = -room_width;
-		d->world_hash[ new_id ][ "vertices" ][ k + 4 ][ 2u ] = room_width;
+		in_room->attr[ "vertices" ][ k + 4 ][ 0u ] = -room_width;
+		in_room->attr[ "vertices" ][ k + 4 ][ 1u ] = -room_width;
+		in_room->attr[ "vertices" ][ k + 4 ][ 2u ] = room_width;
 
-		d->world_hash[ new_id ][ "vertices" ][ k + 5 ][ 0u ] = room_width;
-		d->world_hash[ new_id ][ "vertices" ][ k + 5 ][ 1u ] = -room_width;
-		d->world_hash[ new_id ][ "vertices" ][ k + 5 ][ 2u ] = room_width;
+		in_room->attr[ "vertices" ][ k + 5 ][ 0u ] = room_width;
+		in_room->attr[ "vertices" ][ k + 5 ][ 1u ] = -room_width;
+		in_room->attr[ "vertices" ][ k + 5 ][ 2u ] = room_width;
 
-		d->world_hash[ new_id ][ "vertices" ][ k + 6 ][ 0u ] = room_width;
-		d->world_hash[ new_id ][ "vertices" ][ k + 6 ][ 1u ] = room_width;
-		d->world_hash[ new_id ][ "vertices" ][ k + 6 ][ 2u ] = room_width;
+		in_room->attr[ "vertices" ][ k + 6 ][ 0u ] = room_width;
+		in_room->attr[ "vertices" ][ k + 6 ][ 1u ] = room_width;
+		in_room->attr[ "vertices" ][ k + 6 ][ 2u ] = room_width;
 
-		d->world_hash[ new_id ][ "vertices" ][ k + 7 ][ 0u ] = -room_width;
-		d->world_hash[ new_id ][ "vertices" ][ k + 7 ][ 1u ] = room_width;
-		d->world_hash[ new_id ][ "vertices" ][ k + 7 ][ 2u ] = room_width;
+		in_room->attr[ "vertices" ][ k + 7 ][ 0u ] = -room_width;
+		in_room->attr[ "vertices" ][ k + 7 ][ 1u ] = room_width;
+		in_room->attr[ "vertices" ][ k + 7 ][ 2u ] = room_width;
 
-		for( int i = 0; i < 6; i++ )
-		{
-			d->world_hash[ new_id ][ "quads" ][ 0u ][ "indices" ][ i ] = Grids::Value();
+		for( int i = 0; i < 6; i++ ){
+			in_room->attr[ "quads" ][ 0u ][ "indices" ][ i ] = Grids::Value();
 		}
 
-		d->world_hash[ new_id ][ "quads" ][ 0u ][ "indices" ][ 0u ][ 0u ] = k + 0u; // Box top
-		d->world_hash[ new_id ][ "quads" ][ 0u ][ "indices" ][ 0u ][ 1u ] = k + 1u;
-		d->world_hash[ new_id ][ "quads" ][ 0u ][ "indices" ][ 0u ][ 2u ] = k + 2u;
-		d->world_hash[ new_id ][ "quads" ][ 0u ][ "indices" ][ 0u ][ 3u ] = k + 3u;
+		in_room->attr[ "quads" ][ 0u ][ "indices" ][ 0u ][ 0u ] = k + 0u; // Box top
+		in_room->attr[ "quads" ][ 0u ][ "indices" ][ 0u ][ 1u ] = k + 1u;
+		in_room->attr[ "quads" ][ 0u ][ "indices" ][ 0u ][ 2u ] = k + 2u;
+		in_room->attr[ "quads" ][ 0u ][ "indices" ][ 0u ][ 3u ] = k + 3u;
 
-		d->world_hash[ new_id ][ "quads" ][ 0u ][ "indices" ][ 1u ][ 0u ] = k + 4u; // Box bottom
-		d->world_hash[ new_id ][ "quads" ][ 0u ][ "indices" ][ 1u ][ 1u ] = k + 5u;
-		d->world_hash[ new_id ][ "quads" ][ 0u ][ "indices" ][ 1u ][ 2u ] = k + 6u;
-		d->world_hash[ new_id ][ "quads" ][ 0u ][ "indices" ][ 1u ][ 3u ] = k + 7u;
+		in_room->attr[ "quads" ][ 0u ][ "indices" ][ 1u ][ 0u ] = k + 4u; // Box bottom
+		in_room->attr[ "quads" ][ 0u ][ "indices" ][ 1u ][ 1u ] = k + 5u;
+		in_room->attr[ "quads" ][ 0u ][ "indices" ][ 1u ][ 2u ] = k + 6u;
+		in_room->attr[ "quads" ][ 0u ][ "indices" ][ 1u ][ 3u ] = k + 7u;
 
-		d->world_hash[ new_id ][ "quads" ][ 0u ][ "indices" ][ 2u ][ 0u ] = k + 4u;
-		d->world_hash[ new_id ][ "quads" ][ 0u ][ "indices" ][ 2u ][ 1u ] = k + 5u;
-		d->world_hash[ new_id ][ "quads" ][ 0u ][ "indices" ][ 2u ][ 2u ] = k + 1u;
-		d->world_hash[ new_id ][ "quads" ][ 0u ][ "indices" ][ 2u ][ 3u ] = k + 0u;
+		in_room->attr[ "quads" ][ 0u ][ "indices" ][ 2u ][ 0u ] = k + 4u;
+		in_room->attr[ "quads" ][ 0u ][ "indices" ][ 2u ][ 1u ] = k + 5u;
+		in_room->attr[ "quads" ][ 0u ][ "indices" ][ 2u ][ 2u ] = k + 1u;
+		in_room->attr[ "quads" ][ 0u ][ "indices" ][ 2u ][ 3u ] = k + 0u;
 
-		d->world_hash[ new_id ][ "quads" ][ 0u ][ "indices" ][ 3u ][ 0u ] = k + 7u;
-		d->world_hash[ new_id ][ "quads" ][ 0u ][ "indices" ][ 3u ][ 1u ] = k + 6u;
-		d->world_hash[ new_id ][ "quads" ][ 0u ][ "indices" ][ 3u ][ 2u ] = k + 2u;
-		d->world_hash[ new_id ][ "quads" ][ 0u ][ "indices" ][ 3u ][ 3u ] = k + 3u;
+		in_room->attr[ "quads" ][ 0u ][ "indices" ][ 3u ][ 0u ] = k + 7u;
+		in_room->attr[ "quads" ][ 0u ][ "indices" ][ 3u ][ 1u ] = k + 6u;
+		in_room->attr[ "quads" ][ 0u ][ "indices" ][ 3u ][ 2u ] = k + 2u;
+		in_room->attr[ "quads" ][ 0u ][ "indices" ][ 3u ][ 3u ] = k + 3u;
 
-		d->world_hash[ new_id ][ "quads" ][ 0u ][ "indices" ][ 4u ][ 0u ] = k + 4u;
-		d->world_hash[ new_id ][ "quads" ][ 0u ][ "indices" ][ 4u ][ 1u ] = k + 7u;
-		d->world_hash[ new_id ][ "quads" ][ 0u ][ "indices" ][ 4u ][ 2u ] = k + 3u;
-		d->world_hash[ new_id ][ "quads" ][ 0u ][ "indices" ][ 4u ][ 3u ] = k + 0u;
+		in_room->attr[ "quads" ][ 0u ][ "indices" ][ 4u ][ 0u ] = k + 4u;
+		in_room->attr[ "quads" ][ 0u ][ "indices" ][ 4u ][ 1u ] = k + 7u;
+		in_room->attr[ "quads" ][ 0u ][ "indices" ][ 4u ][ 2u ] = k + 3u;
+		in_room->attr[ "quads" ][ 0u ][ "indices" ][ 4u ][ 3u ] = k + 0u;
 
-		d->world_hash[ new_id ][ "quads" ][ 0u ][ "indices" ][ 5u ][ 0u ] = k + 5u;
-		d->world_hash[ new_id ][ "quads" ][ 0u ][ "indices" ][ 5u ][ 1u ] = k + 6u;
-		d->world_hash[ new_id ][ "quads" ][ 0u ][ "indices" ][ 5u ][ 2u ] = k + 2u;
-		d->world_hash[ new_id ][ "quads" ][ 0u ][ "indices" ][ 5u ][ 3u ] = k + 1u;
+		in_room->attr[ "quads" ][ 0u ][ "indices" ][ 5u ][ 0u ] = k + 5u;
+		in_room->attr[ "quads" ][ 0u ][ "indices" ][ 5u ][ 1u ] = k + 6u;
+		in_room->attr[ "quads" ][ 0u ][ "indices" ][ 5u ][ 2u ] = k + 2u;
+		in_room->attr[ "quads" ][ 0u ][ "indices" ][ 5u ][ 3u ] = k + 1u;
 
 
 		// Do the faint white outline lines
 
-		d->world_hash[ new_id ][ "lines" ][ 1u ][ "color" ] = 2u;
+		in_room->attr[ "lines" ][ 1u ][ "color" ] = 2u;
 
-		for( int i = 0; i < 12; i++ )
-		{
-			d->world_hash[ new_id ][ "lines" ][ 1u ][ "indices" ][ i ] = Grids::Value();
+		for( int i = 0; i < 12; i++ ){
+			in_room->attr[ "lines" ][ 1u ][ "indices" ][ i ] = Grids::Value();
 		}
 
-		d->world_hash[ new_id ][ "lines" ][ 1u ][ "indices" ][ 0u ][ 0u ] = k + 0u;
-		d->world_hash[ new_id ][ "lines" ][ 1u ][ "indices" ][ 0u ][ 1u ] = k + 1u;
+		in_room->attr[ "lines" ][ 1u ][ "indices" ][ 0u ][ 0u ] = k + 0u;
+		in_room->attr[ "lines" ][ 1u ][ "indices" ][ 0u ][ 1u ] = k + 1u;
 
-		d->world_hash[ new_id ][ "lines" ][ 1u ][ "indices" ][ 1u ][ 0u ] = k + 3u;
-		d->world_hash[ new_id ][ "lines" ][ 1u ][ "indices" ][ 1u ][ 1u ] = k + 2u;
+		in_room->attr[ "lines" ][ 1u ][ "indices" ][ 1u ][ 0u ] = k + 3u;
+		in_room->attr[ "lines" ][ 1u ][ "indices" ][ 1u ][ 1u ] = k + 2u;
 
-		d->world_hash[ new_id ][ "lines" ][ 1u ][ "indices" ][ 2u ][ 0u ] = k + 4u;
-		d->world_hash[ new_id ][ "lines" ][ 1u ][ "indices" ][ 2u ][ 1u ] = k + 5u;
+		in_room->attr[ "lines" ][ 1u ][ "indices" ][ 2u ][ 0u ] = k + 4u;
+		in_room->attr[ "lines" ][ 1u ][ "indices" ][ 2u ][ 1u ] = k + 5u;
 
-		d->world_hash[ new_id ][ "lines" ][ 1u ][ "indices" ][ 3u ][ 0u ] = k + 7u;
-		d->world_hash[ new_id ][ "lines" ][ 1u ][ "indices" ][ 3u ][ 1u ] = k + 6u;
+		in_room->attr[ "lines" ][ 1u ][ "indices" ][ 3u ][ 0u ] = k + 7u;
+		in_room->attr[ "lines" ][ 1u ][ "indices" ][ 3u ][ 1u ] = k + 6u;
 
-		d->world_hash[ new_id ][ "lines" ][ 1u ][ "indices" ][ 4u ][ 0u ] = k + 0u;
-		d->world_hash[ new_id ][ "lines" ][ 1u ][ "indices" ][ 4u ][ 1u ] = k + 3u;
+		in_room->attr[ "lines" ][ 1u ][ "indices" ][ 4u ][ 0u ] = k + 0u;
+		in_room->attr[ "lines" ][ 1u ][ "indices" ][ 4u ][ 1u ] = k + 3u;
 
-		d->world_hash[ new_id ][ "lines" ][ 1u ][ "indices" ][ 5u ][ 0u ] = k + 1u;
-		d->world_hash[ new_id ][ "lines" ][ 1u ][ "indices" ][ 5u ][ 1u ] = k + 2u;
+		in_room->attr[ "lines" ][ 1u ][ "indices" ][ 5u ][ 0u ] = k + 1u;
+		in_room->attr[ "lines" ][ 1u ][ "indices" ][ 5u ][ 1u ] = k + 2u;
 
-		d->world_hash[ new_id ][ "lines" ][ 1u ][ "indices" ][ 6u ][ 0u ] = k + 4u;
-		d->world_hash[ new_id ][ "lines" ][ 1u ][ "indices" ][ 6u ][ 1u ] = k + 7u;
+		in_room->attr[ "lines" ][ 1u ][ "indices" ][ 6u ][ 0u ] = k + 4u;
+		in_room->attr[ "lines" ][ 1u ][ "indices" ][ 6u ][ 1u ] = k + 7u;
 
-		d->world_hash[ new_id ][ "lines" ][ 1u ][ "indices" ][ 7u ][ 0u ] = k + 5u;
-		d->world_hash[ new_id ][ "lines" ][ 1u ][ "indices" ][ 7u ][ 1u ] = k + 6u;
+		in_room->attr[ "lines" ][ 1u ][ "indices" ][ 7u ][ 0u ] = k + 5u;
+		in_room->attr[ "lines" ][ 1u ][ "indices" ][ 7u ][ 1u ] = k + 6u;
 
-		d->world_hash[ new_id ][ "lines" ][ 1u ][ "indices" ][ 8u ][ 0u ] = k + 4u;
-		d->world_hash[ new_id ][ "lines" ][ 1u ][ "indices" ][ 8u ][ 1u ] = k + 0u;
+		in_room->attr[ "lines" ][ 1u ][ "indices" ][ 8u ][ 0u ] = k + 4u;
+		in_room->attr[ "lines" ][ 1u ][ "indices" ][ 8u ][ 1u ] = k + 0u;
 
-		d->world_hash[ new_id ][ "lines" ][ 1u ][ "indices" ][ 9u ][ 0u ] = k + 7u;
-		d->world_hash[ new_id ][ "lines" ][ 1u ][ "indices" ][ 9u ][ 1u ] = k + 3u;
+		in_room->attr[ "lines" ][ 1u ][ "indices" ][ 9u ][ 0u ] = k + 7u;
+		in_room->attr[ "lines" ][ 1u ][ "indices" ][ 9u ][ 1u ] = k + 3u;
 
-		d->world_hash[ new_id ][ "lines" ][ 1u ][ "indices" ][ 10u ][ 0u ] = k + 5u;
-		d->world_hash[ new_id ][ "lines" ][ 1u ][ "indices" ][ 10u ][ 1u ] = k + 1u;
+		in_room->attr[ "lines" ][ 1u ][ "indices" ][ 10u ][ 0u ] = k + 5u;
+		in_room->attr[ "lines" ][ 1u ][ "indices" ][ 10u ][ 1u ] = k + 1u;
 
-		d->world_hash[ new_id ][ "lines" ][ 1u ][ "indices" ][ 11u ][ 0u ] = k + 6u;
-		d->world_hash[ new_id ][ "lines" ][ 1u ][ "indices" ][ 11u ][ 1u ] = k + 2u;
+		in_room->attr[ "lines" ][ 1u ][ "indices" ][ 11u ][ 0u ] = k + 6u;
+		in_room->attr[ "lines" ][ 1u ][ "indices" ][ 11u ][ 1u ] = k + 2u;
 		
-		d->unlockWorldHash();
+		in_room->unlock();
 		
 	} // end BuildRoom
 

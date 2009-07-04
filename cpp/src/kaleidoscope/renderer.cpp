@@ -86,7 +86,7 @@ namespace Kaleidoscope
 	{		
 		prepareRender( d );
 				
-		renderWorldHash( d );	
+		//renderWorldHash( d );	
 		
 		renderGui( d );
 				
@@ -168,6 +168,8 @@ namespace Kaleidoscope
 			glPushMatrix();
 			
 			Grids::GridsID temp_room = d->world_hash[ "rooms" ][ i ].asString();
+
+			
 			
 			// Translate
 			glTranslatef(	d->world_hash[ temp_room ][ "position" ][ 0u ].asDouble(), 

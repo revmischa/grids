@@ -26,11 +26,13 @@
 #include <kaleidoscope/define.h>
 #include <grids/define.h>
 
+
 #include <vector>
 #include <SDL/SDL.h>
 
 namespace Kaleidoscope
 {
+	class Builder;
 	class Device;	
 }
 
@@ -70,23 +72,26 @@ namespace Grids
 		virtual void drawAll( Kal::Device* );
 
 
-		virtual Vec3D getPosition( Kal::Device* );
-		virtual Vec3D getGridsPosition( Kal::Device* );
+		virtual Vec3D getPosition(  );
+		virtual Vec3D getAttrPosition(  );
 			
-		virtual Vec3D getScale( Kal::Device* );
-		virtual Vec3D getGridsScale( Kal::Device* );
+		virtual Vec3D getScale( );
+		virtual Vec3D getAttrScale( );
 
-		virtual Vec3D getRotation( Kal::Device* );
-		virtual Vec3D getGridsRotation( Kal::Device* );
-
+		virtual Vec3D getRotation( );
+		virtual Vec3D getAttrRotation( );
+		
+		void setAttrPosition( Vec3D );
+		void setAttrRotation( Vec3D );
+		void setAttrScale( Vec3D );
 	
-		void storePositionFromAttr( Kal::Device* d, Value* in_val );
+		void storePositionFromAttr( Value* in_val );
 	
 		void setPosition( Kal::Device*, Vec3D );
 
 		void setController( ObjectController * );
 	
-		static float detectSelection( Kaleidoscope::Device *, GridsID, Vec3D, Vec3D );
+		float detectSelection( Kaleidoscope::Device *, GridsID, Vec3D, Vec3D );
 		
 		void selectObject( Kaleidoscope::Device * );
 		
@@ -119,11 +124,11 @@ namespace Grids
 
 	protected:
 		
-		static Value* getAttr( Value* in_val );		
+		static Value* getAttr( Value* in_val );
+		Value* getAttr();		
 		virtual GridsID getIDFromValue( Value* );
 
-		Value* attr;		
-		
+		Value attr;		
 		
 		GridsID this_id;
 		GridsID room_id;
@@ -134,6 +139,8 @@ namespace Grids
 		
 		
 	private:
+		friend class Kal::Builder;
+		
 		SDL_mutex * object_mutex;
 			
 		std::vector< Object* > children;

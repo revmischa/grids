@@ -157,8 +157,9 @@ namespace Grids
 		
 		if( object_name == "SimpleCube" )
 		{
+			return getPointerFromID( in_id )->detectSelection( d, in_id, ray_pos, ray_target );
 			//return ( (Kaleidoscope::SimpleCube *) id_pointer_hash[ in_id ])->detectSelection( d, ray_pos, ray_target );
-			return Object::detectSelection( d, in_id, ray_pos, ray_target );
+			
 		}
 		
 		return -1.0f;

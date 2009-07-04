@@ -26,11 +26,13 @@
 
 #pragma once
 
+
 #include <grids/object.h>
-#include <kaleidoscope/RenderObject.h>
 #include <grids/define.h>
 
-
+namespace Grids{
+	class Object;
+}
 
 namespace Kaleidoscope
 {

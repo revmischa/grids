@@ -22,6 +22,8 @@
  */
 
 #include <kaleidoscope/room.h>
+#include <kaleidoscope/RenderObject.h>
+
 
 namespace Kaleidoscope
 {
@@ -31,8 +33,13 @@ namespace Kaleidoscope
 			d->setMyRoom( getIDFromValue(in_val) );
 		}
 
-		d->getBuilder()->placeRoom( d,  this, getIDFromValue( in_val ) );
-		d->getBuilder()->buildRoom( d,  this, getIDFromValue( in_val ) );
+		d->getBuilder()->placeRoom( d,  this );
+		d->getBuilder()->buildRoom( d,  this );
+		
+		//setParent( NULL );
+		
+		Utility::puts( "Created room id = ", getID() );
+		Utility::puts( "Created room parent = ", (unsigned int)parent );		
 	}
 	
 
@@ -55,7 +62,7 @@ namespace Kaleidoscope
 		return NULL;
 	}
 	
-	GridsID Room::getIDFromValue( Grids::Value* in_val ){
+	Grids::GridsID Room::getIDFromValue( Grids::Value* in_val ){
 		Utility::puts( "Room getIDFromValue" );
 		
 		return (*in_val)[ "id" ].asString();

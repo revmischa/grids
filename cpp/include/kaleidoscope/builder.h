@@ -25,19 +25,22 @@
 
 #include <kaleidoscope/device.h>
 #include <kaleidoscope/define.h>
+#include <kaleidoscope/room.h>
 
 namespace Kaleidoscope
 {
+	class Room;
+ 
 	class Builder //  sounds like Bob the Builder or something, maybe change it...
 	{
 	public:
 	
 		Builder();
 		
-		void placeRoom( Device * , Room*, GridsID );	// placeRoom adds a room hash entry onto the worldHash,
+		void placeRoom( Device*, Room* );	// placeRoom adds a room hash entry onto the worldHash,
 											// and sets it's position based on the current number of rooms
 		
-		void buildRoom( Device *, Room*, GridsID );	// Constructs a generic green room ... in the future this will probably load an .obj,
+		void buildRoom( Device*, Room* );	// Constructs a generic green room ... in the future this will probably load an .obj,
 												// or quake map
 		
 		// agrs:  device, object ID, room ID, position
@@ -70,8 +73,7 @@ namespace Kaleidoscope
 		void unlock( Device * d );
 		
 	private:
-		friend class Grids::Object;
-					
+							
 		Uint32 getPixel( SDL_Surface *, int, int );
 		void putPixel( SDL_Surface *, int, int, Uint32 );
 		

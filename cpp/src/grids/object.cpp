@@ -23,6 +23,8 @@
 
 #include <grids/object.h>
 
+#include <kaleidoscope/room.h>
+
 #include <grids/event.h>
 #include <grids/objectController.h>
 
@@ -35,15 +37,16 @@ namespace Grids
 	Object::Object( Kal::Device* d, Value* in_val ){		
 		Kal::Utility::puts( "new Object" );
 
+		initMutex();
+
 		Object* parent_ptr = getParentFromValue( d, in_val );
 
-		Kal::Utility::puts( "Object::Object Parent: ", (int)parent_ptr );
+		Kal::Utility::puts( "Object::Object Parent: ", (unsigned int)parent_ptr );
 		
 		setParent( parent_ptr );
 		
 		if( parent_ptr )
 			parent_ptr->addChild( this );		
-
 
 		GridsID temp_id = getIDFromValue( in_val );
 		
@@ -52,12 +55,13 @@ namespace Grids
 		
 		d->getInterface()->getObjectController()->registerObject( temp_id, this );
 
-		initMutex();
 
 		Value* temp_attr = getAttr( in_val );		
-		attr = new Value( temp_attr );
-		delete temp_attr;		
-	
+		attr = Value( *temp_attr );
+		delete temp_attr;
+				
+		setID( attr[ "id" ].asString() );
+		setRoomID( attr[ "room_id" ].asString() );				
 	}
 
 	Object::~Object(){
@@ -104,9 +108,7 @@ namespace Grids
 			return -1;
 		}  
 		
-		Vec3D this_position = Vec3D( d->world_hash[ this_id ][ "position" ][ 0u ].asDouble(),
-							    d->world_hash[ this_id ][ "position" ][ 1u ].asDouble(),
-							    d->world_hash[ this_id ][ "position" ][ 2u ].asDouble()	);
+		Vec3D this_position = getPosition();
 		
 		if( !( d->world_hash[ this_id ][ "radius" ] ) ) // if there is no "radius" entry
 		{
@@ -124,7 +126,6 @@ namespace Grids
 	void Object::selectObject( Kaleidoscope::Device * d )
 	{
 		std::cerr << "Object method should exist in parent object" << std::endl;     
-		
 	}
 
 	void Object::setController( ObjectController * cont )
@@ -187,7 +188,7 @@ namespace Grids
 		return this_id;
 	}
 	
-	void Object::setID( GridsID new_id ){
+	void Object::setID( GridsID new_id ){		
 		this_id = new_id;
 	}
 	
@@ -211,6 +212,10 @@ namespace Grids
 	Value* Object::getAttr( Value* in_value ){
 		return new Value( (*in_value)[ "req" ][ "attr" ] );	
 	}
+	
+	Value* Object::getAttr(){
+		return &attr;
+	}
 
 	std::string Object::getNameFromValue( Value* in_val ){
 		return (*in_val)[ "req" ][ "attr" ][ "type" ][ "name" ].asString();
@@ -228,7 +233,11 @@ namespace Grids
 	Object* Object::getParentFromAttr( Kal::Device* d, Value* item_val ){
 		Kal::Utility::puts( "Object::getParentFromAttr parent: ", getParentIDFromAttr(item_val) );
 		
-		void* temp_ptr = d->getInterface()->getObjectController()->getPointerFromID( getParentIDFromAttr(item_val) );
+		GridsID temp_id = getParentIDFromAttr(item_val);
+		if( temp_id.empty() )
+			return NULL;
+		
+		void* temp_ptr = d->getInterface()->getObjectController()->getPointerFromID( temp_id );
 		
 		Kal::Utility::puts( (int)temp_ptr, getParentIDFromAttr(item_val) );
 		
@@ -274,111 +283,114 @@ namespace Grids
 	}
 
 
-	Vec3D Object::getPosition( Kal::Device* d ){
+	Vec3D Object::getPosition( ){
 		Vec3D parents_position = Vec3D();
 	
-		if( parent ){
-			parents_position = parent->getPosition( d );
-		}
-
-		return getGridsPosition( d ) + parents_position;
+		if( parent )
+			parents_position = parent->getPosition( );
+		
+		return getAttrPosition( ) + parents_position;
 	}
 
-	Vec3D Object::getGridsPosition( Kal::Device* d ){
-		GridsID this_id = getID();
-		
+	Vec3D Object::getAttrPosition( ){		
 		Vec3D temp_position;
 
-		d->lockWorldHash();
-		temp_position = Vec3D( d->world_hash[ this_id ][ "position" ][ 0u ].asDouble(),
-						   d->world_hash[ this_id ][ "position" ][ 1u ].asDouble(),
-						   d->world_hash[ this_id ][ "position" ][ 2u ].asDouble() );
-		d->unlockWorldHash();
+		lock();
+		temp_position = Vec3D( attr[ "pos" ][ 0u ].asDouble(),
+						   attr[ "pos" ][ 1u ].asDouble(),
+						   attr[ "pos" ][ 2u ].asDouble() );
+		unlock();
 	
 		return temp_position;
 	}
 
-	Vec3D Object::getScale( Kal::Device* d ){
+	Vec3D Object::getScale(  ){
 		Vec3D parents_scale = Vec3D(1.0f, 1.0f, 1.0f );
 		
-		if( parent ){
-			parents_scale = parent->getScale( d );
-		}
-		
-		//Utility::puts( parents_scale );
-
-		return getGridsScale( d ) * parents_scale;
+		if( parent )
+			parents_scale = parent->getScale( );
+				
+		return getAttrScale( ) * parents_scale;
 	}
 
-	Vec3D Object::getGridsScale( Kal::Device* d ){
-		GridsID this_id = getID();
-		
+	Vec3D Object::getAttrScale( ){				
 		Vec3D temp_scale;
 
-		d->lockWorldHash();
-		temp_scale = Vec3D( d->world_hash[ this_id ][ "scale" ][ 0u ].asDouble(),
-						d->world_hash[ this_id ][ "scale" ][ 1u ].asDouble(),
-						d->world_hash[ this_id ][ "scale" ][ 2u ].asDouble() );
-		d->unlockWorldHash();
+		lock();
+		return Vec3D( attr[ "scl" ][ 0u ].asDouble(),
+				    attr[ "scl" ][ 1u ].asDouble(),
+				    attr[ "scl" ][ 2u ].asDouble() );
+		unlock();
 	
 		return temp_scale;
 	}
 
 
-	Vec3D Object::getRotation( Kal::Device* d ){
+	Vec3D Object::getRotation( ){
 		Vec3D parents_rot = Vec3D(0.0f, 0.0f, 0.0f );
 		
-		if( parent ){
-			parents_rot = parent->getRotation( d );
-		}
-		
-		//Utility::puts( parents_scale );
-
-		return getGridsRotation( d ) * parents_rot;
+		if( parent )
+			parents_rot = parent->getRotation( );
+			
+		return getAttrRotation( ) * parents_rot;
 	}
 
-	Vec3D Object::getGridsRotation( Kal::Device* d ){
-		GridsID this_id = getID();
-		
+	Vec3D Object::getAttrRotation( ){		
 		Vec3D temp_rotation;
 
-		d->lockWorldHash();
-		temp_rotation = Vec3D( d->world_hash[ this_id ][ "rotation" ][ 0u ].asDouble(),
-						d->world_hash[ this_id ][ "rotation" ][ 1u ].asDouble(),
-						d->world_hash[ this_id ][ "rotation" ][ 2u ].asDouble() );
-		d->unlockWorldHash();
+		lock();
+		temp_rotation = Vec3D( attr[ "rot" ][ 0u ].asDouble(),
+						   attr[ "rot" ][ 1u ].asDouble(),
+						   attr[ "rot" ][ 2u ].asDouble() );
+		unlock();
 	
 		return temp_rotation;
 	}
-
-
 
 	
 	void Object::setPosition( Kal::Device* d, Vec3D new_position ){
 		d->getInterface()->getObjectController()->requestUpdatePosition( d, getID(), getRoomID(), new_position );
 	}	
 
-	void Object::storePositionFromAttr( Kal::Device* d, Value* in_val ){
-		d->lockWorldHash();
-		GridsID my_id = getID();
+	void Object::setAttrPosition( Vec3D new_position ){
+		lock();
+		attr[ "pos" ][ 0u ] = new_position.X;
+		attr[ "pos" ][ 1u ] = new_position.Y;
+		attr[ "pos" ][ 2u ] = new_position.Z;
+		unlock();
+	}
+	
+	void Object::setAttrRotation( Vec3D new_rotation ){
+		lock();
+		attr[ "rot" ][ 0u ] = new_rotation.X;
+		attr[ "rot" ][ 1u ] = new_rotation.Y;
+		attr[ "rot" ][ 2u ] = new_rotation.Z;
+		unlock();
+	}
 
-		//Utility::puts( "YOYOYO" );
-		//Utility::puts( (*in_val)[ "pos" ][ 0u ].asDouble() );
-		//Utility::puts( my_id );
-		
-		d->world_hash[ my_id ][ "position" ][ 0u ] = (*in_val)[ "pos" ][ 0u ].asDouble();
-		d->world_hash[ my_id ][ "position" ][ 1u ] = (*in_val)[ "pos" ][ 1u ].asDouble();
-		d->world_hash[ my_id ][ "position" ][ 2u ] = (*in_val)[ "pos" ][ 2u ].asDouble();
+	void Object::setAttrScale( Vec3D new_scale ){
+		lock();
+		attr[ "scl" ][ 0u ] = new_scale.X;
+		attr[ "scl" ][ 1u ] = new_scale.Y;
+		attr[ "scl" ][ 2u ] = new_scale.Z;
+		unlock();
+	}
 
-		d->world_hash[ my_id ][ "rotation" ][ 0u ] = (*in_val)[ "rot" ][ 0u ].asDouble();
-		d->world_hash[ my_id ][ "rotation" ][ 1u ] = (*in_val)[ "rot" ][ 1u ].asDouble();
-		d->world_hash[ my_id ][ "rotation" ][ 2u ] = (*in_val)[ "rot" ][ 2u ].asDouble();
 
-		d->world_hash[ my_id ][ "scale" ][ 0u ] = (*in_val)[ "scl" ][ 0u ].asDouble();
-		d->world_hash[ my_id ][ "scale" ][ 1u ] = (*in_val)[ "scl" ][ 1u ].asDouble();
-		d->world_hash[ my_id ][ "scale" ][ 2u ] = (*in_val)[ "scl" ][ 2u ].asDouble();
-		
-		d->unlockWorldHash();
+	void Object::storePositionFromAttr( Value* in_val ){		
+		lock();
+		attr[ "pos" ][ 0u ] = (*in_val)[ "pos" ][ 0u ].asDouble();
+		attr[ "pos" ][ 1u ] = (*in_val)[ "pos" ][ 1u ].asDouble();
+		attr[ "pos" ][ 2u ] = (*in_val)[ "pos" ][ 2u ].asDouble();
+
+		attr[ "rot" ][ 0u ] = (*in_val)[ "rot" ][ 0u ].asDouble();
+		attr[ "rot" ][ 1u ] = (*in_val)[ "rot" ][ 1u ].asDouble();
+		attr[ "rot" ][ 2u ] = (*in_val)[ "rot" ][ 2u ].asDouble();
+
+		attr[ "scl" ][ 0u ] = (*in_val)[ "scl" ][ 0u ].asDouble();
+		attr[ "scl" ][ 1u ] = (*in_val)[ "scl" ][ 1u ].asDouble();
+		attr[ "scl" ][ 2u ] = (*in_val)[ "scl" ][ 2u ].asDouble();
+		unlock();		
 	}
 	
 	

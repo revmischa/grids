@@ -92,22 +92,22 @@ namespace Kaleidoscope
 
 					temp_string = "";
 					temp_string += (char)event.key.keysym.sym;
-					d->getGui()->appendText( d, 1u, 0u, temp_string);
+					//d->getGui()->appendText( d, 1u, 0u, temp_string);
 					
 					// NOTE: I still need to add support for SHIFT and CAPS LOCK keys
 				}
 				else if( event.key.keysym.sym == SDLK_RETURN )
 				{
-					d->getGui()->parseText( d, 1u, 0u );
+					//d->getGui()->parseText( d, 1u, 0u );
 					//std::cout << "return" << std::endl;
 				}
 				else if( event.key.keysym.sym == SDLK_BACKSPACE )
 				{
-					d->getGui()->removeLastCharacter( d, 1u, 0u );
+					//d->getGui()->removeLastCharacter( d, 1u, 0u );
 				}
 				else if( event.key.keysym.sym == SDLK_DELETE )
 				{
-					d->getGui()->clearText( d, 1u, 0u );
+					//d->getGui()->clearText( d, 1u, 0u );
 				}
 			}
 			

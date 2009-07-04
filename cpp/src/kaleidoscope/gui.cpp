@@ -59,17 +59,11 @@ namespace Kaleidoscope
 		
 		setRoomID( d->getMyRoom() );
 		
-		d->world_hash[ getID() ][ "position" ][ 0u ] = 0.0f;
-		d->world_hash[ getID() ][ "position" ][ 1u ] = 0.0f;
-		d->world_hash[ getID() ][ "position" ][ 2u ] = 0.0f;
-
-		d->world_hash[ getID() ][ "rotation" ][ 0u ] = 0.0f;
-		d->world_hash[ getID() ][ "rotation" ][ 1u ] = 0.0f;
-		d->world_hash[ getID() ][ "rotation" ][ 2u ] = 0.0f;
-
-		d->world_hash[ getID() ][ "scale" ][ 0u ] = 1.0f;
-		d->world_hash[ getID() ][ "scale" ][ 1u ] = 1.0f;
-		d->world_hash[ getID() ][ "scale" ][ 2u ] = 1.0f;
+		Utility::puts( "setting Attr" );
+		setAttrPosition( Vec3D( 0.0f, 0.0f, 0.0f ) );
+		setAttrRotation( Vec3D( 0.0f, 0.0f, 0.0f ) );
+		setAttrScale( Vec3D( 1.0f, 1.0f, 1.0f ) );
+		Utility::puts( "done setting attr" );
 	}
 
 	void Gui::create( Device* d, Grids::Value* in_val ){
