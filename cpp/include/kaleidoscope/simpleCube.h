@@ -25,7 +25,7 @@
 #pragma once
 
 #include <grids/interface.h>
-#include <grids/object.h>
+#include <kaleidoscope/glSpaceObject.h>
 
 
 namespace Grids
@@ -37,7 +37,7 @@ namespace Grids
 namespace Kaleidoscope
 {
 	
-	class SimpleCube : public Grids::Object
+	class SimpleCube : public GLSpaceObject
 		// makes a cube in the specified room
 		{
 		public:
@@ -51,11 +51,11 @@ namespace Kaleidoscope
 			void create( Device *, Grids::Value *);
 			void draw( Device* );
 		
+			static void loadGeometry( Grids::Value*, float half_side_size, float* color_array );
+
 			float detectSelection( Device *, Vec3D, Vec3D );
 		
 			void selectObject( Device * d );
-
-			static void loadPosition( Grids::Value *, Vec3D, Vec3D, Vec3D);
 
 		private:
 		

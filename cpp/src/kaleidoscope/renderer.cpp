@@ -24,12 +24,22 @@
 #include <kaleidoscope/renderer.h>
 #include <kaleidoscope/RenderObject.h>
 
+#include <grids/define.h>
+
 namespace Kaleidoscope
 {
-	Renderer::Renderer( Device * d, int window_width, int window_height)
+	Renderer::Renderer( Device * d, int window_width, int window_height, Grids::Value * in_val ) : Object( d, in_val ) 
 	{		
-		d->width = window_width;
-		d->height = window_height;
+
+	}
+	
+	Renderer::~Renderer(){ 
+
+	}
+	
+	void Renderer::setRenderVars( Device* d, int sw, int sh ){
+		d->width = sw;
+		d->height = sh;
 		
 		d->Texture_On = false;
 		d->Light_On = false;
@@ -40,12 +50,6 @@ namespace Kaleidoscope
 		
 		loadLights(d);
 		loadTextModes(d);		
-	}
-	
-	Renderer::~Renderer(){ 
-		
-
-
 	}
 	
 	int Renderer::getWidth( Device * d )
@@ -81,12 +85,24 @@ namespace Kaleidoscope
 	{
 		d->height = in_height;
 	}
+
+	void Renderer::draw( Device* d ){
+
+	}
+
+	void Renderer::create( Device* d, Grids::Value* ){
+
+
+	}
 	
 	void Renderer::renderAll( Device * d)
 	{		
 		prepareRender( d );
 				
 		//renderWorldHash( d );	
+		
+		drawAll(d);
+		
 		
 		renderGui( d );
 				
@@ -358,20 +374,20 @@ namespace Kaleidoscope
 								
 								
 								glVertex3f( d->world_hash[ temp_object ][ "vertices" ][ vertice_index_1 ][ 0u ].asDouble(),
-											d->world_hash[ temp_object ][ "vertices" ][ vertice_index_1 ][ 1u ].asDouble(),
-											d->world_hash[ temp_object ][ "vertices" ][ vertice_index_1 ][ 2u ].asDouble()	);
+										  d->world_hash[ temp_object ][ "vertices" ][ vertice_index_1 ][ 1u ].asDouble(),
+										  d->world_hash[ temp_object ][ "vertices" ][ vertice_index_1 ][ 2u ].asDouble()	);
 											
 								glVertex3f( d->world_hash[ temp_object ][ "vertices" ][ vertice_index_2 ][ 0u ].asDouble(),
-											d->world_hash[ temp_object ][ "vertices" ][ vertice_index_2 ][ 1u ].asDouble(),
-											d->world_hash[ temp_object ][ "vertices" ][ vertice_index_2 ][ 2u ].asDouble()	);
+										  d->world_hash[ temp_object ][ "vertices" ][ vertice_index_2 ][ 1u ].asDouble(),
+										  d->world_hash[ temp_object ][ "vertices" ][ vertice_index_2 ][ 2u ].asDouble()	);
 											
 								glVertex3f( d->world_hash[ temp_object ][ "vertices" ][ vertice_index_3 ][ 0u ].asDouble(),
-											d->world_hash[ temp_object ][ "vertices" ][ vertice_index_3 ][ 1u ].asDouble(),
-											d->world_hash[ temp_object ][ "vertices" ][ vertice_index_3 ][ 2u ].asDouble()	);
+										  d->world_hash[ temp_object ][ "vertices" ][ vertice_index_3 ][ 1u ].asDouble(),
+										  d->world_hash[ temp_object ][ "vertices" ][ vertice_index_3 ][ 2u ].asDouble()	);
 											
 								glVertex3f( d->world_hash[ temp_object ][ "vertices" ][ vertice_index_4 ][ 0u ].asDouble(),
-											d->world_hash[ temp_object ][ "vertices" ][ vertice_index_4 ][ 1u ].asDouble(),
-											d->world_hash[ temp_object ][ "vertices" ][ vertice_index_4 ][ 2u ].asDouble()	);
+										  d->world_hash[ temp_object ][ "vertices" ][ vertice_index_4 ][ 1u ].asDouble(),
+										  d->world_hash[ temp_object ][ "vertices" ][ vertice_index_4 ][ 2u ].asDouble()	);
 							
 							
 							} // end for each indice in a quad
@@ -612,7 +628,7 @@ namespace Kaleidoscope
 		
 	void Renderer::loadLights( Device * d)
 	{
-		lock( d );
+		//lock( d );
 		
 		d->Light_Ambient[0] =  0.1f;
 		d->Light_Ambient[1] =  0.1f;
@@ -629,13 +645,13 @@ namespace Kaleidoscope
 		d->Light_Position[2] = 0.0f;
 		d->Light_Position[3] = 1.0f;
 		
-		unlock( d );
+		//unlock( d );
 	}
 	
 	
 	void Renderer::loadTextModes( Device * d)
 	{
-		lock( d );
+		//lock( d );
 		
 		d->current_text_mode = 0;
 		d->text_mode_string[0] = "GL_DECAL";
@@ -648,7 +664,7 @@ namespace Kaleidoscope
 		d->text_modes[2] = GL_BLEND;
 		d->text_modes[3] = GL_REPLACE;
 		
-		unlock( d );
+		//unlock( d );
 	}
 	
 	

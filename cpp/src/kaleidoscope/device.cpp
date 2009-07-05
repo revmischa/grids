@@ -40,8 +40,9 @@ namespace Kaleidoscope
 		
 		cursor_controller = new CursorController( this );
 		Utility::puts( "Created cursorController" );
-		renderer = new Renderer( this, screen_width, screen_height );
-		Utility::puts( "Created renderer" );
+
+		Renderer::setRenderVars( this, screen_width, screen_height );		
+
 		event_controller = new EventController( this );
 		Utility::puts( "Created eventController" );
 		cam = new Camera( this );
@@ -75,14 +76,17 @@ namespace Kaleidoscope
 
 		initSDL();
 		Utility::puts( "Initialized SDL" );
+
+		createRenderer( screen_width, screen_height );
+		Utility::puts( "Created renderer" );
+
 	}
+
 
 	Device::~Device( )
 	{
 		Kal::Utility::puts( "Deleting device" );
 
-		if( renderer )
-			delete renderer;
 
 		if( event_controller )
 			delete event_controller;
@@ -96,9 +100,12 @@ namespace Kaleidoscope
 		if( builder )
 			delete builder;
 
-		// The Gui is now a Grids::Object, so it is automatically deleted
+		// The Gui && Renderer are now Grids::Object, so it is automatically deleted
 		//if( gui )
 		//delete gui;
+
+		//if( renderer )
+		//delete renderer;
 
 		if( loader )
 			delete loader;
@@ -462,6 +469,17 @@ namespace Kaleidoscope
 
 	std::string Device::newUUID(){
 		return device_uuid_obj.getNewUUID();
+	}
+
+	void Device::createRenderer( int sw, int sh ){
+		Grids::Value* temp_value = new Grids::Value();
+
+		std::string temp_id = newUUID();
+		(*temp_value)[ "req" ][ "attr" ][ "id" ] = temp_id;
+		
+		renderer = new Renderer( this, sw, sh, temp_value );
+
+		delete temp_value;
 	}
 
 

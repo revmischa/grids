@@ -37,10 +37,10 @@ namespace Kaleidoscope
 	
 		Builder();
 		
-		void placeRoom( Device*, Room* );	// placeRoom adds a room hash entry onto the worldHash,
+		//void placeRoom( Device*, Room* );	// placeRoom adds a room hash entry onto the worldHash,
 											// and sets it's position based on the current number of rooms
 		
-		void buildRoom( Device*, Room* );	// Constructs a generic green room ... in the future this will probably load an .obj,
+		//void buildRoom( Device*, Room* );	// Constructs a generic green room ... in the future this will probably load an .obj,
 												// or quake map
 		
 		// agrs:  device, object ID, room ID, position

@@ -403,7 +403,9 @@ namespace Grids
 	
 	
 	void Object::addChild( Object* item_ptr ) {
+		lock();
 		children.push_back( item_ptr );
+		unlock();
 	}
 
 	void Object::deleteChild( Object* item_ptr ) {

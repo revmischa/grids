@@ -124,6 +124,8 @@ namespace Kaleidoscope
 		void setThreadController( ThreadController * );
 		void setInterface( Grids::Interface * );
 		
+		void createRenderer( int, int );
+		
 		void lockDevice();
 		void unlockDevice();
 		
@@ -263,7 +265,6 @@ namespace Kaleidoscope
 		float Light_Ambient[4];
 		float Light_Diffuse[4];
 		float Light_Position[4];
-
 
 		//////////////
 		// Event members

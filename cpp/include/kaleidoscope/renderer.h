@@ -25,21 +25,26 @@
 #pragma once
 
 #include <kaleidoscope/device.h>
+#include <grids/object.h>
 
 #include <SDL/SDL_opengl.h>
 
 #include <iostream>
 
+namespace Grids {
+	class Object;	
+}
+
 namespace Kaleidoscope
 {
 	class Device;
 	
-	class Renderer
+	class Renderer : public Grids::Object
 	{
 
 	public:
 		
-		Renderer( Device *, int, int );
+		Renderer( Device *, int, int, Grids::Value* );
 		~Renderer();
 		
 		void setDevice( Device * );
@@ -53,6 +58,11 @@ namespace Kaleidoscope
 		void prepare( Device *);
 		//void buildTextures();
 		
+		static void setRenderVars( Device*, int, int );
+
+		void draw( Device* );
+		void create( Device*, Grids::Value*  );
+		
 		// still needed: access interface / object controller etc
 		// get the positions, ect of all the objects, use that to render all
 		
@@ -65,8 +75,8 @@ namespace Kaleidoscope
 		void setWidth( Device *, int );
 		void setHeight( Device *, int );
 		
-		void loadLights( Device *);
-		void loadTextModes( Device *);
+		static void loadLights( Device *);
+		static void loadTextModes( Device *);
 		
 		void prepareRender( Device *);
 		void prepareQuads();

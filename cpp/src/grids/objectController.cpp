@@ -333,7 +333,8 @@ namespace Grids
 	
 	Object* ObjectController::getPointerFromID( GridsID obj_id )
 	{
-		Object* temp_ptr = id_pointer_hash[ obj_id ];
+		Object* temp_ptr = NULL;
+		temp_ptr = id_pointer_hash[ obj_id ];
 		return temp_ptr;		
 	}
 

@@ -29,7 +29,7 @@
 namespace Kaleidoscope
 {
 	
-	SimpleCube::SimpleCube( Device* d, Grids::Value* in_val ) : Object( d, in_val ) // Device * d, GridsID cube_room, Vec3D cube_position, float side_length, float * cube_color )
+	SimpleCube::SimpleCube( Device* d, Grids::Value* in_val ) : GLSpaceObject( d, in_val ) 
 	{
 		// Notify grids that we're making an object, etc.
 		// requestCreateCube( d, cube_room, cube_position, side_length, cube_color );
@@ -56,8 +56,10 @@ namespace Kaleidoscope
 		// End all the variables specific to this object type
 
 		loadPosition( temp_value, cube_position, Vec3D( 0.0f, 0.0f, 0.0f), Vec3D( 1.0f, 1.0f, 1.0f) );
-				
-		d->getInterface()->getObjectController()->requestCreateObject(d, temp_value );
+		
+		loadGeometry( temp_value, side_length, cube_color );
+		
+		return d->getInterface()->getObjectController()->requestCreateObject(d, temp_value );
 	}
 
 
@@ -67,6 +69,173 @@ namespace Kaleidoscope
 	
 	void SimpleCube::create( Device * d, Grids::Value * in_value )
 	{		
+	}
+
+	void SimpleCube::loadGeometry(  Grids::Value* in_val, float box_size, float * color )
+	{
+		(*in_val)[ "vertices" ][ 0u ][ 0u ] = -box_size;
+		(*in_val)[ "vertices" ][ 0u ][ 1u ] = -box_size;
+		(*in_val)[ "vertices" ][ 0u ][ 2u ] = -box_size;
+
+		(*in_val)[ "vertices" ][ 1u ][ 0u ] = box_size;
+		(*in_val)[ "vertices" ][ 1u ][ 1u ] = -box_size;
+		(*in_val)[ "vertices" ][ 1u ][ 2u ] = -box_size;
+
+		(*in_val)[ "vertices" ][ 2u ][ 0u ] = box_size;
+		(*in_val)[ "vertices" ][ 2u ][ 1u ] = box_size;
+		(*in_val)[ "vertices" ][ 2u ][ 2u ] = -box_size;
+
+		(*in_val)[ "vertices" ][ 3u ][ 0u ] = -box_size;
+		(*in_val)[ "vertices" ][ 3u ][ 1u ] = box_size;
+		(*in_val)[ "vertices" ][ 3u ][ 2u ] = -box_size;
+
+		(*in_val)[ "vertices" ][ 4u ][ 0u ] = -box_size;
+		(*in_val)[ "vertices" ][ 4u ][ 1u ] = -box_size;
+		(*in_val)[ "vertices" ][ 4u ][ 2u ] = box_size;
+
+		(*in_val)[ "vertices" ][ 5u ][ 0u ] = box_size;
+		(*in_val)[ "vertices" ][ 5u ][ 1u ] = -box_size;
+		(*in_val)[ "vertices" ][ 5u ][ 2u ] = box_size;
+
+		(*in_val)[ "vertices" ][ 6u ][ 0u ] = box_size;
+		(*in_val)[ "vertices" ][ 6u ][ 1u ] = box_size;
+		(*in_val)[ "vertices" ][ 6u ][ 2u ] = box_size;
+
+		(*in_val)[ "vertices" ][ 7u ][ 0u ] = -box_size;
+		(*in_val)[ "vertices" ][ 7u ][ 1u ] = box_size;
+		(*in_val)[ "vertices" ][ 7u ][ 2u ] = box_size;
+
+		(*in_val)[ "color" ][ 0u ][ 0u ] = color[0];
+		(*in_val)[ "color" ][ 0u ][ 1u ] = color[1];
+		(*in_val)[ "color" ][ 0u ][ 2u ] = color[2];
+		(*in_val)[ "color" ][ 0u ][ 3u ] = color[3];
+
+		(*in_val)[ "quads" ][ 0u ][ "color" ] = 0u;
+
+		(*in_val)[ "quads" ][ 0u ][ "indices" ][ 0u ][ 0u ] = 0u; // Box top
+		(*in_val)[ "quads" ][ 0u ][ "indices" ][ 0u ][ 1u ] = 1u;
+		(*in_val)[ "quads" ][ 0u ][ "indices" ][ 0u ][ 2u ] = 2u;
+		(*in_val)[ "quads" ][ 0u ][ "indices" ][ 0u ][ 3u ] = 3u;
+
+		(*in_val)[ "quads" ][ 0u ][ "indices" ][ 1u ][ 0u ] = 4u; // Box bottom
+		(*in_val)[ "quads" ][ 0u ][ "indices" ][ 1u ][ 1u ] = 5u;
+		(*in_val)[ "quads" ][ 0u ][ "indices" ][ 1u ][ 2u ] = 6u;
+		(*in_val)[ "quads" ][ 0u ][ "indices" ][ 1u ][ 3u ] = 7u;
+
+		(*in_val)[ "quads" ][ 0u ][ "indices" ][ 2u ][ 0u ] = 4u;
+		(*in_val)[ "quads" ][ 0u ][ "indices" ][ 2u ][ 1u ] = 5u;
+		(*in_val)[ "quads" ][ 0u ][ "indices" ][ 2u ][ 2u ] = 1u;
+		(*in_val)[ "quads" ][ 0u ][ "indices" ][ 2u ][ 3u ] = 0u;
+
+		(*in_val)[ "quads" ][ 0u ][ "indices" ][ 3u ][ 0u ] = 7u;
+		(*in_val)[ "quads" ][ 0u ][ "indices" ][ 3u ][ 1u ] = 6u;
+		(*in_val)[ "quads" ][ 0u ][ "indices" ][ 3u ][ 2u ] = 2u;
+		(*in_val)[ "quads" ][ 0u ][ "indices" ][ 3u ][ 3u ] = 3u;
+
+		(*in_val)[ "quads" ][ 0u ][ "indices" ][ 4u ][ 0u ] = 4u;
+		(*in_val)[ "quads" ][ 0u ][ "indices" ][ 4u ][ 1u ] = 7u;
+		(*in_val)[ "quads" ][ 0u ][ "indices" ][ 4u ][ 2u ] = 3u;
+		(*in_val)[ "quads" ][ 0u ][ "indices" ][ 4u ][ 3u ] = 0u;
+
+		(*in_val)[ "quads" ][ 0u ][ "indices" ][ 5u ][ 0u ] = 5u;
+		(*in_val)[ "quads" ][ 0u ][ "indices" ][ 5u ][ 1u ] = 6u;
+		(*in_val)[ "quads" ][ 0u ][ "indices" ][ 5u ][ 2u ] = 2u;
+		(*in_val)[ "quads" ][ 0u ][ "indices" ][ 5u ][ 3u ] = 1u;
+		
+		
+		// Line Color
+		(*in_val)[ "color" ][ 1u ][ 0u ] = 0.75f;
+		(*in_val)[ "color" ][ 1u ][ 1u ] = 0.75f;
+		(*in_val)[ "color" ][ 1u ][ 2u ] = 0.75f;
+		(*in_val)[ "color" ][ 1u ][ 3u ] = 0.15f;
+		
+		(*in_val)[ "lines" ][ 0u ][ "color" ] = 1u;
+		
+		(*in_val)[ "lines" ][ 0u ][ "indices" ][ 0u ][ 0u ] = 0u;
+		(*in_val)[ "lines" ][ 0u ][ "indices" ][ 0u ][ 1u ] = 1u;
+		
+		(*in_val)[ "lines" ][ 0u ][ "indices" ][ 1u ][ 0u ] = 1u;
+		(*in_val)[ "lines" ][ 0u ][ "indices" ][ 1u ][ 1u ] = 2u;
+		
+		(*in_val)[ "lines" ][ 0u ][ "indices" ][ 2u ][ 0u ] = 2u;
+		(*in_val)[ "lines" ][ 0u ][ "indices" ][ 2u ][ 1u ] = 3u;
+		
+		(*in_val)[ "lines" ][ 0u ][ "indices" ][ 3u ][ 0u ] = 3u;
+		(*in_val)[ "lines" ][ 0u ][ "indices" ][ 3u ][ 1u ] = 0u;
+		
+		
+		
+		(*in_val)[ "lines" ][ 0u ][ "indices" ][ 4u ][ 0u ] = 4u;
+		(*in_val)[ "lines" ][ 0u ][ "indices" ][ 4u ][ 1u ] = 5u;
+		
+		(*in_val)[ "lines" ][ 0u ][ "indices" ][ 5u ][ 0u ] = 5u;
+		(*in_val)[ "lines" ][ 0u ][ "indices" ][ 5u ][ 1u ] = 6u;
+		
+		(*in_val)[ "lines" ][ 0u ][ "indices" ][ 6u ][ 0u ] = 6u;
+		(*in_val)[ "lines" ][ 0u ][ "indices" ][ 6u ][ 1u ] = 7u;
+		
+		(*in_val)[ "lines" ][ 0u ][ "indices" ][ 7u ][ 0u ] = 7u;
+		(*in_val)[ "lines" ][ 0u ][ "indices" ][ 7u ][ 1u ] = 4u;
+		
+		
+		
+		(*in_val)[ "lines" ][ 0u ][ "indices" ][ 8u ][ 0u ] = 0u;
+		(*in_val)[ "lines" ][ 0u ][ "indices" ][ 8u ][ 1u ] = 4u;
+		
+		(*in_val)[ "lines" ][ 0u ][ "indices" ][ 9u ][ 0u ] = 1u;
+		(*in_val)[ "lines" ][ 0u ][ "indices" ][ 9u ][ 1u ] = 5u;
+		
+		(*in_val)[ "lines" ][ 0u ][ "indices" ][ 10u ][ 0u ] = 2u;
+		(*in_val)[ "lines" ][ 0u ][ "indices" ][ 10u ][ 1u ] = 6u;
+		
+		(*in_val)[ "lines" ][ 0u ][ "indices" ][ 11u ][ 0u ] = 3u;
+		(*in_val)[ "lines" ][ 0u ][ "indices" ][ 11u ][ 1u ] = 7u;
+	}
+
+	
+	float SimpleCube::detectSelection( Device * d, Vec3D ray_position, Vec3D ray_target )
+	{
+		Grids::GridsID this_id = d->getInterface()->getObjectController()->getIdFromPointer( this );
+		
+		if( this_id == GRIDS_ID_ERROR )
+		{
+			return -1;
+		}  
+		
+		Vec3D this_position = Vec3D( d->world_hash[ this_id ][ "position" ][ 0u ].asDouble(),
+									d->world_hash[ this_id ][ "position" ][ 1u ].asDouble(),
+									d->world_hash[ this_id ][ "position" ][ 2u ].asDouble()	);
+		
+		if( !( d->world_hash[ this_id ][ "radius" ] ) ) // if there is no "radius" entry
+		{
+			calculateRadiusFromVertices( d, this_id );
+		}
+		
+		return Geo::distanceToSphereAlongRay( ray_position, ray_target, this_position, d->world_hash[ this_id ][ "radius" ].asDouble() );// ray_pos, ray_tar, obj_pos, obj_radius )
+		
+		// detect intersection with radius
+	}
+	
+	void SimpleCube::selectObject( Device * d )
+	// The object controller will call this.  (1) EventController recognises click (2) ObjectController checks selection with all objects
+	// (3) If there is a selection, then call selectObject on the relevant object
+	{
+		Grids::GridsID this_id = d->getInterface()->getObjectController()->getIdFromPointer( this );
+		
+		d->world_hash[ this_id ][ "scale" ][ 0u ] = 2.0f;
+		d->world_hash[ this_id ][ "scale" ][ 1u ] = 2.0f;
+		d->world_hash[ this_id ][ "scale" ][ 2u ] = 2.0f;
+		
+		std::cout << "selected object -- " << this << std::endl;
+		
+	}
+
+
+
+	
+} // end namespace Kaleidoscope
+
+/*
 		// **********************************
 		// THIS IS HOW IT SHOULD BE DONE!!!
 		// **********************************
@@ -116,62 +285,6 @@ namespace Kaleidoscope
 //		std::cout << "*******" << std::endl;
 
 		d->getBuilder()->buildBox( d, cube_id, (*in_value)[ "req" ][ "attr" ][ "type" ][ "SideLength" ].asDouble(), &cube_color[0] );
-	}
-	
-	float SimpleCube::detectSelection( Device * d, Vec3D ray_position, Vec3D ray_target )
-	{
-		Grids::GridsID this_id = d->getInterface()->getObjectController()->getIdFromPointer( this );
-		
-		if( this_id == GRIDS_ID_ERROR )
-		{
-			return -1;
-		}  
-		
-		Vec3D this_position = Vec3D( d->world_hash[ this_id ][ "position" ][ 0u ].asDouble(),
-									d->world_hash[ this_id ][ "position" ][ 1u ].asDouble(),
-									d->world_hash[ this_id ][ "position" ][ 2u ].asDouble()	);
-		
-		if( !( d->world_hash[ this_id ][ "radius" ] ) ) // if there is no "radius" entry
-		{
-			calculateRadiusFromVertices( d, this_id );
-		}
-		
-		return Geo::distanceToSphereAlongRay( ray_position, ray_target, this_position, d->world_hash[ this_id ][ "radius" ].asDouble() );// ray_pos, ray_tar, obj_pos, obj_radius )
-		
-		// detect intersection with radius
-	}
-	
-	void SimpleCube::selectObject( Device * d )
-	// The object controller will call this.  (1) EventController recognises click (2) ObjectController checks selection with all objects
-	// (3) If there is a selection, then call selectObject on the relevant object
-	{
-		Grids::GridsID this_id = d->getInterface()->getObjectController()->getIdFromPointer( this );
-		
-		d->world_hash[ this_id ][ "scale" ][ 0u ] = 2.0f;
-		d->world_hash[ this_id ][ "scale" ][ 1u ] = 2.0f;
-		d->world_hash[ this_id ][ "scale" ][ 2u ] = 2.0f;
-		
-		std::cout << "selected object -- " << this << std::endl;
-		
-	}
-
-	//Private
-
-	void SimpleCube::loadPosition( Grids::Value * temp_value, Vec3D pos, Vec3D rot, Vec3D scl ){
-		(*temp_value)[ "pos" ][ 0u ] = pos.X; // Position
-		(*temp_value)[ "pos" ][ 1u ] = pos.Y;
-		(*temp_value)[ "pos" ][ 2u ] = pos.Z;
-		
-		(*temp_value)[ "rot" ][ 0u ] = rot.X; // Rotation
-		(*temp_value)[ "rot" ][ 1u ] = rot.Y;
-		(*temp_value)[ "rot" ][ 2u ] = rot.Z;
-		
-		(*temp_value)[ "scl" ][ 0u ] = scl.X; // Scale
-		(*temp_value)[ "scl" ][ 1u ] = scl.Y;
-		(*temp_value)[ "scl" ][ 2u ] = scl.Z;
-	}
 
 
-	
-} // end namespace Kaleidoscope
-
+ */

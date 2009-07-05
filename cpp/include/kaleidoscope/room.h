@@ -26,8 +26,8 @@
 
 #pragma once
 
+#include <kaleidoscope/glSpaceObject.h>
 
-#include <grids/object.h>
 #include <grids/define.h>
 
 namespace Grids{
@@ -38,7 +38,7 @@ namespace Kaleidoscope
 {
 	class RenderObject;	
 	
-	class Room : public Grids::Object
+	class Room : public GLSpaceObject
 		{
 		public:
 			
@@ -50,6 +50,10 @@ namespace Kaleidoscope
 			static void requestCreateRoom( Device*, float room_size );
 			
 			Grids::Object* getParentFromValue( Device*, Grids::Value* );
+
+			static void placeRoom( Device*, Room* );
+			static void buildRoom( Device*, Room* );
+
 			
 		protected:
 			Grids::GridsID getIDFromValue( Grids::Value* );
