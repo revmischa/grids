@@ -477,6 +477,16 @@ namespace Kaleidoscope
 		std::string temp_id = newUUID();
 		(*temp_value)[ "req" ][ "attr" ][ "id" ] = temp_id;
 		
+		(*temp_value)[ "req" ][ "attr" ][ "pos" ][ 0u ] = 0.0f;
+		(*temp_value)[ "req" ][ "attr" ][ "pos" ][ 1u ] = 0.0f;
+		(*temp_value)[ "req" ][ "attr" ][ "pos" ][ 2u ] = 0.0f;
+		(*temp_value)[ "req" ][ "attr" ][ "rot" ][ 0u ] = 0.0f;
+		(*temp_value)[ "req" ][ "attr" ][ "rot" ][ 1u ] = 0.0f;
+		(*temp_value)[ "req" ][ "attr" ][ "rot" ][ 2u ] = 0.0f;
+		(*temp_value)[ "req" ][ "attr" ][ "scl" ][ 0u ] = 1.0f;
+		(*temp_value)[ "req" ][ "attr" ][ "scl" ][ 1u ] = 1.0f;
+		(*temp_value)[ "req" ][ "attr" ][ "scl" ][ 2u ] = 1.0f;
+
 		renderer = new Renderer( this, sw, sh, temp_value );
 
 		delete temp_value;

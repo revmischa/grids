@@ -73,19 +73,21 @@ int main( int argc, char **argv )
 	Grids::GridsID my_room = main_device->createRoomAndWait();
 
 	Kal::Utility::puts( "Created room: ", my_room );
-		
-	//my_room = main_device->createRoomAndWait();
-	//my_room = main_device->createRoomAndWait();
-	//my_room = main_device->createRoomAndWait();
+	
+
+	main_device->getInterface()->createRoom();	
+	//main_device->createRoomAndWait();
+	//main_device->createRoomAndWait();
+	//main_device->createRoomAndWait();
 
 			
 	//Kal::Utility::puts( "Creating guitext" );
 	
-	int text_id = main_device->getGui()->addText(main_device, Kaleidoscope::Vec2D( -0.95f, 0.95f ), " " );
+	//int text_id = main_device->getGui()->addText(main_device, Kaleidoscope::Vec2D( -0.95f, 0.95f ), " " );
 	//main_device->getGui()->addText(main_device, Kaleidoscope::Vec3D( 50.0f, 50.0f, 50.0f ), "point < 50, 50, 50 >" );
 	//main_device->getGui()->addText(main_device, Kaleidoscope::Vec3D( -50.0f, 0.0f, -50.0f ), "point < -50, 0, -50 >" );
 	
-	Grids::GridsID box_id = main_device->getGui()->requestCreateTextBox( main_device, Kal::Vec3D( 0.5f, -0.3f, 0.0f ), Kal::Vec3D( 1.0f, 1.0f, 0.0f ), "lol dongs" );
+	//Grids::GridsID box_id = main_device->getGui()->requestCreateTextBox( main_device, Kal::Vec3D( 0.5f, -0.3f, 0.0f ), Kal::Vec3D( 1.0f, 1.0f, 0.0f ), "lol dongs" );
 
 	/*
 	Kal::TextBox::requestCreateTextBox( main_device, 

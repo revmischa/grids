@@ -11,6 +11,3 @@ INCLUDES := -I$(INCLUDE_DIR) -I/usr/include/SDL
 	$(CPP) $(FLAGS) $(INCLUDES) -c $(input) -o $(output) 
 
 
-%.o : %.cc
-	$(CPP) $(FLAGS) $(INCLUDES) -c $(input) -o $(output) 
-

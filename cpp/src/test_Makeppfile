@@ -1,0 +1,17 @@
+
+# Top level Makeppfile for Grids
+# Is there a way to not have to recompile the json library for each platform?
+# Maybe just embedding the c++ code into grids, since it doesn't really do much.  
+# -L/usr/local/lib 
+# Otr should be installed standard on Debian / Ubuntu
+
+
+CPP := g++
+LIBTOOL := libtool
+LIBFLAGS := --mode=link
+LIBS := -lSDL -lSDL_net -lGL -lGLU -lSDL_ttf -lSDL_image -lotr -lossp-uuid++ -lgtest -lgtest_main -L../lib -ljson_linux-gcc-4.3.2_libmt 
+
+build_grids_test : $(filter_out *kaleidoscope/main.o, $(wildcard **/*.o) )
+	$(LIBTOOL) $(LIBFLAGS) $(CPP) $(inputs) $(LIBS) $(OTHERLIBS) -o $(output) 
+
+

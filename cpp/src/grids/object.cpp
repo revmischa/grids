@@ -51,17 +51,16 @@ namespace Grids
 		GridsID temp_id = getIDFromValue( in_val );
 		
 		Kal::Utility::puts( "New Object id = ", temp_id );
+
 		setID( temp_id );
+		setRoomID( attr[ "room_id" ].asString() );				
 		
 		d->getInterface()->getObjectController()->registerObject( temp_id, this );
-
 
 		Value* temp_attr = getAttr( in_val );		
 		attr = Value( *temp_attr );
 		delete temp_attr;
-				
-		setID( attr[ "id" ].asString() );
-		setRoomID( attr[ "room_id" ].asString() );				
+		
 	}
 
 	Object::~Object(){
@@ -184,12 +183,16 @@ namespace Grids
 		return d->getInterface()->getObjectController()->getIdFromPointer( this );
 	}
 	
-	GridsID Object::getID( ){
+	GridsID Object::getID(){
+		//Kal::Utility::puts( "Getting ID: ", this_id );
 		return this_id;
 	}
 	
-	void Object::setID( GridsID new_id ){		
+	void Object::setID( GridsID new_id ){
+		//Kal::Utility::puts( "Setting ID to: ", new_id );
 		this_id = new_id;
+		//Kal::Utility::puts( "New ID is: ", this_id );
+		
 	}
 	
 	GridsID Object::getRoomID(){
@@ -222,7 +225,18 @@ namespace Grids
 	}
 
 	void Object::setParent( Object* parent_ptr ){
+		lock();
 		parent = parent_ptr;		
+		unlock();
+	}
+
+	Grids::Object* Object::getParent(){
+		Object* temp_parent;
+		lock();
+		temp_parent = parent;
+		unlock();
+		
+		return temp_parent;
 	}
 
 	void Object::setParentValue( Kal::Device* d, Value* in_val, GridsID parent_id ){		
@@ -268,27 +282,35 @@ namespace Grids
 	void Object::drawAll( Kal::Device* d ){
 		lock();
 		std::vector< Object* > temp_children = getChildren();
-
+		unlock();
+		
 		for( int i = 0; i < temp_children.size(); i++ ){
 			temp_children[i]->drawAll( d );
 		}
 		
+		lock();
 		draw( d ); // draw yourself
-	
 		unlock();
+		
 	}
 	
 	std::vector< Object* > Object::getChildren(){			
 		return children;
 	}
+	
 
 
 	Vec3D Object::getPosition( ){
+		//Kal::Utility::puts( "Object::getPosition for id ", getID() );
+		//Kal::Utility::puts( "Parent = ", (unsigned int)getParent() );
+	
 		Vec3D parents_position = Vec3D();
 	
-		if( parent )
-			parents_position = parent->getPosition( );
-		
+		Object* temp_parent = getParent();
+				
+		if( temp_parent )
+			parents_position = temp_parent->getPosition( );
+				
 		return getAttrPosition( ) + parents_position;
 	}
 
@@ -306,6 +328,7 @@ namespace Grids
 
 	Vec3D Object::getScale(  ){
 		Vec3D parents_scale = Vec3D(1.0f, 1.0f, 1.0f );
+		
 		
 		if( parent )
 			parents_scale = parent->getScale( );

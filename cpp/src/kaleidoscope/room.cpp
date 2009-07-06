@@ -34,15 +34,20 @@ namespace Kaleidoscope
 			d->setMyRoom( getIDFromValue(in_val) );
 		}
 
+		setParent( d->getRenderer() );
+
+		lock();
 		placeRoom( d,  this );
 		buildRoom( d,  this );
-		
+		unlock();
+
+		d->getRenderer()->addChild( this );
 		//setParent( NULL );
 		
-		Utility::puts( "Created room id = ", getID() );
+		Utility::puts( "Created room id = ", ((Grids::Object*)this)->getID() );
+
 		Utility::puts( "Created room parent = ", (unsigned int)parent );		
 		
-		d->getRenderer()->addChild( this );
 	}	
 
 	void Room::draw( Device* d ){
@@ -74,14 +79,16 @@ namespace Kaleidoscope
 	{
 		GridsID new_id = in_room->getID();
 		
-		std::cout << "Placing room" << std::endl;
+		Utility::puts( "Placing room = ", new_id );
 		
 		float room_width = d->getRoomWidth();
 		
 		d->lockWorldHash();
 			
 		if( !( d->world_hash[ "rooms" ] ) )
-		{			
+		{						
+			Utility::puts( "*****First Room******" );
+
 			d->world_hash[ "rooms" ][ 0u ] = new_id;
 			
 			in_room->lock();
@@ -98,13 +105,15 @@ namespace Kaleidoscope
 		}
 		else
 		{
+			Utility::puts( "*****Other  Room******" );
+
 			int world_size = 5; // 20 x 20 x 20 = 8000 total rooms
 			
 			// The default position is the position to place new rooms if all of the rooms are filled up
 			// It is the farthest possible position
 			Vec3D default_position = Vec3D( -world_size * room_width * 2,
-										   -world_size * room_width * 2,
-										   -world_size * room_width * 2		);
+									  -world_size * room_width * 2,
+									  -world_size * room_width * 2 );
 			
 			Vec3D closest_position = default_position; 
 
@@ -117,8 +126,12 @@ namespace Kaleidoscope
 						
 						for( int j = 0; j < d->world_hash[ "rooms" ].size(); j++ ) {
 							GridsID temp_id = d->world_hash[ "rooms" ][ j ].asString();
-
-							Vec3D temp_room_position = d->getInterface()->getObjectController()->getPointerFromID( temp_id )->getPosition();
+							
+							Grids::Object* temp_object = d->getInterface()->getObjectController()->getPointerFromID( temp_id );
+							
+							std::cout << j << "  "  << temp_id << " = " << (unsigned int)temp_object << std::endl;
+							
+							Vec3D temp_room_position = temp_object->getPosition();
 							
 							if( temp_position == temp_room_position )
 							{
@@ -138,7 +151,7 @@ namespace Kaleidoscope
 				} // end for g
 			} // end for i
 
-			int num_rooms = d->world_hash[ "rooms" ].size();
+			unsigned int num_rooms = d->world_hash[ "rooms" ].size();
 
 			d->world_hash[ "rooms" ][ num_rooms ] = new_id;
 			
@@ -153,7 +166,8 @@ namespace Kaleidoscope
 			in_room->attr[ "rot" ][ 1u ] = 0.0f;
 			in_room->attr[ "rot" ][ 2u ] = 0.0f;
 			in_room->unlock();
-
+			
+			Utility::puts( "Placed room @ ", closest_position );
 		} // end else
 
 		d->unlockWorldHash();

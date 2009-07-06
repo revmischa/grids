@@ -173,11 +173,11 @@ namespace Grids
 		}
 
 		if( event_type == GRIDS_CREATE_ROOM ){
-						
-			Kal::Room* room_ptr = new Kal::Room( d, &(evt->getArgs()) );
-			
+
 			std::cout << "Creating room with ID:  " << object_id << std::endl;
 			std::cout << "My room ID:  " << d->getMyRoom() << std::endl;
+
+			Kal::Room* room_ptr = new Kal::Room( d, &(evt->getArgs()) );
 						
 			//d->getVoxel()->update(d, 3, 0.45f);
 		}

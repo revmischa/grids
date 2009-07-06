@@ -85,7 +85,7 @@ namespace Grids
 	void ObjectController::registerObject( GridsID in_id, Object * in_ptr )
 	{
 		Kal::Utility::puts( "Registering object" );
-		Kal::Utility::puts( in_id, (int)in_ptr );
+		std::cout <<  in_id << "  " <<  (unsigned int)in_ptr << std::endl;
 		
 		object_ids.push_back( in_id );
 		id_pointer_hash[ in_id ] = in_ptr;
@@ -333,6 +333,9 @@ namespace Grids
 	
 	Object* ObjectController::getPointerFromID( GridsID obj_id )
 	{
+		if( obj_id.empty() )
+			return NULL;
+
 		Object* temp_ptr = NULL;
 		temp_ptr = id_pointer_hash[ obj_id ];
 		return temp_ptr;		

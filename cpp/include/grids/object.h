@@ -128,6 +128,8 @@ namespace Grids
 		Value* getAttr();		
 		virtual GridsID getIDFromValue( Value* );
 
+		Object* getParent();
+
 		Value attr;		
 		
 		GridsID this_id;

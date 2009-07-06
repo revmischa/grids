@@ -32,13 +32,11 @@ namespace Kaleidoscope
 	SimpleCube::SimpleCube( Device* d, Grids::Value* in_val ) : GLSpaceObject( d, in_val ) 
 	{
 		// Notify grids that we're making an object, etc.
-		// requestCreateCube( d, cube_room, cube_position, side_length, cube_color );
-		
+		// requestCreateCube( d, cube_room, cube_position, side_length, cube_color );		
 	}
 	
 	
-	GridsID SimpleCube::requestCreate( Device * d, GridsID cube_room, Vec3D cube_position, float side_length, float * cube_color )
-	{
+	GridsID SimpleCube::requestCreate( Device * d, GridsID cube_room, Vec3D cube_position, float side_length, float * cube_color ){
 		Grids::Value * temp_value = new Grids::Value();
 		
 		//(*temp_value)[ "_method" ] = GRIDS_CREATE_OBJECT;
@@ -64,11 +62,10 @@ namespace Kaleidoscope
 
 
 	void SimpleCube::draw( Device* d ){
-
+		glDraw( d );
 	}
 	
-	void SimpleCube::create( Device * d, Grids::Value * in_value )
-	{		
+	void SimpleCube::create( Device * d, Grids::Value * in_value ){		
 	}
 
 	void SimpleCube::loadGeometry(  Grids::Value* in_val, float box_size, float * color )

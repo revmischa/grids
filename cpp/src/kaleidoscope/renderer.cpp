@@ -28,9 +28,14 @@
 
 namespace Kaleidoscope
 {
-	Renderer::Renderer( Device * d, int window_width, int window_height, Grids::Value * in_val ) : Object( d, in_val ) 
+	Renderer::Renderer( Device * d, int window_width, int window_height, Grids::Value * in_val ) : Grids::Object( d, in_val ) 
 	{		
-
+		setParent( NULL );
+		if( getParent()  ){
+			Utility::puts( "\n\n***FAIL***\n\n" );			
+		}
+		
+		std::cout << "ID " << getID() << " has parent " << (unsigned int)getParent() << std::endl;
 	}
 	
 	Renderer::~Renderer(){ 
