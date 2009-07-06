@@ -157,6 +157,10 @@ namespace Kaleidoscope
 
 		if( world_hash_mutex )
 			SDL_DestroyMutex( world_hash_mutex );
+
+		TTF_Quit();
+		SDLNet_Quit();
+		SDL_Quit();
 	}
 
 	void Device::initOtr()

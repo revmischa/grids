@@ -107,7 +107,8 @@ namespace Grids
 		void deleteChildren( );		
 
 		void setParent( Object* );
-		static void setParentValue( Kal::Device*, Value*, GridsID );
+		static void setParentValue(  Value*, GridsID );
+		Object* getParent();
 
 		Object* getParentFromAttr( Kal::Device*, Value* ); 
 		GridsID getParentIDFromAttr( Value* );
@@ -122,13 +123,18 @@ namespace Grids
 		void lock();
 		void unlock();
 
+		Value* getAttr();		
+		static Value* getAttr( Value* in_val );
+
+		bool getVisibility();
+		void hide();
+		void show();		
+ 
 	protected:
 		
-		static Value* getAttr( Value* in_val );
-		Value* getAttr();		
 		virtual GridsID getIDFromValue( Value* );
 
-		Object* getParent();
+		bool is_visible;
 
 		Value attr;		
 		

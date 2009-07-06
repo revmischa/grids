@@ -76,6 +76,14 @@ int main( int argc, char **argv )
 	
 
 	main_device->getInterface()->createRoom();	
+	main_device->getInterface()->createRoom();	
+	main_device->getInterface()->createRoom();	
+	main_device->getInterface()->createRoom();	
+	main_device->getInterface()->createRoom();	
+	main_device->getInterface()->createRoom();	
+	main_device->getInterface()->createRoom();	
+
+
 	//main_device->createRoomAndWait();
 	//main_device->createRoomAndWait();
 	//main_device->createRoomAndWait();
@@ -140,7 +148,6 @@ int main( int argc, char **argv )
 	
 	// Main rendering loop
 	do{
-		//Kal::Utility::puts( "main do" );
 		main_device->run();
 
 		// Swap front and back buffers (we use a double buffered display)
@@ -152,10 +159,6 @@ int main( int argc, char **argv )
 	
 	// Cleanup	
 	delete main_device; // Also deletes renderer, cam, interface, loader, etc
-	
-	TTF_Quit();
-	SDLNet_Quit();
-	SDL_Quit();
 	
 	std::cout << "Exited cleanly" << std::endl;
 	

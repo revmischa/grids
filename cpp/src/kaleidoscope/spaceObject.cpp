@@ -6,7 +6,7 @@
 
 namespace Kaleidoscope
 {
-	SpaceObject::SpaceObject( Device* d, Grids::Value* in_val ) : Object( d, in_val ) {
+	SpaceObject::SpaceObject( Device* d, Grids::Value* in_val ) : Grids::Object( d, in_val ) {
 
 
 	}

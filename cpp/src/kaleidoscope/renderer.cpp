@@ -107,11 +107,11 @@ namespace Kaleidoscope
 		//renderWorldHash( d );	
 		
 		drawAll(d);
-		
-		
+				
 		renderGui( d );
 				
 		finishRender();
+
 	}
 	
 	void Renderer::prepareRender( Device * d)
@@ -567,34 +567,34 @@ namespace Kaleidoscope
 	{
 		//buildTextures();   
 
-	   // Color to clear color buffer to.
-	   glClearColor(0.1f, 0.1f, 0.1f, 0.0f);
+		// Color to clear color buffer to.
+		glClearColor(0.1f, 0.1f, 0.1f, 0.0f);
 
-	   // Depth to clear depth buffer to; type of test.
-	   glClearDepth(1.0);
-	   glDepthFunc(GL_LESS); 
+		// Depth to clear depth buffer to; type of test.
+		glClearDepth(1.0);
+		glDepthFunc(GL_LESS); 
 
-	   // Enables Smooth Color Shading; try GL_FLAT for (lack of) fun.
-	   glShadeModel(GL_SMOOTH);
+		// Enables Smooth Color Shading; try GL_FLAT for (lack of) fun.
+		glShadeModel(GL_SMOOTH);
 	   
 		glEnable(GL_BLEND);
 		
 		lock( d );
 
-	   // Load up the correct perspective matrix; using a callback directly.
-	   resizeScene(d, d->width , d->height);
+		// Load up the correct perspective matrix; using a callback directly.
+		resizeScene(d, d->width , d->height);
 
-	   // Set up a light, turn it on.
-	   glLightfv(GL_LIGHT1, GL_POSITION, d->Light_Position);
-	   glLightfv(GL_LIGHT1, GL_AMBIENT,  d->Light_Ambient);
-	   glLightfv(GL_LIGHT1, GL_DIFFUSE,  d->Light_Diffuse); 
-	   glEnable (GL_LIGHT1); 
+		// Set up a light, turn it on.
+		glLightfv(GL_LIGHT1, GL_POSITION, d->Light_Position);
+		glLightfv(GL_LIGHT1, GL_AMBIENT,  d->Light_Ambient);
+		glLightfv(GL_LIGHT1, GL_DIFFUSE,  d->Light_Diffuse); 
+		glEnable (GL_LIGHT1); 
 		
 		unlock( d );
 	
-	   // A handy trick -- have surface material mirror the color.
-	   glColorMaterial(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE);
-	   glEnable(GL_COLOR_MATERIAL);
+		// A handy trick -- have surface material mirror the color.
+		glColorMaterial(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE);
+		glEnable(GL_COLOR_MATERIAL);
 	}
 	
 	

@@ -39,6 +39,8 @@ namespace Grids
 
 		initMutex();
 
+		hide();
+
 		Object* parent_ptr = getParentFromValue( d, in_val );
 
 		Kal::Utility::puts( "Object::Object Parent: ", (unsigned int)parent_ptr );
@@ -58,9 +60,12 @@ namespace Grids
 		d->getInterface()->getObjectController()->registerObject( temp_id, this );
 
 		Value* temp_attr = getAttr( in_val );		
+		lock();
 		attr = Value( *temp_attr );
+		unlock();
 		delete temp_attr;
 		
+		show();		
 	}
 
 	Object::~Object(){
@@ -213,6 +218,13 @@ namespace Grids
 	}
 	
 	Value* Object::getAttr( Value* in_value ){
+		if( in_value == NULL )
+			return NULL;
+		if( (*in_value).empty() )
+			return new Value();
+		if( (*in_value)[ "req" ][ "attr" ].empty() )
+			return new Value();
+
 		return new Value( (*in_value)[ "req" ][ "attr" ] );	
 	}
 	
@@ -232,6 +244,7 @@ namespace Grids
 
 	Grids::Object* Object::getParent(){
 		Object* temp_parent;
+
 		lock();
 		temp_parent = parent;
 		unlock();
@@ -239,7 +252,7 @@ namespace Grids
 		return temp_parent;
 	}
 
-	void Object::setParentValue( Kal::Device* d, Value* in_val, GridsID parent_id ){		
+	void Object::setParentValue( Value* in_val, GridsID parent_id ){		
 		
 		(*in_val)[ "parent" ] = parent_id;
 	}
@@ -280,22 +293,26 @@ namespace Grids
 	}	
 
 	void Object::drawAll( Kal::Device* d ){
-		lock();
-		std::vector< Object* > temp_children = getChildren();
-		unlock();
+
+		if( getVisibility() ){
+			std::vector< Object* > temp_children = getChildren();
+
+			for( int i = 0; i < temp_children.size(); i++ ){
+				temp_children[i]->drawAll( d );
+			}
 		
-		for( int i = 0; i < temp_children.size(); i++ ){
-			temp_children[i]->drawAll( d );
+			draw( d ); // draw yourself
 		}
-		
-		lock();
-		draw( d ); // draw yourself
-		unlock();
-		
 	}
 	
-	std::vector< Object* > Object::getChildren(){			
-		return children;
+	std::vector< Object* > Object::getChildren(){
+		std::vector< Object* > tmp_chld;
+
+		lock();
+		tmp_chld = children;
+		unlock();
+				
+		return tmp_chld;
 	}
 	
 
@@ -355,7 +372,7 @@ namespace Grids
 		if( parent )
 			parents_rot = parent->getRotation( );
 			
-		return getAttrRotation( ) * parents_rot;
+		return getAttrRotation( ) + parents_rot;
 	}
 
 	Vec3D Object::getAttrRotation( ){		
@@ -418,7 +435,7 @@ namespace Grids
 	
 	
 	GridsID Object::requestCreate( Kal::Device* d, GridsID parent, Value* in_val ){
-		setParentValue( d, in_val, parent );
+		setParentValue( in_val, parent );
 		
 		//Utility::puts( "Requesting Create" );		
 		return d->getInterface()->getObjectController()->requestCreateObject(d, in_val );
@@ -443,6 +460,26 @@ namespace Grids
 			delete temp_children[i];
 		}
 
+		unlock();
+	}
+
+	bool Object::getVisibility(){
+		bool temp_vis;
+		lock();
+		temp_vis = is_visible;
+		unlock();
+		return temp_vis;
+	}
+
+	void Object::hide(){
+		lock();
+		is_visible = false;
+		unlock();
+	}
+
+	void Object::show(){
+		lock();
+		is_visible = true;
 		unlock();
 	}
 

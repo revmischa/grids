@@ -119,7 +119,6 @@ namespace Kaleidoscope
 								vertice_index_4 = attr[ "quads" ][ g ][ "indices" ][ h ][ 3u ].asInt();
 						
 						
-						
 								glVertex3f(	attr[ "vertices" ][ vertice_index_1 ][ 0u ].asDouble(), 
 											attr[ "vertices" ][ vertice_index_1 ][ 1u ].asDouble(), 
 											attr[ "vertices" ][ vertice_index_1 ][ 2u ].asDouble()	);

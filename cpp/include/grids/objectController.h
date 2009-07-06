@@ -84,7 +84,14 @@ namespace Grids
 
 		std::map< GridsID, Object * > getIdPointerHash();
 	private:
-	
+
+		void lock();
+		void unlock();
+		void initMutex();
+		void deleteMutex();
+
+		SDL_mutex* oc_mutex;
+			
 		void addIdToVector( GridsID );
 		
 		std::vector< GridsID > object_ids;

@@ -54,9 +54,10 @@ namespace Kaleidoscope
 			static void placeRoom( Device*, Room* );
 			static void buildRoom( Device*, Room* );
 
-			
+			virtual Grids::GridsID getIDFromValue( Grids::Value* );			
+		
 		protected:
-			Grids::GridsID getIDFromValue( Grids::Value* );
+
 		private:
 		
 		};

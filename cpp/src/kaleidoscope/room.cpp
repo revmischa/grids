@@ -34,30 +34,37 @@ namespace Kaleidoscope
 			d->setMyRoom( getIDFromValue(in_val) );
 		}
 
-		setParent( d->getRenderer() );
+		//setID( getIDFromValue(in_val) );
+		
+		hide(); // Don't draw it until we've built it
 
+		Utility::puts( "Hiding renderer" );		
+		d->getRenderer()->hide();
+		
+		setParent( d->getRenderer() );
+		Utility::puts( "placing room" );		
+		placeRoom( d,  this );  
+		d->getRenderer()->show();
+				
 		lock();
-		placeRoom( d,  this );
 		buildRoom( d,  this );
 		unlock();
 
 		d->getRenderer()->addChild( this );
 		//setParent( NULL );
 		
+		show();
+		
 		Utility::puts( "Created room id = ", ((Grids::Object*)this)->getID() );
 
 		Utility::puts( "Created room parent = ", (unsigned int)parent );		
-		
 	}	
 
 	void Room::draw( Device* d ){
 		glDraw( d );
-			
 	}
-	
 
 	void Room::requestCreateRoom( Device* d, float room_size ){
-
 
 	}
 	
@@ -84,13 +91,16 @@ namespace Kaleidoscope
 		float room_width = d->getRoomWidth();
 		
 		d->lockWorldHash();
+		bool rooms_dont_exist = !( d->world_hash[ "rooms" ] );
+		d->unlockWorldHash();
 			
-		if( !( d->world_hash[ "rooms" ] ) )
-		{						
+		if( rooms_dont_exist ){						
 			Utility::puts( "*****First Room******" );
 
+			d->lockWorldHash();
 			d->world_hash[ "rooms" ][ 0u ] = new_id;
-			
+			d->unlockWorldHash();
+
 			in_room->lock();
 			in_room->attr[ "pos" ][ 0u ] = 0.0f;
 			in_room->attr[ "pos" ][ 1u ] = 0.0f;
@@ -103,8 +113,26 @@ namespace Kaleidoscope
 			in_room->attr[ "rot" ][ 2u ] = 0.0f;
 			in_room->unlock();
 		}
-		else
-		{
+		else if( false ){
+			int num_rooms = d->world_hash[ "rooms" ].size();
+			
+			d->lockWorldHash();
+			d->world_hash[ "rooms" ][ num_rooms ] = new_id;
+			d->unlockWorldHash();
+
+			in_room->lock();
+			in_room->attr[ "pos" ][ 0u ] = num_rooms * 200.0f;
+			in_room->attr[ "pos" ][ 1u ] = 0.0f;
+			in_room->attr[ "pos" ][ 2u ] = 0.0f;
+			in_room->attr[ "scl" ][ 0u ] = 1.0f;
+			in_room->attr[ "scl" ][ 1u ] = 1.0f;
+			in_room->attr[ "scl" ][ 2u ] = 1.0f;
+			in_room->attr[ "rot" ][ 0u ] = 0.0f;
+			in_room->attr[ "rot" ][ 1u ] = 0.0f;
+			in_room->attr[ "rot" ][ 2u ] = 0.0f;
+			in_room->unlock();
+		}
+		else{
 			Utility::puts( "*****Other  Room******" );
 
 			int world_size = 5; // 20 x 20 x 20 = 8000 total rooms
@@ -124,36 +152,45 @@ namespace Kaleidoscope
 					for( int h = -world_size; h < world_size; h++) {
 						temp_position = Vec3D( i * 2 * room_width, g * 2 * room_width, h * 2 * room_width );
 						
-						for( int j = 0; j < d->world_hash[ "rooms" ].size(); j++ ) {
+						d->lockWorldHash();
+						int j_max = d->world_hash[ "rooms" ].size();
+						d->unlockWorldHash();
+
+						for( int j = 0; j < j_max; j++ ) {
+							d->lockWorldHash();
 							GridsID temp_id = d->world_hash[ "rooms" ][ j ].asString();
+							d->unlockWorldHash();
 							
 							Grids::Object* temp_object = d->getInterface()->getObjectController()->getPointerFromID( temp_id );
 							
-							std::cout << j << "  "  << temp_id << " = " << (unsigned int)temp_object << std::endl;
+							//std::cout << j << "  "  << temp_id << " = " << (unsigned int)temp_object << std::endl;
+							Utility::puts( "Getting position" );
+							//Vec3D temp_room_position = temp_object->getPosition();
+							Vec3D temp_room_position = temp_object->getAttrPosition();
+							Utility::puts( "Got position" );
+
 							
-							Vec3D temp_room_position = temp_object->getPosition();
-							
-							if( temp_position == temp_room_position )
-							{
+							if( temp_position == temp_room_position ){
 								temp_position = default_position;
 							}
 							
 						} // end for Rooms
 						
 						
-						if( temp_position.getLength() < closest_position.getLength() )
-						{
+						if( temp_position.getLength() < closest_position.getLength() ){
 							closest_position = temp_position;
-						}
-						
-						
+						}						
 					} // end for h
 				} // end for g
 			} // end for i
 
-			unsigned int num_rooms = d->world_hash[ "rooms" ].size();
+			d->lockWorldHash();
 
+			unsigned int num_rooms = d->world_hash[ "rooms" ].size();
 			d->world_hash[ "rooms" ][ num_rooms ] = new_id;
+
+			d->unlockWorldHash();
+
 			
 			in_room->lock();
 			in_room->attr[ "pos" ][ 0u ] = closest_position.X;
@@ -170,7 +207,7 @@ namespace Kaleidoscope
 			Utility::puts( "Placed room @ ", closest_position );
 		} // end else
 
-		d->unlockWorldHash();
+
 		
 	} // end placeRoom
 

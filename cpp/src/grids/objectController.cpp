@@ -28,13 +28,13 @@
 #include <kaleidoscope/textBox.h>
 #include <kaleidoscope/define.h>
 
-
+#include <SDL/SDL.h>
 
 namespace Grids
 {
 	ObjectController::ObjectController( )
 	{
-
+		initMutex();
 	}
 	
 	ObjectController::~ObjectController( ){
@@ -43,6 +43,8 @@ namespace Grids
 		for(std::map< GridsID, Object * >::const_iterator it = id_pointer_hash.begin(); it != id_pointer_hash.end(); ++it){
 			delete it->second;
 		}		
+		
+		deleteMutex();
 	}
 	
 
@@ -87,9 +89,11 @@ namespace Grids
 		Kal::Utility::puts( "Registering object" );
 		std::cout <<  in_id << "  " <<  (unsigned int)in_ptr << std::endl;
 		
+		lock();
 		object_ids.push_back( in_id );
 		id_pointer_hash[ in_id ] = in_ptr;
 		pointer_id_hash[ in_ptr ] = in_id;
+		unlock();
 		
 	}
 	
@@ -319,7 +323,9 @@ namespace Grids
 	
 	GridsID ObjectController::getIdFromPointer( Object * obj_id )
 	{
+		lock();
 		GridsID temp_id = pointer_id_hash[ obj_id ];
+		unlock();
 		
 		if( temp_id.size() != 0 )
 		{
@@ -337,7 +343,11 @@ namespace Grids
 			return NULL;
 
 		Object* temp_ptr = NULL;
+		
+		lock();
 		temp_ptr = id_pointer_hash[ obj_id ];
+		unlock();
+
 		return temp_ptr;		
 	}
 
@@ -353,7 +363,29 @@ namespace Grids
 	}
 		
 	std::map< GridsID, Object * > ObjectController::getIdPointerHash() {
-		return id_pointer_hash;
+		std::map< GridsID, Object * > temp_hash;
+		
+		lock();
+		temp_hash = id_pointer_hash;
+		unlock();	
+		
+		return temp_hash;
+	}
+
+	void ObjectController::lock(){
+		SDL_LockMutex( oc_mutex );
+	}
+
+	void ObjectController::unlock(){
+		SDL_UnlockMutex( oc_mutex );
+	}
+
+	void ObjectController::initMutex(){
+		oc_mutex = SDL_CreateMutex();
+	}
+
+	void ObjectController::deleteMutex(){
+		SDL_DestroyMutex( oc_mutex );
 	}
 
 	
