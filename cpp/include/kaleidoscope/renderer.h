@@ -70,6 +70,7 @@ namespace Kaleidoscope
 		void unlock( Device * d );
 	
 	private:
+
 		Device * device;
 		
 		void setWidth( Device *, int );

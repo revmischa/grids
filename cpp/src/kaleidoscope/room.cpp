@@ -36,24 +36,26 @@ namespace Kaleidoscope
 
 		//setID( getIDFromValue(in_val) );
 		
-		hide(); // Don't draw it until we've built it
+		//Utility::puts( "Locking renderer" );		
+		//d->getRenderer()->lock();
 
-		Utility::puts( "Hiding renderer" );		
-		d->getRenderer()->hide();
-		
 		setParent( d->getRenderer() );
+
+		//Utility::puts( "Locking renderer" );		
+		//( (Grids::Object*)( d->getRenderer() ) )->unlock();
+
 		Utility::puts( "placing room" );		
 		placeRoom( d,  this );  
-		d->getRenderer()->show();
-				
-		lock();
+
+		//Utility::puts( "Unlocking renderer" );		
+		//( (Grids::Object*)( d->getRenderer() ) )->unlock();
+		
+		Utility::puts( "\n\nWTF  : ", (unsigned int)this );		
+		lock(); // <- THIS SHOULD LOCK THE ENTIRE PROGRAM
 		buildRoom( d,  this );
 		unlock();
-
-		d->getRenderer()->addChild( this );
-		//setParent( NULL );
 		
-		show();
+		d->getRenderer()->addChild( this );
 		
 		Utility::puts( "Created room id = ", ((Grids::Object*)this)->getID() );
 
@@ -164,10 +166,10 @@ namespace Kaleidoscope
 							Grids::Object* temp_object = d->getInterface()->getObjectController()->getPointerFromID( temp_id );
 							
 							//std::cout << j << "  "  << temp_id << " = " << (unsigned int)temp_object << std::endl;
-							Utility::puts( "Getting position" );
-							//Vec3D temp_room_position = temp_object->getPosition();
-							Vec3D temp_room_position = temp_object->getAttrPosition();
-							Utility::puts( "Got position" );
+							//Utility::puts( "Getting position" );
+							Vec3D temp_room_position = temp_object->getPosition();
+							//Vec3D temp_room_position = temp_object->getAttrPosition();
+							//Utility::puts( "Got position" );
 
 							
 							if( temp_position == temp_room_position ){
@@ -213,6 +215,8 @@ namespace Kaleidoscope
 
 	void Room::buildRoom( Device * d, Room* in_room )
 	{
+		//Utility::puts( "WTF  : ", (unsigned int)in_room );		
+
 		GridsID new_id = in_room->getID();
 
 		float room_width = d->getRoomWidth();
@@ -278,6 +282,10 @@ namespace Kaleidoscope
 			j += 4;
 		}
 
+		in_room->unlock();
+		
+
+		in_room->lock();
 		// Wall Color
 
 		in_room->attr[ "color" ][ 1u ] = Grids::Value();
@@ -368,7 +376,10 @@ namespace Kaleidoscope
 		in_room->attr[ "quads" ][ 0u ][ "indices" ][ 5u ][ 1u ] = k + 6u;
 		in_room->attr[ "quads" ][ 0u ][ "indices" ][ 5u ][ 2u ] = k + 2u;
 		in_room->attr[ "quads" ][ 0u ][ "indices" ][ 5u ][ 3u ] = k + 1u;
+		
+		in_room->unlock();
 
+		in_room->lock();
 
 		// Do the faint white outline lines
 
@@ -414,8 +425,7 @@ namespace Kaleidoscope
 		in_room->attr[ "lines" ][ 1u ][ "indices" ][ 11u ][ 0u ] = k + 6u;
 		in_room->attr[ "lines" ][ 1u ][ "indices" ][ 11u ][ 1u ] = k + 2u;
 		
-		in_room->unlock();
-		
+		in_room->unlock();		
 	} // end BuildRoom
 
 
