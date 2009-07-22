@@ -78,8 +78,8 @@ sub create_object {
     my $room = get_room($evt)
         or return $node->hook_error("Invalid room_id");
 
-	if( $evt->args->{room_id} ){
-		$room->{id} = $evt->args->{room_id};
+	if( $evt->args->{id} ){
+		$room->{id} = $evt->args->{id};
 	}
 
     my $object = $room->create_object($evt->args->{attr});
