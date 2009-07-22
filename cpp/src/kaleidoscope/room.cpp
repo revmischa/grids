@@ -39,6 +39,11 @@ namespace Kaleidoscope
 		//Utility::puts( "Locking renderer" );		
 		//d->getRenderer()->lock();
 
+		lock(); // <- THIS SHOULD LOCK THE THREAD
+		this->lock();
+		this->unlock();
+		unlock();
+
 		setParent( d->getRenderer() );
 
 		//Utility::puts( "Locking renderer" );		
@@ -51,7 +56,7 @@ namespace Kaleidoscope
 		//( (Grids::Object*)( d->getRenderer() ) )->unlock();
 		
 		Utility::puts( "\n\nWTF  : ", (unsigned int)this );		
-		lock(); // <- THIS SHOULD LOCK THE ENTIRE PROGRAM
+		lock(); // <- THIS SHOULD LOCK THE THREAD
 		buildRoom( d,  this );
 		unlock();
 		

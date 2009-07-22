@@ -39,7 +39,12 @@ namespace Grids
 
 		initMutex();
 
-		hide();
+		Kal::Utility::puts( "Lock test start" );
+		lock(); // <- THIS SHOULD LOCK THE THREAD
+		this->lock();
+		this->unlock();
+		unlock();
+		Kal::Utility::puts( "Lock test end" );
 
 		Object* parent_ptr = getParentFromValue( d, in_val );
 
@@ -65,7 +70,6 @@ namespace Grids
 		unlock();
 		delete temp_attr;
 		
-		show();		
 	}
 
 	Object::~Object(){

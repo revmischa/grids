@@ -55,6 +55,11 @@ namespace Grids
 		
 		(*temp_type)[ "_method" ] = GRIDS_CREATE_OBJECT;
 		(*temp_type)[ "room_id" ] = (*obj_value)[ "room_id" ].asString();
+
+		(*temp_type)[ "pos" ][ 0u ] = 123.4f;			
+		(*temp_type)[ "pos" ][ 1u ] = 5.6f;
+		(*temp_type)[ "pos" ][ 2u ] = 7.89f;
+
 		(*temp_type)[ "attr" ] = (*obj_value);
 		(*temp_type)[ "attr" ][ "id" ] = new_id;
 				

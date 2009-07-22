@@ -144,6 +144,7 @@ namespace Grids
 		ObjectController * controller;
 		
 		Object* parent;
+
 		
 		
 	private:

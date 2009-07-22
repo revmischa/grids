@@ -72,6 +72,13 @@ int main( int argc, char **argv )
 
 	Grids::GridsID my_room = main_device->createRoomAndWait();
 
+	Grids::Object* temp_object = main_device->getInterface()->getObjectController()->getPointerFromID( my_room  );
+	Kal::Utility::puts( "Lol test 3" );
+
+	Kal::Vec3D temp_room_position = temp_object->getPosition();
+	Kal::Utility::puts( "Lol test 4" );
+
+
 	Kal::Utility::puts( "Created room: ", my_room );
 	
 
@@ -95,7 +102,7 @@ int main( int argc, char **argv )
 	//main_device->getGui()->addText(main_device, Kaleidoscope::Vec3D( 50.0f, 50.0f, 50.0f ), "point < 50, 50, 50 >" );
 	//main_device->getGui()->addText(main_device, Kaleidoscope::Vec3D( -50.0f, 0.0f, -50.0f ), "point < -50, 0, -50 >" );
 	
-	//Grids::GridsID box_id = main_device->getGui()->requestCreateTextBox( main_device, Kal::Vec3D( 0.5f, -0.3f, 0.0f ), Kal::Vec3D( 1.0f, 1.0f, 0.0f ), "lol dongs" );
+	Grids::GridsID box_id = main_device->getGui()->requestCreateTextBox( main_device, Kal::Vec3D( 0.5f, -0.3f, 0.0f ), Kal::Vec3D( 1.0f, 1.0f, 0.0f ), "lol dongs" );
 
 	/*
 	Kal::TextBox::requestCreateTextBox( main_device, 
