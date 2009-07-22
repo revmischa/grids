@@ -80,9 +80,8 @@ sub create_object {
 
     my $object = $room->create_object($evt->args->{attr});
 
-	if( $evt->args->{id} ){
-		$object->{id} = $evt->args->{id};
-	}
+	$object->{id} = $evt->args->{id} 
+		if $evt->args->{id};
 
     $OBJECTS{$object->id} = $object;
 
