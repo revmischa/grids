@@ -5,4 +5,4 @@ GridsReg.xs
 ppport.h
 README
 t/GridsReg.t
-lib/GridsReg.pm
+lib/Grids/VM/Register.pm

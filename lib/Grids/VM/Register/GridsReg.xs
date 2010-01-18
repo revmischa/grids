@@ -54,7 +54,7 @@ ureg_t xor_regs(reghandle_t handle, unsigned int idx1, unsigned int idx2) {
   return get_reg_u(handle, idx1) ^ get_reg_u(handle, idx2);
 }
 
-MODULE = GridsReg		PACKAGE = GridsReg
+MODULE = Grids::VM::Register		PACKAGE = Grids::VM::Register
 
 reghandle_t
 alloc_regs(count)
