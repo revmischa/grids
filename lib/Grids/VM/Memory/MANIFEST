@@ -5,4 +5,4 @@ GridsMem.xs
 ppport.h
 README
 t/GridsMem.t
-lib/GridsMem.pm
+lib/Grids/VM/Memory.pm
