@@ -19,4 +19,7 @@ WriteMakefile(
     LIBS              => [''],
     DEFINE            => '',
     INC               => '-I.',
+
+
+    DIR               => ['lib/Grids/VM/Register', 'lib/Grids/VM/Memory'],
 );
