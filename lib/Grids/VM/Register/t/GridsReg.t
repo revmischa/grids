@@ -1,7 +1,7 @@
 use Test::More qw(no_plan);
-BEGIN { use_ok('GridsReg') };
+BEGIN { use_ok('Grids::VM::Register') };
 
-my $regs = new GridsReg(32); # create storage for 32 registers
+my $regs = new Grids::VM::Register(32); # create storage for 32 registers
 is($regs->size, 32, "initted register storage");
 
 $regs->set(3, 0x12345678);

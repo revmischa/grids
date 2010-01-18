@@ -4,10 +4,10 @@ use ExtUtils::MakeMaker;
 # the contents of the Makefile that is written.
 WriteMakefile(
     NAME              => 'Grids::VM::Register',
-    VERSION_FROM      => 'lib/Grids::VM::Register.pm', # finds $VERSION
+    VERSION_FROM      => 'lib/Grids/VM/Register.pm', # finds $VERSION
     PREREQ_PM         => {}, # e.g., Module::Name => 1.1
     ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
-      (ABSTRACT_FROM  => 'lib/Grids::VM::Register.pm', # retrieve abstract from module
+      (ABSTRACT_FROM  => 'lib/Grids/VM/Register.pm', # retrieve abstract from module
        AUTHOR         => 'mish <mspiegelmock@gmail.com>') : ()),
     LIBS              => [''], # e.g., '-lm'
     DEFINE            => '', # e.g., '-DHAVE_SOMETHING'
