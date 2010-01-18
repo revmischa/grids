@@ -38,9 +38,13 @@ sub new {
 sub set_encapsulation_method {
     my ($self, $enc) = @_;
 
-    return undef if $enc =~ /\W/;
+    return undef if $enc !~ /^[\w:]+$/;
     my $encap_method = "Grids::Protocol::Encapsulation::$enc";
-    my $encap = eval { $encap_method->new } or return undef;
+    my $encap = eval { $encap_method->new };
+
+    if (! $encap || $@) {
+        die "Failed to create protocol handler: $@\n";
+    }
 
     $self->encap_base($enc);
     $self->encap_method($encap_method);

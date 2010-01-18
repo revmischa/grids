@@ -14,9 +14,9 @@ Class::Autouse->autouse_recursive('Grids::Transport');
 #### Override these in subclasses
 
 sub new {
-    my ($class, $parent) = @_;
+    my ($class, $delegate) = @_;
 
-    my $self = bless { parent => $parent }, $class;
+    my $self = bless { delegate => $delegate }, $class;
 }
 
 # write data
@@ -45,9 +45,9 @@ sub reset {
 
 ##################################
 
-# parent is whatever object owns this Transport.
-# it needs to implement the "conf" method
-sub parent { $_[0]->{parent} }
+# delegate is whatever object wants to receive events from this
+# Transport.  It needs to implement the "conf" method.
+sub delegate { $_[0]->{delegate} }
 
 sub error {
     my ($self, $error) = @_;
@@ -60,8 +60,8 @@ sub outgoing_connection_established {
 
     $self->{conn} ||= $conn;
 
-    return unless $self->parent->can('outgoing_connection_established');
-    $self->parent->outgoing_connection_established($self, $conn);
+    return unless $self->delegate->can('outgoing_connection_established');
+    $self->delegate->outgoing_connection_established($self, $conn);
 }
 
 sub incoming_connection_established {
@@ -69,15 +69,15 @@ sub incoming_connection_established {
 
     $self->{conn} ||= $conn;
 
-    return unless $self->parent->can('incoming_connection_established');
-    $self->parent->incoming_connection_established($self, $conn);
+    return unless $self->delegate->can('incoming_connection_established');
+    $self->delegate->incoming_connection_established($self, $conn);
 }
 
 sub data_received {
     my ($self, $connection, $data) = @_;
 
-    return unless $self->parent->can('data_received');
-    $self->parent->data_received($self, $data, $connection);
+    return unless $self->delegate->can('data_received');
+    $self->delegate->data_received($self, $data, $connection);
 }
 
 1;

@@ -2,12 +2,12 @@ package Grids::Protocol::Encapsulation::JSON;
 use strict;
 use warnings;
 use Carp;
-use JSON;
+use JSON::XS;
 
 sub new {
     my ($class, %opts) = @_;
     my $self = {
-        json => JSON->new(pretty => 0),
+        json => JSON::XS->new->pretty(0),
     };
 
     return bless $self, $class;

@@ -31,7 +31,9 @@ sub new {
 
     bless $self, $class;
 
-    my $proto = Grids::Protocol->new(encapsulation => $enc_class, identity => $id);
+    my $proto = Grids::Protocol->new(encapsulation => $enc_class, identity => $id)
+        or die "Failed to create protocol handler";
+
     $self->{proto} = $proto;
 
     my $t = "Grids::Transport::$trans_class"->new($self, %opts);
