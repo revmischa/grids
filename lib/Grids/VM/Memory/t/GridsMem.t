@@ -6,12 +6,12 @@
 use Test::More qw(no_plan);
 use strict;
 use warnings;
-BEGIN { use_ok('Grids::VM::Mem') };
+BEGIN { use_ok('Grids::VM::Memory') };
 
 #########################
 
 # 16 bytes
-my $mem = Grids::VM::Mem->new(16);
+my $mem = Grids::VM::Memory->new(16);
 ok($mem, "got handle");
 ok($mem->h, "mem handle is defined");
 

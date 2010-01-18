@@ -1,4 +1,4 @@
-package Grids::VM::Mem;
+package Grids::VM::Memory;
 
 use 5.008008;
 use strict;
@@ -6,36 +6,15 @@ use warnings;
 use Carp qw (croak);
 use bytes;
 
-require Exporter;
-
-our @ISA = qw(Exporter);
-
-# Items to export into callers namespace by default. Note: do not export
-# names by default without a very good reason. Use EXPORT_OK instead.
-# Do not simply export all your public functions/methods/constants.
-
-# This allows declaration	use Grids::VM::Mem ':all';
-# If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
-# will save memory.
-our %EXPORT_TAGS = ( 'all' => [ qw(
-	
-) ] );
-
-our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
-
-our @EXPORT = qw(
-	
-);
-
 our $VERSION = '0.01';
 
 require XSLoader;
-XSLoader::load('Grids::VM::Mem', $VERSION);
+XSLoader::load('Grids::VM::Memory', $VERSION);
 
 sub new {
     my ($class, $size) = @_;
 
-    croak "No size for Grids::VM::Mem defined" unless $size;
+    croak "No size for Grids::VM::Memory defined" unless $size;
 
     my $self = {
     };
@@ -58,7 +37,7 @@ sub init {
     my ($self, $size) = @_;
 
     $self->size($size);
-    $self->{handle} = Grids::VM::Mem::mem_new($size);
+    $self->{handle} = Grids::VM::Memory::mem_new($size);
 }
 
 sub resize {
@@ -71,10 +50,10 @@ sub resize {
     my $copysize = $oldsize > $newsize ? $newsize : $oldsize;
 
     if ($oldsize && $copysize && ! $opts{nocopy}) {
-        Grids::VM::Mem::mem_copy($oldhandle, $self->h, $copysize);
+        Grids::VM::Memory::mem_copy($oldhandle, $self->h, $copysize);
     }
 
-    Grids::VM::Mem::mem_destroy($oldhandle);
+    Grids::VM::Memory::mem_destroy($oldhandle);
 }
 
 sub set {
@@ -83,7 +62,7 @@ sub set {
     croak "Tried to set memory outside bounds"
         if $offset + length $data > $self->size;
 
-    Grids::VM::Mem::mem_set($self->h, $offset, $data);
+    Grids::VM::Memory::mem_set($self->h, $offset, $data);
 }
 
 sub get {
@@ -95,7 +74,7 @@ sub get {
     croak "Tried to get memory outside bounds"
         if $offset + $len > $self->size;
 
-    Grids::VM::Mem::mem_get($self->h, $offset, $len);
+    Grids::VM::Memory::mem_get($self->h, $offset, $len);
 }
 
 # resize to new data size and set to new data
@@ -111,7 +90,7 @@ sub h { $_[0]->{handle} }
 sub DESTROY {
     my $self = shift;
     my $handle = $self->h or warn "null handle";
-    Grids::VM::Mem::mem_destroy($handle);
+    Grids::VM::Memory::mem_destroy($handle);
 }
 
 1;
@@ -119,13 +98,13 @@ __END__
 
 =head1 NAME
 
-Grids::VM::Mem - Provide a fast and reliable interface to a block of memory
+Grids::VM::Memory - Provide a fast and reliable interface to a block of memory
 
 =head1 SYNOPSIS
 
-  use Grids::VM::Mem;
+  use Grids::VM::Memory;
 
-  my $mem = Grids::VM::Mem->new(1024 * 16); # 16 megs
+  my $mem = Grids::VM::Memory->new(1024 * 16); # 16 megs
   $mem->set($offset, $data);
   $mem->resize(1024 * 32);
   $mem->get($offset, $len);
@@ -149,7 +128,7 @@ Mischa Spiegelmock, E<lt>mspiegelmock@gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2008 by Mischa Spiegelmock
+Copyright (C) 2010 by Mischa Spiegelmock
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.8 or,

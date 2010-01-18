@@ -33,7 +33,7 @@ void mem_destroy(memhandle_t handle) {
   free((char *)handle);
 }
 
-MODULE = Grids::VM::Mem		PACKAGE = Grids::VM::Mem
+MODULE = Grids::VM::Memory		PACKAGE = Grids::VM::Memory
 
 memhandle_t
 mem_new(size)
