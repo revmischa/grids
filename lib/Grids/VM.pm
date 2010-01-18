@@ -11,9 +11,8 @@ use Grids::Code;
 use Grids::VM::Instructions;
 
 use FindBin;
-use lib "../GridsMem/lib";
-use GridsMem;
-use GridsReg;
+use Grids::VM::Memory;
+use Grids::VM::Register;
 
 use base qw (Class::Accessor::Fast);
 __PACKAGE__->mk_accessors(qw/mem pc mem_limit/);
@@ -56,7 +55,7 @@ sub new {
 
     croak "Unknown options: " . join(',', keys %opts) if %opts;
 
-    my $regs = new GridsReg(scalar @REGS)
+    my $regs = new Grids::VM::Register(scalar @REGS)
         or die "couldn't create register storage";
 
     my $self = {
@@ -85,7 +84,7 @@ sub init {
     $self->regs->set(0, 0);
 
     # empty memory
-    $self->{mem} = new GridsMem(1);
+    $self->{mem} = new Grids::VM::Memory(1);
 
     # reset PC
     $self->{pc} = 0;

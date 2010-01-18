@@ -6,7 +6,7 @@ use warnings;
 use bytes;
 
 use Data::Dumper;
-use GridsMem;
+use Grids::VM::Memory;
 use Storable;
 use Carp;
 use base qw/ Class::Accessor /;
@@ -48,7 +48,7 @@ sub bytes {
     }
 
     # load a memory image with the segments mapped
-    my $mem = GridsMem->new($prog_len);
+    my $mem = Grids::VM::Memory->new($prog_len);
     foreach my $base_addr (keys %$segment_map) {
         $mem->set($base_addr, $segment_map->{$base_addr}, offset => $base_addr);
     }

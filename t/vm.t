@@ -1,6 +1,13 @@
 use strict;
 use Test::More qw(no_plan);
+
+# use locally built versions of memory/register for testing
 use lib 'lib';
+use lib 'lib/Grids/VM/Memory/lib';
+use lib 'lib/Grids/VM/Register/lib';
+use lib 'lib/Grids/VM/blib/arch/auto/Grids/VM/Memory';
+use lib 'lib/Grids/VM/blib/arch/auto/Grids/VM/Register';
+
 use Grids::Code;
 use Grids::VM;
 use Data::Dumper;
