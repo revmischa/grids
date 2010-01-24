@@ -151,7 +151,6 @@ sub parse_request {
             $self->set_encapsulation_method($info)
                 or return $self->error_event('Error.Protocol.UnsupportedEncapsulation', {encapsulation_method => $info});
 
-            warn "establishing";
             $self->establish_encrypted_connection;
 
             return $self->event('ProtocolEstablished');

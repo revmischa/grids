@@ -24,7 +24,12 @@ sub init_nodes {
 
     for (1 .. $nodecount) {
         # generate an identity for this new node
-        my $id = Grids::Identity->create_for_test;
+        my $id = Grids::Identity->create_for_test(name => "test-node$_");
+
+        $id->set_callback('error', sub { my ($otr, $user, $proto, $error) = @_; warn "[$user] OTR error: $error" });
+        $id->set_callback('warning', sub { my ($otr, $user, $proto, $warn) = @_; warn "[$user] OTR warning: $warn" });
+        $id->set_callback('info', sub { my ($otr, $user, $proto, $info) = @_; warn "[$user] OTR info: $info" });
+        $id->set_callback('otr_message', sub { my ($otr, $user, $proto, $notif) = @_; warn "[$user] OTR system message: $notif" });
 
         # create a new node
         my $node = Grids::Node->new(debug => $debug, id => $id);
