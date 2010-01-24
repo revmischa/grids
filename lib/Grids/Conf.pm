@@ -1,6 +1,10 @@
-use strict;
+# object representing configuration
 
 package Grids::Conf;
+
+use strict;
+use warnings;
+
 use Storable;
 use Carp qw (croak);
 use Data::Dumper;

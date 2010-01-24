@@ -13,11 +13,11 @@ sub client_server_pair {
     
     my $debug = $opts{debug} || 0;
 
-    my $srv_id = Grids::Identity->create_for_test;
+    my $srv_id = Grids::Identity->create_for_test(name => 'test-server');
     my $server = Grids::Node->new(debug => $debug, id => $srv_id);
     my $server_trans = $server->add_transport('Loop');
 
-    my $id = Grids::Identity->create_for_test;
+    my $id = Grids::Identity->create_for_test(name => 'test-client');
     my $client = Grids::Client->new(id => $id, transport => 'Loop', debug => $debug);
 
     # connect client to server using Loop transport

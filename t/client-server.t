@@ -16,7 +16,7 @@ my $login_good = 0;
 
 c_req('Authentication.Login');
 
-$server->conf->set_conf('Node.AuthorizedKeys', { $client->id => $id->pubkey->serialize });
+#$server->conf->set_conf('Node.AuthorizedKeys', { $client->id => $id->pubkey->serialize });
 $login_good = 1;
 $client->login;
 c_req();

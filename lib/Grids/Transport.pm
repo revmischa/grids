@@ -19,7 +19,7 @@ sub new {
     my $self = bless { delegate => $delegate }, $class;
 }
 
-# write data
+# actually write data
 sub write {
     my ($self, $data, $connection) = @_;
     croak "write called on Grids::Transport base class";
@@ -46,7 +46,7 @@ sub reset {
 ##################################
 
 # delegate is whatever object wants to receive events from this
-# Transport.  It needs to implement the "conf" method.
+# Transport.  It needs to implement the "conf" and "id" accessors.
 sub delegate { $_[0]->{delegate} }
 
 sub error {
@@ -55,10 +55,36 @@ sub error {
     return 0;
 }
 
-sub outgoing_connection_established {
+sub bind {
+    my ($self, $cb) = @_;
+    return sub {
+        $cb->($self, @_);
+    };
+}
+
+sub inject {
+    my ($self, $otr, $account, $protocol, $recipient, $message) = @_;
+    
+    $self->write($message, $self->conn);
+}
+
+sub connection_established {
     my ($self, $conn) = @_;
 
     $self->{conn} ||= $conn;
+
+    # get identity object so we can perform cryptographic functions
+    my $id = $self->delegate->id
+        or die "No identity loaded in transport delegate";
+
+    # set callbacks for crypto
+    $id->set_callback('inject', $self->bind(\&inject));
+}
+
+sub outgoing_connection_established {
+    my ($self, $conn) = @_;
+
+    $self->connection_established($conn);
 
     return unless $self->delegate->can('outgoing_connection_established');
     $self->delegate->outgoing_connection_established($self, $conn);
@@ -67,7 +93,7 @@ sub outgoing_connection_established {
 sub incoming_connection_established {
     my ($self, $conn) = @_;
 
-    $self->{conn} ||= $conn;
+    $self->connection_established($conn);
 
     return unless $self->delegate->can('incoming_connection_established');
     $self->delegate->incoming_connection_established($self, $conn);

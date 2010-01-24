@@ -2,43 +2,181 @@
 # public or private key, although other attributes may be associated
 # with an identity.
 
-use strict;
-
 package Grids::Identity;
 
+use Moose;
+
 use Crypt::RSA;
-use Grids::Identity::Public;
-use Grids::Identity::Private;
 use Crypt::RSA::ES::OAEP;
 use Crypt::Blowfish;
+use Crypt::Keys;
 
+use Grids::Identity::Public;
+use Grids::Identity::Private;
+use Grids::UUID;
+use Crypt::OTR;
+
+use Digest::SHA1;
+use FindBin;
 use Carp qw(croak);
 use Data::Dumper;
 
-sub new {
-    my ($class, %opts) = @_;
+# attributes
+has 'conf_dir' => (
+    is => 'rw',
+);
+has '_privkey' => (
+    is => 'rw',
+);
+has '_pubkey' => (
+    is => 'rw',
+);
+has 'encrypted' => (
+    is => 'rw',
+);
+has 'name' => (
+    is => 'rw',
+    isa => 'Str',
+    default => \&name_default,
+    lazy => 1,
+);
+has 'otr' => (
+    is => 'rw',
+    lazy => 1,
+    default => \&otr_default,
+);
 
-    my $privkey = delete $opts{privkey};
-    my $pubkey = delete $opts{pubkey};
-    my $name = delete $opts{name};
-    my $encrypted = delete $opts{encrypted};
+use constant {
+    MAX_MESSAGE_SIZE => 16350,
+    PROTOCOL_NAME    => 'Grids',
+};
 
-    my $self = {
-        pubkey    => $pubkey,
-        privkey   => $privkey,
-        name      => $name,
-        encrypted => $encrypted,
-    };
 
-    bless $self, $class;
-    return $self;
+Crypt::OTR->init;
+
+# fix this to be the public key
+sub name_default {
+    my ($self) = @_;
+    warn "name default";
+    return Grids::UUID->new_id;
+}
+
+# crypt::otr object
+sub otr_default {
+    my ($self) = @_;
+
+    return Crypt::OTR->new(
+        config_dir       => $self->conf_dir,
+        account_name     => $self->name,
+        max_message_size => MAX_MESSAGE_SIZE,
+        protocol         => PROTOCOL_NAME,
+    );
 }
 
 sub create_for_test {
     my ($class, %opts) = @_;
 
-    $opts{size} ||= 512;
-    return $class->create(%opts);
+    $opts{conf_dir} ||= "$FindBin::Bin";
+
+    return $class->new(%opts);
+}
+
+# load or generate private key (may block for a long time)
+sub load_privkey {
+    my ($self) = @_;
+    $self->otr->load_privkey;
+}    
+
+# return a digest of $txt
+sub digest {
+    my ($self, $txt) = @_;
+
+    return Digest::SHA1::sha1_hex($txt);
+}
+
+# sign plaintext with pubkey, return signature
+sub sign {
+    my ($id, $messageref, %opts) = @_;
+
+    return $id->otr->sign($id->digest($$messageref));
+
+    #my $rsa = new Crypt::RSA;
+    #return $rsa->sign(Message => $message,
+    #                  Key     => $id->privkey,
+    #                  Armor   => $opts{armor}) or die $rsa->errstr;
+}
+
+# return if $message_ref is signed by $pubkey
+sub verify {
+    my ($class, $message_ref, $sig, $pubkey, %opts) = @_;
+
+    return Crypt::OTR->verify($class->digest($$message_ref), $sig, $pubkey);
+
+#    my $rsa = new Crypt::RSA;
+#    return $rsa->verify(Message   => $message,
+#                        Key       => $id->pubkey,
+#                        Signature => $sig,
+#                        Armor     => $opts{armor}) or die $rsa->errstr;
+}
+
+sub privkey {
+    my $self = shift;
+    return $self->_privkey;
+}
+
+sub pubkey {
+    my $self = shift;
+
+    return $self->_pubkey if $self->_pubkey;
+
+    my $pk = $self->otr->pubkey;
+    $self->_pubkey($pk);
+
+    return $pk;
+}
+
+sub set_callback {
+    my ($self, $event, $callback) = @_;
+
+    $self->otr->set_callback($event, $callback);
+}
+
+# returns message encrypted for $recipient if we have their pubkey,
+# otherwise returns undef
+sub encrypt {
+    my ($self, $recipient, $plaintext) = @_;
+    return $self->otr->encrypt($recipient, $plaintext);
+}
+
+# returns message from $sender decrypted if possible
+# otherwise returns undef
+sub decrypt {
+    my ($self, $sender, $ciphertext) = @_;
+    return $self->otr->decrypt($sender, $ciphertext);
+}
+
+
+#####################
+# NEED TO BE UPDATED:
+
+
+# encrypt plaintext for $id
+sub _encrypt {
+    my ($self, $plaintext, $id, %opts) = @_;
+    my $rsa = new Crypt::RSA;
+    return $rsa->encrypt(Message => $plaintext, Key => $id->pubkey, Armor => $opts{armor})
+        or die $rsa->errstr;
+}
+
+# decrypt ciphertext for $id
+sub _decrypt {
+    my ($id, $ciphertext, %opts) = @_;
+
+
+    my $rsa = new Crypt::RSA;
+
+    return $rsa->decrypt(Cyphertext => $ciphertext, Key => $id->privkey, Armor => $opts{armor})
+        or die $rsa->errstr;
 }
 
 # generate a public/private keypair
@@ -68,8 +206,8 @@ sub create {
     print "\nGenerated identity keypair.\n\n" if $verbose;
 
     my $id = $class->new(
-                         pubkey => $pubkey,
-                         privkey => $privkey,
+                         _pubkey => $pubkey,
+                         _privkey => $privkey,
                          %opts,
                          );
 
@@ -81,43 +219,6 @@ sub create {
     return $id;
 }
 
-# encrypt plaintext for $id
-sub encrypt {
-    my ($self, $plaintext, $id, %opts) = @_;
-    my $rsa = new Crypt::RSA;
-    return $rsa->encrypt(Message => $plaintext, Key => $id->pubkey, Armor => $opts{armor})
-        or die $rsa->errstr;
-}
-
-# decrypt ciphertext for $id
-sub decrypt {
-    my ($id, $ciphertext, %opts) = @_;
-    my $rsa = new Crypt::RSA;
-
-    return $rsa->decrypt(Cyphertext => $ciphertext, Key => $id->privkey, Armor => $opts{armor})
-        or die $rsa->errstr;
-}
-
-# sign plaintext with pubkey, return signature
-sub sign {
-    my ($id, $message, %opts) = @_;
-    my $rsa = new Crypt::RSA;
-    return $rsa->sign(Message => $message,
-                      Key     => $id->privkey,
-                      Armor   => $opts{armor}) or die $rsa->errstr;
-}
-
-# return if $message is signed by $id's pubkey
-sub verify {
-    my ($class, $message, $sig, $id, %opts) = @_;
-
-    my $rsa = new Crypt::RSA;
-
-    return $rsa->verify(Message   => $message,
-                        Key       => $id->pubkey,
-                        Signature => $sig,
-                        Armor     => $opts{armor}) or die $rsa->errstr;
-}
 
 # decrypts private key with $passphrase, returns if successful
 sub decrypt_privkey {
@@ -160,13 +261,8 @@ sub check {
     return $ok;
 }
 
-sub encrypted { $_[0]->{encrypted} }
-
 *pub = \&pubkey;
 *priv = \&privkey;
-sub privkey { $_[0]->{privkey} }
-
-sub name { $_[0]->{name} }
 
 # encrypt privkey
 sub hide {
@@ -203,8 +299,8 @@ sub serialize {
     # calling this method they won't work, they have to be
     # deserialized again.
 
-    $self->{pubkey} = $pub->deserialize(String => [$store->{pubkey}]) if $pub;
-    $self->{privkey} = $priv->deserialize(String => [$store->{privkey}]) if $priv;
+    $self->_pubkey($pub->deserialize(String => [$store->{pubkey}])) if $pub;
+    $self->_privkey($priv->deserialize(String => [$store->{privkey}])) if $priv;
 
     return $ser;
 }
@@ -213,7 +309,7 @@ sub new_from_serialized_pubkey {
     my ($class, $pubkey_serialized) = @_;
 
     my $pubkey = Grids::Identity::Public->deserialize(String => [$pubkey_serialized]);
-    return $class->new(pubkey => $pubkey);
+    return $class->new(_pubkey => $pubkey);
 }
 
 sub deserialize {
@@ -228,20 +324,8 @@ sub deserialize {
     $pubkey = Grids::Identity::Public->deserialize(String => [$pubkey]) if $pubkey;
     $privkey = Grids::Identity::Private->deserialize(String => [$privkey]) if $privkey;
 
-    return $class->new(%store, pubkey => $pubkey, privkey => $privkey);
+    return $class->new(%store, _pubkey => $pubkey, _privkey => $privkey);
 }
 
-sub pubkey {
-    my $self = shift;
 
-    return $self->{pubkey} if $self->{pubkey};
-
-    return $self->generate_pubkey;
-}
-
-sub generate_pubkey {
-    my $self = shift;
-
-    # TODO: generate pubkey
-    croak "generate_pubkey not yet implemented";
-}
+1;

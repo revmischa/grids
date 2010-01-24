@@ -1,7 +1,11 @@
-use strict;
 package Grids::Client;
+
+use strict;
+use warnings;
+
 use Grids::Transport;
 use Grids::Protocol;
+
 use Carp qw (croak);
 
 use Class::Autouse(qw/Grids::Protocol::EventQueue Grids::Address::TCP/);
@@ -39,7 +43,22 @@ sub new {
     my $t = "Grids::Transport::$trans_class"->new($self, %opts);
     $self->{transport} = $t;
 
+    $self->id->set_callback('unverified', \&unverified);
+    $self->id->set_callback('verified', \&verified);
+
     return $self;
+}
+
+# encrypted communication established with unknown party
+sub unverified {
+    my ($otr, $name) = @_;
+    warn "unverified connection established with $name";
+}
+
+# encrypted communication established with verified party
+sub verified {
+    my ($otr, $name) = @_;
+    warn "verified connection established with $name";
 }
 
 # called when our transport receives data
@@ -49,8 +68,10 @@ sub data_received {
     $self->dbg("received data [$data]");
 
     my $evt = $self->proto->parse_request($data);
+    return unless $evt;
+
     $evt->{_trans} = $trans;
-    $self->event_queue->add($evt) if $evt;
+    $self->event_queue->add($evt);
 }
 
 # processes everything in the event queue
@@ -114,7 +135,7 @@ sub connect {
 
 # Called when a connection with a Node has been established. This
 # simply means there is a connection, but the protocol handler has not
-# been set up yet. Once the connection is set up peroperly, the
+# been set up yet. Once the connection is set up properly, the
 # Connected event will be called
 sub outgoing_connection_established {
     my ($self, $trans, $con) = @_;

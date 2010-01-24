@@ -1,14 +1,14 @@
+package Grids::Protocol::Event;
+
 use strict;
 use warnings;
-
-package Grids::Protocol::Event;
 
 use Carp;
 use Grids::UUID;
 
 use base qw/Class::Accessor::Fast/;
 
-__PACKAGE__->mk_accessors(qw/event_name trans proto args time expires target source message_id signed_message_id/);
+__PACKAGE__->mk_accessors(qw/event_name trans proto args time expires target source message_id signed_message_id was_encrypted/);
 
 sub new {
     my ($class, %opts) = @_;
@@ -16,11 +16,13 @@ sub new {
     my $time = delete $opts{time} || time();
     my $args = delete $opts{params} || delete $opts{args} || {};
     my $evt_name = delete $opts{event_name} or return undef;
+    my $was_encrypted = delete $opts{was_encrypted};
 
     croak "Invalid args to Event->new: " . join ', ', keys %opts
         if %opts;
 
     my $self = {
+        was_encrypted => $was_encrypted,
         time => $time,
         args => $args,
         event_name => $evt_name,

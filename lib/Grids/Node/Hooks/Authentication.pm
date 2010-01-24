@@ -40,6 +40,9 @@ sub hook_login {
 sub hook_auth_check_pubkey {
     my ($node, $evt) = @_;
 
+    # FIXME
+    return 1;
+
     # get peer public key
     my $peer_pubkey = $evt->proto->peer->id->pubkey;
     my $pubkey_str = $peer_pubkey->serialize;

@@ -7,7 +7,7 @@ use Carp qw/croak/;
 
 use base qw/Class::Accessor/;
 
-__PACKAGE__->mk_accessors(qw/address id/);
+__PACKAGE__->mk_accessors(qw/address id name/);
 
 sub new {
     my ($class, %opts) = @_;
@@ -15,6 +15,7 @@ sub new {
     my $self = {
         address => $opts{address},
         id => $opts{id},
+        name => $opts{name},
     };
 
     return bless $self, $class;

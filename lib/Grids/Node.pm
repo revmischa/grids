@@ -56,7 +56,22 @@ sub new {
 
     bless $self, $class;
 
+    $self->id->set_callback('unverified', \&unverified);
+    $self->id->set_callback('verified', \&verified);
+
     return $self;
+}
+
+# encrypted communication established with unknown party
+sub unverified {
+    my ($otr, $name) = @_;
+    warn "unverified connection established with $name";
+}
+
+# encrypted communication established with verified party
+sub verified {
+    my ($otr, $name) = @_;
+    warn "verified connection established with $name";
 }
 
 # send an event to all nodes in this network
