@@ -35,7 +35,7 @@ sub init_nodes {
         my $node = Grids::Node->new(debug => $debug, id => $id);
 
         # set node-node private key
-        $node->conf->set_conf('Node.PrivateKey' => '123');
+        $node->configuration->set_conf('Node.PrivateKey' => '123');
 
         # handle connections and node-node communication
         $node->register_hook('Connected', \&node_connected);
@@ -94,7 +94,7 @@ sub node_connected {
     $connections++;
 
     # try to log in with shared node privkey
-    return { event => 'Login', node_private_key => $node->conf->get('Node.PrivateKey') };
+    return { event => 'Login', node_private_key => $node->configuration->get('Node.PrivateKey') };
 }
     
 # node-node login

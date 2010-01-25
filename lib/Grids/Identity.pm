@@ -57,7 +57,7 @@ Crypt::OTR->init;
 # fix this to be the public key
 sub name_default {
     my ($self) = @_;
-    warn "name default";
+
     return Grids::UUID->new_id;
 }
 
