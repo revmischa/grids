@@ -43,9 +43,9 @@ No namespace pollution tolerated.
 
 Copyright (C) 2010 by Mischa Spiegelmock
 
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself, either Perl version 5.8.8 or,
-at your option, any later version of Perl 5 you may have available.
+BSD
+
+http://www.opensource.org/licenses/bsd-license.php
 
 
 =cut
