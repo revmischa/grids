@@ -1,23 +1,24 @@
 package Grids::Transport;
-use strict;
-use warnings;
+
+use Moose;
+
 use Carp;
 use IO::Select;
 
-use base qw/Class::Accessor::Fast/;
-__PACKAGE__->mk_accessors(qw/conn/);
-
+# FIXME: use moose
 # use all subclasses
 use Class::Autouse;
 Class::Autouse->autouse_recursive('Grids::Transport');
 
+
+# FIXME: use real moose delegates
+has 'delegate' => (
+    is => 'rw',
+    weak_ref => 1,
+);
+
+
 #### Override these in subclasses
-
-sub new {
-    my ($class, $delegate) = @_;
-
-    my $self = bless { delegate => $delegate }, $class;
-}
 
 # actually write data
 sub write {
@@ -45,9 +46,11 @@ sub reset {
 
 ##################################
 
-# delegate is whatever object wants to receive events from this
-# Transport.  It needs to implement the "conf" and "id" accessors.
-sub delegate { $_[0]->{delegate} }
+sub delegate_do {
+    my ($self, $method, @args) = @_;
+    return unless $self->delegate && $self->delegate->can($method);
+    return $self->delegate->$method(@args);
+}
 
 sub error {
     my ($self, $error) = @_;
@@ -56,54 +59,68 @@ sub error {
 }
 
 sub bind {
-    my ($self, $cb) = @_;
+    my ($self, $cb, @extra) = @_;
     return sub {
-        $cb->($self, @_);
+        $cb->($self, @extra, @_);
     };
-}
-
-sub inject {
-    my ($self, $otr, $account, $protocol, $recipient, $message) = @_;
-    
-    $self->write($message, $self->conn);
 }
 
 sub connection_established {
     my ($self, $conn) = @_;
-
-    $self->{conn} ||= $conn;
 
     # get identity object so we can perform cryptographic functions
     my $id = $self->delegate->id
         or die "No identity loaded in transport delegate";
 
     # set callbacks for crypto
-    $id->set_callback('inject', $self->bind(\&inject));
+    $id->set_callback('inject', $self->bind(\&inject, $conn));
+    $id->set_callback('unverified', $self->bind(\&connection_ready, $conn, 0));
+    $id->set_callback('verified',   $self->bind(\&connection_ready, $conn, 1));
+    $id->set_callback('disconnect', $self->bind(\&connection_unready, $conn));
+}
+
+sub inject {
+    my ($self, $connection, $otr, $account, $protocol, $recipient, $message) = @_;
+    
+    $self->write($message, $connection);
+}
+
+sub connection_unready {
+    my ($self, $connection, $otr, $peer_name) = @_;
+
+    $connection->peer_fingerprint_is_verified(0);
+    $self->delegate_do('connection_unready', $connection, $peer_name);
+}
+
+sub connection_ready {
+    my ($self, $connection, $is_verified, $otr, $peer_name) = @_;
+
+    $connection->peer_fingerprint_is_verified($is_verified);
+    $self->delegate_do('connection_ready', $connection, $peer_name);
 }
 
 sub outgoing_connection_established {
-    my ($self, $conn) = @_;
+    my ($self, $connection) = @_;
 
-    $self->connection_established($conn);
-
-    return unless $self->delegate->can('outgoing_connection_established');
-    $self->delegate->outgoing_connection_established($self, $conn);
+    $self->connection_established($connection);
+    $self->delegate_do('outgoing_connection_established', $connection);
 }
 
 sub incoming_connection_established {
-    my ($self, $conn) = @_;
+    my ($self, $connection) = @_;
 
-    $self->connection_established($conn);
-
-    return unless $self->delegate->can('incoming_connection_established');
-    $self->delegate->incoming_connection_established($self, $conn);
+    $self->connection_established($connection);
+    $self->delegate_do('incoming_connection_established', $connection);
 }
 
 sub data_received {
     my ($self, $connection, $data) = @_;
 
-    return unless $self->delegate->can('data_received');
-    $self->delegate->data_received($self, $data, $connection);
+    #my $name = "unknown";
+    #$name =  $connection->protocol->id->name if  $connection->protocol &&  $connection->protocol->id;
+
+    $self->delegate_do('data_received', $connection, $data);
 }
 
-1;
+no Moose;
+__PACKAGE__->meta->make_immutable;

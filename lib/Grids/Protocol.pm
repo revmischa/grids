@@ -64,6 +64,12 @@ sub initiation_string {
     return MSG_INIT_PROTOCOL_PREFIX . join('/', @elements);
 }
 
+# return bob@node_name to uniquely identify this user
+sub peer_name {
+    my ($self) = @_;
+    return $self->peer->name . '@' . $self->id->name;
+}
+
 # returns a string to respond to a protocol initiation
 sub protocol_init_response {
     my ($self, %opts) = @_;
@@ -81,7 +87,7 @@ sub establish_encrypted_connection {
     croak "establish_encrypted_connection() called but no peer defined"
         unless $self->peer;
 
-    $self->id->otr->establish($self->peer->name);
+    $self->id->otr->establish($self->peer_name);
 }
 
 sub set_peer_name {
@@ -135,24 +141,41 @@ sub parse_request {
 
     my $prefix = MSG_INIT_PROTOCOL_REPLY_PREFIX;
     if (index($data, $prefix) == 0) {
-        # this is an initiation string, handle it
-        # ++Grids/1.0/JSON/name=$name
-        $data = substr($data, length $prefix);
-        my ($status, $version, $info, $name) = $data =~ /^(\w+)\/([^\/]+)(?:\/(\w*))?(?:\/name="([-\w\s]+)")?/i;
+        # this is an initiation reply string, handle it
+
+        # ==OK/1.0/JSON/name=$name
+        $data = substr($data, length $prefix);   # chop prefix off
+        
+        # parse reply
+        my ($status, $version, $info, $name) = $data =~ m{
+              ^(\w+)                    # Status (OK/ERROR)
+              \/([^\/]+)                # Version
+              (?:\/(\w*))?              # Encapsulation method (e.g. JSON, XML)
+              (?:\/name="([-\w\s]+)")?  # options, currently only name is supported
+        }smix;
 
         unless ($status) {
             warn "Got invalid request string: '$data'";
             return undef;
         }
 
+        if ($version ne '1.0') {
+            warn "Warning: peer is using an unknown version of Grids, things may break\n";
+        }
+
         if ($status eq 'OK') {
+            # we got a protocol response, we have their name and encapsulation method
             $self->set_peer_name($name);
 
+            # try to create encapsulation subtype
             $self->set_encapsulation_method($info)
                 or return $self->error_event('Error.Protocol.UnsupportedEncapsulation', {encapsulation_method => $info});
 
+            # send request to establish an encrypted session
             $self->establish_encrypted_connection;
 
+            # protocol is set up, we are ready to send events but we
+            # should wait until we have an encrypted session
             return $self->event('ProtocolEstablished');
         } elsif ($status eq 'ERROR') {
             if ($info eq 'Unauthorized') {
@@ -177,7 +200,7 @@ sub parse_request {
         return undef;
     }
 
-    warn "Received message from " . $self->peer->name . " but it was not encrypted: $data\n" unless $was_encrypted;
+    warn "Received message from " . $self->peer_name . " but it was not encrypted: $data\n" unless $was_encrypted;
 
     # instantiate Event record
     my $event_name = delete $args->{_method};
@@ -206,7 +229,7 @@ sub decapsulate {
         unless $self->encap;
 
     my $was_encrypted;
-    if ($self->peer && $self->peer->name) {
+    if ($self->peer && $self->peer_name) {
         my $decrypted;
         ($decrypted, $was_encrypted) = $self->decrypt_message($data);
 
@@ -247,9 +270,9 @@ sub encrypt_message {
     my ($self, $msg) = @_;
 
     croak "encrypt_message() called without a peer defined"
-        unless $self->peer && $self->peer->name;
+        unless $self->peer && $self->peer_name;
 
-    my $ciphertext = $self->id->encrypt($self->peer->name, $msg);
+    my $ciphertext = $self->id->encrypt($self->peer_name, $msg);
     if ($ciphertext) {
         return $ciphertext;
     }
@@ -263,9 +286,9 @@ sub decrypt_message {
     my ($self, $msg) = @_;
 
     croak "decrypt_message() called without a peer defined"
-        unless $self->peer && $self->peer->name;
+        unless $self->peer && $self->peer_name;
 
-    my $plaintext = $self->id->decrypt($self->peer->name, $msg);
+    my $plaintext = $self->id->decrypt($self->peer_name, $msg);
     if (defined $plaintext) {
         return wantarray ? ($plaintext, 1) : $plaintext;
     } else {

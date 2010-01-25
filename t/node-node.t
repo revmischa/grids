@@ -26,10 +26,10 @@ sub init_nodes {
         # generate an identity for this new node
         my $id = Grids::Identity->create_for_test(name => "test-node$_");
 
-        $id->set_callback('error', sub { my ($otr, $user, $proto, $error) = @_; warn "[$user] OTR error: $error" });
-        $id->set_callback('warning', sub { my ($otr, $user, $proto, $warn) = @_; warn "[$user] OTR warning: $warn" });
-        $id->set_callback('info', sub { my ($otr, $user, $proto, $info) = @_; warn "[$user] OTR info: $info" });
-        $id->set_callback('otr_message', sub { my ($otr, $user, $proto, $notif) = @_; warn "[$user] OTR system message: $notif" });
+        $id->set_callback('error', sub { my ($otr, $user, $proto, $peer, $error) = @_; warn "[$user] OTR error: $peer - $error" });
+        $id->set_callback('warning', sub { my ($otr, $user, $proto, $peer, $warn) = @_; warn "[$user] OTR warning: $peer - $warn" });
+        $id->set_callback('info', sub { my ($otr, $user, $proto, $peer, $info) = @_; warn "[$user] OTR info: $peer - $info" });
+        $id->set_callback('otr_message', sub { my ($otr, $user, $proto, $peer, $notif) = @_; warn "[$user] OTR system message: $peer - $notif" });
 
         # create a new node
         my $node = Grids::Node->new(debug => $debug, id => $id);
@@ -59,12 +59,13 @@ sub init_nodes {
 
     flush();
 
-    is($connections, $nodecount * 2, "all nodes connected");
+    is($connections, $nodecount, "all nodes connected");
 
     flush();
     flush();
     flush();
 }
+
 
 # process all waiting events
 sub flush {
@@ -87,9 +88,9 @@ sub node_error {
 
 # send node key (FIXME: make encrypted)
 sub node_connected {
-    my ($node, $info) = @_;
+    my ($node, $connection) = @_;
 
-    ok(%$info, "node $node connected");
+    ok($connection, "node connected");
     $connections++;
 
     # try to log in with shared node privkey

@@ -1,21 +1,34 @@
-use strict;
-use warnings;
-
 package Grids::Transport::TCP;
-use base 'Grids::Transport';
+
+use Moose;
+    extends 'Grids::Transport';
 
 use Carp qw/croak/;
 use IO::Socket::INET;
+use Grids::Protocol::Connection;
 
-sub new {
-    my ($class, $parent, %opts) = @_;
+has 'parent' => (
+    is => 'rw',
+    handles => {
+        configuration => 'conf',
+    },
+);
 
-    my $self = $class->SUPER::new($parent, %opts);
-    $self->parent->conf->add_conf(port => 1488); # add default port
+has 'sockets' => (
+    is => 'rw',
+    isa => 'ArrayRef',
+);
 
-    $self->{sockets} = [];
+has 'connections' => (
+    is => 'rw',
+    isa => 'HashRef',
+);
 
-    return $self;
+sub BUILD {
+    my ($self) = @_;
+
+    $self->configuration->add_conf(port => 1488); # add default port
+    0;
 }
 
 sub connect {
@@ -33,10 +46,9 @@ sub connect {
                                      PeerPort  => $addr->port,
                                      ) or return $self->error("Could not connect to host $addr: $!");
 
-    $self->{sock} = $sock;
-    $self->add_socket($sock);
-
-    $self->outgoing_connection_established($sock);
+    my $connection = Grids::Protocol::Connection->new(transport => $self, channel => $sock);
+    $self->add_socket($sock, $connection);
+    $self->outgoing_connection_established($connection);
 }
 
 sub write {
@@ -44,8 +56,6 @@ sub write {
 
     my $datalen = length $data;
     my $datalen_packed = pack("N", $datalen);
-
-    $sock ||= $self->{sock};
 
     if ($sock && $sock->connected) {
         my $byte_count = $sock->syswrite($datalen_packed . $data);
@@ -74,7 +84,10 @@ sub close_all {
 }
 
 sub add_socket {
-    my ($self, $socket) = @_;
+    my ($self, $socket, $connection) = @_;
+
+    $self->{connections}{$socket} = $connection;
+
     return if grep { $_ eq $socket } $self->sockets;
     push @{$self->{sockets}}, $socket;
     $self->add_to_read_set($socket);
@@ -82,6 +95,9 @@ sub add_socket {
 
 sub remove_socket {
     my ($self, $socket) = @_;
+
+    delete $self->{connections}{$socket};
+
     $self->{sockets} = [ grep { $_ ne $socket } $self->sockets ];
     $self->remove_from_read_set($socket);
 }
@@ -125,8 +141,10 @@ sub select {
             # this is the main read socket, accept the connection
             # and add it to the read set
             my $ns = $rh->accept;
-            $self->add_socket($ns);
-            $self->incoming_connection_established($ns);
+
+            my $connection = Grids::Protocol::Connection->new(transport => $self, channel => $ns, inbound => 1);
+            $self->add_socket($ns, $connection);
+            $self->incoming_connection_established($connection);
         } else {
             # otherwise this is a normal socket reading for reading
 
@@ -154,16 +172,20 @@ sub select {
 
                             $read_bytes += $read;
                             $remaining_bytes -= $read;
-                            warn "$read_bytes / $remaining_bytes\n";
                         } while ($remaining_bytes);
                     } else {
-                        # chill, got out message, process it
-                        $self->data_received($rh, $buf);
+                        # create/load connection instance
+                        my $connection = $self->connections->{$rh} ||
+                            Grids::Protocol::Connection->new(transport => $self, channel => $rh, inbound => 0);
+                        $self->connections->{$rh} ||= $connection;
+
+                        # chill, read message, process it
+                        $self->data_received($connection, $buf);
                     }
                 }
             } else {
                 # socket is closed
-                $self->remove_socket($rh);
+                $self->remove_socket($rh, $connection);
                 $rh->close;
             }
         }
@@ -172,4 +194,5 @@ sub select {
     return 0;
 }
 
-1;
+no Moose;
+__PACKAGE__->meta->make_immutable;
