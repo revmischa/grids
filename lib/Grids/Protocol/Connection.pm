@@ -6,7 +6,7 @@ use Carp qw/croak/;
 
 has 'transport' => (
     is => 'rw',
-    isa => 'Grids::Transport',
+    does => 'Grids::Transport::Driver',
     required => 1,
 );
 

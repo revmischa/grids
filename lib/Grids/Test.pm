@@ -18,7 +18,7 @@ sub client_server_pair {
     my $server_trans = $server->add_transport('Loop');
 
     my $id = Grids::Identity->create_for_test(name => 'test-client');
-    my $client = Grids::Client->new(id => $id, transport => 'Loop', debug => $debug);
+    my $client = Grids::Client->new(id => $id, transport_class => 'Loop', debug => $debug);
 
     # connect client to server using Loop transport
     $client->connect($server_trans);

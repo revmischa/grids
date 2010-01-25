@@ -1,10 +1,12 @@
 # This is a class for a Grids Node.  
 # It handles sending/receiving data over transports and handling requests
 
-use strict;
-use warnings;
-
 package Grids::Node;
+
+use Moose;
+    with 'Grids::Base';
+
+# moosify
 use Class::Autouse qw/
     Grids::Code
     Grids::VM
@@ -18,45 +20,46 @@ use Class::Autouse qw/
 use Grids::Transport;
 use Carp qw/croak/;
 
-use base qw/Class::Accessor::Fast Grids::Hookable/;
-__PACKAGE__->mk_accessors(qw/conf peer_connections transports sessions debug event_queue id/);
+# moosify
+use base qw/Grids::Hookable/;
 __PACKAGE__->load_hooks;
 
-our $default_conf = { };
+has 'peer_connections' => (
+    is => 'rw',
+    isa => 'HashRef',
+);
 
-sub new {
-    my ($class, %opts) = @_;
+has 'sessions' => (
+    is => 'rw',
+    isa => 'HashRef',
+);
 
-    my $conf = $opts{conf};
-    my $debug = $opts{debug};
-    my $id = $opts{id} || $opts{identity} || croak "No identity passed to Grids::Node->new";
-    my $network_id = $opts{network_id} || $id; # we are our own network if no network specified
-    my $network = $opts{network} || new Grids::Network(network_id => $network_id);
+has 'transports' => (
+    is => 'rw',
+    isa => 'ArrayRef',
+    default => sub { [] },
+);
 
-    $debug ||= $conf->get('debug') if $conf;
+has 'network_id' => (
+    is => 'rw',
+    isa => 'Grids::Identity',
+    lazy => 1,
+    builder => 'id',  # we alone are the network by default
+);
 
-    # create default configuration if none specified
-    unless ($conf) {
-        $conf = Grids::Conf->new;
-    }
+has 'network' => (
+    is => 'rw',
+    isa => 'Grids::Network',
+    lazy => 1,
+    builder => '_network_builder',
+);
 
-    # instantiate event queue
-    my $evt_queue = Grids::Protocol::EventQueue->new;
-
-    my $self = {
-        id          => $id,
-        network     => $network,
-        conf        => $conf,
-        transports  => [],
-        peer_connections => {}, # map of $peer->id => [$connections]
-        debug       => $debug,
-        sessions    => {},
-        event_queue => $evt_queue,
-    };
-
-    bless $self, $class;
-    return $self;
+# create new network instance
+sub _network_builder {
+    my ($self) = @_;
+    return new Grids::Network($self->network_id);
 }
+
 
 # send an event to all nodes in this network
 sub network_broadcast {
@@ -68,9 +71,10 @@ sub network_broadcast {
 
 sub add_transport {
     my ($self, $trans_class, %opts) = @_;
+
     my $trans = "Grids::Transport::$trans_class"->new(delegate => $self, %opts);
 
-    push @{$self->{transports}}, $trans;
+    push @{$self->transports}, $trans;
     return $trans;
 }
 
@@ -271,4 +275,5 @@ sub warn {
     warn "Grids::Node:   [$name Warn] $msg\n";
 }
 
-1;
+no Moose;
+__PACKAGE__->meta->make_immutable;

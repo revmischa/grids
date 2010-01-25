@@ -1,76 +1,46 @@
 package Grids::Client;
 
-use strict;
-use warnings;
+use Moose;
+    with 'Grids::Base';
 
 use Grids::Transport;
 use Grids::Protocol;
+use Grids::Protocol::EventQueue;
 
 use Carp qw (croak);
 
-use Class::Autouse(qw/Grids::Protocol::EventQueue Grids::Address::TCP/);
+has 'connection' => (
+    is => 'rw',
+    isa => 'Grids::Protocol::Connection',
+    handles => {
+        write => 'write',
+    },
+);
 
-use base qw/Class::Accessor::Fast Grids::Hookable/;
-__PACKAGE__->mk_accessors(qw/transport id conf proto transport debug session_token event_queue/);
+has 'session_token' => (
+    is => 'rw',
+    isa => 'Str',
+);
+
+# this needs to be moosified
+has 'hooks' => (
+    is => 'rw',
+    isa => 'HashRef',
+);
+
+use base qw/Grids::Hookable/;
 __PACKAGE__->load_hooks;
-
-# opts: id, transport, conf
-# other opts passed to transport
-sub new {
-    my ($class, %opts) = @_;
-
-    my $id          = delete $opts{id} or croak "No identity provided";
-    my $trans_class = delete $opts{transport} || 'TCP';
-    my $enc_class   = delete $opts{encapsulation} || 'JSON';
-
-    my $evt_queue   = Grids::Protocol::EventQueue->new;
-
-    my $self = {
-        event_queue => $evt_queue,
-        conf  => $opts{conf},
-        debug => $opts{debug},
-        id    => $id,
-        hooks => {},
-    };
-
-    bless $self, $class;
-
-    my $proto = Grids::Protocol->new(encapsulation => $enc_class, identity => $id)
-        or die "Failed to create protocol handler";
-
-    $self->{proto} = $proto;
-
-    my $t = "Grids::Transport::$trans_class"->new($self, %opts);
-    $self->{transport} = $t;
-
-    $self->id->set_callback('unverified', \&unverified);
-    $self->id->set_callback('verified', \&verified);
-
-    return $self;
-}
-
-# encrypted communication established with unknown party
-sub unverified {
-    my ($otr, $name) = @_;
-    warn "unverified connection established with $name";
-}
-
-# encrypted communication established with verified party
-sub verified {
-    my ($otr, $name) = @_;
-    warn "verified connection established with $name";
-}
 
 # called when our transport receives data
 sub data_received {
-    my ($self, $trans, $data) = @_;
+    my ($self, $connection, $data) = @_;
 
     $self->dbg("received data [$data]");
 
     my $evt = $self->proto->parse_request($data);
     return unless $evt;
 
-    $evt->{_trans} = $trans;
+    $evt->{_connection} = $connection;
     $self->event_queue->add($evt);
 }
 
@@ -128,9 +98,17 @@ sub do_request {
 
 # attempt to connect to a Node
 sub connect {
-    my ($self, $address, $node_public_key) = @_;
+    my ($self, $address) = @_;
 
-    $self->transport->connect($address);
+    my $transport_class = $self->transport_class;
+    my $encapsulation_class = $self->encapsulation_class;
+
+    my $proto = Grids::Protocol->new(encapsulation => $encapsulation_class, identity => $self->id)
+        or die "Failed to create protocol handler";
+
+    my $t = "Grids::Transport::$transport_class"->new(delegate => $self);
+
+    $t->connect($address);
 }
 
 # Called when a connection with a Node has been established. This
@@ -138,10 +116,10 @@ sub connect {
 # been set up yet. Once the connection is set up properly, the
 # Connected event will be called
 sub outgoing_connection_established {
-    my ($self, $trans, $con) = @_;
+    my ($self, $connection) = @_;
 
-    $self->dbg("Connection to node successful.");
-    $self->transport->write($self->proto->initiation_string);
+    $self->dbg("Connection to node successful. Initiating Grids protocol...");
+    $connection->initiate_protocol($self->id);
 }
 
 # initiates a login, call after ProtocolEstablished event
@@ -161,4 +139,5 @@ sub warn {
     warn "Grids::Client: [Warn] $msg\n";
 }
 
-1;
+no Moose;
+__PACKAGE__->meta->make_immutable;

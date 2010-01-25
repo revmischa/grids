@@ -4,7 +4,7 @@
 package Grids::Transport::Loop;
 
 use Moose;
-    extends 'Grids::Transport';
+    with 'Grids::Transport::Driver';
 
 use Grids::Protocol::Connection;
 

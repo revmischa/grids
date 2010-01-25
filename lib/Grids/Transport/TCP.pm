@@ -1,7 +1,7 @@
 package Grids::Transport::TCP;
 
 use Moose;
-    extends 'Grids::Transport';
+    with 'Grids::Transport::Driver';
 
 use Carp qw/croak/;
 use IO::Socket::INET;
@@ -24,11 +24,17 @@ has 'connections' => (
     isa => 'HashRef',
 );
 
+has 'read_set' => (
+    is => 'rw',
+    lazy => 1,
+    isa => 'IO::Select',
+    default => sub { IO::Select->new },
+);
+
 sub BUILD {
     my ($self) = @_;
 
     $self->configuration->add_conf(port => 1488); # add default port
-    0;
 }
 
 sub connect {
@@ -86,38 +92,31 @@ sub close_all {
 sub add_socket {
     my ($self, $socket, $connection) = @_;
 
-    $self->{connections}{$socket} = $connection;
+    $self->connections->{$socket} = $connection;
 
     return if grep { $_ eq $socket } $self->sockets;
-    push @{$self->{sockets}}, $socket;
+    push @{$self->sockets}, $socket;
     $self->add_to_read_set($socket);
 }
 
 sub remove_socket {
     my ($self, $socket) = @_;
 
-    delete $self->{connections}{$socket};
+    delete $self->connections->{$socket};
 
-    $self->{sockets} = [ grep { $_ ne $socket } $self->sockets ];
+    $self->sockets([ grep { $_ ne $socket } $self->sockets ]);
     $self->remove_from_read_set($socket);
 }
-
-sub sockets { @{$_[0]->{sockets}} }
 
 sub add_to_read_set {
     my ($self, $socket) = @_;
 
-    unless ($self->{read_set}) {
-        my $read_set = IO::Select->new;
-        $self->{read_set} = $read_set;
-    }
-
-    $self->{read_set}->add($socket);
+    $self->read_set->add($socket);
 }
 
 sub remove_from_read_set {
     my ($self, $socket) = @_;
-    $self->{read_set}->remove($socket);
+    $self->read_set->remove($socket);
 }
 
 sub listen {
@@ -134,7 +133,7 @@ sub select {
 
     $timeout ||= 1;
 
-    my ($rh_set) = IO::Select->select($self->{read_set}, undef, undef, $timeout);
+    my ($rh_set) = IO::Select->select($self->read_set, undef, undef, $timeout);
     foreach my $rh (@$rh_set) {
 
         if ($rh eq $self->{listen_sock}) {
@@ -185,6 +184,7 @@ sub select {
                 }
             } else {
                 # socket is closed
+                my $connection = $self->connections->{$rh};
                 $self->remove_socket($rh, $connection);
                 $rh->close;
             }
