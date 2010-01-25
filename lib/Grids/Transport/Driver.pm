@@ -6,14 +6,15 @@ use Carp qw/croak/;
 
 requires qw/write connect/; # may also have: select, reset
 
-
-
 has 'delegate' => (
     is => 'rw',
     does => 'Grids::Transport::Consumer',
     required => 1,
+    weak_ref => 1,
+    handles => {
+        configuration => 'configuration',
+    },
 );
-
 
 
 sub delegate_do {

@@ -173,6 +173,11 @@ sub interactively_load_identity {
     my $ids = $conf->get('id') || {};
     my $id;
 
+    return Grids::Identity->new(name => $id_name) if $id_name;
+    return $self->interactively_generate_identity;
+    
+
+
     if ($id_name) {
         unless (%$ids) {
             $self->print_error("There are no saved identities");
@@ -198,7 +203,8 @@ sub interactively_load_identity {
     }
 
     if ($id) {
-        $id = Grids::Identity->deserialize($id) or die "Error loading identity\n";
+        #$id = Grids::Identity->deserialize($id) or die "Error loading identity\n";
+        $id = Grids::Identity->new(name => $id_name);
     }
 
     if ($id && $id->encrypted) {
@@ -237,6 +243,9 @@ sub interactively_generate_identity {
 
     $con->print_title('Generating new identity');
     my $name = $con->ask("What personal identifier would you like to give this identity? [default] ") || 'default';
+
+    return Grids::Identity->new(name => $name);
+
     my $passphrase = $con->ask("Enter identity passphrase (leave blank for no passphrase): ");
 
     # TODO: make passphrase work

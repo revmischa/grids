@@ -3,7 +3,6 @@
 package Grids::Base;
 
 use Moose::Role;
-    with 'Grids::Transport::Consumer';  # receives transport-related callbacks
 
 use Grids::Conf;
 
@@ -47,4 +46,6 @@ sub _conf_builder {
     return Grids::Conf->new;
 }
 
+
 1;
+

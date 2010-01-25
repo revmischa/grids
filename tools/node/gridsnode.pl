@@ -61,7 +61,7 @@ sub run {
 
     # run socket reading/event queue processing in seperate thread
     my $work_thread = threads->create(sub {
-        $node = Grids::Node->new(conf => $conf, debug => $debug, identity => $identity);
+        $node = Grids::Node->new(conf => $conf, debug => $debug, id => $identity);
 
         my $trans = $node->add_transport("TCP");
 

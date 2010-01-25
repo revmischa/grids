@@ -5,6 +5,7 @@ package Grids::Node;
 
 use Moose;
     with 'Grids::Base';
+    with 'Grids::Transport::Consumer';  # receives transport-related callbacks
 
 # moosify
 use Class::Autouse qw/
@@ -260,7 +261,7 @@ sub check_session_token {
 sub authorized_keys {
     my ($self) = @_;
 
-    my $pubkeys = $self->conf->get('Node.AuthorizedKeys') || {};
+    my $pubkeys = $self->configuration->get('Node.AuthorizedKeys') || {};
     return %$pubkeys;
 }
 

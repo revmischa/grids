@@ -4,7 +4,7 @@ package Grids::Transport::Consumer;
 
 use Moose::Role;
 
-requires qw/data_received/;
+requires qw/data_received configuration/;
 
 # may also have: incoming_connection_established,
 # outgoing_connection_established, connection_ready,

@@ -4,24 +4,27 @@ use Moose;
     with 'Grids::Transport::Driver';
 
 use Carp qw/croak/;
+use IO::Select;
 use IO::Socket::INET;
-use Grids::Protocol::Connection;
 
-has 'parent' => (
-    is => 'rw',
-    handles => {
-        configuration => 'conf',
-    },
-);
+use Grids::Protocol::Connection;
+use Grids::Address::TCP;
 
 has 'sockets' => (
     is => 'rw',
     isa => 'ArrayRef',
+    default => sub { [] },
 );
 
 has 'connections' => (
     is => 'rw',
     isa => 'HashRef',
+    default => sub { {} },
+);
+
+has 'listen_sock' => (
+    is => 'rw',
+    isa => 'IO::Socket::INET',
 );
 
 has 'read_set' => (
@@ -52,7 +55,7 @@ sub connect {
                                      PeerPort  => $addr->port,
                                      ) or return $self->error("Could not connect to host $addr: $!");
 
-    my $connection = Grids::Protocol::Connection->new(transport => $self, channel => $sock);
+    my $connection = Grids::Protocol::Connection->new(transport => $self, channel => $sock, inbound => 0);
     $self->add_socket($sock, $connection);
     $self->outgoing_connection_established($connection);
 }
@@ -73,15 +76,15 @@ sub write {
     return 1;
 }
 
-sub listen_sock {
+sub new_listen_sock {
     my ($self) = @_;
 
-    return $self->{listen_sock} = IO::Socket::INET->new(Proto     => "tcp",
-                                                        Blocking  => 0,
-                                                        Reuse     => 1,
-                                                        LocalPort => $self->parent->conf->get_conf('port'),
-                                                        Listen    => 16,
-                                                        ) or die $!;
+    return $self->listen_sock(IO::Socket::INET->new(Proto     => "tcp",
+                                                    Blocking  => 0,
+                                                    Reuse     => 1,
+                                                    LocalPort => $self->delegate->configuration->get_conf('port'),
+                                                    Listen    => 16,
+                              )) or die $!;
 }
 
 sub close_all {
@@ -123,7 +126,7 @@ sub listen {
     my $self = shift;
 
     # create main listening socket and add it to our read_set
-    my $ls = $self->listen_sock;
+    my $ls = $self->new_listen_sock;
     $self->add_socket($ls);
     $ls->listen;
 }
@@ -136,7 +139,7 @@ sub select {
     my ($rh_set) = IO::Select->select($self->read_set, undef, undef, $timeout);
     foreach my $rh (@$rh_set) {
 
-        if ($rh eq $self->{listen_sock}) {
+        if ($rh eq $self->listen_sock) {
             # this is the main read socket, accept the connection
             # and add it to the read set
             my $ns = $rh->accept;

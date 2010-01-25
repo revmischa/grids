@@ -2,6 +2,7 @@ package Grids::Client;
 
 use Moose;
     with 'Grids::Base';
+    with 'Grids::Transport::Consumer';  # receives transport-related callbacks
 
 use Grids::Transport;
 use Grids::Protocol;
