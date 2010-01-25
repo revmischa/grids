@@ -106,9 +106,10 @@ quit - quit
 sub usage {
     my @args = @_;
     print qq {
-usage: $0 [-cnih]
+usage: $0 [-cnihd]
  -c[onf]:  specify a configuration file. default is "gridsnode.conf"
  -n[ame]:  specify node name
+ -d[ebug]: enable debug output
  -i[d]:    specify an identity to use
  -h[help]: print this help
 };

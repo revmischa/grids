@@ -41,12 +41,15 @@ my $con = Grids::Console->new(
                           title => "Grids",
                           prompt => "Grids> ",
                           handlers => {
-                              newid   => \&create_id,
-                              help    => \&help,
-                              set     => \&Grids::Console::set,
-                              save    => \&Grids::Console::save,
-                              list    => \&Grids::Console::list,
-                              connect => \&connect,
+                              newid    => \&create_id,
+                              help     => \&help,
+                              set      => \&Grids::Console::set,
+                              save     => \&Grids::Console::save,
+                              list     => \&Grids::Console::list,
+                              services => \&list_services,
+                              connect  => \&connect,
+                              cl       => \&connect_localhost,
+                              echo     => \&echo,
                           },
                           );
 
@@ -63,7 +66,16 @@ my $client = Grids::Client->new(
                             transport => 'TCP',
                             );
 
+$client->register_hook('Services.List', sub {
+    $con->print("Got services list");
+});
+
 run();
+
+sub connect_localhost {
+    my ($con) = @_;
+    ::connect($con, 'localhost');
+}
 
 sub connect {
     my ($con, $addr) = @_;
@@ -83,6 +95,15 @@ sub run {
 
 sub create_id {
     $con->interactively_generate_identity;
+}
+
+sub list_services {
+    $client->do_request('Services.List');
+}
+
+sub echo {
+    my ($con, $msg) = @_;
+    $client->do_request('Debug.Echo', { message => $msg });
 }
 
 sub help {

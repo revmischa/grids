@@ -20,7 +20,7 @@ sub warn {
 sub echo {
     my ($node, $evt) = @_;
 
-    $node->warn("\nGot Debug.Evcho: " .
+    $node->warn("\nGot Debug.Echo: " .
                 $evt->args->{message} . "\n");
     return $node->event_hook_success(%{$evt->args});
 }
