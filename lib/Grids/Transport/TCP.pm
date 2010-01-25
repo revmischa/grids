@@ -89,7 +89,7 @@ sub new_listen_sock {
 
 sub close_all {
     my ($self) = @_;
-    $_->close foreach $self->sockets;
+    $_->close foreach @{$self->sockets};
 }
 
 sub add_socket {
@@ -97,7 +97,7 @@ sub add_socket {
 
     $self->connections->{$socket} = $connection;
 
-    return if grep { $_ eq $socket } $self->sockets;
+    return if grep { $_ eq $socket } @{$self->sockets};
     push @{$self->sockets}, $socket;
     $self->add_to_read_set($socket);
 }
@@ -107,7 +107,7 @@ sub remove_socket {
 
     delete $self->connections->{$socket};
 
-    $self->sockets([ grep { $_ ne $socket } $self->sockets ]);
+    $self->sockets([ grep { $_ ne $socket } @{$self->sockets} ]);
     $self->remove_from_read_set($socket);
 }
 

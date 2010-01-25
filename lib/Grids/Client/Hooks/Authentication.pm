@@ -8,7 +8,7 @@ __PACKAGE__->register_hooks(
                             );
 
 sub hook_login {
-	my Grids::Client $client = shift;
+    my Grids::Client $client = shift;
     my $evt = shift;
 
     my $args = $evt->args;

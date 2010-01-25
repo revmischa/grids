@@ -14,19 +14,20 @@ __PACKAGE__->register_hooks(
                             );
 
 sub hook_login {
-	my Grids::Node $node = shift;
-	my Grids::Protocol::Event $evt = shift;
+    my Grids::Node $node = shift;
+    my Grids::Protocol::Event $evt = shift;
 
     if ($node->test_any_hook('Authentication.Login.AuthCheck', $evt)) {
-        # successful login, generate sessiont token
+        # successful login, generate session token
         my $session_token = time() . rand();
 
-		# instantiate remote object representing this connection
-		my $remote = Grids::Node::Remote->new(
-			trans => $evt->trans,
-			session_token => $session_token,
-			public_key => $evt->args->{public_key}
-		);
+        # instantiate remote object representing this connection
+        # maybe can be replaced with G::P::Connection?
+        my $remote = Grids::Node::Remote->new(
+            trans => $evt->trans,
+            session_token => $session_token,
+            public_key => $evt->args->{public_key}
+        );
 
         $node->sessions->{$session_token} = $remote;
 

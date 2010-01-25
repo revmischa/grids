@@ -41,73 +41,32 @@ sub data_received {
     my $evt = $connection->parse_request($data);
     return unless $evt;
 
-    $evt->{_connection} = $connection;
+    $evt->{connection} = $connection;
     $self->event_queue->add($evt);
 }
 
-# processes everything in the event queue
-sub flush_event_queue {
-    my ($self) = @_;
-    while ($self->do_next_event) {}
-}
+# we only have one connection (unlike Node) so we can add it
+around do_request => sub {
+    my ($orig, $self, %opts) = @_;
 
-# fetches next event from event queue and handles it
-# returns true if handled an event
-sub do_next_event {
-    my ($self) = @_;
-
-    my $event = $self->event_queue->shift
-        or return 0;
-
-    my $args = $event->args;
-    my $args_disp = %$args ? ' (' . join(', ', map { $_ . ' = ' . $args->{$_} } keys %$args) . ')' : '';
-    $self->dbg("Handling event " . $event->event_name . "$args_disp");
-
-    my @hook_results = $self->run_event_hooks($event);
-
-    # were there any results?
-    if (@hook_results) {
-        # if any hooks returned hashrefs of request arguments, do those requests
-        foreach my $res (@hook_results) {
-            next unless ref $res && ref $res eq 'HASH';
-
-            # default the return request to be of the same method
-            my $res_evt = $res->{event} || $event->event_name;
-            $self->do_request($event->event_name, $res);
-        }
-    }
-
-    return 1;
-}
-
-# transmits a protocol request
-sub do_request {
-    my ($self, $event_name, $argsref) = @_;
-
-    # copy args so we don't modify anything
+    # don't modify original args, someone might get upset
+    my $argsref = $opts{event_args};
     my %args = $argsref ? %$argsref : ();
 
-    if ($self->session_token) {
-        $args{_session_token} = $self->session_token;
-    }
+    $args{_session_token} ||= $self->session_token if $self->session_token;
+    $opts{connection} ||= $self->connection if $self->connection;
 
-    $self->connection->send_event($event_name, \%args);
-}
+    $opts{event_args} = \%args if keys %args;
 
-# attempt to connect to a Node
-sub connect {
-    my ($self, $address) = @_;
+    return $self->$orig(%opts);
+};
 
-    my $transport_class = $self->transport_class;
-    my $encapsulation_class = $self->encapsulation_class;
-
-    my $proto = Grids::Protocol->new(encapsulation => $encapsulation_class, identity => $self->id)
-        or die "Failed to create protocol handler";
-
-    my $t = "Grids::Transport::$transport_class"->new(delegate => $self);
-
-    $t->connect($address);
-}
+# same as above
+around enqueue_event => sub {
+    my ($orig, $self, $event_name, $connection, $args) = @_;
+    $connection ||= $self->connection;
+    $self->$orig($event_name, $args, $connection);
+};
 
 # Called when a connection with a Node has been established. This
 # simply means there is a connection, but the protocol handler has not
@@ -124,18 +83,7 @@ sub outgoing_connection_established {
 # initiates a login, call after ProtocolEstablished event
 sub login {
     my $self = shift;
-    $self->do_request('Authentication.Login');
-}
-
-sub dbg {
-    my ($self, $msg) = @_;
-    return unless $self->debug;
-    warn "Grids::Client: [Debug] $msg\n";
-}
-
-sub warn {
-    my ($self, $msg) = @_;
-    warn "Grids::Client: [Warn] $msg\n";
+    $self->dispatch_event('Authentication.Login');
 }
 
 no Moose;

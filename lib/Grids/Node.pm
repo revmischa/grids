@@ -102,7 +102,7 @@ sub connection_ready {
     $self->peer_connections->{$peer_name} ||= [];
     push @{$self->peer_connections->{$peer_name}}, $connection;
 
-    $self->enqueue_event('Connected', { _connection => $connection });
+    $self->enqueue_event('Connected', $connection);
     $self->dbg("encrypted connection with $peer_name ready");
 }
 
@@ -117,7 +117,7 @@ sub connection_unready {
 
     $self->peer_connections->{$peer_name} = [ grep { $_ != $connection } @{$self->peer_connections} ];
 
-    $self->enqueue_event('Disconnected', { _connection => $connection });
+    $self->enqueue_event('Disconnected', $connection);
     $self->dbg("encrypted connection with $peer_name ended");
 }
 
@@ -131,18 +131,6 @@ sub initiate_node_protocol {
     $connection->initiate_protocol($self->id);
 }
 
-sub enqueue_event {
-    my ($self, $event_name, $args) = @_;
-
-    # construct event record
-    my $evt = new Grids::Protocol::Event(
-                                         args => $args,
-                                         event_name => $event_name,
-                                         );
-
-    return $self->event_queue->add($evt);
-}
-
 sub data_received {
     my ($self, $connection, $data) = @_;
 
@@ -152,7 +140,7 @@ sub data_received {
     if ($protocol_handler) {
         my $event = $protocol_handler->parse_request($data);
         if ($event) {
-            $event->args->{_connection}  = $connection;
+            $event->{connection} = $connection;  # FIXME
             $self->event_queue->add($event) or $self->warn("Could not enqueue event $event");
         }
     } else {
@@ -175,12 +163,6 @@ sub data_received {
     }
 }
 
-# processes everything in the event queue
-sub flush_event_queue {
-    my ($self) = @_;
-    while ($self->do_next_event) {} 
-    return 0;
-}
 
 sub do_next_event {
     my ($self) = @_;
@@ -188,7 +170,7 @@ sub do_next_event {
     my $evt = $self->event_queue->shift
         or return 0;
 
-    my $conn = delete $evt->args->{_connection}
+    my $conn = $evt->connection
         or die "Invalid Event record in queue: missing connection";
 
     $self->dbg("Got event " . $evt->event_name);
@@ -223,20 +205,6 @@ sub do_next_event {
     return 1;
 }
 
-sub do_request {
-    my ($self, %opts) = @_;
-
-    my $connection = delete $opts{connection} or croak "No connection";
-    my $event = delete $opts{event_name} or croak "No event name";
-    my $params = delete $opts{event_args} || {};    
-
-    my $proto = $connection->protocol;
-    my $serialized_data = $proto->encapsulate($event, $params);
-    return 0 unless $serialized_data;
-
-    return $connection->write($serialized_data);
-}
-
 sub services {
     my ($self) = @_;
 
@@ -263,19 +231,6 @@ sub authorized_keys {
 
     my $pubkeys = $self->configuration->get('Node.AuthorizedKeys') || {};
     return %$pubkeys;
-}
-
-sub dbg {
-    my ($self, $msg) = @_;
-    return unless $self->debug;
-    my $name = $self->id->name;
-    warn "Grids::Node:   [$name Debug] $msg\n";
-}
-
-sub warn {
-    my ($self, $msg) = @_;
-    my $name = $self->id->name;
-    warn "Grids::Node:   [$name Warn] $msg\n";
 }
 
 no Moose;

@@ -16,7 +16,7 @@ my $login_good = 0;
 
 c_req('Authentication.Login');
 
-#$server->conf->set_conf('Node.AuthorizedKeys', { $client->id => $id->pubkey->serialize });
+#$server->configuration->set_conf('Node.AuthorizedKeys', { $client->id => $id->pubkey->serialize });
 $login_good = 1;
 $client->login;
 c_req();
@@ -39,7 +39,7 @@ sub s_do {
 }
 
 sub c_req {
-    $client->do_request(@_) if @_;
+    $client->dispatch_event(@_) if @_;
     s_do();
     $client->flush_event_queue;
 }

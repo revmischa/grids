@@ -98,12 +98,12 @@ sub create_id {
 }
 
 sub list_services {
-    $client->do_request('Services.List');
+    $client->dispatch_event('Services.List');
 }
 
 sub echo {
     my ($con, $msg) = @_;
-    $client->do_request('Debug.Echo', { message => $msg });
+    $client->dispatch_event('Debug.Echo', { message => $msg });
 }
 
 sub help {

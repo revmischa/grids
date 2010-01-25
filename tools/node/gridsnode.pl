@@ -47,6 +47,16 @@ my $con = Grids::Console->new(
 
 run();
 
+sub client_connected {
+    my ($node, $connection, $peer_name) = @_;
+    $con->print("Client $peer_name connected, encrypted transport enabled");
+}
+
+sub client_disconnected {
+    my ($node, $connection, $peer_name) = @_;
+    $con->print("Client $peer_name disconnected, encrypted transport disabled");
+}
+
 sub run {
     $con->print("Loaded settings from $conffile") if $conf->load;
 
@@ -61,10 +71,15 @@ sub run {
 
     # run socket reading/event queue processing in seperate thread
     my $work_thread = threads->create(sub {
+        # create node
         $node = Grids::Node->new(conf => $conf, debug => $debug, id => $identity);
 
-        my $trans = $node->add_transport("TCP");
+        # register hooks here
+        $node->register_hook('Connected', \&client_connected);
+        $node->register_hook('Disconnected', \&client_disconnected);
 
+        # listen for connections
+        my $trans = $node->add_transport("TCP");
         $trans->listen;
 
         while (! $finished) {
