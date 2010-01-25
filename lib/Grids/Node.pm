@@ -27,11 +27,13 @@ __PACKAGE__->load_hooks;
 has 'peer_connections' => (
     is => 'rw',
     isa => 'HashRef',
+    default => sub { {} },
 );
 
 has 'sessions' => (
     is => 'rw',
     isa => 'HashRef',
+    default => sub { {} },
 );
 
 has 'transports' => (

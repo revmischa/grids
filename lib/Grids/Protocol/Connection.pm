@@ -18,6 +18,7 @@ has 'channel' => (
 has 'protocol' => (
     is => 'rw',
     isa => 'Grids::Protocol',
+    handles => [qw/parse_request encapsulate/],
 );
 
 # is this the receiving end or the initiating end?
@@ -62,6 +63,13 @@ sub write {
     my ($self, $data) = @_;
 
     $self->transport->write($data, $self->channel);
+}
+
+sub send_event {
+    my ($self, $event_name, $args) = @_;
+    my $msg = $self->encapsulate($event_name, $args);
+    return unless $msg;
+    $self->write($msg);
 }
 
 no Moose;

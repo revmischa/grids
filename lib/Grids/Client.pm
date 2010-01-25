@@ -37,7 +37,7 @@ sub data_received {
 
     $self->dbg("received data [$data]");
 
-    my $evt = $self->proto->parse_request($data);
+    my $evt = $connection->parse_request($data);
     return unless $evt;
 
     $evt->{_connection} = $connection;
@@ -90,10 +90,7 @@ sub do_request {
         $args{_session_token} = $self->session_token;
     }
 
-    my $msg = $self->proto->encapsulate($event_name, \%args);
-    return 0 unless $msg;
-
-    $self->transport->write($msg);
+    $self->connection->send_event($event_name, \%args);
 }
 
 # attempt to connect to a Node
@@ -119,6 +116,7 @@ sub outgoing_connection_established {
     my ($self, $connection) = @_;
 
     $self->dbg("Connection to node successful. Initiating Grids protocol...");
+    $self->connection($connection);
     $connection->initiate_protocol($self->id);
 }
 
