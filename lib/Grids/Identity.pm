@@ -6,11 +6,6 @@ package Grids::Identity;
 
 use Moose;
 
-use Crypt::RSA;
-use Crypt::RSA::ES::OAEP;
-use Crypt::Blowfish;
-use Crypt::Keys;
-
 use Grids::Identity::Public;
 use Grids::Identity::Private;
 use Grids::UUID;
@@ -163,6 +158,7 @@ sub decrypt {
 # encrypt plaintext for $id
 sub _encrypt {
     my ($self, $plaintext, $id, %opts) = @_;
+    croak "don't call this";
     my $rsa = new Crypt::RSA;
     return $rsa->encrypt(Message => $plaintext, Key => $id->pubkey, Armor => $opts{armor})
         or die $rsa->errstr;
@@ -171,7 +167,7 @@ sub _encrypt {
 # decrypt ciphertext for $id
 sub _decrypt {
     my ($id, $ciphertext, %opts) = @_;
-
+    croak "don't call this";
 
     my $rsa = new Crypt::RSA;
 
@@ -182,6 +178,8 @@ sub _decrypt {
 # generate a public/private keypair
 sub create {
     my ($class, %opts) = @_;
+
+    croak "don't call this";
 
     my $verbose = delete $opts{verbose} ? 1 : 0;
     my $passphrase = delete $opts{passphrase} || '';
@@ -224,6 +222,7 @@ sub create {
 sub decrypt_privkey {
     my ($self, $passphrase) = @_;
 
+    croak "don't call this";
     $self->privkey->reveal(Password => $passphrase);
 
     my $match = $self->keys_match;
@@ -233,6 +232,8 @@ sub decrypt_privkey {
 # returns true if the stored pubkey is correct for the privkey
 sub keys_match {
     my $self = shift;
+
+    croak "don't call this";
 
     # we should be able to decrypt a message encrypted for our pubkey with our private key
     # 'GRIDS' is stored encrypted for our pubkey in $self->{encrypted}
@@ -252,6 +253,7 @@ sub keys_match {
 
 # returns true if all keys check out ok
 sub check {
+    croak "don't call this";
     my $self = shift;
     my $ok = 1;
 
@@ -267,6 +269,7 @@ sub check {
 # encrypt privkey
 sub hide {
     my $self = shift;
+    croak "don't call this";
 
     $self->priv->hide if $self->encrypted && $self->priv;
 }
@@ -274,6 +277,8 @@ sub hide {
 *stringify = \&serialize;
 sub serialize {
     my $self = shift;    
+
+    croak "don't call this";
 
     my $priv = $self->priv;
     my $pub = $self->pub;
@@ -308,12 +313,16 @@ sub serialize {
 sub new_from_serialized_pubkey {
     my ($class, $pubkey_serialized) = @_;
 
+    croak "don't call this";
+
     my $pubkey = Grids::Identity::Public->deserialize(String => [$pubkey_serialized]);
     return $class->new(_pubkey => $pubkey);
 }
 
 sub deserialize {
     my ($class, $serialized) = @_;
+
+    croak "don't call this";
 
     my %store;
     eval $serialized or die "Error unserializing: $@";

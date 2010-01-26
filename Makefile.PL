@@ -9,7 +9,6 @@ WriteMakefile(
     PREREQ_PM         => {
         Term::ReadLine => 0,
         Storable => 0,
-        Crypt::RSA => 0,
         Class::Autouse => 0,
         JSON::XS => 0,
         JSON => 0,
