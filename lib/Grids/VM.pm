@@ -10,7 +10,12 @@ use Scalar::Util qw / weaken /;
 use Grids::Code;
 use Grids::VM::Instructions;
 
+# allow XS modules to be built in place
 use FindBin;
+use lib "$FindBin::Bin/../../lib/Grids/VM/Memory/blib/arch/auto/Grids/VM/Memory";
+use lib "$FindBin::Bin/../../lib/Grids/VM/Memory/lib";
+use lib "$FindBin::Bin/../../lib/Grids/VM/Register/blib/arch/auto/Grids/VM/Register";
+use lib "$FindBin::Bin/../../lib/Grids/VM/Register/lib";
 use Grids::VM::Memory;
 use Grids::VM::Register;
 

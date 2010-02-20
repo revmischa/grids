@@ -42,7 +42,9 @@ sub BUILD {
 
 sub disconnect {
     my ($self, $socket) = @_;
-    # ....
+
+    $self->remove_socket($socket);
+    $socket->close;
 }
 
 sub connect {
@@ -193,7 +195,7 @@ sub select {
             } else {
                 # socket is closed
                 my $connection = $self->connections->{$rh};
-                $self->remove_socket($rh, $connection);
+                $self->remove_socket($rh);
                 $rh->close;
             }
         }
