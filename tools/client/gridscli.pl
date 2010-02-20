@@ -21,12 +21,14 @@ my $conffile = 'gridsclient.conf';
 my $id_name;
 my $help;
 my $dump;
+my $debug;
 
 my %prog_opts = (
-                 'h|help' => \$help,
-                 'i|id'   => \$id_name,
-                 'c|conf' => \$conffile,
-                 'd|dump' => \$dump,
+                 'h|help'  => \$help,
+                 'i|id'    => \$id_name,
+                 'c|conf'  => \$conffile,
+                 'dump'    => \$dump,
+                 'd|debug' => \$debug,
                  );
 
 GetOptions(%prog_opts);
@@ -61,10 +63,11 @@ unless ($identity) {
 }
 
 my $client = Grids::Client->new(
-                            conf      => $conf,
-                            id        => $identity,
-                            transport => 'TCP',
-                            );
+    debug => $debug,
+    conf      => $conf,
+    id        => $identity,
+    transport => 'TCP',
+);
 
 $client->register_hook('Services.List', sub {
     $con->print("Got services list");

@@ -11,7 +11,7 @@ use lib 'lib';
 use Grids::Node;
 use Grids::Identity;
 
-my $debug = 0;
+my $debug = 1;
 
 my $nodecount = 3;
 my $connections = 0;
@@ -70,14 +70,6 @@ sub init_nodes {
 # process all waiting events
 sub flush {
     $_->flush_event_queue foreach @nodes;
-    return;
-
-#    my $flushed = 0;
-#    do {
-#        if (grep { $_->flush_event_queue } @nodes) {
-#            $flushed = 1 unless grep { $_->flush_event_queue } @nodes;
-#        }
-#    } while (! $flushed);
 }
 
 # node got error

@@ -63,7 +63,7 @@ sub flush_event_queue {
 # sends an event
 sub dispatch_event {
     my ($self, $evt_name, $args) = @_;
-    $self->do_request(event_name => $evt_name, args => $args);
+    $self->do_request(event_name => $evt_name, event_args => $args);
 }
 
 # fetches next event from event queue and handles it

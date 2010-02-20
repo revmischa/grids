@@ -1,25 +1,29 @@
-use strict;
-use warnings;
-
 package Grids::Peer;
 
+use Moose;
 use Carp qw/croak/;
 
-use base qw/Class::Accessor/;
+# required?
+has address => (
+    is => 'rw',
+    isa => 'Grids::Address',
+);
 
-__PACKAGE__->mk_accessors(qw/address id name/);
+# required?
+has id => (
+    is => 'rw',
+    isa => 'Maybe[Grids::Identity]',
+);
 
-sub new {
-    my ($class, %opts) = @_;
+has name => (
+    is => 'rw',
+    isa => 'Maybe[Str]',
+);
 
-    my $self = {
-        address => $opts{address},
-        id => $opts{id},
-        name => $opts{name},
-    };
-
-    return bless $self, $class;
-}
+has session_token => (
+    is => 'rw',
+    isa => 'Str',
+);
 
 sub stringify {
     my $self = shift;

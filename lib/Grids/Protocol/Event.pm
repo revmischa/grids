@@ -1,57 +1,81 @@
 package Grids::Protocol::Event;
 
-use strict;
-use warnings;
+use Moose;
 
 use Carp;
 use Grids::UUID;
 
-use base qw/Class::Accessor::Fast/;
+has connection => (
+    is => 'rw',
+    isa => 'Grids::Protocol::Connection',
+);
 
-__PACKAGE__->mk_accessors(qw/connection event_name trans proto args time expires target source message_id signed_message_id was_encrypted/);
+has transport => (
+    is => 'rw',
+    isa => 'Grids::Transport',
+);
 
-sub new {
-    my ($class, %opts) = @_;
+has proto => (
+    is => 'rw',
+    isa => 'Grids::Protocol',
+);
 
-    my $time = delete $opts{time} || time();
-    my $args = delete $opts{params} || delete $opts{args} || {};
-    my $evt_name = delete $opts{event_name} or return undef;
-    my $was_encrypted = delete $opts{was_encrypted};
-    my $connection = delete $opts{connection};
+has event_name => (
+    is => 'rw',
+    isa => 'Str',
+    required => 1,
+);
 
-    croak "Invalid args to Event->new: " . join ', ', keys %opts
-        if %opts;
+has args => (
+    is => 'rw',
+    isa => 'Maybe[HashRef]',
+    default => sub { {} },
+);
 
-    my $self = {
-        connection => $connection,
-        was_encrypted => $was_encrypted,
-        time => $time,
-        args => $args,
-        event_name => $evt_name,
-    };
+# timestamp?
+has time => (
+    is => 'rw',
+    isa => 'Int',
+);
+has expires => (
+    is => 'rw',
+    isa => 'Int',
+);
 
-    foreach my $opt (qw/proto trans expires target source message_id signed_message_id/) {
-        $self->{$opt} = $opts{$opt} if exists $opts{$opt};
-    }
+has target => (
+    is => 'rw',
+);
 
-    bless $self, $class;
-    return $self;
-}
+has source => (
+    is => 'rw',
+);
+
+has message_id => (
+    is => 'rw',
+    isa => 'Str',
+    lazy => 1,
+    builder => 'build_message_id',
+);
+
+has signed_message_id => (
+    is => 'rw',
+    isa => 'Str',
+);
+
+has was_encrypted => (
+    is => 'rw',
+    isa => 'Bool',
+);
 
 sub name { $_[0]->event_name }
 
 # uuid identifying this event
-sub message_id {
+sub build_message_id {
     my $self = shift;
-
-    my $mid = $self->{message_id};
-    return $mid if $mid;
-
-    $self->{message_id} = Grids::UUID->new_id;
-    return $self->{message_id};
+    return Grids::UUID->new_id;
 }
 
-sub expired {
+sub has_expired {
     my ($self) = @_;
 
     return 0 unless $self->expires;
@@ -62,4 +86,5 @@ sub expired {
     return 0;
 }
 
-1;
+no Moose;
+__PACKAGE__->meta->make_immutable;

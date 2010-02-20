@@ -204,19 +204,19 @@ sub parse_request {
 
     # instantiate Event record
     my $event_name = delete $args->{_method};
-    return Grids::Protocol::Event->new(event_name => $event_name, params => $args, was_encrypted => $was_encrypted);
+    return Grids::Protocol::Event->new(event_name => $event_name, args => $args, was_encrypted => $was_encrypted);
 }
 
 sub error_event {
     my ($self, $error_event, $params) = @_;
     $params ||= {};
     $params->{error} = 1;
-    return Grids::Protocol::Event->new(event_name => $error_event, params => $params);
+    return Grids::Protocol::Event->new(event_name => $error_event, args => $params);
 }
 
 sub event {
     my ($self, $event, $params) = @_;
-    return Grids::Protocol::Event->new(event_name => $event, params => $params);
+    return Grids::Protocol::Event->new(event_name => $event, args => $params);
 }
 
 # take a received message string and parse it into a native data structure

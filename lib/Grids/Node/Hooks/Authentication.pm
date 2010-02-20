@@ -1,7 +1,7 @@
 package Grids::Node;
 use strict;
 use warnings;
-use Grids::Node::Remote;
+use Grids::Peer;
 
 use constant {
     ERROR_LOGIN_INVALID => -1,
@@ -22,11 +22,9 @@ sub hook_login {
         my $session_token = time() . rand();
 
         # instantiate remote object representing this connection
-        # maybe can be replaced with G::P::Connection?
-        my $remote = Grids::Node::Remote->new(
-            trans => $evt->trans,
+        # FIXME: need to add identity, name
+        my $remote = Grids::Peer->new(
             session_token => $session_token,
-            public_key => $evt->args->{public_key}
         );
 
         $node->sessions->{$session_token} = $remote;

@@ -1,22 +1,13 @@
 package Grids::Protocol::EventQueue;
-use strict;
-use warnings;
+
+use Moose;
 use Carp;
-use Class::Autouse(qw/Grids::Protocol::Event/);
 
-use base qw/Class::Accessor::Fast/;
-__PACKAGE__->mk_accessors(qw/queue/);
-
-sub new {
-    my ($class, %opts) = @_;
-
-    my $self = {
-        queue => [],
-    };
-
-    bless $self, $class;
-    return $self;
-}
+has queue => (
+    is => 'rw',
+    isa => 'ArrayRef',
+    default => sub { [] },
+);
 
 sub add {
     my ($self, $evt) = @_;
@@ -29,7 +20,7 @@ sub shift {
 
     # find first non-expired item
     while ($next_item = CORE::shift @{$self->queue}) {
-        last unless $next_item->expired;
+        last unless $next_item->has_expired;
     }
     
     return $next_item;
@@ -40,4 +31,5 @@ sub empty {
     $self->queue([]);
 }
 
-1;
+no Moose;
+__PACKAGE__->meta->make_immutable;

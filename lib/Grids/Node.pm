@@ -140,7 +140,7 @@ sub data_received {
     if ($protocol_handler) {
         my $event = $protocol_handler->parse_request($data);
         if ($event) {
-            $event->{connection} = $connection;  # FIXME
+            $event->connection($connection);  # FIXME
             $self->event_queue->add($event) or $self->warn("Could not enqueue event $event");
         }
     } else {
@@ -173,7 +173,11 @@ sub do_next_event {
     my $conn = $evt->connection
         or die "Invalid Event record in queue: missing connection";
 
-    $self->dbg("Got event " . $evt->event_name);
+    if ($self->debug) {
+        my $args = $evt->args || {};
+        my $args_disp = %$args ? ' (' . join(', ', map { $_ . ' = ' . $args->{$_} } keys %$args) . ')' : '';
+        $self->dbg("Got event " . $evt->event_name . " ($args_disp)");
+    }
 
     my $hook_results = eval {
         $self->run_event_hooks($evt);
