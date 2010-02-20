@@ -163,52 +163,6 @@ sub data_received {
     }
 }
 
-
-sub do_next_event {
-    my ($self) = @_;
-
-    my $evt = $self->event_queue->shift
-        or return 0;
-
-    my $conn = $evt->connection
-        or die "Invalid Event record in queue: missing connection";
-
-    if ($self->debug) {
-        my $args = $evt->args || {};
-        my $args_disp = %$args ? ' (' . join(', ', map { $_ . ' = ' . $args->{$_} } keys %$args) . ')' : '';
-        $self->dbg("Got event " . $evt->event_name . " ($args_disp)");
-    }
-
-    my $hook_results = eval {
-        $self->run_event_hooks($evt);
-    };
-
-    if ($@) {
-        warn "Error while running hooks for event " . $evt->event_name . ": " .
-            $@ . "\n";
-
-        return 0;
-    }
-
-    # were there any results?
-    if ($hook_results && @$hook_results) {
-        # if any hooks returned hashrefs of request arguments, do those requests
-        foreach my $res (@$hook_results) {
-            next unless ref $res && ref $res eq 'HASH';
-
-            # default the return request to be of the same method
-            my $res_evt = $res->{event} || $evt->event_name;
-
-            # do request
-            $self->do_request(event_name => $evt->event_name,
-                              event_args => $res,
-                              connection => $conn);
-        }
-    }
-
-    return 1;
-}
-
 sub services {
     my ($self) = @_;
 

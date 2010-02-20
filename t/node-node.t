@@ -11,7 +11,7 @@ use lib 'lib';
 use Grids::Node;
 use Grids::Identity;
 
-my $debug = 1;
+my $debug = 0;
 
 my $nodecount = 3;
 my $connections = 0;
@@ -58,8 +58,11 @@ sub init_nodes {
     }
 
     flush();
+    flush();
+    flush();
+    flush();
 
-    is($connections, $nodecount, "all nodes connected");
+    is($connections, $nodecount * 2, "all nodes connected");
 
     flush();
     flush();
@@ -80,9 +83,10 @@ sub node_error {
 
 # send node key (FIXME: make encrypted)
 sub node_connected {
-    my ($node, $connection) = @_;
+    my ($node, $event) = @_;
 
-    ok($connection, "node connected");
+    my $connection = $event->connection;
+    ok($connection, "node connected (" . $connection->id->name . " <-> " . $connection->peer->name . ")");
     $connections++;
 
     # try to log in with shared node privkey

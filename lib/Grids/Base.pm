@@ -104,7 +104,11 @@ sub do_next_event {
 
             # default the return request to be of the same method
             my $res_evt = $res->{event} || $event->event_name;
-            $self->dispatch_event($event->event_name, $res);
+
+            # do request
+            $self->do_request(event_name => $res_evt,
+                              event_args => $res,
+                              connection => $conn);
         }
     }
 
@@ -130,7 +134,7 @@ sub enqueue_event {
 sub do_request {
     my ($self, %opts) = @_;
 
-    my $connection = delete $opts{connection} or croak "No connection";
+    my $connection = delete $opts{connection} or Carp::confess("No connection");
     my $event = delete $opts{event_name} or croak "No event name";
     my $args = delete $opts{event_args} || {};    
 
