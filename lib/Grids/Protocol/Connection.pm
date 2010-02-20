@@ -37,26 +37,39 @@ has 'peer_fingerprint_is_verified' => (
 
 *is_verified = \&peer_fingerprint_is_verified;
 
+sub DEMOLISH {
+    my $self = shift;
+    $self->teardown_protocol;
+}
+
 sub outbound {
     my ($self) = @_;
     return ! $self->inbound;
 }
 
-# given an open connection and our identity,
-# initialize a grids connection with another client or node
+# given an open connection and our identity, initialize a grids
+# connection with another client or node
 sub initiate_protocol {
-    my ($self, $identity) = @_;
+    my ($self, $proto_opts) = @_;
 
     croak "No identity passed to Grids::Protocol::Connection->initiate_protocol"
-        unless $identity;
+        unless $proto_opts->{identity};
 
-    my $proto = new Grids::Protocol(identity => $identity);
+    my $proto = new Grids::Protocol(%$proto_opts);
     my $init_string = $proto->initiation_string;
 
     # save protocol handler
     $self->protocol($proto);
 
     $self->write($init_string);
+}
+
+# done with this connection, clean up
+sub teardown_protocol {
+    my ($self) = @_;
+
+    return unless $self->protocol && $self->peer;
+    $self->protocol->end_encrypted_connection;
 }
 
 sub write {

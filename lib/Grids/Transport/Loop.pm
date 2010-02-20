@@ -10,15 +10,20 @@ use Grids::Protocol::Connection;
 
 has 'peer_conn' => (
     is => 'rw',
-    isa => 'Grids::Protocol::Connection',
+    isa => 'Maybe[Grids::Protocol::Connection]',
 );
 
 has 'peer' => (
     is => 'rw',
-    isa => 'Grids::Transport::Loop',
+    isa => 'Maybe[Grids::Transport::Loop]',
 );
 
 use Carp qw/croak confess/;
+
+sub DEMOLISH {
+    my ($self) = @_;
+    $self->disconnect;
+}
 
 sub received_connection {
     my ($self, $peer) = @_;
@@ -26,6 +31,17 @@ sub received_connection {
     my $in_conn = Grids::Protocol::Connection->new(transport => $self, channel => $peer, inbound => 1);
 
     $self->peer_conn($in_conn);
+}
+
+sub disconnect {
+    my ($self) = @_;
+
+    return unless $self->peer && $self->peer_conn;
+    $self->peer->disconnected($self->peer->peer_conn);
+    $self->disconnected($self->peer_conn);
+
+    $self->peer(undef);
+    $self->peer_conn(undef);
 }
 
 sub connect {
@@ -44,7 +60,7 @@ sub connect {
     $peer->incoming_connection_established($peer->peer_conn);
     $self->outgoing_connection_established($self->peer_conn);
 
-    return 1;
+    return $self->peer_conn;
 }
 
 sub write {

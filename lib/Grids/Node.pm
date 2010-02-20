@@ -115,10 +115,16 @@ sub connection_unready {
         return;
     }
 
-    $self->peer_connections->{$peer_name} = [ grep { $_ != $connection } @{$self->peer_connections} ];
+    $self->peer_connections->{$peer_name} = [ grep { $_ != $connection } @{$self->peer_connections->{$peer_name}} ];
 
     $self->enqueue_event('Disconnected', $connection);
     $self->dbg("encrypted connection with $peer_name ended");
+}
+
+sub disconnected {
+    my ($self, $connection) = @_;
+
+    $connection->teardown_protocol if $connection;
 }
 
 # called when a connection to another node is established to set up a
@@ -128,7 +134,10 @@ sub initiate_node_protocol {
 
     croak "Trying to initiate grids protocol on a node with no identity object set" unless $self->id;
 
-    $connection->initiate_protocol($self->id);
+    $connection->initiate_protocol({
+        identity => $self->id,
+        no_encryption => 1,
+    });
 }
 
 sub data_received {

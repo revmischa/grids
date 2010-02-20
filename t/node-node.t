@@ -13,7 +13,7 @@ use Grids::Identity;
 
 my $debug = 0;
 
-my $nodecount = 3;
+my $nodecount = 4;
 my $connections = 0;
 my @nodes;
 
@@ -26,10 +26,10 @@ sub init_nodes {
         # generate an identity for this new node
         my $id = Grids::Identity->create_for_test(name => "test-node$_");
 
-        $id->set_callback('error', sub { my ($otr, $user, $proto, $peer, $error) = @_; warn "[$user] OTR error: $peer - $error" });
-        $id->set_callback('warning', sub { my ($otr, $user, $proto, $peer, $warn) = @_; warn "[$user] OTR warning: $peer - $warn" });
-        $id->set_callback('info', sub { my ($otr, $user, $proto, $peer, $info) = @_; warn "[$user] OTR info: $peer - $info" });
-        $id->set_callback('otr_message', sub { my ($otr, $user, $proto, $peer, $notif) = @_; warn "[$user] OTR system message: $peer - $notif" });
+        $id->set_callback('error', sub { my ($otr, $user, $proto, $peer, $error) = @_; warn "[$user] OTR error: $error\n" });
+        $id->set_callback('warning', sub { my ($otr, $user, $proto, $peer, $warn) = @_; warn "[$user] OTR warning:  $warn\n" });
+        $id->set_callback('info', sub { my ($otr, $user, $proto, $peer, $info) = @_; warn "[$user] OTR info:  $info\n" });
+        $id->set_callback('otr_message', sub { my ($otr, $user, $proto, $peer, $notif) = @_; warn "[$user] OTR system message: $notif" });
 
         # create a new node
         my $node = Grids::Node->new(debug => $debug, id => $id);
@@ -48,25 +48,48 @@ sub init_nodes {
     }
 
     # connect all loops
+    my @connections;
     for (my $i = 0 ; $i < $nodecount ; $i++) {
-        my $nextnode = $i != $nodecount - 1 ? $nodes[$i + 1] : $nodes[0];
+        for (my $j = $i+1 ; $j < $nodecount ; $j++) {
+            my $node = $nodes[$i];
+            my $nextnode = $nodes[$j];
 
-        my $loop = $loopmap{$nodes[$i]};
-        my $nextloop = $loopmap{$nextnode};
+            ok(1, "connecting ${i}[$node] to ${j}[$nextnode]");
 
-        $loop->connect($nextloop);
+            my $loop = $loopmap{$node};
+            my $nextloop = $loopmap{$nextnode};
+            my $conn = $loop->connect($nextloop);
+            warn "creating connection $conn between " . $conn->id->name . " and " . $conn->peer->name;
+            push @connections, $conn;
+        }
     }
+ 
+    flush() for (1 .. ($nodecount * 5));
+
+    $_->protocol->establish_encrypted_connection foreach @connections;
+
+    flush() for (1 .. ($nodecount * 5));
+
+    is($connections, $nodecount, "all nodes connected");
 
     flush();
     flush();
     flush();
-    flush();
 
-    is($connections, $nodecount * 2, "all nodes connected");
 
-    flush();
-    flush();
-    flush();
+    # disconnect all loops
+    for (my $i = 0 ; $i < $nodecount ; $i++) {
+        for (my $j = $i+1 ; $j < $nodecount ; $j++) {
+            my $node = $nodes[$i];
+            my $nextnode = $nodes[$j];
+
+            ok(1, "disconnecting ${i}[$node] <-/-> ${j}[$nextnode]");
+
+            my $loop = $loopmap{$node};
+            my $nextloop = $loopmap{$nextnode};
+            $loop->disconnect($nextloop);
+        }
+    }
 }
 
 
@@ -86,7 +109,7 @@ sub node_connected {
     my ($node, $event) = @_;
 
     my $connection = $event->connection;
-    ok($connection, "node connected (" . $connection->id->name . " <-> " . $connection->peer->name . ")");
+    ok($connection, "node $node connected($connection) (" . $connection->id->name . " <-> " . $connection->peer->name . ")");
     $connections++;
 
     # try to log in with shared node privkey

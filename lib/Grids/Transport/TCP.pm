@@ -40,6 +40,11 @@ sub BUILD {
     $self->configuration->add_conf(port => 1488); # add default port
 }
 
+sub disconnect {
+    my ($self, $socket) = @_;
+    # ....
+}
+
 sub connect {
     my ($self, $addr) = @_;
     

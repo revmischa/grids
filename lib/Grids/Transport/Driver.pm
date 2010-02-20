@@ -4,7 +4,7 @@ use Moose::Role;
 
 use Carp qw/croak/;
 
-requires qw/write connect/; # may also have: select, reset
+requires qw/write connect disconnect/; # may also have: select, reset
 
 has 'delegate' => (
     is => 'rw',
@@ -44,7 +44,7 @@ sub connection_established {
         or die "No identity loaded in transport delegate";
 
     # set callbacks for crypto
-    $id->set_callback('inject', $self->bind(\&inject, $conn));
+    $id->set_callback('inject',     $self->bind(\&inject, $conn));
     $id->set_callback('unverified', $self->bind(\&connection_ready, $conn, 0));
     $id->set_callback('verified',   $self->bind(\&connection_ready, $conn, 1));
     $id->set_callback('disconnect', $self->bind(\&connection_unready, $conn));
@@ -95,6 +95,13 @@ sub data_received {
     #$name =  $connection->protocol->id->name if  $connection->protocol &&  $connection->protocol->id;
 
     $self->delegate_do('data_received', $connection, $data);
+}
+
+# called when transport has been disconnected from a peer
+sub disconnected {
+    my ($self, $connection) = @_;
+
+    $self->delegate_do('disconnected', $connection);
 }
 
 1;

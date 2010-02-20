@@ -5,7 +5,7 @@ use warnings;
 use Carp qw/croak/;
 
 use base qw/Class::Accessor/;
-__PACKAGE__->mk_accessors(qw(encap encap_base encap_method id peer));
+__PACKAGE__->mk_accessors(qw(encap encap_base encap_method id peer encrypted_connection_started no_encryption));
 
 use Class::Autouse qw/
     Grids::Protocol::Event
@@ -26,7 +26,8 @@ sub new {
     my $enc = delete $opts{encapsulation} || 'JSON';
     my $id = delete $opts{identity} or croak "No identity passed to Grids::Protocol::New";
     my $peer = delete $opts{peer};
-    my $self = bless { id => $id, peer => $peer }, $class;
+    my $no_encryption = delete $opts{no_encryption};
+    my $self = bless { id => $id, peer => $peer, no_encryption => $no_encryption }, $class;
 
     if ($enc) {
         return undef unless $self->set_encapsulation_method($enc);
@@ -88,6 +89,19 @@ sub establish_encrypted_connection {
         unless $self->peer;
 
     $self->id->otr->establish($self->peer_name);
+    $self->encrypted_connection_started(1);
+}
+
+sub end_encrypted_connection {
+    my ($self) = @_;
+
+    croak "end_encrypted_connection() called but no peer defined"
+        unless $self->peer;
+
+    $self->id->otr->finish($self->peer_name)
+        if $self->encrypted_connection_started;
+
+    $self->encrypted_connection_started(0);
 }
 
 sub set_peer_name {
@@ -172,7 +186,7 @@ sub parse_request {
                 or return $self->error_event('Error.Protocol.UnsupportedEncapsulation', {encapsulation_method => $info});
 
             # send request to establish an encrypted session
-            $self->establish_encrypted_connection;
+            $self->establish_encrypted_connection unless $self->no_encryption;
 
             # protocol is set up, we are ready to send events but we
             # should wait until we have an encrypted session

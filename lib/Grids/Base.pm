@@ -81,6 +81,8 @@ sub do_next_event {
 
     # debugging
     if ($self->debug) {
+        $args ||= {};
+
         my $args_disp = %$args ? ' (' . join(', ', map { $_ . ' = ' . $args->{$_} } keys %$args) . ')' : '';
         $self->dbg("Handling event " . $event->event_name . "$args_disp");
     }
