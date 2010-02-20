@@ -5,8 +5,8 @@ use Test::More qw(no_plan);
 use lib 'lib';
 use lib 'lib/Grids/VM/Memory/lib';
 use lib 'lib/Grids/VM/Register/lib';
-use lib 'lib/Grids/VM/blib/arch/auto/Grids/VM/Memory';
-use lib 'lib/Grids/VM/blib/arch/auto/Grids/VM/Register';
+use lib 'lib/Grids/VM/Memory/blib/arch/auto/Grids/VM/Memory';
+use lib 'lib/Grids/VM/Register/blib/arch/auto/Grids/VM/Register';
 
 use Grids::Code;
 use Grids::VM;
