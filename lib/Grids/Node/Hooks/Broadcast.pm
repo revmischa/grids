@@ -43,7 +43,7 @@ sub hook_broadcast_event {
 
     # copy args
     my %args = %{$evt->args};
-    $new_evt->args(%args);
+    $new_evt->args(\%args);
 
     $node->network_broadcast($new_evt);
     return $node->hook_ok;
