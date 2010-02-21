@@ -1,25 +1,26 @@
-package Grids::Node;
-use strict;
-use warnings;
+package Grids::Node::Hooks::Broadcast;
+
+use Moose;
+use Grids::Node;
+
+Grids::Node->register_hooks(
+    'Broadcast.Event' => \&hook_broadcast_event,
+    qr/.*/ => \&process_broadcast_flag,
+);
 
 use constant {
     BROADCAST_ERROR_NO_EVENT_NAME => -1,
 };
 
-__PACKAGE__->register_hooks(
-    'Broadcast.Event' => \&hook_broadcast_event,
-    qr/.*/ => \&process_broadcast_flag,
-);
-
 # check all events and see if they have _broadcast=1, if so then
 # rebroadcast them to all connected clients
 sub process_broadcast_flag {
     my ($node, $evt) = @_;
-    
-    return undef unless $evt->args->{_broadcast};
+
+    return undef unless $evt->args && $evt->args->{_broadcast};
 
     $node->network_broadcast($evt);
-    return $node->hook_ok;
+    return undef;
 }
 
 # explicit request to broadcast an event to all connected clients
@@ -37,10 +38,12 @@ sub hook_broadcast_event {
     # clone event
     my $new_evt = bless { %$evt }, ref $evt;
     $new_evt->event_name($event_name);
-    $new_evt->message_id(undef);
+    $new_evt->clear_message_id;
 
     $node->network_broadcast($new_evt);
     return $node->hook_ok;
 }
 
-1;
+no Moose;
+__PACKAGE__->meta->make_immutable;
+

@@ -50,12 +50,12 @@ sub outbound {
 # given an open connection and our identity, initialize a grids
 # connection with another client or node
 sub initiate_protocol {
-    my ($self, $proto_opts) = @_;
+    my ($self, %proto_opts) = @_;
 
     croak "No identity passed to Grids::Protocol::Connection->initiate_protocol"
-        unless $proto_opts->{identity};
+        unless $proto_opts{identity};
 
-    my $proto = new Grids::Protocol(%$proto_opts);
+    my $proto = new Grids::Protocol(%proto_opts);
     my $init_string = $proto->initiation_string;
 
     # save protocol handler
@@ -79,7 +79,18 @@ sub write {
 }
 
 sub send_event {
-    my ($self, $event_name, $args) = @_;
+    my ($self, $evt, $args) = @_;
+
+    my $event_name;
+
+    if (ref $evt) {
+        # got passed an Event instance
+        $event_name = $evt->event_name;
+        $args = $evt->args;
+    } else {
+        $event_name = $evt;
+    }
+
     my $msg = $self->encapsulate($event_name, $args);
     return unless $msg;
     $self->write($msg);

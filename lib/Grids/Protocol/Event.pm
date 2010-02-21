@@ -50,7 +50,10 @@ has message_id => (
     isa => 'Str',
     lazy => 1,
     builder => 'build_message_id',
-    predicate => 'has_message_id',
+
+    # allow us to unset the message id so it will be regenerated with a
+    # new id, allowing cloning of events
+    clearer => 'clear_message_id',
 );
 
 has signed_message_id => (
@@ -66,13 +69,6 @@ has was_encrypted => (
 sub proto { croak 'deprecated' }
 
 sub name { $_[0]->event_name }
-
-# allow us to unset the message id so it will be regenerated with a
-# new id, allowing cloning of events
-sub has_message_id {
-    my $self = shift;
-    return $self->message_id;
-}
 
 # uuid identifying this event
 sub build_message_id {

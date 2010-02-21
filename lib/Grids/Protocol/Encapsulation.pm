@@ -1,12 +1,16 @@
-package Grids::Protocol::Encapsulation::JSON;
-use strict;
-use warnings;
+package Grids::Protocol::Encapsulation;
 
-sub new {
-    my ($class, %opts) = @_;
+use Moose::Role;
 
-    return bless {}, $class;
-}
+requires qw/encapsulate decapsulate/;
 
+around 'decapsulate' => sub {
+    my ($orig, $self, $data) = @_;
+
+    # lame hack to strip out inline unencrypted warnings from OTR (it makes the message unparsable)
+    my $was_unencrypted = $data =~ s/^<b>The following message received from \S+ was <i>not<\/i> encrypted:<\/b>//;
+
+    return $self->$orig($data);
+};
 
 1;

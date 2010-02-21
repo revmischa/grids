@@ -13,7 +13,7 @@ use Grids::Identity;
 
 my $debug = 0;
 
-my $nodecount = 4;
+my $nodecount = 3;
 my $connections = 0;
 my @nodes;
 

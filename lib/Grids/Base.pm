@@ -44,6 +44,12 @@ has 'encapsulation_class' => (
     default => 'JSON',
 );
 
+has 'use_encryption' => (
+    is => 'rw',
+    isa => 'Bool',
+    default => sub { 1 },
+);
+
 sub _conf_builder {
     my ($self) = @_;
     return Grids::Conf->new;
@@ -94,8 +100,8 @@ sub do_next_event {
 
     # capture errors from hooks
     if ($@) {
-        warn "Error while running hooks for event " . $event->event_name . ": " .
-            $@ . "\n";
+        $self->warn("Error while running hooks for event " . $event->event_name . ": " .
+            $@ . "\n");
     }
 
     # were there any results?
@@ -136,8 +142,8 @@ sub enqueue_event {
 sub do_request {
     my ($self, %opts) = @_;
 
-    my $connection = delete $opts{connection} or Carp::confess("No connection");
-    my $event = delete $opts{event_name} or croak "No event name";
+    my $connection = delete $opts{connection} or Carp::confess("No connection found in event");
+    my $event = delete $opts{event_name} or Carp::confess("No event name found in event");
     my $args = delete $opts{event_args} || {};    
 
     my $proto = $connection->protocol;
@@ -175,7 +181,7 @@ sub warn {
     my ($self, $msg) = @_;
     my $class = $self->meta->name;
     my $name = $self->id->name || '(no identity)';
-    warn $name . '@' . "$class: [Warn] $msg\n";
+    print STDERR $name . '@' . "$class: [Warn] $msg\n";
 }
 
 

@@ -48,16 +48,15 @@ has 'network' => (
 # create new network instance
 sub _network_builder {
     my ($self) = @_;
-    return new Grids::Network(network_id => $self->network_id);
+    return new Grids::Network(node => $self);
 }
-
 
 # send an event to all nodes in this network
 sub network_broadcast {
     my ($self, $event) = @_;
 
     my $network = $self->network;
-    $network->send_to_all($event);
+    $network->send_to_peers($event);
 }
 
 sub add_transport {
@@ -82,12 +81,17 @@ sub outgoing_connection_established {
     $self->initiate_node_protocol($connection);
 }
 
+# ready to send/receive events to a peer
+sub protocol_established {
+    my ($self, $connection) = @_;
+    
+    $self->network->add_to_peers(peer => $connection->peer);
+}
+
 # called when a protocol handler has been established and a connection
 # has been made and encrypted
 sub connection_ready {
     my ($self, $connection, $peer_name) = @_;
-
-    $self->network->add_to_peers(name => $peer_name, connection => $connection);
 
     $self->enqueue_event('Connected', $connection);
     $self->dbg("encrypted connection with $peer_name ready");
@@ -121,10 +125,10 @@ sub initiate_node_protocol {
 
     croak "Trying to initiate grids protocol on a node with no identity object set" unless $self->id;
 
-    $connection->initiate_protocol({
+    $connection->initiate_protocol(
         identity => $self->id,
-        no_encryption => 1,
-    });
+        no_encryption => ! $self->use_encryption,
+    );
 }
 
 sub data_received {

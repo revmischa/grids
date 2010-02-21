@@ -1,3 +1,5 @@
+#!/usr/bin/perl
+
 use strict;
 use warnings;
 use Test::More qw/no_plan/;
@@ -9,32 +11,50 @@ use Grids::Test;
 # how many clients to connect
 my $count = 3;
 
+my $debug = 0;
+
 # create a new node with some clients connected for testing
-my ($node, @clients) = Grids::Test->node_with_many_clients($count, debug => 0);
+my ($node, @clients) = Grids::Test->node_with_many_clients($count, debug => $debug, use_encryption => 0);
+
+my $got_foo = {};
 
 # be notified of FooEvents
-$_->register_hook('FooEvent' => \&got_foo) for @clients;
-
-# brodcast a "FooEvent" to all connected clients
-$c->do_request('Broadcast.Event', { foo => 'bar' });
-
-my $got_foo = 0;
-foreach my $client (@clients) {
-    $got_foo++;
-    ok($client->{got_foo}, "client received broadcast event");
+foreach my $c (@clients) {
+    $c->register_hook('FooEvent' => \&got_foo);
 }
 
-is($got_foo, scalar @clients, "correct number of clients received event");
+
+flush() for 1..10;
+
+# brodcast a "FooEvent" to all connected clients
+$clients[0]->do_request(event_args => { foo => 'bar', event_name => "FooEvent" }, event_name => 'Broadcast.Event');
+
+flush() for 1..10;
+
+my $got_foo_count = 0;
+foreach my $client (@clients) {
+    $got_foo_count++;
+    ok($got_foo->{$client}, "client received broadcast event");
+}
+
+is($got_foo_count, scalar @clients, "correct number of clients received event");
 
 # broadcast a "BarEvent" using the _broadcast flag
 my $bar_count = 0;
-$_->register_hook('BarEvent' => { $bar_count++ }) for @clients;
-$c->do_request('BarEvent', { 'bar' => 'baz', '_broadcast' => 1 });
+$_->register_hook('BarEvent' => sub { $bar_count++ }) for @clients;
+$clients[0]->do_request(event_name => 'BarEvent', event_args => { 'bar' => 'baz', '_broadcast' => 1 });
+
+flush() for 1..10;
+
 is($bar_count, scalar @clients, "correct number of clients received event with broadcast flag");
 
 sub got_foo {
     my ($client, $evt) = @_;
 
-    $client->{got_foo} = 1;
-    warn "got foo!";
+    $got_foo->{$client} = $evt->args->{foo};
+}
+
+sub flush {
+    $node->flush_event_queue;
+    $_->flush_event_queue foreach @clients;
 }

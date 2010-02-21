@@ -12,6 +12,10 @@ use Class::Autouse qw/
     Grids::Peer
 /;
 
+use Grids::Protocol::Encapsulation; # this is required to load the
+                                    # role for instantiation of
+                                    # encapsulation handlers
+
 # autouse all encapsulation methods
 Class::Autouse->autouse_recursive('Grids::Protocol::Encapsulation');
 
@@ -126,13 +130,15 @@ sub new_from_initiation_string {
 
     return undef unless $prog eq 'Grids' && $ver eq '1.0' && $encapsulation_classes;
 
+    my $peer;
     if ($name && index($name, 'name=') != -1) {
         ($name) = $name =~ m/name=\"([-\w]+)\"/i or return undef;
 
-        my $peer = new Grids::Peer(connection => $connection, name => $name);
+        $peer = new Grids::Peer(connection => $connection, name => $name);
         $params->{peer} = $peer;
     } else {
         warn "did not get peer name";
+        return undef;
     }
 
     my $p;
@@ -141,6 +147,10 @@ sub new_from_initiation_string {
         $p = eval { $class->new(encapsulation => $enc, %$params) };
         last if $p;
     }
+
+    $p->peer($peer);
+    $connection->protocol($p);
+    $connection->transport->protocol_established($connection);
 
     return $p;
 }
@@ -191,7 +201,12 @@ sub parse_request {
 
             # protocol is set up, we are ready to send events but we
             # should wait until we have an encrypted session
-            return $self->event('ProtocolEstablished');
+
+            # inform the transport we are ready to send/receive events
+            $connection->transport->protocol_established($connection);
+
+            # post a ProtocolEstablished event
+            return $self->event('ProtocolEstablished', { peer_name => $self->peer_name });
         } elsif ($status eq 'ERROR') {
             if ($info eq 'Unauthorized') {
                 return $self->error_event('Error.Protocol.Unauthorized', {message => $info});
@@ -215,7 +230,8 @@ sub parse_request {
         return undef;
     }
 
-    warn "Received message from " . $self->peer_name . " but it was not encrypted: $data\n" unless $was_encrypted;
+    warn "Received message from " . $self->peer_name . " but it was not encrypted: $data\n"
+        if ! $was_encrypted && ! $self->no_encryption;
 
     # instantiate Event record
     my $event_name = delete $args->{_method};
@@ -244,7 +260,7 @@ sub decapsulate {
         unless $self->encap;
 
     my $was_encrypted;
-    if ($self->peer && $self->peer_name) {
+    if (! $self->no_encryption && $self->peer && $self->peer_name) {
         my $decrypted;
         ($decrypted, $was_encrypted) = $self->decrypt_message($data);
 
@@ -254,7 +270,7 @@ sub decapsulate {
             return wantarray ? (undef, 0) : undef;
         }
     } else {
-        warn "no peer defined, unable to decrypt message";
+        warn "no peer defined, unable to decrypt message" unless $self->no_encryption;
     }
 
     my $args = $self->encap->decapsulate($data);
@@ -274,7 +290,7 @@ sub encapsulate {
     my $msg = $self->encap->encapsulate($args);
 
     # do we have a public key for the other party? if so, encrypt this message for them
-    $msg = $self->encrypt_message($msg) if $self->peer;
+    $msg = $self->encrypt_message($msg) if $self->peer && ! $self->no_encryption;
 
     return $msg;
 }

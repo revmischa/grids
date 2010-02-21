@@ -63,7 +63,7 @@ unless ($identity) {
 }
 
 my $client = Grids::Client->new(
-    debug => $debug,
+    debug     => $debug,
     conf      => $conf,
     id        => $identity,
     transport => 'TCP',

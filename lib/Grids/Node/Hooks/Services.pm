@@ -1,10 +1,11 @@
-package Grids::Node;
-use strict;
-use warnings;
+package Grids::Node::Hooks::Services;
 
-__PACKAGE__->register_hooks(
-                            'Services.List' => \&hook_services_list,
-                            );
+use Moose;
+use Grids::Node;
+
+Grids::Node->register_hooks(
+    'Services.List' => \&hook_services_list,
+);
 
 sub hook_services_list {
     my ($node, $info) = @_;
@@ -16,4 +17,5 @@ sub hook_services_list {
     return { services => \@services };
 }
 
-1;
+no Moose;
+__PACKAGE__->meta->make_immutable;

@@ -127,7 +127,7 @@ sub register_hook {
 
         push @{$self->{hooks}->{$hookname}}, $hook_save;
     } else {
-		# register package hooks
+        # register package hooks
         $HOOKS{$self}->{$hookname} ||= [];
 
         push @{$HOOKS{$self}->{$hookname}}, $hook_save;

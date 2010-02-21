@@ -36,6 +36,7 @@ sub bind {
     };
 }
 
+# connected to another node
 sub connection_established {
     my ($self, $conn) = @_;
 
@@ -48,6 +49,13 @@ sub connection_established {
     $id->set_callback('unverified', $self->bind(\&connection_ready, $conn, 0));
     $id->set_callback('verified',   $self->bind(\&connection_ready, $conn, 1));
     $id->set_callback('disconnect', $self->bind(\&connection_unready, $conn));
+}
+
+# ready to send/receive events
+sub protocol_established {
+    my ($self, $conn) = @_;
+
+    $self->delegate_do('protocol_established', $conn);
 }
 
 sub inject {

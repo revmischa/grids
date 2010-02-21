@@ -1,7 +1,7 @@
 package Grids::Node::Hooks::Room;
 
-use strict;
-use warnings;
+use Moose;
+
 use Grids::Node;
 use Grids::Room;
 use Grids::Room::Object;
@@ -11,13 +11,14 @@ use Data::UUID;
 my $prefix = 'Room';
 
 Grids::Node->register_hooks(
-                            "$prefix.Create" => \&create,
-                            "$prefix.List" => \&list_rooms,
-                            "$prefix.CreateObject" => \&create_object,
-                            "$prefix.UpdateObject" => \&update_object,
-							"$prefix.ListObjects" => \&list_objects,
-                            );
+    "$prefix.Create" => \&create,
+    "$prefix.List" => \&list_rooms,
+    "$prefix.CreateObject" => \&create_object,
+    "$prefix.UpdateObject" => \&update_object,
+    "$prefix.ListObjects" => \&list_objects,
+);
 
+# FIXME: this storage should be on the Node, not global
 our %ROOMS;
 our %OBJECTS;
 our %PEOPLE;
@@ -106,4 +107,6 @@ sub update_object {
     return __PACKAGE__->object_hook_ok($node, $obj, $evt);
 }
 
-1;
+no Moose;
+__PACKAGE__->meta->make_immutable;
+

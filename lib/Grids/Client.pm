@@ -68,6 +68,13 @@ around enqueue_event => sub {
     $self->$orig($event_name, $args, $connection);
 };
 
+# encrypted connection started
+sub connection_ready {
+    my ($self, $connection) = @_;
+    
+    $self->dbg("Encrypted connection established with " . $connection->peer->name);
+}
+
 # Called when a connection with a Node has been established. This
 # simply means there is a connection, but the protocol handler has not
 # been set up yet. Once the connection is set up properly, the
@@ -77,7 +84,7 @@ sub outgoing_connection_established {
 
     $self->dbg("Connection to node successful. Initiating Grids protocol...");
     $self->connection($connection);
-    $connection->initiate_protocol({ identity => $self->id });
+    $connection->initiate_protocol(identity => $self->id, no_encryption => ! $self->use_encryption);
 }
 
 # initiates a login, call after ProtocolEstablished event

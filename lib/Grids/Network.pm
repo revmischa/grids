@@ -11,12 +11,6 @@ use Class::Autouse qw/
 
 use Carp qw/croak/;
 
-has network_id => (
-    is => 'rw',
-    isa => 'Grids::Identity',
-    required => 1,
-);
-
 # msgId => "$peer" => acked?
 has known_acks => (
     is => 'rw',
@@ -29,6 +23,14 @@ has peers => (
     is => 'rw',
     isa => 'HashRef',
     default => sub { {} },
+);
+
+# parent node
+has node => (
+    is => 'rw',
+    isa => 'Grids::Node',
+    required => 1,
+    handles => ['network_id'],
 );
 
 # add an identity to our known peers
@@ -55,14 +57,13 @@ sub remove_from_peers {
 sub send_to_peers {
     my ($self, $event) = @_;
 
-    my $target = $event->target
-        or croak "No target defined on event passed to Network->send_to_peers";
+#    my $target = $event->target
+#        or croak "No target defined on event passed to Network->send_to_peers";
 
     my @peers = $self->all_peers;
-
     foreach my $peer (@peers) {
         # does this peer have an ack?
-        if ($self->known_acks->{"$peer"}++) {
+        if ($self->known_acks->{"$peer"}{$event->message_id}++) {
             # we've already seen an acknowledgement for this message by this peer, skip
             next;
         }
@@ -81,7 +82,13 @@ sub all_peers {
 sub send_to_peer {
     my ($self, $peer, $event) = @_;
 
-    # uhhhhhhh do this somehow
+    # get all active sessions for this peer
+    my $peer_sessions = $self->peers->{$peer->name} || {};
+
+    # send event to all sessions for this peer
+    foreach my $peer_session (values %$peer_sessions) {
+        $peer_session->connection->send_event($event);
+    }
 }
 
 1;

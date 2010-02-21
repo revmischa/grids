@@ -1,29 +1,37 @@
 package Grids::Protocol::Encapsulation::JSON;
-use strict;
-use warnings;
+
+use Grids::Protocol::Encapsulation;
+use Moose;
+    with 'Grids::Protocol::Encapsulation';
+
 use Carp;
 use JSON::XS;
 
-sub new {
-    my ($class, %opts) = @_;
-    my $self = {
-        json => JSON::XS->new->pretty(0),
-    };
+# parser
+has json => (
+    is => 'rw',
+    isa => 'JSON::XS',
+    lazy => 1,
+    builder => 'build_parser',
+);
 
-    return bless $self, $class;
+sub build_parser {
+    my ($self) = @_;
+    return JSON::XS->new->pretty(0),
 }
 
 sub encapsulate {
     my ($self, $params) = @_;
     
-    eval { $self->{json}->encode($params) } or Carp::confess();
+    eval { $self->json->encode($params) } or Carp::confess();
 
-    return $self->{json}->encode($params);
+    return $self->json->encode($params);
 }
 
 sub decapsulate {
     my ($self, $data) = @_;
-    return $self->{json}->decode($data);
+    return $self->json->decode($data);
 }
 
-1;
+no Moose;
+__PACKAGE__->meta->make_immutable;
