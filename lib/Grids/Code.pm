@@ -1,7 +1,10 @@
 # This is a module to define the GridsCode instruction set, handling
 # assembling and disassembling GridsAsm and interperting GridsCode
 package Grids::Code;
+
 use strict;
+use warnings;
+
 use bytes;
 use Class::Autouse qw/Grids::Code::Program/;
 
