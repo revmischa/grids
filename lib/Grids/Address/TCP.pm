@@ -1,11 +1,17 @@
-use strict;
-use warnings;
-
 package Grids::Address::TCP;
 
-use base qw/Grids::Address/;
+use Moose;
+    with 'Grids::Address';
+
+has port => (
+    is => 'rw',
+    isa => 'Int',
+    default => sub { 1488 },
+);
+
 
 sub def_transport { 'Grids::Transport::TCP' }
-sub port_required { 1488 }
 
-1;
+no Moose;
+__PACKAGE__->meta->make_immutable;
+

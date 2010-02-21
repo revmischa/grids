@@ -1,31 +1,24 @@
-use strict;
-use warnings;
-
 package Grids::Address;
+
+use Moose::Role;
 
 use Carp qw/croak/;
 
-use base qw/Class::Accessor/;
+has address => (
+    is => 'rw',
+    required => 1,
+);
 
-__PACKAGE__->mk_accessors(qw/address port transport/);
+has port => (
+    is => 'rw',
+    isa => 'Maybe[Int]',
+);
 
-sub new {
-    my ($class, %opts) = @_;
-
-    my $transport = $class->def_transport || $opts{transport} or croak "No transport defined";
-    my $address = $opts{address} or croak "No address defined";
-    my $port = $opts{port};
-
-    $port ||= $class->port_required if $class->port_required;
-
-    my $self = {
-        transport => $transport,
-        address => $address,
-        port => $port,
-    };
-
-    return bless $self, $class;
-}
+has transport => (
+    is => 'rw',
+    does => 'Grids::Transport',
+    required => 1,
+);
 
 sub stringify {
     my $self = shift;
@@ -34,8 +27,6 @@ sub stringify {
                 ($self->port || 'undef'));
 }
 
-# override in subclasses
-sub def_transport { undef }
-sub port_required { undef }
+requires qw/def_transport/;
 
 1;
