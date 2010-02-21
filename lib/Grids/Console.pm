@@ -26,7 +26,6 @@ has conf => (
 
 has term => (
     is => 'rw',
-    isa => 'Term::ReadLine::Perl',
     lazy => 1,
     builder => 'build_term',
 );
