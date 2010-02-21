@@ -30,39 +30,39 @@ our (@REGS, %REGS); # mappings of register->symbolic name and vice-versa
 
 # I- and J-type opcodes
 our %OPCODES = (
-                li      => 0b111110,
+    'li'      => 0b111110,
 
-                syscall => 0b111111,
+    'syscall' => 0b111111,
 
-                l       => 0b111101,
-                lw      => 0b100011,
-                lb      => 0b100000,
+    'l'       => 0b111101,
+    'lw'      => 0b100011,
+    'lb'      => 0b100000,
 
-                j       => 0b000010,
-                jal     => 0b000011,
-                jreli   => 0b100001,
+    'j'       => 0b000010,
+    'jal'     => 0b000011,
+    'jreli'   => 0b100001,
 
-                # branch opcodes
-                beq     => 0b000100,
-                bne     => 0b000101,
+    # branch opcodes
+    'beq'     => 0b000100,
+    'bne'     => 0b000101,
 
-                bgez    => 0b000001,
-                bgezal  => 0b000111,
-                bgtz    => 0b010101,
-                bgtzal  => 0b010111,
+    'bgez'    => 0b000001,
+    'bgezal'  => 0b000111,
+    'bgtz'    => 0b010101,
+    'bgtzal'  => 0b010111,
 
-                blez    => 0b011011,
-                blezal  => 0b011001,
-                bltz    => 0b011010,
-                bltzal  => 0b010001,
-                ####
+    'blez'    => 0b011011,
+    'blezal'  => 0b011001,
+    'bltz'    => 0b011010,
+    'bltzal'  => 0b010001,
+    ####
 
-                addi    => 0b001000,
-                addiu   => 0b001001,
-                xori    => 0b001110,
-                ori     => 0b001101,
-                andi    => 0b001100,
-                );
+    'addi'    => 0b001000,
+    'addiu'   => 0b001001,
+    'xori'    => 0b001110,
+    'ori'     => 0b001101,
+    'andi'    => 0b001100,
+);
 
 # branch opcodes
 our @BRANCH_OPS = qw /
@@ -73,20 +73,20 @@ our @J_TYPE_OPS = qw /j jal jreli/;
 
 # definition of R-type functions
 our %R_TYPE_FUNCS = (
-                     add   => ["rd, rs, rt", 0b100000],
-                     addu  => ["rd, rs, rt", 0b100001],
-                     'sub' => ["rd, rs, rt", 0b100010],
-                     subu  => ["rd, rs, rt", 0b100011],
+    'add'   => ["rd, rs, rt", 0b100000],
+    'addu'  => ["rd, rs, rt", 0b100001],
+    'sub'   => ["rd, rs, rt", 0b100010],
+    'subu'  => ["rd, rs, rt", 0b100011],
 
-                     jr    => ["rs",         0b001000],
+    'jr'    => ["rs",         0b001000],
 
-                     sll   => ["rd, rs, sa", 0b000000],
-                     srl   => ["rd, rs, sa", 0b000010],
+    'sll'   => ["rd, rs, sa", 0b000000],
+    'srl'   => ["rd, rs, sa", 0b000010],
 
-                     and   => ["rd, rs, rt", 0b100100],
-                     xor   => ["rd, rs, rt", 0b100110],
-                     or    => ["rd, rs, rt", 0b100101],
-                     );
+    'and'   => ["rd, rs, rt", 0b100100],
+    'xor'   => ["rd, rs, rt", 0b100110],
+    'or'    => ["rd, rs, rt", 0b100101],
+);
 
 # syscalls
 our %SYSCALLS = (
@@ -135,6 +135,7 @@ die "Invalid opcodes" if grep {
 # return instruction mnemonic for opcode
 sub opcode_mnemonic {
     my ($class, $op) = @_;
+    return undef unless $op;
     return $OPCODES_REV{$op};
 }
 
@@ -149,7 +150,6 @@ sub u32 {
     my $i = shift;
     return unpack('L', pack('L', $i));
 }
-
 
 # given a 6-byte instruction, determine the opcode
 sub instruction_opcode {
@@ -173,7 +173,7 @@ sub r_function_mnemonic {
 # returns if this opcode is a branch instruction
 sub is_branch_opcode {
     my ($self, $opcode) = @_;
-    my $mnemonic = Grids::Code->opcode_mnemonic($opcode);
+    my $mnemonic = Grids::Code->opcode_mnemonic($opcode) or return 0;
     return grep { $_ eq $mnemonic } @Grids::Code::BRANCH_OPS;
 }
 
@@ -561,12 +561,12 @@ sub assemble_i {
 
     my @inst_order = qw (rs rt data);
     foreach my $field (@inst_order) {
-        my $f = $fields{$field};
+        my $f = $fields{$field} || 0;
         my $s = $field eq 'data' ? 32 : 5;
         $bit_string .= sprintf("%0${s}b", $f);
     }
 
-    print "i [$op, " . join(', ', map { sprintf("0x%X", $fields{$_}) } @inst_order) . "] = $bit_string\n";
+    print "i [$op, " . join(', ', map { sprintf("0x%X", ($fields{$_} || 0)) } @inst_order) . "] = $bit_string\n";
 
     return $class->pack_bit_string($bit_string);
 }
@@ -607,6 +607,8 @@ sub assemble_r {
         $rt = $field_val if $field eq 'rt';
         $rd = $field_val if $field eq 'rd';
     }
+
+    $op = 0; # r-type opcode is 0
 
     my $bit_string = sprintf "%06b%05b%05b%05b%08b%06b%013b", $op, $rs, $rt, $rd, $sa, $func, 0;
     printf "r [%06b, 0x%02X, 0x%02X, 0x%02X, %08b, %06b] = $bit_string\n", $op, $rs, $rt, $rd, $sa, $func;

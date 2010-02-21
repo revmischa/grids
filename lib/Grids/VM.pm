@@ -1,8 +1,10 @@
 package Grids::VM;
-use strict;
+
+use Moose;
+
 use bytes;
 
-use Carp;
+use Carp qw/ croak /;
 use Class::Autouse;
 use Data::Dumper;
 use Scalar::Util qw / weaken /;
@@ -10,17 +12,39 @@ use Scalar::Util qw / weaken /;
 use Grids::Code;
 use Grids::VM::Instructions;
 
-# allow XS modules to be built in place
-use FindBin;
-#use lib "$FindBin::Bin/../../lib/Grids/VM/Memory/blib/arch/auto/Grids/VM/Memory";
-#use lib "$FindBin::Bin/../../lib/Grids/VM/Memory/lib";
-#use lib "$FindBin::Bin/../../lib/Grids/VM/Register/blib/arch/auto/Grids/VM/Register";
-#use lib "$FindBin::Bin/../../lib/Grids/VM/Register/lib";
 use Grids::VM::Memory;
 use Grids::VM::Register;
 
-use base qw (Class::Accessor::Fast);
-__PACKAGE__->mk_accessors(qw/mem pc mem_limit/);
+has mem => (
+    is => 'rw',
+    isa => 'Grids::VM::Memory',
+    lazy => 1,
+    builder => 'build_mem',
+);
+
+has regs => (
+    is => 'rw',
+    isa => 'Grids::VM::Register',
+    lazy => 1,
+    builder => 'build_regs',
+);
+
+has pc => (
+    is => 'rw',
+    isa => 'Int',
+);
+
+has node => (
+    is => 'rw',
+    isa => 'Grids::Node',
+    weak_ref => 1,
+);
+
+has memory_limit => (
+    is => 'rw',
+    isa => 'Int',
+    default => sub { 128 * 1024 * 1024 },
+);
 
 Class::Autouse->autouse_recursive('Grids::VM::SysCall');
 
@@ -53,25 +77,18 @@ Returns a new L<Grids::VM>, ready to load and execute L<GridsCode> bytecode.
 
 =cut
 
-sub new {
-    my ($class, %opts) = @_;
-
-    my $mem_limit = delete $opts{memory_limit} || 128;
-
-    croak "Unknown options: " . join(',', keys %opts) if %opts;
-
+sub build_regs {
+    my $self = shift;
+    
     my $regs = new Grids::VM::Register(scalar @REGS)
         or die "couldn't create register storage";
 
-    my $self = {
-        mem_limit => $mem_limit,
-        regs      => $regs,
-    };
+    return $regs;
+}
 
-    bless $self, $class;
+sub BUILD {
+    my $self = shift;
     $self->init;
-
-    return $self;
 }
 
 =item init
@@ -84,7 +101,7 @@ sub init {
     my $self =  shift;
 
     # empty memory
-    $self->{mem} = new Grids::VM::Memory(1);
+    $self->mem(new Grids::VM::Memory(1));
 
     $self->init_regs;
 }
@@ -98,26 +115,14 @@ Reset registers including PC, doesn't clear memory
 sub init_regs {
     my ($self) = @_;
 
-    croak "invalid vm" unless $self->{regs};
+    croak "invalid vm" unless $self->regs;
 
     # initialize zero register
     $self->regs->set(0, 0);
 
     # reset PC
-    $self->{pc} = 0;
+    $self->pc(0);
 }    
-
-=item set_node
-
-Sets the Node that the VM will pass to Syscalls
-
-=cut
-
-sub set_node {
-    my ($self, $node) = @_;
-    $self->{node} = $node;
-    weaken $self->{node};
-}
 
 =item node
 
@@ -125,15 +130,11 @@ Returns the Node this VM uses
 
 =cut
 
-sub node { $_->{node} }
-
 =item regs
 
 Returns Grids::Reg object containing registers
 
 =cut
-
-sub regs { $_[0]->{regs} }
 
 =item reg($reg)
 
@@ -254,6 +255,10 @@ sub load {
     return 0 unless $bytecode;
 
     my $mem_max = length($bytecode) + $offset;
+
+    croak "code is too large at $mem_max bytes. memory limit is " .
+        ($self->memory_limit / 1024 / 1024) . "MB" if $mem_max > $self->memory_limit;
+
     $self->mem->resize($mem_max) unless $opts{no_resize};
     $self->mem->set($offset, $bytecode);
 
@@ -275,6 +280,9 @@ sub load_segments {
         $prog_len = $base_addr if $base_addr > $prog_len;
         $prog_len += length $segment_map->{$base_addr};
     }
+
+    croak "segement map is too large at $prog_len bytes. memory limit is " .
+        ($self->memory_limit / 1024 / 1024) . "MB" if $prog_len > $self->memory_limit;
 
     $self->mem->resize($prog_len);
 
@@ -391,7 +399,7 @@ sub execute {
             $self->execute_j($opcode, \%fields);
         } elsif ($type eq 'S') {
             $self->syscall($fields{syscall});
-            $self->{pc} += 6;
+            $self->pc($self->pc + 6);
         } else {
             die "Unknown instruction type '$type'\n";
         }
@@ -467,7 +475,7 @@ sub _execute_branch {
     } else {
         # branch function returned undef, which means advance PC like
         # normal (do not branch)
-        $self->{pc} += 6;
+        $self->pc($self->pc + 6);
     }
 }
 
@@ -495,7 +503,7 @@ sub execute_i {
     "$handler_package"->$i_sub($self, @args);
 
     # increment PC
-    $self->{pc} += 6;
+    $self->pc($self->pc + 6);
 }
 
 =item execute_j($opcode, \%fields)
@@ -537,7 +545,7 @@ sub execute_r {
     "$handler_package"->$func($self, @args);
 
     # increment PC
-    $self->{pc} += 6;
+    $self->pc($self->pc + 6);
 }
 
 =item dbg($msg)
@@ -557,4 +565,6 @@ sub dbg {
 
 =cut
 
-1;
+no Moose;
+__PACKAGE__->meta->make_immutable;
+

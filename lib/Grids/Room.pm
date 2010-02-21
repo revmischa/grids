@@ -8,7 +8,7 @@ use Grids::Room::Object;
 
 has id => (
     is => 'rw',
-    isa => 'Str'
+    isa => 'Str',
     lazy => 1,
     builder => 'build_id',
 );
