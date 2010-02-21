@@ -19,6 +19,7 @@ sub process_broadcast_flag {
 
     return undef unless $evt->args && $evt->args->{_broadcast};
 
+    delete $evt->args->{_broadcast};
     $node->network_broadcast($evt);
     return undef;
 }
@@ -39,6 +40,10 @@ sub hook_broadcast_event {
     my $new_evt = bless { %$evt }, ref $evt;
     $new_evt->event_name($event_name);
     $new_evt->clear_message_id;
+
+    # copy args
+    my %args = %{$evt->args};
+    $new_evt->args(%args);
 
     $node->network_broadcast($new_evt);
     return $node->hook_ok;
