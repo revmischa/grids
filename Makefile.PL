@@ -10,7 +10,6 @@ WriteMakefile(
         Term::ReadLine => 0,
         Storable => 0,
         Class::Autouse => 0,
-        Class::Accessor::Fast => 0,
         JSON::XS => 0,
         JSON => 0,
         Moose => 0,
