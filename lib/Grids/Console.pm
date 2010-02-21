@@ -1,49 +1,69 @@
-use strict;
-
 package Grids::Console;
+
+use Moose;
 
 use Grids::Identity;
 use Term::ReadLine;
 use Storable;
 use Carp qw (croak);
 
-sub new {
-    my ($class, %opts) = @_;
+has prompt => (
+    is => 'rw',
+    isa => 'Str',
+    default => sub { '>' },
+);
 
-    my $conf = $opts{conf};
-    my $handlers = $opts{handlers} || {};
-    my $prompt = $opts{prompt} || '>';
-    my $title = $opts{title} || 'Grids';
-    my $msg = $opts{message};
+has title => (
+    is => 'rw',
+    isa => 'Str',
+    default => sub { 'Grids' },
+);
 
-    my $term = new Term::ReadLine $title;
-    my $OUT = $term->OUT || \*STDOUT;
+has conf => (
+    is => 'rw',
+    isa => 'Grids::Conf',
+);
 
-    my $self = {
-        prompt => $prompt,
-        title  => $title,
-        conf   => $conf,
-        term   => $term,
-        OUT    => $OUT,
-        msg    => $msg,
-    };
+has term => (
+    is => 'rw',
+    isa => 'Term::ReadLine',
+    lazy => 1,
+    builder => 'build_term',
+);
 
-    bless $self, $class;
+has OUT => (
+    is => 'rw',
+    default => sub { \*STDOUT },
+);
 
-    $self->set_handler($_, $handlers->{$_}) foreach keys %$handlers;
+has msg => (
+    is => 'rw',
+    isa => 'Str',
+);
 
-    return $self;
+has handlers => (
+    is => 'rw',
+    isa => 'HashRef',
+    default => sub { {} },
+);
+
+sub build_term {
+    my ($self) = @_;
+    return new Term::ReadLine($self->title);
 }
 
-sub conf { $_[0]->{conf} }
-sub term { $_[0]->{term} }
+sub BUILD {
+    my $self = shift;
+
+    $self->set_handler($_, $handlers->{$_}) foreach keys %{$self->handlers};
+}
 
 sub run {
     my $self = shift;
 
-    my $prompt = $self->{prompt};
+    my $prompt = $self->prompt;
 
-    $self->print("\n$self->{msg}") if $self->{msg};
+    $self->print("\n" . $self->msg) if $self->msg;
 
     while (defined (my $line = $self->term->readline($prompt))) {
         if ($line =~ /^\s*(q|quit|exit)\b/ig) {
@@ -94,14 +114,14 @@ sub ask {
 
 sub print {
     my ($self, $txt) = @_;
-    my $OUT = $self->{OUT};
+    my $OUT = $self->OUT;
     print $OUT $txt . "\n";
 }
 
 sub set_handler {
     my ($self, $cmd, $handler) = @_;
 
-    $self->{handlers}->{$cmd} = $handler;
+    $self->handlers->{$cmd} = $handler;
 }
 
 sub do_command {
@@ -114,7 +134,7 @@ sub do_command {
 
     $cmd = lc $cmd;
 
-    my $func = $self->{handlers}->{$cmd} or die "No such command: $cmd\n";
+    my $func = $self->handlers->{$cmd} or die "No such command: $cmd\n";
 
     return $func->($self, @args);
 }
