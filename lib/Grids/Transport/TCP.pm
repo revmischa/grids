@@ -43,10 +43,7 @@ sub BUILD {
 sub disconnect {
     my ($self, $connection) = @_;
 
-    my $socket = 
-
-    $self->remove_socket($socket);
-    $socket->close;
+    $self->remove_socket_from_connection($connection);
 }
 
 sub connect {
@@ -112,7 +109,10 @@ sub remove_socket_from_connection {
     my ($self, $connection) = @_;
 
     my ($socket) = grep { $_ eq $connection } values %{$self->connections};
-    $self->remove_socket($socket) if $socket;
+    return unless $socket;
+
+    $self->remove_socket($socket);
+    $socket->close;
 }
 
 sub add_socket {
