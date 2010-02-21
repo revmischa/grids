@@ -11,7 +11,7 @@ use Grids::Test;
 # how many clients to connect
 my $count = 3;
 
-my $debug = 0;
+my $debug = 1;
 
 # create a new node with some clients connected for testing
 my ($node, @clients) = Grids::Test->node_with_many_clients($count, debug => $debug, use_encryption => 0);

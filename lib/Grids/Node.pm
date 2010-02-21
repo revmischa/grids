@@ -60,16 +60,40 @@ sub network_broadcast {
     $network->send_to_peers($event);
 }
 
+after activate_encryption => sub {
+    my ($self) = @_;
+
+    $self->enable_encryption;
+    foreach my $p ($self->all_protocols) {
+        $p->establish_encrypted_connection;
+    }
+};
+
+after deactivate_encryption => sub {
+    my ($self) = @_;
+
+    $self->disable_encryption;
+    foreach my $p ($self->all_protocols) {
+        $p->end_encrypted_connection;
+    }
+};
+
 after enable_encryption => sub {
     my ($self) = @_;
     my @protocols = $self->all_protocols;
-    $_->use_encryption(1);
+    foreach my $p (@protocols) {
+        $p->use_encryption(1);
+        $self->dbg("Encryption enabled for " . $p->peer_name);
+    }
 };
 
 after disable_encryption => sub {
     my ($self) = @_;
     my @protocols = $self->all_protocols;
-    $_->use_encryption(0);
+    foreach my $p (@protocols) {
+        $p->use_encryption(0);
+        $self->dbg("Encryption disabled for " . $p->peer_name);
+    }
 };
 
 sub add_transport {
@@ -98,7 +122,9 @@ sub outgoing_connection_established {
 sub protocol_established {
     my ($self, $connection) = @_;
     
-    $self->network->add_to_peers(peer => $connection->peer);
+    # inbound connections have already been added
+    $self->network->add_to_peers(peer => $connection->peer)
+        if $connection->outbound;
 }
 
 # called when a protocol handler has been established and a connection
@@ -114,22 +140,24 @@ sub connection_ready {
 sub connection_unready {
     my ($self, $connection, $peer_name) = @_;
 
+    # FIXME: "disconnected" is kinda misleading, could still have an unencrypted session active
+    $self->enqueue_event('Disconnected', $connection);  
+    $self->dbg("encrypted connection with $peer_name ended");
+}
+
+# actually disconnected
+sub disconnected {
+    my ($self, $connection) = @_;
+
+    $connection->teardown_protocol;
+
     if (! $self->network->peer_sessions($connection->peer)) {
-        $self->warn("got connection_unready($peer_name) but no connection was established");
+        $self->warn("got connection_unready but no connection was established");
         return;
     }
 
     my $ok = $self->network->remove_from_peers($connection->peer);
-    $self->warn("network->remove_from_peers failed for $peer_name") unless $ok;
-
-    $self->enqueue_event('Disconnected', $connection);
-    $self->dbg("encrypted connection with $peer_name ended");
-}
-
-sub disconnected {
-    my ($self, $connection) = @_;
-
-    $connection->teardown_protocol if $connection;
+    $self->warn("network->remove_from_peers failed for " . $connection->peer->name) unless $ok;    
 }
 
 # called when a connection to another node is established to set up a
@@ -175,6 +203,10 @@ sub data_received {
         # save protocol handler
         $connection->protocol($p);
 
+        # save peer
+        $self->network->add_to_peers(peer => $connection->peer);
+
+        # write response
         my $proto_init_resp = $p->protocol_init_response;
         $connection->write($proto_init_resp) or $self->dbg("Unable to write session init response");
     }

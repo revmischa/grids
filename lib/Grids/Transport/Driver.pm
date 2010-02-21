@@ -99,9 +99,6 @@ sub incoming_connection_established {
 sub data_received {
     my ($self, $connection, $data) = @_;
 
-    #my $name = "unknown";
-    #$name =  $connection->protocol->id->name if  $connection->protocol &&  $connection->protocol->id;
-
     $self->delegate_do('data_received', $connection, $data);
 }
 

@@ -65,7 +65,7 @@ sub init_nodes {
         }
     }
  
-    flush() for (1 .. ($nodecount * 5));
+    flush() for (1 .. ($nodecount * 10));
 
     is($connections, $nodecount, "all nodes connected");
 
@@ -73,11 +73,13 @@ sub init_nodes {
     {
         # turn on encryption
         $_->enable_encryption foreach @nodes;
-        $_->protocol->establish_encrypted_connection foreach @connections;
 
-        flush() for (1 .. ($nodecount * 10));
+        # establish encrypted connections
+        $_->activate_encryption foreach @nodes;
 
-        is($encrypted_connections, scalar @connections, "encrypted sessions started");
+        flush() for (1 .. ($nodecount * 15));
+
+        is($encrypted_connections, 2 * $nodecount, "encrypted sessions started");
     }
 
     # disconnect all loops

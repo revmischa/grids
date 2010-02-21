@@ -68,6 +68,16 @@ sub disable_encryption {
     $self->use_encryption(0);
 }
 
+sub activate_encryption {
+    my ($self) = @_;
+    $self->enable_encryption;
+}
+
+sub deactivate_encryption {
+    my ($self) = @_;
+    $self->disable_encryption;
+}
+
 # processes everything in the event queue
 sub flush_event_queue {
     my ($self) = @_;
