@@ -15,6 +15,7 @@ my $debug = 0;
 
 my $nodecount = 3;
 my $connections = 0;
+my $encrypted_connections = 0;
 my @nodes;
 
 init_nodes();
@@ -32,13 +33,14 @@ sub init_nodes {
         $id->set_callback('otr_message', sub { my ($otr, $user, $proto, $peer, $notif) = @_; warn "[$user] OTR system message: $notif" });
 
         # create a new node
-        my $node = Grids::Node->new(debug => $debug, id => $id);
+        my $node = Grids::Node->new(debug => $debug, id => $id, use_encryption => 0);
 
         # set node-node private key
         $node->configuration->set_conf('Node.PrivateKey' => '123');
 
         # handle connections and node-node communication
-        $node->register_hook('Connected', \&node_connected);
+        $node->register_hook('ProtocolEstablished', \&node_connected);
+        $node->register_hook('Connected', \&connection_encrypted);
         $node->register_hook('Login', \&login);
         $node->register_hook('Error', \&node_error);
 
@@ -54,28 +56,29 @@ sub init_nodes {
             my $node = $nodes[$i];
             my $nextnode = $nodes[$j];
 
-            ok(1, "connecting ${i}[$node] to ${j}[$nextnode]");
+            ok(1, "connecting " . ($i+1) . "[$node] <-...-> " . ($j + 1) . "[$nextnode]");
 
             my $loop = $loopmap{$node};
             my $nextloop = $loopmap{$nextnode};
             my $conn = $loop->connect($nextloop);
-            warn "creating connection $conn between " . $conn->id->name . " and " . $conn->peer->name;
             push @connections, $conn;
         }
     }
  
     flush() for (1 .. ($nodecount * 5));
 
-    $_->protocol->establish_encrypted_connection foreach @connections;
-
-    flush() for (1 .. ($nodecount * 5));
-
     is($connections, $nodecount, "all nodes connected");
 
-    flush();
-    flush();
-    flush();
+    # test encrypted messaging
+    {
+        # turn on encryption
+        $_->enable_encryption foreach @nodes;
+        $_->protocol->establish_encrypted_connection foreach @connections;
 
+        flush() for (1 .. ($nodecount * 10));
+
+        is($encrypted_connections, scalar @connections, "encrypted sessions started");
+    }
 
     # disconnect all loops
     for (my $i = 0 ; $i < $nodecount ; $i++) {
@@ -83,7 +86,7 @@ sub init_nodes {
             my $node = $nodes[$i];
             my $nextnode = $nodes[$j];
 
-            ok(1, "disconnecting ${i}[$node] <-/-> ${j}[$nextnode]");
+            ok(1, "disconnecting " . ($i+1) . "[$node] <-/-> " . ($j + 1) . "[$nextnode]");
 
             my $loop = $loopmap{$node};
             my $nextloop = $loopmap{$nextnode};
@@ -104,15 +107,23 @@ sub node_error {
     not_ok(Dumper($info));
 }
 
-# send node key (FIXME: make encrypted)
+sub connection_encrypted {
+    my ($node, $event) = @_;
+
+    my $connection = $event->connection;
+    $encrypted_connections++;
+    ok($connection, "node $node encrypted($connection) (" . $connection->id->name . " <---> " . $connection->peer->name . ")");
+}
+
 sub node_connected {
     my ($node, $event) = @_;
 
     my $connection = $event->connection;
-    ok($connection, "node $node connected($connection) (" . $connection->id->name . " <-> " . $connection->peer->name . ")");
+    ok($connection, "node $node connected($connection) (" . $connection->id->name . " <---> " . $connection->peer->name . ")");
     $connections++;
 
     # try to log in with shared node privkey
+    # FIXME: catch this
     return { event => 'Login', node_private_key => $node->configuration->get('Node.PrivateKey') };
 }
     

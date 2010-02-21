@@ -84,7 +84,7 @@ sub outgoing_connection_established {
 
     $self->dbg("Connection to node successful. Initiating Grids protocol...");
     $self->connection($connection);
-    $connection->initiate_protocol(identity => $self->id, no_encryption => ! $self->use_encryption);
+    $connection->initiate_protocol(identity => $self->id, use_encryption => $self->use_encryption);
 }
 
 # initiates a login, call after ProtocolEstablished event

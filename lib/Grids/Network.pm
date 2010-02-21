@@ -50,7 +50,13 @@ sub add_to_peers {
 sub remove_from_peers {
     my ($self, $peer) = @_;
 
-    return delete $self->peers->{$peer->name};
+    return delete $self->peers->{$peer->name}{$peer->session_token};
+}
+
+sub peer_sessions {
+    my ($self, $peer) = @_;
+
+    return $self->peers->{$peer->name};
 }
 
 # send an event to all of our known peers
@@ -77,6 +83,16 @@ sub all_peers {
 
     my @sessions = values %{$self->peers}; # list of session_token => peer
     return map { values %$_ } @sessions;
+}
+
+sub all_connections {
+    my $self = shift;
+    return map { $_->connection } $self->all_peers;
+}
+
+sub all_protocols {
+    my $self = shift;
+    return map { $_->protocol } $self->all_connections;
 }
 
 sub send_to_peer {

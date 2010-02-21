@@ -43,6 +43,7 @@ has 'network' => (
     isa => 'Grids::Network',
     lazy => 1,
     builder => '_network_builder',
+    handles => [qw/all_peers all_connections all_protocols/],
 );
 
 # create new network instance
@@ -58,6 +59,18 @@ sub network_broadcast {
     my $network = $self->network;
     $network->send_to_peers($event);
 }
+
+after enable_encryption => sub {
+    my ($self) = @_;
+    my @protocols = $self->all_protocols;
+    $_->use_encryption(1);
+};
+
+after disable_encryption => sub {
+    my ($self) = @_;
+    my @protocols = $self->all_protocols;
+    $_->use_encryption(0);
+};
 
 sub add_transport {
     my ($self, $trans_class, %opts) = @_;
@@ -101,12 +114,13 @@ sub connection_ready {
 sub connection_unready {
     my ($self, $connection, $peer_name) = @_;
 
-    if (! $self->peer_connections->{$peer_name}) {
-        warn "got connection_ready($peer_name) but no connection was established";
+    if (! $self->network->peer_sessions($connection->peer)) {
+        $self->warn("got connection_unready($peer_name) but no connection was established");
         return;
     }
 
-    $self->peer_connections->{$peer_name} = [ grep { $_ != $connection } @{$self->peer_connections->{$peer_name}} ];
+    my $ok = $self->network->remove_from_peers($connection->peer);
+    $self->warn("network->remove_from_peers failed for $peer_name") unless $ok;
 
     $self->enqueue_event('Disconnected', $connection);
     $self->dbg("encrypted connection with $peer_name ended");
@@ -127,7 +141,7 @@ sub initiate_node_protocol {
 
     $connection->initiate_protocol(
         identity => $self->id,
-        no_encryption => ! $self->use_encryption,
+        use_encryption => $self->use_encryption,
     );
 }
 

@@ -5,7 +5,7 @@ use warnings;
 use Carp qw/croak/;
 
 use base qw/Class::Accessor/;
-__PACKAGE__->mk_accessors(qw(encap encap_base encap_method id peer encrypted_connection_started no_encryption));
+__PACKAGE__->mk_accessors(qw(encap encap_base encap_method id peer encrypted_connection_started use_encryption));
 
 use Class::Autouse qw/
     Grids::Protocol::Event
@@ -30,8 +30,9 @@ sub new {
     my $enc = delete $opts{encapsulation} || 'JSON';
     my $id = delete $opts{identity} or croak "No identity passed to Grids::Protocol::New";
     my $peer = delete $opts{peer};
-    my $no_encryption = delete $opts{no_encryption};
-    my $self = bless { id => $id, peer => $peer, no_encryption => $no_encryption }, $class;
+    my $use_encryption = delete $opts{use_encryption};
+    $use_encryption = 1 unless defined $use_encryption;
+    my $self = bless { id => $id, peer => $peer, use_encryption => $use_encryption }, $class;
 
     if ($enc) {
         return undef unless $self->set_encapsulation_method($enc);
@@ -91,6 +92,8 @@ sub establish_encrypted_connection {
 
     croak "establish_encrypted_connection() called but no peer defined"
         unless $self->peer;
+
+    $self->use_encryption(1);
 
     $self->id->otr->establish($self->peer_name);
     $self->encrypted_connection_started(1);
@@ -197,7 +200,7 @@ sub parse_request {
                 or return $self->error_event('Error.Protocol.UnsupportedEncapsulation', {encapsulation_method => $info});
 
             # send request to establish an encrypted session
-            $self->establish_encrypted_connection unless $self->no_encryption;
+            $self->establish_encrypted_connection if $self->use_encryption;
 
             # protocol is set up, we are ready to send events but we
             # should wait until we have an encrypted session
@@ -231,7 +234,7 @@ sub parse_request {
     }
 
     warn "Received message from " . $self->peer_name . " but it was not encrypted: $data\n"
-        if ! $was_encrypted && ! $self->no_encryption;
+        if ! $was_encrypted && $self->use_encryption;
 
     # instantiate Event record
     my $event_name = delete $args->{_method};
@@ -260,7 +263,7 @@ sub decapsulate {
         unless $self->encap;
 
     my $was_encrypted;
-    if (! $self->no_encryption && $self->peer && $self->peer_name) {
+    if ($self->use_encryption && $self->peer && $self->peer_name) {
         my $decrypted;
         ($decrypted, $was_encrypted) = $self->decrypt_message($data);
 
@@ -270,7 +273,7 @@ sub decapsulate {
             return wantarray ? (undef, 0) : undef;
         }
     } else {
-        warn "no peer defined, unable to decrypt message" unless $self->no_encryption;
+        warn "no peer defined, unable to decrypt message" if $self->use_encryption;
     }
 
     my $args = $self->encap->decapsulate($data);
@@ -290,7 +293,7 @@ sub encapsulate {
     my $msg = $self->encap->encapsulate($args);
 
     # do we have a public key for the other party? if so, encrypt this message for them
-    $msg = $self->encrypt_message($msg) if $self->peer && ! $self->no_encryption;
+    $msg = $self->encrypt_message($msg) if $self->peer && $self->use_encryption;
 
     return $msg;
 }

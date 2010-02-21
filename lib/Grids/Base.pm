@@ -58,6 +58,15 @@ sub _conf_builder {
 
 ### shared methods for Client and Node
 
+sub enable_encryption {
+    my ($self) = @_;
+    $self->use_encryption(1);
+}
+
+sub disable_encryption {
+    my ($self) = @_;
+    $self->use_encryption(0);
+}
 
 # processes everything in the event queue
 sub flush_event_queue {
