@@ -196,7 +196,7 @@ sub data_received {
 
         unless ($p) {
             $self->warn("invalid initiation string [$data]");
-            $connection->transport->reset;
+            $connection->transport->reset($connection);
             return;
         }
 

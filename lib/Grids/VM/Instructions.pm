@@ -9,10 +9,15 @@ package Grids::VM::Instructions;
 ### utility funcs
 
 # returns 32-bit unsigned representation of this number
-sub _u { return int(sprintf("%u", $_[0])) }
-sub _s { return int(sprintf("%d", $_[0])) }
+#sub _u { return int(sprintf("%u", $_[0])) }
+sub _u { return unpack('L', pack('J', $_[0])) }
+
 # signed version
 #sub _s { return int(sprintf("%ld", $_[0])) }
+#sub _s { return $_[0] }
+sub _s { return unpack("l", pack('j', $_[0])) }
+
+
 # return 32-bit bit string
 sub _bs { return sprintf("%032b", $_[0]) }
 

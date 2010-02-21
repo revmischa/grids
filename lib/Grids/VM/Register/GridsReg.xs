@@ -9,8 +9,8 @@
 
 #define REG(i) (*(handle + i))
 
-typedef int reg_t;
-typedef unsigned int  ureg_t;
+typedef I32 reg_t;
+typedef U32  ureg_t;
 typedef int * reghandle_t;
 
 reghandle_t alloc_regs(unsigned int count) {

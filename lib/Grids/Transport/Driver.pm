@@ -16,6 +16,8 @@ has 'delegate' => (
     },
 );
 
+# no-op by default
+sub reset {}
 
 sub delegate_do {
     my ($self, $method, @args) = @_;

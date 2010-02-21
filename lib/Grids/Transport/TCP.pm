@@ -41,7 +41,9 @@ sub BUILD {
 }
 
 sub disconnect {
-    my ($self, $socket) = @_;
+    my ($self, $connection) = @_;
+
+    my $socket = 
 
     $self->remove_socket($socket);
     $socket->close;
@@ -97,6 +99,20 @@ sub new_listen_sock {
 sub close_all {
     my ($self) = @_;
     $_->close foreach @{$self->sockets};
+}
+
+sub reset {
+    my ($self, $connection) = @_;
+
+    $self->remove_socket_from_connection($connection);
+}
+
+# remove the socket that is associated with this connection
+sub remove_socket_from_connection {
+    my ($self, $connection) = @_;
+
+    my ($socket) = grep { $_ eq $connection } values %{$self->connections};
+    $self->remove_socket($socket) if $socket;
 }
 
 sub add_socket {

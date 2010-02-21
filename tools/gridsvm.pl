@@ -4,6 +4,11 @@ use strict;
 use FindBin;
 use lib "$FindBin::Bin/../lib";
 
+use lib "$FindBin::Bin/../lib/Grids/VM/Memory/lib";
+use lib "$FindBin::Bin/../lib/Grids/VM/Memory/blib/arch/auto/Grids/VM/Memory";
+use lib "$FindBin::Bin/../lib/Grids/VM/Register/lib";
+use lib "$FindBin::Bin/../lib/Grids/VM/Register/blib/arch/auto/Grids/VM/Register";
+
 use Grids::VM;
 use Grids::Console;
 use Grids::Code::Program;
@@ -61,7 +66,7 @@ sub load {
 sub asld {
     my ($self, $filename) = @_;
     my $code = slurp($filename);
-    my $program = Grids::Code->assemble($code);
+    my $program = Grids::Code->assemble_program($code);
     return vmload($program->segments);
 }
 sub regs {
@@ -86,8 +91,9 @@ sub regs {
 
 sub reset {
     my $self = shift;
-    $vm->init;
-    return $self->load($infile);
+    
+    $vm->init_regs;
+    dis_current_instruction();
 }
 
 sub run {
@@ -184,7 +190,7 @@ sub vmload {
     my $prog = new Grids::Code::Program(segments => $segment_map);
     $vm->load_program($prog);
 
-    printf "Loaded %i bytes\n", length $prog->bytecode;
+    printf "Loaded %i bytes\n", length $prog->bytes;
 
     return dis_current_instruction();
 }

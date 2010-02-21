@@ -12,10 +12,10 @@ use Grids::VM::Instructions;
 
 # allow XS modules to be built in place
 use FindBin;
-use lib "$FindBin::Bin/../../lib/Grids/VM/Memory/blib/arch/auto/Grids/VM/Memory";
-use lib "$FindBin::Bin/../../lib/Grids/VM/Memory/lib";
-use lib "$FindBin::Bin/../../lib/Grids/VM/Register/blib/arch/auto/Grids/VM/Register";
-use lib "$FindBin::Bin/../../lib/Grids/VM/Register/lib";
+#use lib "$FindBin::Bin/../../lib/Grids/VM/Memory/blib/arch/auto/Grids/VM/Memory";
+#use lib "$FindBin::Bin/../../lib/Grids/VM/Memory/lib";
+#use lib "$FindBin::Bin/../../lib/Grids/VM/Register/blib/arch/auto/Grids/VM/Register";
+#use lib "$FindBin::Bin/../../lib/Grids/VM/Register/lib";
 use Grids::VM::Memory;
 use Grids::VM::Register;
 
@@ -76,24 +76,36 @@ sub new {
 
 =item init
 
-Resets the VM.
+Resets the VM. Clears registers and memory.
 
 =cut
 
 sub init {
     my $self =  shift;
 
+    # empty memory
+    $self->{mem} = new Grids::VM::Memory(1);
+
+    $self->init_regs;
+}
+
+=item init_regs
+
+Reset registers including PC, doesn't clear memory
+
+=cut
+
+sub init_regs {
+    my ($self) = @_;
+
     croak "invalid vm" unless $self->{regs};
 
     # initialize zero register
     $self->regs->set(0, 0);
 
-    # empty memory
-    $self->{mem} = new Grids::VM::Memory(1);
-
     # reset PC
     $self->{pc} = 0;
-}
+}    
 
 =item set_node
 
@@ -280,6 +292,9 @@ Loads Program C<$program>
 sub load_program {
     my ($self, $program) = @_;
     return $self->load_segments($program->segments);
+
+    # reset PC
+    $self->pc(0);
 }
 
 =item link
