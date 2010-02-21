@@ -1,6 +1,6 @@
-package Grids::Node;
-use strict;
-use warnings;
+package Grids::Node::Hooks::Authentication;
+
+use Moose;
 use Grids::Peer;
 
 use constant {
@@ -8,10 +8,10 @@ use constant {
     ERROR_AUTHENTICATION_REQUIRED => -2,
 };
 
-__PACKAGE__->register_hooks(
-                            'Authentication.Login.AuthCheck' => \&hook_auth_check_pubkey,
-                            'Authentication.Login' => \&hook_login,
-                            );
+Grids::Node->register_hooks(
+    'Authentication.Login.AuthCheck' => \&hook_auth_check_pubkey,
+    'Authentication.Login' => \&hook_login,
+);
 
 sub hook_login {
     my Grids::Node $node = shift;
@@ -44,4 +44,6 @@ sub need_auth {
     return $self->event_hook_error(ERROR_AUTHENTICATION_REQUIRED);
 }
 
-1;
+no Moose;
+__PACKAGE__->meta->make_immutable;
+

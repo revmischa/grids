@@ -1,21 +1,19 @@
 package Grids::Hookable;
 
-use strict;
-use warnings;
-use Class::Autouse;
-use Grids::Hooks;
+use Moose::Role;
 
+use Class::Autouse;
 use Carp qw/croak/;
 
 our %HOOKS; # package->hookname
 
 # load all hooks for this module
 sub load_hooks {
-	my $package = shift or croak "Need to pass in package to load hooks for";
-	Class::Autouse->load_recursive($package);
+    my $package = shift or croak "Need to pass in package to load hooks for";
+    Class::Autouse->load_recursive($package);
 
     # load global hooks too
-	Class::Autouse->load_recursive("Grids::Hooks");
+    Class::Autouse->load_recursive("Grids::Hooks");
 }
 
 # run hooks and require them all to return true
@@ -95,7 +93,7 @@ sub run_event_hooks {
     my $event_name = $evt->event_name;
     my $r = $self->run_hooks($event_name, $evt);
 
-    return $r; #$self->run_hooks($event_name, $evt);
+    return $r;
 }
 
 # actually runs hook

@@ -1,7 +1,9 @@
 package Grids::Hooks::Error;
-use strict;
-use warnings;
 
+use Moose;
+use Grids::Hooks;
+
+# register global error handler to print errors to stderr
 Grids::Hooks->register_hooks(
                              qr/^Error/ => \&error,
                              );
@@ -16,4 +18,6 @@ sub error {
     return 0;
 }
 
-1;
+no Moose;
+__PACKAGE__->meta->make_immutable;
+

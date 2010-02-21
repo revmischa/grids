@@ -75,6 +75,7 @@ sub write {
     if ($sock && $sock->connected) {
         my $byte_count = $sock->syswrite($datalen_packed . $data);
     } else {
+        Carp::confess("Tried to send data '$data' to unconnected transport");
         $self->error("Tried to send data [$data] to unconnected transport");
         return 0;
     }

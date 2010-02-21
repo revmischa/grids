@@ -2,9 +2,8 @@
 
 package Grids::Hooks;
 
-use strict;
-use warnings;
-use base qw/Grids::Hookable/;
+use Moose;
+   with 'Grids::Hookable';
 
 our %HOOKS;
 
@@ -17,4 +16,6 @@ sub register_hook {
     push @{$HOOKS{$hookname}}, $hook_save;
 }
 
-1;
+
+no Moose;
+__PACKAGE__->meta->make_immutable;

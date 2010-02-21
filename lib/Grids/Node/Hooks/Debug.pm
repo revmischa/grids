@@ -1,13 +1,12 @@
 package Grids::Hooks::Debug;
 
-use strict;
-use warnings;
+use Moose;
 use Grids::Node;
 
 Grids::Node->register_hooks(
-                            "Debug.Warn" => \&warn,
-                            "Debug.Echo" => \&echo,
-                            );
+    "Debug.Warn" => \&warn,
+    "Debug.Echo" => \&echo,
+);
 
 sub warn {
     my ($node, $evt) = @_;
@@ -25,5 +24,5 @@ sub echo {
     return $node->event_hook_success(%{$evt->args});
 }
 
-
-1;
+no Moose;
+__PACKAGE__->meta->make_immutable;

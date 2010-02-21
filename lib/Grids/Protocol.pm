@@ -1,11 +1,46 @@
 package Grids::Protocol;
-use strict;
-use warnings;
 
+use Moose;
 use Carp qw/croak/;
 
-use base qw/Class::Accessor/;
-__PACKAGE__->mk_accessors(qw(encap encap_base encap_method id peer encrypted_connection_started use_encryption));
+has encap => (
+    is => 'rw',
+    isa => 'Grids::Protocol::Encapsulation', # should be 'does'
+);
+
+has encapsulation_class => (
+    is => 'rw',
+    isa => 'Str',
+    default => sub { 'JSON' },
+);
+
+has encap_method => (
+    is => 'rw',
+    isa => 'Str',
+);
+
+has id => (
+    is => 'rw',
+    isa => 'Grids::Identity',
+    required => 1,
+);
+
+has peer => (
+    is => 'rw',
+    isa => 'Grids::Peer',
+);
+
+has use_encryption => (
+    is => 'rw',
+    isa => 'Bool',
+    default => sub { 1 },
+);
+
+has encrypted_connection_started => (
+    is => 'rw',
+    isa => 'Bool',
+    default => sub { 0 },
+);
 
 use Class::Autouse qw/
     Grids::Protocol::Event
@@ -16,6 +51,7 @@ use Grids::Protocol::Encapsulation; # this is required to load the
                                     # role for instantiation of
                                     # encapsulation handlers
 
+# FIXME: moosify with roles
 # autouse all encapsulation methods
 Class::Autouse->autouse_recursive('Grids::Protocol::Encapsulation');
 
@@ -24,26 +60,19 @@ use constant {
     MSG_INIT_PROTOCOL_REPLY_PREFIX => '==',
 };
 
-sub new {
-    my ($class, %opts) = @_;
+sub BUILD {
+    my $self = shift;
 
-    my $enc = delete $opts{encapsulation} || 'JSON';
-    my $id = delete $opts{identity} or croak "No identity passed to Grids::Protocol::New";
-    my $peer = delete $opts{peer};
-    my $use_encryption = delete $opts{use_encryption};
-    $use_encryption = 1 unless defined $use_encryption;
-    my $self = bless { id => $id, peer => $peer, use_encryption => $use_encryption }, $class;
+    my $enc = $self->encapsulation_class;
 
-    if ($enc) {
-        return undef unless $self->set_encapsulation_method($enc);
-    }
-
-    return $self;
+    $self->set_encapsulation_method($enc)
+        or die "Unable to load encapsulation class $enc";
 }
 
 sub set_encapsulation_method {
     my ($self, $enc) = @_;
 
+    # fixme: use MooseX::Traits
     return undef if $enc !~ /^[\w:]+$/;
     my $encap_method = "Grids::Protocol::Encapsulation::$enc";
     my $encap = eval { $encap_method->new };
@@ -52,7 +81,7 @@ sub set_encapsulation_method {
         die "Failed to create protocol handler: $@\n";
     }
 
-    $self->encap_base($enc);
+    $self->encapsulation_class($enc);
     $self->encap_method($encap_method);
     $self->encap($encap);
 
@@ -66,7 +95,7 @@ sub initiation_string {
     my $id = $self->id or croak "Tried to call initiation_string on a protocol with no identity defined";
     my $name = $id->name;
 
-    my @elements = ('Grids', '1.0', $self->encap_base, "name=\"$name\"");
+    my @elements = ('Grids', '1.0', $self->encapsulation_class, "name=\"$name\"");
     return MSG_INIT_PROTOCOL_PREFIX . join('/', @elements);
 }
 
@@ -83,7 +112,7 @@ sub protocol_init_response {
     my $id = $self->id or croak "Tried to call protocol_init_response on a protocol with no identity defined";
     my $name = $id->name;
     
-    my @elements = ('OK', '1.0', $self->encap_base, "name=\"$name\"");
+    my @elements = ('OK', '1.0', $self->encapsulation_class, "name=\"$name\"");
     return MSG_INIT_PROTOCOL_REPLY_PREFIX . join('/', @elements);
 }
 
@@ -357,4 +386,6 @@ sub deserialize_pubkey {
     return $id;
 }
 
-1;
+no Moose;
+__PACKAGE__->meta->make_immutable;
+

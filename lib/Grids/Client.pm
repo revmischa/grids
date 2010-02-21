@@ -29,7 +29,6 @@ has 'hooks' => (
     isa => 'HashRef',
 );
 
-use base qw/Grids::Hookable/;
 __PACKAGE__->load_hooks;
 
 # called when our transport receives data
@@ -84,7 +83,7 @@ sub outgoing_connection_established {
 
     $self->dbg("Connection to node successful. Initiating Grids protocol...");
     $self->connection($connection);
-    $connection->initiate_protocol(identity => $self->id, use_encryption => $self->use_encryption);
+    $connection->initiate_protocol(id => $self->id, use_encryption => $self->use_encryption);
 }
 
 # initiates a login, call after ProtocolEstablished event

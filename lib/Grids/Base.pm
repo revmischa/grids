@@ -3,6 +3,7 @@
 package Grids::Base;
 
 use Moose::Role;
+    with 'Grids::Hookable';
 
 use Carp qw/croak/;
 use Grids::Conf;
@@ -54,7 +55,6 @@ sub _conf_builder {
     my ($self) = @_;
     return Grids::Conf->new;
 }
-
 
 ### shared methods for Client and Node
 
@@ -180,7 +180,7 @@ sub connect {
     my $transport_class = $self->transport_class;
     my $encapsulation_class = $self->encapsulation_class;
 
-    my $proto = Grids::Protocol->new(encapsulation => $encapsulation_class, identity => $self->id)
+    my $proto = Grids::Protocol->new(encapsulation_class => $encapsulation_class, id => $self->id)
         or die "Failed to create protocol handler";
 
     my $t = "Grids::Transport::$transport_class"->new(delegate => $self);
@@ -202,7 +202,6 @@ sub warn {
     my $name = $self->id->name || '(no identity)';
     print STDERR $name . '@' . "$class: [Warn] $msg\n";
 }
-
 
 1;
 

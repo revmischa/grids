@@ -1,30 +1,21 @@
 # This package represents an executable GridsCode-based Program
 
 package Grids::Code::Program;
-use strict;
-use warnings;
+
+use Moose;
+
 use bytes;
 
 use Data::Dumper;
 use Grids::VM::Memory;
 use Storable;
 use Carp;
-use base qw/ Class::Accessor /;
 
-__PACKAGE__->mk_accessors(qw/ segments /);
-
-sub new {
-    my ($class, %opts) = @_;
-
-    my $segments = delete $opts{segments} || {};
-
-    my $self = {
-        segments => $segments,
-    };
-
-    bless $self, $class;
-    return $self;
-}
+has segments => (
+    is => 'rw',
+    isa => 'HashRef',
+    default => sub { {} },
+);
 
 # returns the raw bytes representing the Program
 sub serialize {
@@ -74,4 +65,5 @@ sub load_from_file {
     return $segments;
 }
 
-1;
+no Moose;
+__PACKAGE__->meta->make_immutable;

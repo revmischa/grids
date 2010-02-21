@@ -53,7 +53,7 @@ sub initiate_protocol {
     my ($self, %proto_opts) = @_;
 
     croak "No identity passed to Grids::Protocol::Connection->initiate_protocol"
-        unless $proto_opts{identity};
+        unless $proto_opts{id};
 
     my $proto = new Grids::Protocol(%proto_opts);
     my $init_string = $proto->initiation_string;

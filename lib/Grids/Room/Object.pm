@@ -2,25 +2,25 @@
 # of user-specified attributes
 package Grids::Room::Object;
 
-use strict;
-use warnings;
-
+use Moose;
 use Grids::UUID;
 
-use base qw/Class::Accessor/;
-__PACKAGE__->mk_accessors(qw/id attr/);
+has id => (
+    is => 'rw',
+    isa => 'Str',
+    lazy => 1,
+    builder => 'build_id',
+);
 
-sub create {
-    my ($class, $attr) = @_;
+has attr => (
+    is => 'rw',
+    isa => 'Maybe[HashRef]',
+);
 
-    my $id = Grids::UUID->new_id;
-
-    my $self = bless {
-        id => $id,
-        attr => $attr,
-    }, $class;
-
-    return $self;
+sub build_id {
+    my ($self) = @_;
+    return Grids::UUID->new_id;
 }
 
-1;
+no Moose;
+__PACKAGE__->meta->make_immutable;

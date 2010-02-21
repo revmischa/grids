@@ -1,8 +1,10 @@
 # tests for high-level Grids client/server functionality
 use strict;
 use Test::More qw(no_plan);
+
 use lib 'lib';
 use Grids::Test;
+use Grids::Node::Hooks::Authentication;
 
 my $debug = 0;
 
@@ -67,7 +69,7 @@ sub client_login_hook {
     if ($login_good) {
         is($args->{success}, 1, 'Login successful');
     } else {
-        is($args->{error}, Grids::Node::ERROR_LOGIN_INVALID, 'Login unsuccessful');
+        is($args->{error}, Grids::Node::Hooks::Authentication::ERROR_LOGIN_INVALID, 'Login unsuccessful');
     }
 
     return 1;

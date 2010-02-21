@@ -31,9 +31,9 @@ sub build_id {
 }
 
 sub create_object {
-    my ($self, $attr) = @_;
+    my ($self, %opts) = @_;
 
-    my $obj = Grids::Room::Object->create($attr);
+    my $obj = Grids::Room::Object->new(%opts);
     $self->add_object($obj);
 
     return $obj;

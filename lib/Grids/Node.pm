@@ -21,10 +21,6 @@ use Class::Autouse qw/
 use Grids::Transport;
 use Carp qw/croak/;
 
-# moosify
-use base qw/Grids::Hookable/;
-__PACKAGE__->load_hooks;
-
 has 'transports' => (
     is => 'rw',
     isa => 'ArrayRef',
@@ -45,20 +41,6 @@ has 'network' => (
     builder => '_network_builder',
     handles => [qw/all_peers all_connections all_protocols/],
 );
-
-# create new network instance
-sub _network_builder {
-    my ($self) = @_;
-    return new Grids::Network(node => $self);
-}
-
-# send an event to all nodes in this network
-sub network_broadcast {
-    my ($self, $event) = @_;
-
-    my $network = $self->network;
-    $network->send_to_peers($event);
-}
 
 after activate_encryption => sub {
     my ($self) = @_;
@@ -95,6 +77,27 @@ after disable_encryption => sub {
         $self->dbg("Encryption disabled for " . $p->peer_name);
     }
 };
+
+__PACKAGE__->load_hooks;
+
+
+
+#############
+
+
+# create new network instance
+sub _network_builder {
+    my ($self) = @_;
+    return new Grids::Network(node => $self);
+}
+
+# send an event to all nodes in this network
+sub network_broadcast {
+    my ($self, $event) = @_;
+
+    my $network = $self->network;
+    $network->send_to_peers($event);
+}
 
 sub add_transport {
     my ($self, $trans_class, %opts) = @_;
@@ -168,7 +171,7 @@ sub initiate_node_protocol {
     croak "Trying to initiate grids protocol on a node with no identity object set" unless $self->id;
 
     $connection->initiate_protocol(
-        identity => $self->id,
+        id => $self->id,
         use_encryption => $self->use_encryption,
     );
 }
@@ -190,7 +193,7 @@ sub data_received {
         # the first transmission containing an initiation string
         $self->dbg("initiating protocol handler with data [$data]");
         my $p = Grids::Protocol->new_from_initiation_string($data, $connection, {
-            identity => $self->id,
+            id => $self->id,
             use_encryption => $self->use_encryption,
         });
 

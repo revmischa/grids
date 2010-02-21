@@ -12,13 +12,13 @@ my %EVENTS; # holds event info received in Protocol event handler callback
 my $cli_id = Grids::Identity->create_for_test(name => 'proto-test-1');
 my $srv_id = Grids::Identity->create_for_test(name => 'proto-test-2');
 
-my $p_cli = Grids::Protocol->new(encapsulation => 'JSON', identity => $cli_id);
+my $p_cli = Grids::Protocol->new(encapsulation => 'JSON', id => $cli_id);
 
 my $initiation = $p_cli->initiation_string;
 
 my $loop = new Grids::Transport::Null();
 my $srv_conn = new Grids::Protocol::Connection(transport => $loop, channel => 1, inbound => 0);
-my $p_srv = Grids::Protocol->new_from_initiation_string($initiation, $srv_conn, { identity => $srv_id });
+my $p_srv = Grids::Protocol->new_from_initiation_string($initiation, $srv_conn, { id => $srv_id });
 $srv_conn->protocol($p_srv);
 
 ok($p_srv, "Created new Grids::Protocol from initiation string");
