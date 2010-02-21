@@ -2,7 +2,7 @@ package Grids::Identity::Public;
 
 use strict;
 use warnings;
-use base qw/Crypt::RSA::Key::Public::SSH/;
+#use base qw/Crypt::RSA::Key::Public::SSH/;
 
 sub new {
     my $class = shift;

@@ -2,15 +2,44 @@ package Grids::Node;
 use strict;
 use warnings;
 
+use constant {
+    BROADCAST_ERROR_NO_EVENT_NAME => -1,
+};
+
 __PACKAGE__->register_hooks(
     'Broadcast.Event' => \&hook_broadcast_event,
+    qr/.*/ => \&process_broadcast_flag,
 );
 
+# check all events and see if they have _broadcast=1, if so then
+# rebroadcast them to all connected clients
+sub process_broadcast_flag {
+    my ($node, $evt) = @_;
+    
+    return undef unless $evt->args->{_broadcast};
+
+    $node->network_broadcast($evt);
+    return $node->hook_ok;
+}
+
+# explicit request to broadcast an event to all connected clients
+# broadcasts a copy of the event with the event name specified in $args->{event_name}
 sub hook_broadcast_event {
     my Grids::Node $node = shift;
     my Grids::Protocol::Event $evt = shift;
 
-    $node->network_broadcast($evt);
+    # what event should be broadcast?
+    my $event_name = delete $evt->args->{event_name}
+        or return $node->hook_error(BROADCAST_ERROR_NO_EVENT_NAME, {
+            message => 'broadcast requested but no event_name specified',
+        });
+
+    # clone event
+    my $new_evt = bless { %$evt }, ref $evt;
+    $new_evt->event_name($event_name);
+    $new_evt->message_id(undef);
+
+    $node->network_broadcast($new_evt);
     return $node->hook_ok;
 }
 
