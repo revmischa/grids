@@ -52,7 +52,7 @@ sub connect {
     return undef unless $addr;
 
     croak "must pass Grids::Address to Grids::Transport::TCP->connect"
-        unless $addr->isa('Grids::Address');
+        unless $addr->does('Grids::Address');
 
     my $sock = IO::Socket::INET->new(Proto     => "tcp",
                                      Blocking  => 1,

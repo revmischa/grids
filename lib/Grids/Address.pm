@@ -17,7 +17,6 @@ has port => (
 has transport => (
     is => 'rw',
     does => 'Grids::Transport',
-    required => 1,
 );
 
 sub stringify {

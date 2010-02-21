@@ -26,7 +26,7 @@ has conf => (
 
 has term => (
     is => 'rw',
-    isa => 'Term::ReadLine',
+    isa => 'Term::ReadLine::Perl',
     lazy => 1,
     builder => 'build_term',
 );
@@ -55,7 +55,7 @@ sub build_term {
 sub BUILD {
     my $self = shift;
 
-    $self->set_handler($_, $handlers->{$_}) foreach keys %{$self->handlers};
+    $self->set_handler($_, $self->handlers->{$_}) foreach keys %{$self->handlers};
 }
 
 sub run {
@@ -128,7 +128,7 @@ sub do_command {
     my ($self, $input) = @_;
 
     my ($cmd, $args) = $input =~ /^\s*(\w+)\s*(.+)?\s*$/sm;
-    my @args = split(/\s+/, $args);
+    my @args = split(/\s+/, ($args || ''));
 
     return "" unless $cmd;
 
