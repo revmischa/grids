@@ -2,26 +2,32 @@
 
 package Grids::Room;
 
-use strict;
-use warnings;
+use Moose;
 use Grids::UUID;
 use Grids::Room::Object;
 
-use base qw/Class::Accessor::Fast/;
-__PACKAGE__->mk_accessors(qw/id objects people/);
+has id => (
+    is => 'rw',
+    isa => 'Str'
+    lazy => 1,
+    builder => 'build_id',
+);
 
-sub create {
-    my ($class, %opts) = @_;
+has objects => (
+    is => 'rw',
+    isa => 'HashRef',
+    default => sub { {} },
+);
 
-    my $id = Grids::UUID->new_id;
+has people => (
+    is => 'rw',
+    isa => 'HashRef',
+    default => sub { {} },
+);
 
-    my $self = {
-        id => $id,
-        objects => {},
-        people => {},
-    };
-
-    return bless $self, $class;
+sub build_id {
+    my ($self) = @_;
+    return Grids::UUID->new_id;
 }
 
 sub create_object {
@@ -38,6 +44,5 @@ sub add_object {
     $self->objects->{$obj->id} = $obj;
 }
 
-
-
-1
+no Moose;
+__PACKAGE__->meta->make_immutable;

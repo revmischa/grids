@@ -26,7 +26,7 @@ our %PEOPLE;
 sub create {
     my ($node, $evt) = @_;
 
-    my $room = Grids::Room->create;
+    my $room = Grids::Room->new;
 
     $ROOMS{$room->id} = $room;
 
