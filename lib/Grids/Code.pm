@@ -135,6 +135,19 @@ sub opcode_mnemonic {
     return $OPCODES_REV{$op};
 }
 
+# FIXME: any better way to do this?
+# force a number into a 32-bit signed value
+sub s32 {
+    my $i = shift;
+    return unpack('l', pack('l', $i));
+}
+# unsigned 32-bit value
+sub u32 {
+    my $i = shift;
+    return unpack('L', pack('L', $i));
+}
+
+
 # given a 6-byte instruction, determine the opcode
 sub instruction_opcode {
     my ($class, $inst) = @_;
@@ -539,6 +552,8 @@ sub assemble_i {
 
     my %fields = map { $_ => shift(@args) } @arg_order;
 
+    $fields{data} = u32($fields{data});
+
     my $bit_string = sprintf("%06b", $op);
 
     my @inst_order = qw (rs rt data);
@@ -556,6 +571,8 @@ sub assemble_i {
 # assemble J-type instruction
 sub assemble_j {
     my ($class, $op, $data) = @_;
+
+    $data = u32($data);
 
     my $bit_string = sprintf "%06b%032b%010b", $op, $data, 0;
     printf "j [$op, 0x%08X] = $bit_string\n", $data;

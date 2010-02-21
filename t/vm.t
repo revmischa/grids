@@ -53,10 +53,10 @@ $vm->step;
 is($vm->reg('a0'), 0, 'xor');
 
 $vm->step;
-is(_u($vm->reg('a0')), 0xFFFFFFFE, 'addiu');
+is(_u($vm->reg_u('a0')), 0xFFFFFFFE, 'addiu');
 
 $vm->step;
-is(_u($vm->reg('a0')), 0xFFFFFFFF, 'xori');
+is(_u($vm->reg_u('a0')), 0xFFFFFFFF, 'xori');
 
 $vm->step;
 is($vm->reg('a1'), 0x7FFFFFFF, 'andi');

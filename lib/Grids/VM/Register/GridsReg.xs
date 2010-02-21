@@ -34,6 +34,16 @@ ureg_t get_reg_u(reghandle_t handle, unsigned int idx) {
   return (ureg_t)get_reg(handle, idx);
 }
 
+SV* get_reg_sv(reghandle_t handle, unsigned int idx) {
+  reg_t v = REG(idx);
+  return newSViv(v);
+}
+
+SV* get_reg_u_sv(reghandle_t handle, unsigned int idx) {
+  ureg_t v = (ureg_t)get_reg(handle, idx);
+  return newSVuv(v);
+}
+
 void set_reg(reghandle_t handle, unsigned int idx, reg_t val) {
   REG(idx) = val;
 }
@@ -71,6 +81,16 @@ get_reg(handle, idx)
 
 ureg_t
 get_reg_u(handle, idx)
+  reghandle_t handle
+  unsigned int idx
+
+SV*
+get_reg_sv(handle, idx)
+  reghandle_t handle
+  unsigned int idx
+
+SV*
+get_reg_u_sv(handle, idx)
   reghandle_t handle
   unsigned int idx
 

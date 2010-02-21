@@ -52,7 +52,7 @@ sub get {
     my ($self, $index) = @_;
     croak "Trying to get register at index $index > " . $self->size
         if $index > $self->size;
-    return Grids::VM::Register::get_reg($self->h, $index);
+    return Grids::VM::Register::get_reg_sv($self->h, $index);
 }
 
 *get_u = \&get_unsigned;
@@ -60,7 +60,7 @@ sub get_unsigned {
     my ($self, $index) = @_;
     croak "Trying to get register at index $index > " . $self->size
         if $index > $self->size;
-    return Grids::VM::Register::get_reg_u($self->h, $index);
+    return Grids::VM::Register::get_reg_u_sv($self->h, $index);
 }
 
 sub and {

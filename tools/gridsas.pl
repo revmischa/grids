@@ -8,6 +8,11 @@ use strict;
 use FindBin;
 use lib "$FindBin::Bin/../lib";
 
+use lib "$FindBin::Bin/../lib/Grids/VM/Memory/lib";
+use lib "$FindBin::Bin/../lib/Grids/VM/Memory/blib/arch/auto/Grids/VM/Memory";
+use lib "$FindBin::Bin/../lib/Grids/VM/Register/lib";
+use lib "$FindBin::Bin/../lib/Grids/VM/Register/blib/arch/auto/Grids/VM/Register";
+
 use Grids::Code;
 use Getopt::Long;
 

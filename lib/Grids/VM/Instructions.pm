@@ -1,21 +1,33 @@
 # This module describes the actual implementation of the instructions
 # in the GridsVM
 
-use strict;
 package Grids::VM::Instructions;
+
+use strict;
+use warnings;
+use Grids::Code;
 
 *dbg = \&Grids::VM::dbg;
 
 ### utility funcs
 
 # returns 32-bit unsigned representation of this number
-#sub _u { return int(sprintf("%u", $_[0])) }
-sub _u { return unpack('L', pack('J', $_[0])) }
-
+sub _u {
+    my $i = shift;
+    return Grids::Code::u32($i);
+}
 # signed version
+sub _s {
+    my $i = shift;
+    return Grids::Code::s32($i);
+}
+
+#sub _u { return int(sprintf("%u", $_[0])) }
+#sub _u { return unpack('L', pack('J', $_[0])) }
 #sub _s { return int(sprintf("%ld", $_[0])) }
 #sub _s { return $_[0] }
-sub _s { return unpack("l", pack('j', $_[0])) }
+#sub _s { return unpack("l", pack('j', $_[0])) }
+#sub _s { return pack("l", unpack('l', $_[0])) }
 
 
 # return 32-bit bit string
@@ -147,7 +159,7 @@ sub i_lb {
 # rt = unsigned($rs) + unsigned($data)
 sub i_addiu {
     my ($class, $vm, $rs, $rt, $data) = @_;
-    $vm->set_reg($rt, $vm->reg_u($rs) + _u($data));
+    $vm->set_reg($rt, _u($vm->reg_u($rs) + _u($data)));
 }
 
 my %branch_funcs = (
