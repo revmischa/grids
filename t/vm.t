@@ -53,10 +53,10 @@ $vm->step;
 is($vm->reg('a0'), 0, 'xor');
 
 $vm->step;
-is(_u($vm->reg_u('a0')), 0xFFFFFFFE, 'addiu');
+is($vm->reg_u('a0'), 0xFFFFFFFE, 'addiu');
 
 $vm->step;
-is(_u($vm->reg_u('a0')), 0xFFFFFFFF, 'xori');
+is($vm->reg_u('a0'), 0xFFFFFFFF, 'xori');
 
 $vm->step;
 is($vm->reg('a1'), 0x7FFFFFFF, 'andi');
@@ -179,10 +179,6 @@ is($vm->reg_u('t2'), 0xFFFFFFFE, 'subu');
 $vm->step; # j end
 $vm->step; # j beginning
 is($vm->pc, 0, 'j');
-
-
-# convert to unsigned
-sub _u { return int(sprintf("%u", $_[0])); }
 
 # get opcode mnemonic
 sub op { Grids::Code->opcode_mnemonic($vm->current_instruction_opcode); }
