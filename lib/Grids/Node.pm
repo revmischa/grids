@@ -161,7 +161,10 @@ sub data_received {
         # if we don't have a protocol handler set up yet, this should be
         # the first transmission containing an initiation string
         $self->dbg("initiating protocol handler with data [$data]");
-        my $p = Grids::Protocol->new_from_initiation_string($data, $connection, { identity => $self->id });
+        my $p = Grids::Protocol->new_from_initiation_string($data, $connection, {
+            identity => $self->id,
+            use_encryption => $self->use_encryption,
+        });
 
         unless ($p) {
             $self->warn("invalid initiation string [$data]");
