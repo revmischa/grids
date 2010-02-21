@@ -98,17 +98,17 @@ sub close_all {
     $_->close foreach @{$self->sockets};
 }
 
-sub reset {
+after reset => sub {
     my ($self, $connection) = @_;
 
     $self->remove_socket_from_connection($connection);
-}
+};
 
 # remove the socket that is associated with this connection
 sub remove_socket_from_connection {
     my ($self, $connection) = @_;
 
-    my ($socket) = grep { $_ eq $connection } values %{$self->connections};
+    my $socket = $connection->channel;
     return unless $socket;
 
     $self->remove_socket($socket);

@@ -16,8 +16,9 @@ has 'delegate' => (
     },
 );
 
-# no-op by default
-sub reset {}
+sub reset {
+    my ($self, $connection) = @_;
+}
 
 sub delegate_do {
     my ($self, $method, @args) = @_;
