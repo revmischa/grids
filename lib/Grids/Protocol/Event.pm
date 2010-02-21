@@ -15,11 +15,6 @@ has transport => (
     isa => 'Grids::Transport',
 );
 
-has proto => (
-    is => 'rw',
-    isa => 'Grids::Protocol',
-);
-
 has event_name => (
     is => 'rw',
     isa => 'Str',
@@ -66,6 +61,8 @@ has was_encrypted => (
     is => 'rw',
     isa => 'Bool',
 );
+
+sub proto { croak 'deprecated' }
 
 sub name { $_[0]->event_name }
 

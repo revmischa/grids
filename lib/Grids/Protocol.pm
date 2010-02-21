@@ -107,18 +107,16 @@ sub end_encrypted_connection {
 sub set_peer_name {
     my ($self, $name) = @_;
 
-    my $peer = $self->{peer};
-    if ($peer) {
-        $peer->{name} = $name;
-    } else {
-        $peer = new Grids::Peer(name => $name);
-        $self->{peer} = $peer;
-    }
+    my $peer = $self->peer or croak "set_peer_name called but no we have no peer object";
+    $peer->name($name);
 }
 
 # returns a new Grids::Protocol instance from an initiation string
 sub new_from_initiation_string {
-    my ($class, $initstr, %params) = @_;
+    my ($class, $initstr, $connection, $params) = @_;
+
+    croak "No connection passed to new_from_initiation_string()" unless $connection;
+    $params ||= {};
 
     my $prefix = MSG_INIT_PROTOCOL_PREFIX;
     return undef unless index($initstr, $prefix) == 0;
@@ -131,8 +129,8 @@ sub new_from_initiation_string {
     if ($name && index($name, 'name=') != -1) {
         ($name) = $name =~ m/name=\"([-\w]+)\"/i or return undef;
 
-        my $peer = new Grids::Peer(name => $name);
-        $params{peer} = $peer;
+        my $peer = new Grids::Peer(connection => $connection, name => $name);
+        $params->{peer} = $peer;
     } else {
         warn "did not get peer name";
     }
@@ -140,7 +138,7 @@ sub new_from_initiation_string {
     my $p;
     # try each requested encapsulation method in listed order
     foreach my $enc (split(',', $encapsulation_classes)) {
-        $p = eval { $class->new(encapsulation => $enc, %params) };
+        $p = eval { $class->new(encapsulation => $enc, %$params) };
         last if $p;
     }
 
@@ -149,7 +147,7 @@ sub new_from_initiation_string {
 
 # decode a protocol transmission and return an Event record
 sub parse_request {
-    my ($self, $data) = @_;
+    my ($self, $connection, $data) = @_;
 
     my $event;
 
@@ -179,7 +177,10 @@ sub parse_request {
 
         if ($status eq 'OK') {
             # we got a protocol response, we have their name and encapsulation method
-            $self->set_peer_name($name);
+
+            # create peer object
+            my $peer = Grids::Peer->new(name => $name, connection => $connection);
+            $self->peer($peer);
 
             # try to create encapsulation subtype
             $self->set_encapsulation_method($info)

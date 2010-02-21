@@ -25,18 +25,6 @@ use Carp qw/croak/;
 use base qw/Grids::Hookable/;
 __PACKAGE__->load_hooks;
 
-has 'peer_connections' => (
-    is => 'rw',
-    isa => 'HashRef',
-    default => sub { {} },
-);
-
-has 'sessions' => (
-    is => 'rw',
-    isa => 'HashRef',
-    default => sub { {} },
-);
-
 has 'transports' => (
     is => 'rw',
     isa => 'ArrayRef',
@@ -60,7 +48,7 @@ has 'network' => (
 # create new network instance
 sub _network_builder {
     my ($self) = @_;
-    return new Grids::Network($self->network_id);
+    return new Grids::Network(network_id => $self->network_id);
 }
 
 
@@ -99,8 +87,7 @@ sub outgoing_connection_established {
 sub connection_ready {
     my ($self, $connection, $peer_name) = @_;
 
-    $self->peer_connections->{$peer_name} ||= [];
-    push @{$self->peer_connections->{$peer_name}}, $connection;
+    $self->network->add_to_peers(name => $peer_name, connection => $connection);
 
     $self->enqueue_event('Connected', $connection);
     $self->dbg("encrypted connection with $peer_name ready");
@@ -147,7 +134,7 @@ sub data_received {
     my $protocol_handler = $connection->protocol;
 
     if ($protocol_handler) {
-        my $event = $protocol_handler->parse_request($data);
+        my $event = $protocol_handler->parse_request($connection, $data);
         if ($event) {
             $event->connection($connection);  # FIXME
             $self->event_queue->add($event) or $self->warn("Could not enqueue event $event");
@@ -156,7 +143,7 @@ sub data_received {
         # if we don't have a protocol handler set up yet, this should be
         # the first transmission containing an initiation string
         $self->dbg("initiating protocol handler with data [$data]");
-        my $p = Grids::Protocol->new_from_initiation_string($data, identity => $self->id);
+        my $p = Grids::Protocol->new_from_initiation_string($data, $connection, { identity => $self->id });
 
         unless ($p) {
             $self->warn("invalid initiation string [$data]");
@@ -188,9 +175,11 @@ sub check_authentication {
 sub check_session_token {
     my ($self, $token) = @_;
 
-    my $remote = $self->sessions->{$token};
+    # FIXME: use network
+    return 0;
+#    my $remote = $self->sessions->{$token};
 
-    return $remote;
+#    return $remote;
 }
 
 sub authorized_keys {

@@ -38,7 +38,7 @@ sub data_received {
 
     $self->dbg("received data [$data]");
 
-    my $evt = $connection->parse_request($data);
+    my $evt = $connection->parse_request($connection, $data);
     return unless $evt;
 
     $evt->{connection} = $connection;

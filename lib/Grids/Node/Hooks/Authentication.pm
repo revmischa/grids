@@ -18,19 +18,8 @@ sub hook_login {
     my Grids::Protocol::Event $evt = shift;
 
     if ($node->test_any_hook('Authentication.Login.AuthCheck', $evt)) {
-        # successful login, generate session token
-        my $session_token = time() . rand();
-
-        # instantiate remote object representing this connection
-        # FIXME: need to add identity, name
-        my $remote = Grids::Peer->new(
-            session_token => $session_token,
-        );
-
-        $node->sessions->{$session_token} = $remote;
-
         # return success and token
-        return $node->event_hook_success(session_token => $session_token);
+        return $node->event_hook_success(session_token => $evt->connection->peer->session_token);
     } else {
         return $node->event_hook_error(ERROR_LOGIN_INVALID);
     }

@@ -2,32 +2,31 @@ package Grids::Peer;
 
 use Moose;
 use Carp qw/croak/;
+use Grids::UUID;
 
-# required?
-has address => (
+has connection => (
     is => 'rw',
-    isa => 'Grids::Address',
-);
-
-# required?
-has id => (
-    is => 'rw',
-    isa => 'Maybe[Grids::Identity]',
-);
-
-has name => (
-    is => 'rw',
-    isa => 'Maybe[Str]',
+    isa => 'Grids::Protocol::Connection',
+    required => 1,
 );
 
 has session_token => (
     is => 'rw',
     isa => 'Str',
+    lazy => 1,
+    builder => 'build_session_token',
 );
 
-sub stringify {
+has name => (
+    is => 'rw',
+    isa => 'Str',
+    required => 1,
+);
+
+sub build_session_token {
     my $self = shift;
-    return join(',', ($self->address || 'undef'), ($self->id || 'undef'));
+    return Grids::UUID->new_id;
 }
 
-1;
+no Moose;
+__PACKAGE__->meta->make_immutable;

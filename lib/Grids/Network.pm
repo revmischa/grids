@@ -1,10 +1,7 @@
 # This class represents a network of identities
-
-use strict;
-use warnings;
-
 package Grids::Network;
 
+use Moose;
 use Class::Autouse qw/
     Grids::Address
     Grids::Identity
@@ -14,46 +11,44 @@ use Class::Autouse qw/
 
 use Carp qw/croak/;
 
-use base qw/Class::Accessor::Fast/;
+has network_id => (
+    is => 'rw',
+    isa => 'Grids::Identity',
+    required => 1,
+);
 
-__PACKAGE__->mk_accessors(qw/network_id known_peers known_acks/);
+# msgId => "$peer" => acked?
+has known_acks => (
+    is => 'rw',
+    isa => 'HashRef',
+    default => sub { {} },
+);
 
-sub new {
-    my ($class, %opts) = @_;
-
-    my $network_id = delete $opts{network_id}
-        or croak "No network_id specified when creating a network";
-
-    my $self = {
-        network_id => $network_id,
-        known_acks => {}, # msgId => "$peer" => acked?
-        known_peers => {}, # "$peer" => $peer
-    };
-
-    return bless $self, $class;
-}
+# peername => \@peer_instances
+has peers => (
+    is => 'rw',
+    isa => 'HashRef',
+    default => sub { {} },
+);
 
 # add an identity to our known peers
 # opts: id, address
 sub add_to_peers {
     my ($self, %opts) = @_;
 
-    my $peer = $opts{peer};
+    my $peer = delete $opts{peer};
 
     unless ($peer) {
-        my Grids::Identity $peer_id = $opts{id} or croak "No id specified";
-        my Grids::Address $address = $opts{address} or croak "No address specified";
-
-        $peer = new Grids::Peer(id => $peer_id, address => $address);
+        $peer = new Grids::Peer(%opts);
     }
 
-    $self->{peers}->{$peer->stringify} = $peer;
+    $self->peers->{$peer->name}{$peer->session_token} = $peer;
 }
 
 sub remove_from_peers {
     my ($self, $peer) = @_;
 
-    return delete $self->{peers}->{$peer->stringify};
+    return delete $self->peers->{$peer->name};
 }
 
 # send an event to all of our known peers
@@ -63,7 +58,7 @@ sub send_to_peers {
     my $target = $event->target
         or croak "No target defined on event passed to Network->send_to_peers";
 
-    my @peers = values %{$self->peers};
+    my @peers = $self->all_peers;
 
     foreach my $peer (@peers) {
         # does this peer have an ack?
@@ -74,6 +69,13 @@ sub send_to_peers {
 
         $self->send_to_peer($peer, $event);
     }
+}
+
+sub all_peers {
+    my $self = shift;
+
+    my @sessions = values %{$self->peers}; # list of session_token => peer
+    return map { values %$_ } @sessions;
 }
 
 sub send_to_peer {
