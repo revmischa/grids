@@ -18,6 +18,12 @@ has 'delegate' => (
 
 sub reset {
     my ($self, $connection) = @_;
+    return 0;
+}
+
+sub select {
+    my ($self) = @_;
+    return 0;
 }
 
 sub delegate_do {

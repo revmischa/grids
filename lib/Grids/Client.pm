@@ -73,10 +73,6 @@ sub connection_ready {
     my ($self, $connection) = @_;
     
     $self->dbg("Connection established with " . $connection->peer->name);
-
-    # post a Connected event to ourself
-    my $connected_evt = new Grids::Protocol::Event(event_name => 'Connected', connection => $connection);
-    $self->add_event_to_queue($connected_evt);
 }
 
 # encrypted connection started
@@ -102,6 +98,12 @@ sub outgoing_connection_established {
 sub login {
     my $self = shift;
     $self->dispatch_event('Authentication.Login');
+}
+
+sub select {
+    my $self = shift;
+    return 0 unless $self->connection && $self->connection->transport;
+    return $self->connection->transport->select;
 }
 
 no Moose;

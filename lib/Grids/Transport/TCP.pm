@@ -218,7 +218,7 @@ sub select {
         }
     }
 
-    return 0;
+    return 1;
 }
 
 no Moose;
