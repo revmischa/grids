@@ -49,16 +49,16 @@ sub connection_established {
 
     # set callbacks for crypto
     $id->set_callback('inject',     $self->bind(\&inject, $conn));
-    $id->set_callback('unverified', $self->bind(\&connection_ready, $conn, 0));
-    $id->set_callback('verified',   $self->bind(\&connection_ready, $conn, 1));
-    $id->set_callback('disconnect', $self->bind(\&connection_unready, $conn));
+    $id->set_callback('unverified', $self->bind(\&encrypted_connection_ready, $conn, 0));
+    $id->set_callback('verified',   $self->bind(\&encrypted_connection_ready, $conn, 1));
+    $id->set_callback('disconnect', $self->bind(\&encrypted_connection_unready, $conn));
 }
 
 # ready to send/receive events
-sub protocol_established {
+sub connection_ready {
     my ($self, $conn) = @_;
 
-    $self->delegate_do('protocol_established', $conn);
+    $self->delegate_do('connection_ready', $conn);
 }
 
 sub inject {
@@ -71,18 +71,18 @@ sub inject {
 #### on $self->delegate they will be called
 
 
-sub connection_unready {
+sub encrypted_connection_unready {
     my ($self, $connection, $otr, $peer_name) = @_;
 
     $connection->peer_fingerprint_is_verified(0);
     $self->delegate_do('connection_unready', $connection, $peer_name);
 }
 
-sub connection_ready {
+sub encrypted_connection_ready {
     my ($self, $connection, $is_verified, $otr, $peer_name) = @_;
 
     $connection->peer_fingerprint_is_verified($is_verified);
-    $self->delegate_do('connection_ready', $connection, $peer_name);
+    $self->delegate_do('encrypted_connection_ready', $connection, $peer_name);
 }
 
 sub outgoing_connection_established {
@@ -102,6 +102,7 @@ sub incoming_connection_established {
 sub data_received {
     my ($self, $connection, $data) = @_;
 
+#    warn "received [$data]";
     $self->delegate_do('data_received', $connection, $data);
 }
 

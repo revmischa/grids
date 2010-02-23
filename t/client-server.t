@@ -1,6 +1,8 @@
 # tests for high-level Grids client/server functionality
-use strict;
 use Test::More qw(no_plan);
+
+use strict;
+use warnings;
 
 use lib 'lib';
 use Grids::Test;
@@ -8,7 +10,7 @@ use Grids::Node::Hooks::Authentication;
 
 my $debug = 0;
 
-my ($client, $server, $id) = Grids::Test->client_server_pair(debug => $debug);
+my ($client, $server, $id) = Grids::Test->client_server_pair(debug => $debug, auto_flush_queue => 1);
 
 $client->register_hook('Authentication.Login', \&client_login_hook);
 $client->register_hook('Services.List', \&client_service_list);
@@ -37,13 +39,13 @@ c_req('Storage.List');
 
 
 sub s_do {
-    $server->flush_event_queue;
+#    $server->flush_event_queue;
 }
 
 sub c_req {
     $client->dispatch_event(@_) if @_;
-    s_do();
-    $client->flush_event_queue;
+#    s_do();
+#    $client->flush_event_queue;
 }
 
 sub client_service_list {

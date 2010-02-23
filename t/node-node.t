@@ -39,8 +39,8 @@ sub init_nodes {
         $node->configuration->set_conf('Node.PrivateKey' => '123');
 
         # handle connections and node-node communication
-        $node->register_hook('ProtocolEstablished', \&node_connected);
-        $node->register_hook('Connected', \&connection_encrypted);
+        $node->register_hook('Connected', \&node_connected);
+        $node->register_hook('Encrypted', \&connection_encrypted);
         $node->register_hook('Login', \&login);
         $node->register_hook('Error', \&node_error);
 

@@ -182,7 +182,7 @@ sub new_from_initiation_string {
 
     $p->peer($peer);
     $connection->protocol($p);
-    $connection->transport->protocol_established($connection);
+    $connection->transport->connection_ready($connection);
 
     return $p;
 }
@@ -235,10 +235,10 @@ sub parse_request {
             # should wait until we have an encrypted session
 
             # inform the transport we are ready to send/receive events
-            $connection->transport->protocol_established($connection);
+            $connection->transport->connection_ready($connection);
 
-            # post a ProtocolEstablished event
-            return $self->event('ProtocolEstablished', { peer_name => $self->peer_name });
+            # post a Connected event
+            return $self->event('Connected', { peer_name => $self->peer_name });
         } elsif ($status eq 'ERROR') {
             if ($info eq 'Unauthorized') {
                 return $self->error_event('Error.Protocol.Unauthorized', {message => $info});

@@ -51,6 +51,14 @@ has 'use_encryption' => (
     default => sub { 1 },
 );
 
+# dispatch events as they come in, don't wait for do_next_event() to
+# be called.
+has 'auto_flush_queue' => (
+    is => 'rw',
+    isa => 'Bool',
+    default => sub { 0 },
+);
+
 sub _conf_builder {
     my ($self) = @_;
     return Grids::Conf->new;
@@ -85,7 +93,16 @@ sub flush_event_queue {
     return 0;
 }
 
+sub add_event_to_queue {
+    my ($self, $evt) = @_;
+
+    $self->event_queue->add($evt);
+    $self->flush_event_queue if $self->auto_flush_queue;
+    return $evt;
+}
+
 # sends an event
+# FIXME: rename to something less ambiguous
 sub dispatch_event {
     my ($self, $evt_name, $args) = @_;
     $self->do_request(event_name => $evt_name, event_args => $args);
@@ -155,7 +172,7 @@ sub enqueue_event {
         event_name => $event_name,
     );
 
-    return $self->event_queue->add($evt);
+    return $self->add_event_to_queue($evt);
 }
 
 sub do_request {

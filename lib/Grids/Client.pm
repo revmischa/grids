@@ -7,6 +7,7 @@ use Moose;
 use Grids::Transport;
 use Grids::Protocol;
 use Grids::Protocol::EventQueue;
+use Grids::Protocol::Event;
 
 use Carp qw (croak);
 
@@ -41,7 +42,7 @@ sub data_received {
     return unless $evt;
 
     $evt->{connection} = $connection;
-    $self->event_queue->add($evt);
+    $self->add_event_to_queue($evt);
 }
 
 # we only have one connection (unlike Node) so we can add it
@@ -67,8 +68,19 @@ around enqueue_event => sub {
     $self->$orig($event_name, $args, $connection);
 };
 
-# encrypted connection started
+# connection started, can send/receive events
 sub connection_ready {
+    my ($self, $connection) = @_;
+    
+    $self->dbg("Connection established with " . $connection->peer->name);
+
+    # post a Connected event to ourself
+    my $connected_evt = new Grids::Protocol::Event(event_name => 'Connected', connection => $connection);
+    $self->add_event_to_queue($connected_evt);
+}
+
+# encrypted connection started
+sub encrypted_connection_ready {
     my ($self, $connection) = @_;
     
     $self->dbg("Encrypted connection established with " . $connection->peer->name);

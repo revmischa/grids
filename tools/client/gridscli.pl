@@ -73,6 +73,10 @@ $client->register_hook('Services.List', sub {
     $con->print("Got services list");
 });
 
+$client->register_hook('Connected', sub {
+    $con->print("Protocol established");
+});
+
 run();
 
 sub connect_localhost {

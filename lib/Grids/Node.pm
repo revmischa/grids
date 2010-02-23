@@ -122,7 +122,7 @@ sub outgoing_connection_established {
 }
 
 # ready to send/receive events to a peer
-sub protocol_established {
+sub connection_ready {
     my ($self, $connection) = @_;
     
     # inbound connections have already been added
@@ -132,19 +132,19 @@ sub protocol_established {
 
 # called when a protocol handler has been established and a connection
 # has been made and encrypted
-sub connection_ready {
+sub encrypted_connection_ready {
     my ($self, $connection, $peer_name) = @_;
 
-    $self->enqueue_event('Connected', $connection);
+    $self->enqueue_event('Encrypted', $connection);
     $self->dbg("encrypted connection with $peer_name ready");
 }
 
 # called when an encrypted session with a peer has ended
-sub connection_unready {
+sub encrypted_connection_unready {
     my ($self, $connection, $peer_name) = @_;
 
     # FIXME: "disconnected" is kinda misleading, could still have an unencrypted session active
-    $self->enqueue_event('Disconnected', $connection);  
+    $self->enqueue_event('Unencrypted', $connection);  
     $self->dbg("encrypted connection with $peer_name ended");
 }
 
@@ -155,7 +155,7 @@ sub disconnected {
     $connection->teardown_protocol;
 
     if (! $self->network->peer_sessions($connection->peer)) {
-        $self->warn("got connection_unready but no connection was established");
+        $self->warn("got disconnected but no connection was established");
         return;
     }
 
@@ -186,7 +186,7 @@ sub data_received {
         my $event = $protocol_handler->parse_request($connection, $data);
         if ($event) {
             $event->connection($connection);  # FIXME
-            $self->event_queue->add($event) or $self->warn("Could not enqueue event $event");
+            $self->add_event_to_queue($event) or $self->warn("Could not enqueue event $event");
         }
     } else {
         # if we don't have a protocol handler set up yet, this should be
