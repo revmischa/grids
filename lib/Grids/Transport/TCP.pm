@@ -8,7 +8,7 @@ use IO::Select;
 use IO::Socket::INET;
 
 use Grids::Protocol::Connection;
-use Grids::Address::TCP;
+use Grids::Address::IPv4;
 
 has 'sockets' => (
     is => 'rw',

@@ -87,9 +87,9 @@ sub connect_localhost {
 sub connect {
     my ($con, $addr) = @_;
 
-    my $tcp_addr = new Grids::Address::TCP(address => $addr);
+    my $ip_addr = new Grids::Address::IPv4(address => $addr);
 
-    if ($client->connect($tcp_addr)) {
+    if ($client->connect($ip_addr)) {
         return "Connected to $addr";
     } else {
         return "Failed to connect to $addr";

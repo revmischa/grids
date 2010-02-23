@@ -1,4 +1,4 @@
-package Grids::Address::TCP;
+package Grids::Address::IPv4;
 
 use Moose;
     with 'Grids::Address';
