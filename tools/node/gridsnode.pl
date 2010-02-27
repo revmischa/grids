@@ -1,5 +1,7 @@
 #!/usr/bin/perl
+
 use strict;
+use warnings;
 
 use FindBin;
 use lib "$FindBin::Bin/../../lib";
@@ -16,8 +18,7 @@ use Grids::Node;
 use Getopt::Long;
 use Sys::Hostname;
 use sigtrap qw(die normal-signals);
-use threads;
-use threads::shared;
+use AnyEvent;
 
 my $conffile = 'gridsnode.conf';
 my $nodename = hostname;
@@ -71,45 +72,27 @@ sub run {
         $con->print_error("No identity specified");
         exit 0;
     }
+    
+    # main loop condition
+    my $main = AnyEvent->condvar;
 
-    my $finished : shared;
+    # create node
+    $node = Grids::Node->new(conf => $conf, debug => $debug, id => $identity);
 
-    # run socket reading/event queue processing in seperate thread
-    my $work_thread = threads->create(sub {
-        # create node
-        $node = Grids::Node->new(conf => $conf, debug => $debug, id => $identity);
+    # register hooks here
+    $node->register_hook('Connected', \&client_connected);
+    $node->register_hook('Disconnected', \&client_disconnected);
 
-        # register hooks here
-        $node->register_hook('Connected', \&client_connected);
-        $node->register_hook('Disconnected', \&client_disconnected);
+    # listen for connections
+    my $trans = $node->add_transport("TCP");
+    $trans->listen;
 
-        # listen for connections
-        my $trans = $node->add_transport("TCP");
-        $trans->listen;
-
-        while (! $finished) {
-            $trans->select;
-            $node->flush_event_queue;
-            threads->yield;
-        }
-
-        $trans->close_all;
-        warn "work thread finished";
-    });
-
-    my $finish = sub {
-        return if $finished;
-        $finished = 1;
-        warn "waiting for work thread to finish";
-        $work_thread->join;
-        warn "work thread joined";
+    local $SIG{INT} = sub {
         exit 0;
     };
 
-    local $SIG{INT} = $finish;
-
+    # main readline loop
     $con->run;
-    $finish->();
 }
 
 sub help {
