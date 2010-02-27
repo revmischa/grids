@@ -76,7 +76,7 @@ sub teardown_protocol {
 sub write {
     my ($self, $data) = @_;
 
-    $self->transport->write($data, $self->channel);
+    $self->transport->write($data, $self);
 }
 
 sub send_event {

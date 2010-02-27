@@ -7,6 +7,7 @@ use Moose::Role;
 
 use Carp qw/croak/;
 use Grids::Conf;
+use Grids::Transport::TCP::AnyEvent; # default transport driver
 
 requires qw/data_received/;
 
@@ -35,9 +36,9 @@ has 'event_queue' => (
     default => sub { Grids::Protocol::EventQueue->new; },
 );
 
-has 'transport_class' => (
+has 'transport_driver' => (
     is => 'rw',
-    default => 'TCP',
+    default => 'TCP::AnyEvent',
 );
 
 has 'encapsulation_class' => (
@@ -194,15 +195,14 @@ sub do_request {
 sub connect {
     my ($self, $address) = @_;
 
-    my $transport_class = $self->transport_class;
+    my $transport_driver = $self->transport_driver;
     my $encapsulation_class = $self->encapsulation_class;
 
     my $proto = Grids::Protocol->new(encapsulation_class => $encapsulation_class, id => $self->id)
         or die "Failed to create protocol handler";
 
-    my $t = "Grids::Transport::$transport_class"->new(delegate => $self);
-
-    $t->connect($address);
+    my $t = "Grids::Transport::$transport_driver"->new(delegate => $self);
+    return $t->connect($address);
 }
 
 sub dbg {

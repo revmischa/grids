@@ -117,6 +117,8 @@ sub disconnected {
     my ($self, $connection) = @_;
 
     $self->delegate_do('disconnected', $connection);
+
+    # TODO: unset OTR callbacks
 }
 
 1;

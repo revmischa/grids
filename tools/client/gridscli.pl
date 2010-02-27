@@ -10,6 +10,8 @@ use Grids::Client;
 use Grids::Identity;
 use Grids::Console;
 use Grids::Conf;
+use Grids::Address::IPv4;
+use Grids::Transport::TCP::Select;
 
 use Carp qw (croak);
 use Getopt::Long;
@@ -63,10 +65,10 @@ unless ($identity) {
 }
 
 my $client = Grids::Client->new(
-    debug     => $debug,
-    conf      => $conf,
-    id        => $identity,
-    transport => 'TCP',
+    debug            => $debug,
+    conf             => $conf,
+    id               => $identity,
+    transport_driver => 'TCP::Select',
 );
 
 $client->register_hook('Services.List', sub {
