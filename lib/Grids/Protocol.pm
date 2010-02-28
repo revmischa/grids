@@ -42,7 +42,7 @@ has encrypted_connection_started => (
     default => sub { 0 },
 );
 
-has initialized => (
+has got_initiation => (
     is => 'rw',
     isa => 'Bool',
     default => sub { 0 },
@@ -187,7 +187,7 @@ sub new_from_initiation_string {
     }
 
     $p->peer($peer);
-    $p->initialized(1);
+    $p->got_initiation(1);
 
     $connection->protocol($p);
     $connection->transport->connection_ready($connection);
@@ -224,8 +224,6 @@ sub parse_request {
         if ($version ne '1.0') {
             warn "Warning: peer is using an unknown version of Grids, things may break\n";
         }
-
-        $self->initialized(1);
 
         if ($status eq 'OK') {
             # we got a protocol response, we have their name and encapsulation method

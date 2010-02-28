@@ -39,13 +39,13 @@ c_req('Storage.List');
 
 
 sub s_do {
-#    $server->flush_event_queue;
+    $server->flush_event_queue;
 }
 
 sub c_req {
     $client->dispatch_event(@_) if @_;
-#    s_do();
-#    $client->flush_event_queue;
+    s_do();
+    $client->flush_event_queue;
 }
 
 sub client_service_list {

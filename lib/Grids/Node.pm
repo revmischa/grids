@@ -92,6 +92,12 @@ sub network_broadcast {
     $network->send_to_peers($event);
 }
 
+sub disconnect_all_clients {
+    my ($self) = @_;
+
+    $_->close_all_clients for @{$self->transports};
+}
+
 # someone has connected to us
 sub incoming_connection_established {
     my ($self, $connection) = @_;
@@ -174,7 +180,7 @@ sub data_received {
     # todo: make sure this is destroyed when connection is closed
     my $protocol_handler = $connection->protocol;
 
-    if ($protocol_handler && $protocol_handler->initialized) {
+    if ($protocol_handler) {
         my $event = $protocol_handler->parse_request($connection, $data);
         if ($event) {
             $self->add_event_to_queue($event) or $self->warn("Could not enqueue event $event");

@@ -45,8 +45,6 @@ sub init_nodes {
         $node->register_hook('Login', \&login);
         $node->register_hook('Error', \&node_error);
 
-        my $loop = $node->new_transport;
-        $loopmap{$node} = $loop;
         push @nodes, $node;
     }
 
@@ -59,9 +57,8 @@ sub init_nodes {
 
             ok(1, "connecting " . ($i+1) . "[$node] <-...-> " . ($j + 1) . "[$nextnode]");
 
-            my $loop = $loopmap{$node};
-            my $nextloop = $loopmap{$nextnode};
-            my $conn = $loop->connect($nextloop);
+            my $conn = $node->new_transport->connect($nextnode->new_transport);
+
             push @connections, $conn;
 
             $connection_attempts++;
@@ -86,18 +83,7 @@ sub init_nodes {
     }
 
     # disconnect all loops
-    for (my $i = 0 ; $i < $nodecount ; $i++) {
-        for (my $j = $i+1 ; $j < $nodecount ; $j++) {
-            my $node = $nodes[$i];
-            my $nextnode = $nodes[$j];
-
-            ok(1, "disconnecting " . ($i+1) . "[$node] <-/-> " . ($j + 1) . "[$nextnode]");
-
-            my $loop = $loopmap{$node};
-            my $nextloop = $loopmap{$nextnode};
-            $loop->disconnect($nextloop);
-        }
-    }
+    $_->disconnect_all_clients for @nodes;
 }
 
 

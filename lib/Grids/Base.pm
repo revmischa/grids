@@ -66,7 +66,7 @@ has 'use_encryption' => (
 has 'auto_flush_queue' => (
     is => 'rw',
     isa => 'Bool',
-    default => sub { 0 },
+    default => sub { 1 },
 );
 
 sub _conf_builder {
