@@ -7,7 +7,6 @@ use Moose::Role;
 
 use Carp qw/croak/;
 use Grids::Conf;
-use Grids::Transport::TCP::AnyEvent; # default transport driver
 
 requires qw/data_received/;
 
@@ -24,6 +23,13 @@ has 'configuration' => (
     builder => '_conf_builder',
 );
 
+has 'transport' => (
+    is => 'rw',
+    does => 'Grids::Transport::Driver',
+    lazy => 1,
+    builder => '_transport_builder',
+);
+
 has 'debug' => (
     is => 'rw',
     isa => 'Bool',
@@ -38,11 +44,13 @@ has 'event_queue' => (
 
 has 'transport_driver' => (
     is => 'rw',
+    isa => 'Str',
     default => 'TCP::AnyEvent',
 );
 
 has 'encapsulation_class' => (
     is => 'rw',
+    isa => 'Str',
     default => 'JSON',
 );
 
@@ -63,6 +71,23 @@ has 'auto_flush_queue' => (
 sub _conf_builder {
     my ($self) = @_;
     return Grids::Conf->new;
+}
+
+sub _transport_builder {
+    my ($self) = @_;
+
+    my $transport_driver = $self->transport_driver;
+    my $encapsulation_class = $self->encapsulation_class;
+
+    my $proto = Grids::Protocol->new(encapsulation_class => $encapsulation_class, id => $self->id)
+        or die "Failed to create protocol handler";
+
+    my $t_class = "Grids::Transport::$transport_driver";
+    eval "use $t_class; 1;" or die "Could not load transport driver $transport_driver: $@";
+
+    my $t = $t_class->new(delegate => $self);
+
+    return $t;
 }
 
 ### shared methods for Client and Node
@@ -100,6 +125,12 @@ sub add_event_to_queue {
     $self->event_queue->add($evt);
     $self->flush_event_queue if $self->auto_flush_queue;
     return $evt;
+}
+
+sub listen {
+    my ($self) = @_;
+
+    $self->transport->listen;
 }
 
 # sends an event
@@ -195,14 +226,7 @@ sub do_request {
 sub connect {
     my ($self, $address) = @_;
 
-    my $transport_driver = $self->transport_driver;
-    my $encapsulation_class = $self->encapsulation_class;
-
-    my $proto = Grids::Protocol->new(encapsulation_class => $encapsulation_class, id => $self->id)
-        or die "Failed to create protocol handler";
-
-    my $t = "Grids::Transport::$transport_driver"->new(delegate => $self);
-    return $t->connect($address);
+    return $self->transport->connect($address);
 }
 
 sub dbg {

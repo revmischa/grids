@@ -15,8 +15,6 @@ use Grids::Console;
 use Grids::Conf;
 use Grids::Node;
 
-use Grids::Transport::TCP::AnyEvent;
-
 use Getopt::Long;
 use Sys::Hostname;
 use sigtrap qw(die normal-signals);
@@ -86,8 +84,7 @@ sub run {
     $node->register_hook('Disconnected', \&client_disconnected);
 
     # listen for connections
-    my $trans = $node->add_transport("TCP::AnyEvent");
-    $trans->listen;
+    $node->listen;
 
     local $SIG{INT} = sub {
         exit 0;

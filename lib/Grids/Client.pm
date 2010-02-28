@@ -14,9 +14,16 @@ use Carp qw (croak);
 has 'connection' => (
     is => 'rw',
     isa => 'Grids::Protocol::Connection',
+    clearer => 'clear_connection',
     handles => {
         write => 'write',
     },
+);
+
+# keep reference to client connection object as long as we need it
+has client => (
+    is => 'rw',
+    clearer => 'clear_client',
 );
 
 has 'session_token' => (
@@ -24,7 +31,6 @@ has 'session_token' => (
     isa => 'Str',
 );
 
-# this needs to be moosified
 has 'hooks' => (
     is => 'rw',
     isa => 'HashRef',
@@ -67,6 +73,32 @@ around enqueue_event => sub {
     $connection ||= $self->connection;
     $self->$orig($event_name, $args, $connection);
 };
+
+around connect => sub {
+    my ($orig, $self, $address) = @_;
+
+    # we can only have one connection at a time, so make sure the
+    # transport is reset and all outgoing connections are closed
+    # before we connect
+    $self->disconnect;
+
+    my $client = $self->$orig($address);
+    $self->client($client);
+
+    warn "client: $client";
+
+    return $client;
+};
+
+sub disconnect {
+    my ($self) = @_;
+
+    warn "disconnect called";
+    
+    $self->transport->close_all_clients;
+    $self->clear_connection;
+    $self->clear_client;
+}
 
 # connection started, can send/receive events
 sub connection_ready {

@@ -11,7 +11,6 @@ use Grids::Identity;
 use Grids::Console;
 use Grids::Conf;
 use Grids::Address::IPv4;
-use Grids::Transport::TCP::Select;
 
 use Carp qw (croak);
 use Getopt::Long;
@@ -68,7 +67,7 @@ my $client = Grids::Client->new(
     debug            => $debug,
     conf             => $conf,
     id               => $identity,
-    transport_driver => 'TCP::Select',
+    transport_driver => 'TCP::AnyEvent',
 );
 
 $client->register_hook('Services.List', sub {
@@ -76,7 +75,7 @@ $client->register_hook('Services.List', sub {
 });
 
 $client->register_hook('Connected', sub {
-    $con->print("Protocol established");
+    $con->print("Connected");
 });
 
 run();
@@ -91,11 +90,10 @@ sub connect {
 
     my $ip_addr = new Grids::Address::IPv4(address => $addr);
 
-    if ($client->connect($ip_addr)) {
-        return "Connected to $addr";
-    } else {
-        return "Failed to connect to $addr";
-    }
+    $client->connect($ip_addr);
+
+    my $read_cv = AnyEvent->condvar;
+    $read_cv->recv;
 }
 
 sub run {

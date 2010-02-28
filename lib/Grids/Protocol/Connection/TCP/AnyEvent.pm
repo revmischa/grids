@@ -9,9 +9,17 @@ has channel => (
     required => 1,
 );
 
-has read_watcher => (
+has client => (
     is => 'rw',
-    required => 1,
+);
+
+has server => (
+    is => 'rw',
+);
+
+has handle => (
+    is => 'rw',
+    clearer => 'clear_handle',
 );
 
 no Moose;

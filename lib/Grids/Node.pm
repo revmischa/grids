@@ -21,12 +21,6 @@ use Class::Autouse qw/
 use Grids::Transport;
 use Carp qw/croak/;
 
-has 'transports' => (
-    is => 'rw',
-    isa => 'ArrayRef',
-    default => sub { [] },
-);
-
 has 'network_id' => (
     is => 'rw',
     isa => 'Grids::Identity',
@@ -99,15 +93,6 @@ sub network_broadcast {
     $network->send_to_peers($event);
 }
 
-sub add_transport {
-    my ($self, $trans_class, %opts) = @_;
-
-    my $trans = "Grids::Transport::$trans_class"->new(delegate => $self, %opts);
-
-    push @{$self->transports}, $trans;
-    return $trans;
-}
-
 # someone has connected to us
 sub incoming_connection_established {
     my ($self, $connection) = @_;
@@ -152,15 +137,21 @@ sub encrypted_connection_unready {
 sub disconnected {
     my ($self, $connection) = @_;
 
-    $connection->teardown_protocol;
+    # remove peer connection
+    if ($connection->outbound) {
+        my $ok = $self->network->remove_from_peers($connection->peer);
+        $self->warn("network->remove_from_peers failed for " . $connection->peer->name) unless $ok;
+    }
+
+    # don't really need to do anything unless protocol has been established already
+    return unless $connection->protocol;
 
     if (! $self->network->peer_sessions($connection->peer)) {
         $self->warn("got disconnected but no connection was established");
         return;
     }
 
-    my $ok = $self->network->remove_from_peers($connection->peer);
-    $self->warn("network->remove_from_peers failed for " . $connection->peer->name) unless $ok;    
+    $connection->teardown_protocol;
 }
 
 # called when a connection to another node is established to set up a

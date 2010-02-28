@@ -70,7 +70,6 @@ sub teardown_protocol {
 
     return unless $self->protocol && $self->peer;
     $self->protocol->end_encrypted_connection;
-    $self->transport->reset;
 }
 
 sub write {

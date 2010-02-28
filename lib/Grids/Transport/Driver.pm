@@ -4,7 +4,9 @@ use Moose::Role;
 
 use Carp qw/croak/;
 
-requires qw/write connect disconnect/; # may also have: select, reset
+requires qw/write connect disconnect/; # may also have: select, reset,
+                                       # close_all, close_all_clients,
+                                       # close_server
 
 has 'delegate' => (
     is => 'rw',
@@ -18,6 +20,25 @@ has 'delegate' => (
 
 sub reset {
     my ($self, $connection) = @_;
+    return 0;
+}
+
+sub close_all {
+    my ($self) = @_;
+
+    $self->close_all_clients;
+    $self->close_server;
+
+    return 1;
+}
+
+sub close_all_clients {
+    my ($self) = @_;
+    return 0;
+}
+
+sub close_server {
+    my ($self) = @_;
     return 0;
 }
 

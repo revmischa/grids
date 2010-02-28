@@ -215,6 +215,7 @@ sub select {
                 my $connection = $self->connections->{$rh};
                 $self->remove_socket($rh);
                 $rh->close;
+                $self->disconnected($connection);
             }
         }
     }
