@@ -68,11 +68,13 @@ unless ($identity) {
 }
 
 my $client = Grids::Client->new(
-    debug            => $debug,
-    conf             => $conf,
-    id               => $identity,
-    use_encryption   => 1,
-    transport_driver => 'TCP::AnyEvent',
+    autosave_configuration => 1,
+    autoload_configuration => 1,
+    debug                  => $debug,
+    conf                   => $conf,
+    id                     => $identity,
+    use_encryption         => 1,
+    transport_driver       => 'TCP::AnyEvent',
 );
 
 $client->register_hook('Services.List', sub {

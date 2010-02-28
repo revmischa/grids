@@ -80,14 +80,14 @@ has 'autosave_configuration' => (
     is => 'rw',
     isa => 'Bool',
     lazy => 1,
-    default => sub { 1 },
+    default => sub { 0 },
 );
 
 has 'autoload_configuration' => (
     is => 'rw',
     isa => 'Bool',
     lazy => 1,
-    default => sub { 1 },
+    default => sub { 0 },
 );
 
 sub DEMOLISH {
@@ -189,8 +189,6 @@ sub disconnect_all {
 # (http://en.wikipedia.org/wiki/Socialist_millionaire)
 sub smp_requested {
     my ($self, $connection, $peer_name, $question) = @_;
-
-    warn "requested";
 
     $self->enqueue_event(
         'SMP.Request', 

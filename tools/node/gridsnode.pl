@@ -81,6 +81,8 @@ sub run {
         debug => $debug,
         id => $identity,
         transport_driver => 'TCP::AnyEvent',
+        autosave_configuration => 1,
+        autoload_configuration => 1,
     );
 
     # register hooks here
