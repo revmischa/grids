@@ -12,6 +12,7 @@ use Grids::Console;
 use Grids::Conf;
 use Grids::Address::IPv4;
 
+use AnyEvent;
 use Carp qw (croak);
 use Getopt::Long;
 use Data::Dumper;
@@ -81,6 +82,10 @@ $client->register_hook('Connected', sub {
 
 run();
 
+
+############
+
+
 sub connect_localhost {
     my ($con) = @_;
     ::connect($con, 'localhost');
@@ -92,7 +97,6 @@ sub connect {
     my $ip_addr = new Grids::Address::IPv4(address => $addr);
 
     $client->connect($ip_addr);
-
 }
 
 sub run {

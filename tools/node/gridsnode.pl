@@ -17,7 +17,6 @@ use Grids::Node;
 
 use Getopt::Long;
 use Sys::Hostname;
-use sigtrap qw(die normal-signals);
 use AnyEvent;
 
 my $conffile = 'gridsnode.conf';
@@ -77,7 +76,12 @@ sub run {
     my $main = AnyEvent->condvar;
 
     # create node
-    $node = Grids::Node->new(conf => $conf, debug => $debug, id => $identity);
+    $node = Grids::Node->new(
+        conf => $conf,
+        debug => $debug,
+        id => $identity,
+        transport_driver => 'TCP::AnyEvent',
+    );
 
     # register hooks here
     $node->register_hook('Connected', \&client_connected);
