@@ -22,6 +22,7 @@ has 'configuration' => (
     isa => 'Grids::Conf',
     lazy => 1,
     builder => '_conf_builder',
+    handles => [qw/get_conf/],
 );
 
 has 'transports' => (
@@ -182,6 +183,51 @@ sub disconnect_all {
 
     $_->disconnect for @{$self->transports};
     $self->transports([]);
+}
+
+# request for Socialist Millionaire's Protocol
+# (http://en.wikipedia.org/wiki/Socialist_millionaire)
+sub smp_requested {
+    my ($self, $connection, $peer_name, $question) = @_;
+
+    warn "requested";
+
+    $self->enqueue_event(
+        'SMP.Request', 
+        $connection,
+        {
+            peer_name => $peer_name,
+            question => $question,
+        },
+    );
+}
+
+sub initiate_smp {
+    my ($self, $connection, $secret, $question) = @_;
+    $connection->initiate_smp($secret, $question);
+}
+
+sub continue_smp {
+    my ($self, $connection, $secret) = @_;
+    $connection->continue_smp($secret);
+}
+
+# encrypted connection started or changed peer verified status
+sub encrypted_connection_ready {
+    my ($self, $connection, $peer_name) = @_;
+
+    $self->enqueue_event('Encrypted', $connection);
+    $self->dbg("encrypted connection established with " . $connection->peer->name .
+               ", verified=" . $connection->peer_fingerprint_is_verified);
+}
+
+# called when an encrypted session with a peer has ended
+sub encrypted_connection_unready {
+    my ($self, $connection, $peer_name) = @_;
+
+    # FIXME: "disconnected" is kinda misleading, could still have an unencrypted session active
+    $self->enqueue_event('Unencrypted', $connection);  
+    $self->dbg("encrypted connection with $peer_name ended");
 }
 
 # sends an event

@@ -92,7 +92,6 @@ sub network_broadcast {
     $network->send_to_peers($event);
 }
 
-
 # someone has connected to us
 sub incoming_connection_established {
     my ($self, $connection) = @_;
@@ -115,24 +114,6 @@ sub connection_ready {
     # inbound connections have already been added
     $self->network->add_to_peers(peer => $connection->peer)
         if $connection->outbound;
-}
-
-# called when a protocol handler has been established and a connection
-# has been made and encrypted
-sub encrypted_connection_ready {
-    my ($self, $connection, $peer_name) = @_;
-
-    $self->enqueue_event('Encrypted', $connection);
-    $self->dbg("encrypted connection with $peer_name ready");
-}
-
-# called when an encrypted session with a peer has ended
-sub encrypted_connection_unready {
-    my ($self, $connection, $peer_name) = @_;
-
-    # FIXME: "disconnected" is kinda misleading, could still have an unencrypted session active
-    $self->enqueue_event('Unencrypted', $connection);  
-    $self->dbg("encrypted connection with $peer_name ended");
 }
 
 # actually disconnected

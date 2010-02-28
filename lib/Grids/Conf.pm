@@ -41,8 +41,6 @@ sub save {
 
     my $vars = $self->conf;
 
-    $self->dump;
-
     my $file_name = $self->file_name;
     Storable::nstore($vars, $file_name);
 }
@@ -57,8 +55,6 @@ sub load {
     my $varsref = Storable::retrieve($file_name);
     $self->loaded($varsref ? 1 : 0);
     $self->set_conf_vars(%$varsref);
-
-    $self->dump;
 
     return 1;
 }

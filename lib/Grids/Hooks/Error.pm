@@ -5,15 +5,15 @@ use Grids::Hooks;
 
 # register global error handler to print errors to stderr
 Grids::Hooks->register_hooks(
-                             qr/^Error/ => \&error,
-                             );
+    qr/^Error/ => \&error,
+);
 
 sub error {
-    my ($client, $info) = @_;
+    my ($base, $evt) = @_;
 
-    my $evt = delete $info->{event};
+    my $args = $evt->args;
 
-    warn "Caught error: " . join "\n", map { "$_ = $info->{args}{$_}\n" } keys %{$info->{args}};
+    $base->warn("Caught error: " . join("\n", map { "$_ = $args->{$_}\n" } keys %$args));
 
     return 0;
 }

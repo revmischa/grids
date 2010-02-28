@@ -78,6 +78,16 @@ sub write {
     $self->transport->write($data, $self);
 }
 
+sub initiate_smp {
+    my ($self, $secret, $question) = @_;
+    $self->id->initiate_smp($self->peer_name, $secret, $question);
+}
+
+sub continue_smp {
+    my ($self, $secret) = @_;
+    $self->id->continue_smp($self->peer_name, $secret);
+}
+
 sub send_event {
     my ($self, $evt, $args) = @_;
 

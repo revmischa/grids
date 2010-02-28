@@ -150,6 +150,18 @@ sub decrypt {
     return $self->otr->decrypt($sender, $ciphertext);
 }
 
+# start socialist millionaires protocol
+# (http://en.wikipedia.org/wiki/Socialist_millionaire)
+sub initiate_smp {
+    my ($self, $recipient, $secret, $question) = @_;
+    return $self->otr->start_smp($recipient, $secret, $question);
+}
+
+# respond to a SMP request
+sub continue_smp {
+    my ($self, $recipient, $secret) = @_;
+    return $self->otr->continue_smp($recipient, $secret);
+}
 
 #####################
 # NEED TO BE UPDATED:

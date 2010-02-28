@@ -23,6 +23,7 @@ has id => (
     is => 'rw',
     isa => 'Grids::Identity',
     required => 1,
+    handles => [qw/initiate_smp/],
 );
 
 has peer => (

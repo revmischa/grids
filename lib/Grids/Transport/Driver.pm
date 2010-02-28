@@ -4,9 +4,9 @@ use Moose::Role;
 
 use Carp qw/croak/;
 
-requires qw/write connect disconnect/; # may also have: select, reset,
-                                       # close_all, close_all_clients,
-                                       # close_server
+requires qw/write connect disconnect listen/; # may also have: select, reset,
+                                              # close_all, close_all_clients,
+                                              # close_server
 
 has 'delegate' => (
     is => 'rw',
@@ -80,19 +80,14 @@ sub connection_established {
         or die "No identity loaded in transport delegate";
 
     # set callbacks for crypto
-    $id->set_callback('inject',     $self->bind(\&inject, $conn));
-    $id->set_callback('unverified', $self->bind(\&encrypted_connection_ready, $conn, 0));
-    $id->set_callback('verified',   $self->bind(\&encrypted_connection_ready, $conn, 1));
-    $id->set_callback('disconnect', $self->bind(\&encrypted_connection_unready, $conn));
+    $id->set_callback('inject',      $self->bind(\&inject, $conn));
+    $id->set_callback('unverified',  $self->bind(\&encrypted_connection_ready, $conn, 0));
+    $id->set_callback('verified',    $self->bind(\&encrypted_connection_ready, $conn, 1));
+    $id->set_callback('disconnect',  $self->bind(\&encrypted_connection_unready, $conn));
+    $id->set_callback('smp_request', $self->bind(\&smp_requested, $conn));
 }
 
-# ready to send/receive events
-sub connection_ready {
-    my ($self, $conn) = @_;
-
-    $self->delegate_do('connection_ready', $conn);
-}
-
+# OTR telling us to inject a message
 sub inject {
     my ($self, $connection, $otr, $account, $protocol, $recipient, $message) = @_;
     
@@ -102,6 +97,19 @@ sub inject {
 #### the following methods are delegate methods, if they are defined
 #### on $self->delegate they will be called
 
+# socialist millionaires protocol requested
+sub smp_requested {
+    my ($self, $conn, $otr, $proto, $peer_name, $question) = @_;
+
+    $self->delegate_do('smp_requested', $conn, $peer_name, $question);
+}
+
+# ready to send/receive events
+sub connection_ready {
+    my ($self, $conn) = @_;
+
+    $self->delegate_do('connection_ready', $conn);
+}
 
 sub encrypted_connection_unready {
     my ($self, $connection, $otr, $peer_name) = @_;

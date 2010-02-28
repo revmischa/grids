@@ -8,9 +8,9 @@ use lib 'lib';
 use Grids::Test;
 use Grids::Node::Hooks::Authentication;
 
-my $debug = 0;
+my $debug = 1;
 
-my ($client, $server, $id) = Grids::Test->client_server_pair(debug => $debug, auto_flush_queue => 1);
+my ($client, $server, $id, $server_id, $server_transport) = Grids::Test->client_server_pair(debug => $debug, auto_flush_queue => 1);
 
 $client->register_hook('Authentication.Login', \&client_login_hook);
 $client->register_hook('Services.List', \&client_service_list);
@@ -38,10 +38,38 @@ c_req('Storage.Store', { data => $storage });
 c_req('Storage.List');
 
 
+# attempt to verify shared secret
+my $question = 'smp_question';
+my $secret = 'smp_secret';
+
+$server->register_hook('SMP.Request', sub {
+    my ($node, $evt) = @_;
+    my $peer_name = $evt->args->{peer_name};
+    my $req_question = $evt->args->{question};
+
+    is($question, $req_question, "got correct SMP question in request");
+});
+
+
+$server->configuration->set_conf('SMP.Secret', $secret);
+$client->initiate_smp($secret, $question);
+flush();
+
+
+sub flush {
+    for (1..20) {
+        c_do();
+        s_do();
+    }
+}
+
 sub s_do {
     $server->flush_event_queue;
 }
 
+sub c_do {
+    $client->flush_event_queue;
+}
 sub c_req {
     $client->dispatch_event(@_) if @_;
     s_do();

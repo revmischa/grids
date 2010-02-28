@@ -12,6 +12,7 @@ has delegate => (
 sub write {}
 sub connect {}
 sub disconnect {}
+sub listen {}
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

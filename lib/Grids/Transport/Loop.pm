@@ -25,6 +25,8 @@ sub DEMOLISH {
     $self->disconnect;
 }
 
+sub listen {}
+
 sub disconnect {
     my ($self) = @_;
 

@@ -16,7 +16,7 @@ sub write {}
 sub disconnect {}
 sub connect {}
 sub reset {}
-
+sub listen {}
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

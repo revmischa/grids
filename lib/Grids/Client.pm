@@ -68,7 +68,7 @@ around do_request => sub {
 around enqueue_event => sub {
     my ($orig, $self, $event_name, $connection, $args) = @_;
     $connection ||= $self->connection;
-    $self->$orig($event_name, $args, $connection);
+    $self->$orig($event_name, $connection, $args);
 };
 
 around connect => sub {
@@ -101,13 +101,6 @@ sub connection_ready {
     $self->dbg(($connection->inbound ? 'inbound' : 'outbound') . " connection ready with " . $connection->peer->name);
 }
 
-# encrypted connection started
-sub encrypted_connection_ready {
-    my ($self, $connection) = @_;
-    
-    $self->dbg("encrypted connection established with " . $connection->peer->name);
-}
-
 # Called when a connection with a Node has been established. This
 # simply means there is a connection, but the protocol handler has not
 # been set up yet. Once the connection is set up properly, the
@@ -130,6 +123,15 @@ sub select {
     my $self = shift;
     return 0 unless $self->connection && $self->connection->transport;
     return $self->connection->transport->select;
+}
+
+sub initiate_smp {
+    my ($self, $secret, $question) = @_;
+
+    my $connection = $self->connection
+        or croak "Trying to start SMP with no connection";
+
+    $connection->initiate_smp($secret, $question);
 }
 
 no Moose;
