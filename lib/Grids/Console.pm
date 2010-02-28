@@ -174,6 +174,7 @@ sub set {
     } else {
         my $old_val = $self->conf->get_conf($var);
         if ($self->conf->set_conf($var, $val)) {
+            $old_val = 'undef' unless defined $old_val;
             return "$var: old value: $old_val new value: $val";
         } else {
             return "No such variable $var";

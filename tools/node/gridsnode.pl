@@ -86,9 +86,8 @@ sub run {
     # listen for connections
     $node->listen;
 
-    local $SIG{INT} = sub {
-        exit 0;
-    };
+    # listen for user input
+    $con->listen_for_input;
 
     # main loop
     $main->recv;
