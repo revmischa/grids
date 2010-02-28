@@ -30,14 +30,17 @@ our (@REGS, %REGS); # mappings of register->symbolic name and vice-versa
 
 # I- and J-type opcodes
 our %OPCODES = (
+    # pseudo opcodes
     'li'      => 0b111110,
     'la'      => 0b111001,
-
+    'l'       => 0b111101,
     'syscall' => 0b111111,
 
-    'l'       => 0b111101,
+    # based memory access
     'lw'      => 0b100011,
     'lb'      => 0b100000,
+    'sb'      => 0b101000,
+    'sw'      => 0b101011,
 
     'j'       => 0b000010,
     'jal'     => 0b000011,
@@ -120,19 +123,22 @@ our %OPCODES_REV;
 
 # opcodes which have an offset encoded in the immediate data
 our @OFFSET_OPCODES = qw (
-                          lw
-                          lb
-                          );
+    lw
+    lb
+    sw
+    sb
+);
 
+# macros
 our %ALIASES = (
-                'nop' => 'sll 0, 0, 0',
-                );
+    'nop' => 'sll 0, 0, 0',
+);
 
 # verify opcodes on load
 my %_opcodes_seen;
 die "Invalid opcodes" if grep {
     ++$_opcodes_seen{$_} > 1
-    } values %OPCODES;
+} values %OPCODES;
 
 # return instruction mnemonic for opcode
 sub opcode_mnemonic {
@@ -142,15 +148,40 @@ sub opcode_mnemonic {
 }
 
 # FIXME: any better way to do this?
-# force a number into a 32-bit signed value
+# force a number into a n-bit value
+sub sn {
+    my ($templ, $i, $signed) = @_;
+
+    Carp::confess "i is undefined" unless defined $i;
+
+    return $signed ?
+        unpack($templ, pack($templ, $i)) :
+        unpack(uc $templ, pack(uc $templ, $i));
+}
+
 sub s32 {
     my $i = shift;
-    return unpack('l', pack('l', $i));
+    return sn('l', $i, 1);
 }
-# unsigned 32-bit value
 sub u32 {
     my $i = shift;
-    return unpack('L', pack('L', $i));
+    return sn('L', $i, 0);
+}
+sub s16 {
+    my $i = shift;
+    return sn('s', $i, 1);
+}
+sub u16 {
+    my $i = shift;
+    return sn('S', $i, 0);
+}
+sub s8 {
+    my $i = shift;
+    return sn('c', $i, 1);
+}
+sub u8 {
+    my $i = shift;
+    return sn('C', $i, 0);
 }
 
 # given a 6-byte instruction, determine the opcode
@@ -305,13 +336,20 @@ sub assemble_segment_map {
 
             # rewrite offset addressing to be consistant with other
             # i-type instuction ordering
-            $line =~ s/
+            my ($op, $rt, $offset, $rs) = $line =~ m/
                 ([\w]+)\s*              # operation
                 ([\-\$\d\w]+)?\s*       # 1st arg
-                (?:,\s*([\-\d]+)\(      # offset
+                (?:,\s*([\-\d]+)?\(     # offset
                  \s*([\-\$\d\w]+)\s*    # 3rd arg
                  \))
-                /$1 $2, $4, $3/xg;
+            /x;
+            if ($op && defined $rt && defined $rs) {
+                return $err->("found indirect addressing for non-offset opcode $op")
+                    unless grep { $_ eq $op } @OFFSET_OPCODES;
+
+                $offset ||= 0;
+                $line = "$op $rt, $rs, $offset";
+            }
 
             my @instruction_regexes = (
                                        # syscall
@@ -321,10 +359,10 @@ sub assemble_segment_map {
 
                                        # operation arg1[, arg2][, arg3]
                                        qr/
-                                       ([\w.]+)\s*                # operation
-                                       ([\-\$\d\w]+)?\s*          # 1st arg
-                                       (?:,\s*([\-\$\d\w]+))?\s*  # 2nd
-                                       (?:,\s*([\-\$\d\w]+))?     # 3rd
+                                       ([\w.]+)\s*               # operation
+                                       ([-\$\d\w]+)?\s*          # 1st arg
+                                       (?:,\s*([-\$\d\w]+))?\s*  # 2nd
+                                       (?:,\s*([-\$\d\w]+))?     # 3rd
                                        /x,
                                        );
 
@@ -339,7 +377,7 @@ sub assemble_segment_map {
                 warn "Unable to interpert line: $line\n";
             }
 
-            # process argument substitutions
+            # process argument substitutions, indirection
             my @args;
             foreach my $arg (@pre_args) {
                 next unless defined $arg;
@@ -580,7 +618,7 @@ sub assemble_i {
 
     my %fields = map { $_ => shift(@args) } @arg_order;
 
-    $fields{data} = u32($fields{data});
+    $fields{data} = u32($fields{data} || 0);
 
     my $bit_string = sprintf("%06b", $op);
 
@@ -695,6 +733,7 @@ sub disassemble_string {
         $ret .= ' ';
 
         if (grep { $_ eq $inst } @OFFSET_OPCODES) {
+            $fields{data} ||= 0;
             $ret .= "$fields{rt}, $fields{data}($fields{rs})";
         } else {
             $ret .= join(', ', @args);

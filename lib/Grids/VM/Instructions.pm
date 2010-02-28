@@ -12,14 +12,30 @@ use Grids::Code;
 ### utility funcs
 
 # returns 32-bit unsigned representation of this number
-sub _u {
+sub _ul {
     my $i = shift;
     return Grids::Code::u32($i);
 }
 # signed version
-sub _s {
+sub _sl {
     my $i = shift;
     return Grids::Code::s32($i);
+}
+sub _uw {
+    my $i = shift;
+    return Grids::Code::u16($i);
+}
+sub _sw {
+    my $i = shift;
+    return Grids::Code::s16($i);
+}
+sub _ub {
+    my $i = shift;
+    return Grids::Code::u8($i);
+}
+sub _sb {
+    my $i = shift;
+    return Grids::Code::s8($i);
 }
 
 #sub _u { return int(sprintf("%u", $_[0])) }
@@ -39,7 +55,7 @@ sub _bs { return sprintf("%032b", $_[0]) }
 sub j_j {
     my ($class, $vm, $address) = @_;
 
-    $vm->{pc} = _u($address);
+    $vm->{pc} = _ul($address);
 }
 
 # long jump and link, takes 32-bit address
@@ -47,13 +63,13 @@ sub j_jal {
     my ($class, $vm, $address) = @_;
 
     $vm->link;
-    $vm->{pc} = _u($address);
+    $vm->{pc} = _ul($address);
 }
 
 # offset pc by $data
 sub j_jreli {
     my ($class, $vm, $addr) = @_;
-    $vm->{pc} += _s($addr) * 6;
+    $vm->{pc} += _sl($addr) * 6;
 }
 
 # rd = rs + rt
@@ -106,19 +122,19 @@ sub r_xor {
 # rt = $rs + $data
 sub i_addi {
     my ($class, $vm, $rs, $rt, $data) = @_;
-    $vm->set_reg($rt, $vm->reg($rs) + _s($data));
+    $vm->set_reg($rt, $vm->reg($rs) + _sl($data));
 }
 
 # rt = $rs ^ $data
 sub i_xori {
     my ($class, $vm, $rs, $rt, $data) = @_;
-    $vm->set_reg($rt, $vm->reg_u($rs) ^ _u($data));
+    $vm->set_reg($rt, $vm->reg_u($rs) ^ _ul($data));
 }
 
 # rt = $rs | $data
 sub i_ori {
     my ($class, $vm, $rs, $rt, $data) = @_;
-    $vm->set_reg($rt, $vm->reg($rs) | _u($data));
+    $vm->set_reg($rt, $vm->reg($rs) | _ul($data));
 }
 
 # rd = rs & rt
@@ -146,20 +162,33 @@ sub i_andi {
 # rt = $data($rs)
 sub i_lw {
     my ($class, $vm, $rs, $rt, $data) = @_;
-    $vm->set_reg($rt, $vm->get_mem($vm->reg($rs) + $data, 4));
+    my $mem_val = $vm->get_mem_u($vm->reg_u($rs) + _sl($data), 2);
+    $vm->set_reg($rt, $mem_val);
+}
+
+# $data($rs) = rt
+sub i_sw {
+    my ($class, $vm, $rs, $rt, $data) = @_;
+    $vm->set_mem($vm->reg_u($rs) + $data, _sw($vm->reg($rt)), 2);
+}
+
+# $data($rs) = rt
+sub i_sb {
+    my ($class, $vm, $rs, $rt, $data) = @_;
+    $vm->set_mem($vm->reg_u($rs) + $data, $vm->reg($rt), 1);
 }
 
 # rt = $data($rs) - 1 byte
 sub i_lb {
     my ($class, $vm, $rs, $rt, $data) = @_;
-    $vm->set_reg($rt, $vm->get_mem($vm->reg($rs) + _s($data), 1));
+    $vm->set_reg($rt, $vm->get_mem($vm->reg_u($rs) + _sb($data), 1));
 }
 
 # is $rs unsigned too? need to check
 # rt = unsigned($rs) + unsigned($data)
 sub i_addiu {
     my ($class, $vm, $rs, $rt, $data) = @_;
-    $vm->set_reg($rt, _u($vm->reg_u($rs) + _u($data)));
+    $vm->set_reg($rt, _ul($vm->reg_u($rs) + _ul($data)));
 }
 
 my %branch_funcs = (

@@ -61,24 +61,59 @@ is($vm->reg_u('a0'), 0xFFFFFFFF, 'xori');
 $vm->step;
 is($vm->reg('a1'), 0x7FFFFFFF, 'andi');
 
-$vm->step;
-$vm->step;
-is(chr($vm->reg('t0')), 'o', 'load memory byte');
+# test lb
+{
+    $vm->step;
+    $vm->step;
+    is(chr($vm->reg('t0')), 'o', 'load memory byte');
 
-$vm->step;
-is(chr($vm->reg('t0')), '!', 'load memory byte');
+    $vm->step;
+    is(chr($vm->reg('t0')), '!', 'load memory byte');
+}
 
-$vm->step;
-is($vm->reg('t1'), 0b00100000, 'andi');
+# test andi
+{
+    $vm->step;
+    is($vm->reg('t1'), 0b00100000, 'andi');
 
-$vm->step;
-$vm->step;
-is($vm->reg('t3'), 0b00000001, 'andi');
+    $vm->step;
+    $vm->step;
+    is($vm->reg('t3'), 0b00000001, 'andi');
+}
 
-$vm->step;
-$vm->step;
-$vm->step;
-is($vm->reg('t0'), 0b00100001, 'and');
+# test and
+{
+    $vm->step;
+    $vm->step;
+    $vm->step;
+    is($vm->reg('t0'), 0b00100001, 'and');
+}
+
+# test memory store/retrieve
+{
+    $vm->step; # la
+    $vm->step; # li
+    $vm->step; # sb
+    is(pack('l', $vm->get_mem($vm->reg('t0'), 4)), "abec", "sb");
+
+    $vm->step; # li
+    $vm->step; # sb
+    is(pack('l', $vm->get_mem($vm->reg('t0'), 4)), "abef", "sb");
+
+    $vm->step; # la
+    $vm->step; # lw
+    $vm->step; # lw
+    is($vm->reg_u('t1'), 0x00FF, "lw");
+    is($vm->get_mem_u($vm->reg('t0') + 2, 2), 0x00FF, "get_mem_u 16");
+    is($vm->get_mem_u($vm->reg('t0'), 4), 0x00FF1234, "get_mem_u 32");
+
+    $vm->step; # addi
+    $vm->step; # lw
+    is($vm->reg_u('t2'), $vm->reg_u('t3'), "lw negative offset");
+    $vm->step; # lw
+    is($vm->reg('t2'), $vm->reg('t1'), "lw 0 offset");
+}
+
 
 my $pc = $vm->pc;
 $vm->step;

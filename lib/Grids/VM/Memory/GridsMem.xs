@@ -19,9 +19,15 @@ void mem_set (memhandle_t handle, unsigned long offset, const char *data,
 }
 
 SV *mem_get(memhandle_t handle, unsigned long offset, unsigned long len) {
+  char *base = (char *)handle;
+
+  // copy buffer into a SV
   char *buf = malloc(len);
-  memcpy(buf, (char *)(handle + offset), len);
-  return newSVpvn(buf, len);
+  memcpy(buf, (base + offset), len);
+  SV* ret = newSVpvn(buf, len);
+  free(buf);
+
+  return ret;
 }
 
 void mem_copy(memhandle_t oldhandle, memhandle_t newhandle, unsigned long len) {

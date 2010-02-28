@@ -199,15 +199,55 @@ Returns string of bytes of length C<$len> at offset C<$offset>
 =cut
 
 sub get_mem {
-    my ($self, $offset, $len) = @_;
+    my ($self, $offset, $len, $unsigned) = @_;
     $len ||= 1; # default to one byte
 
     my $contents = $self->mem->get($offset, $len);
 
-    return unpack("c", $contents) if $len == 1;
+    my $map = $unsigned ? {
+        1 => 'C',
+        2 => 'W',
+        4 => 'L',
+        8 => 'Q',
+    } : {
+        1 => 'c',
+        2 => 'w',
+        4 => 'l',
+        8 => 'q',
+    };
 
-    my @bytes = unpack("c$len", $contents);
-    return join('', @bytes); # is this right?
+    my $template = $map->{$len};
+    $template ||= "a$len";
+
+    return unpack($template, $contents);
+}
+
+sub get_mem_u {
+    my ($self, $offset, $len) = @_;
+    return $self->get_mem($offset, $len, 1);
+}
+
+=item set_mem($offset, $val, $len)
+
+Sets C<$offset> to C<$val> as C<$len> bytes long
+
+=cut
+
+sub set_mem {
+    my ($self, $offset, $val, $len) = @_;
+    $len ||= 1; # default to one byte
+
+    my $store_val;
+
+    my $template = {
+        1 => 'c',
+        2 => 'w',
+        4 => 'l',
+        8 => 'q',
+    }->{$len} || "a$len";
+
+    $store_val = pack($template, $val);
+    $self->mem->set($offset, $store_val, $len);
 }
 
 =item mem_size

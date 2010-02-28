@@ -24,6 +24,23 @@ beginning:
   li $t1, 0b00101001
   and $t0, $t2, $t1
 
+  ; test memory store/retrieve
+    ; bytes
+    la $t0, memtest1
+    li $t1, 0x65
+    sb $t1, 2($t0)
+    li $t1, 0x66
+    sb $t1, 3($t0)
+
+    ; words
+    la $t0, memtest2
+    lw $t1, 2($t0)
+    lw $t3, ($t0)
+    addi $t0, $t0, 2
+    lw $t2, -2($t0)
+    lw $t2, 0($t0)
+    
+
   jreli 3   ; goto a
   nop      ; b
   j testbranching ; goto branch tests
@@ -102,4 +119,10 @@ testjal:
         
  teststring:
   .dz "cody sux!"
+
+ memtest1:
+  .ds "abdc"
+
+ memtest2:
+  .dl 0x00FF1234
 
