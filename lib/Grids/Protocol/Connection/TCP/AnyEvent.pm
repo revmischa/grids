@@ -22,10 +22,5 @@ has handle => (
     clearer => 'clear_handle',
 );
 
-has res_cv => (
-    is => 'rw',
-    clearer => 'clear_res_cv',
-);
-
 no Moose;
 __PACKAGE__->meta->make_immutable;

@@ -51,7 +51,6 @@ sub connect {
             transport => $self,
             channel => $fh,
             inbound => 0,
-            res_cv => $res_cv,
         );
         push @{$self->connections}, $conn;
 
@@ -89,7 +88,6 @@ sub write {
 after close_server => sub {
     my $self = shift;
 
-    $self->listen_cv(undef);
     $self->listen_server(undef);
 };
 
@@ -125,7 +123,6 @@ sub remove_connection {
 
     # done reading
     $connection->clear_handle;
-    $connection->clear_res_cv;
 
     # dispatch disconnected event
     $self->disconnected($connection);
@@ -153,7 +150,6 @@ sub new_listen_sock {
             transport => $self,
             channel => $fh,
             inbound => 1,
-            res_cv => $res_cv,
         );
         
         # keep track of connection
