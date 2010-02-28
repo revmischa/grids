@@ -31,6 +31,7 @@ our (@REGS, %REGS); # mappings of register->symbolic name and vice-versa
 # I- and J-type opcodes
 our %OPCODES = (
     'li'      => 0b111110,
+    'la'      => 0b111001,
 
     'syscall' => 0b111111,
 
@@ -100,9 +101,10 @@ our %SYSCALLS_REV;
 
 # handlers for special opcodes
 our %SPECIAL_FUNCS = (
-                      0b111110 => 'assemble_li',
-                      0b111101 => 'assemble_l',
-                      0b111111 => 'assemble_syscall',
+                      $OPCODES{li}      => 'assemble_li',
+                      $OPCODES{l}       => 'assemble_l',
+                      $OPCODES{la}      => 'assemble_la',
+                      $OPCODES{syscall} => 'assemble_syscall',
                       );
 
 if ($ASSEMBLE_BRANCH_FUNCS_SPECIAL) {
@@ -283,7 +285,7 @@ sub assemble_segment_map {
                 push @{$segments_inst{$base}}, $data . "\0";
                 $addr{$base} += length($data) + 1;
             }
-        } elsif (my ($directive) = $line =~ /\s*\.(\w+)\s*$/) {
+        } elsif (my ($directive) = $line =~ /^\s*\.(\w+)\s*$/) {
             # assembler directive
             if ($directive eq 'text') {
                 $base = 'text';
@@ -423,7 +425,7 @@ sub assemble_segment_map {
             }
 
             $segments{$segment} ||= '';
-            $segments{$segment} .= $class->assemble_instruction($line_num, $operation, @new_args);
+            $segments{$segment} .= $class->assemble_instruction($line_num, $operation, \%labels, @new_args);
         }
     }
 
@@ -446,7 +448,7 @@ sub parse_value {
 }
 
 sub assemble_instruction {
-    my ($class, $line_num, $op, @args) = @_;
+    my ($class, $line_num, $op, $labels, @args) = @_;
 
     my $err = sub {
         print STDERR sprintf("Error at line %d: %s [\"%s %s\"]\n",
@@ -466,7 +468,7 @@ sub assemble_instruction {
 
     if ($assemble_func) {
         # special opcode with handler
-        $res = __PACKAGE__->$assemble_func($opcode, @args);
+        $res = __PACKAGE__->$assemble_func($err, $opcode, $labels, @args);
     } elsif ($type eq 'R') {
         $res = $class->assemble_r($op, @args);
     } elsif ($type eq 'J') {
@@ -509,7 +511,7 @@ sub assemble_branch {
 
 # assemble syscall
 sub assemble_syscall {
-    my ($class, $op, $syscall_name) = @_;
+    my ($class, $err, $op, $labels, $syscall_name) = @_;
 
     my $syscall_num = $SYSCALLS{$syscall_name};
     die "Unknown syscall: $syscall_name\n" unless defined $syscall_num;
@@ -524,15 +526,38 @@ sub assemble_syscall {
     return $class->pack_bit_string($bit_string);
 }
 
+# load immediate
 # assemble li as addi, $rt, $zero, data
 sub assemble_li {
-    my ($class, $op, $rt, $data) = @_;
+    my ($class, $err, $op, $labels, $rt, $data) = @_;
     return $class->assemble_i($OPCODES{addi}, $rt, 0, $data);
 }    
 
+# load address
+# assemble la $rt, LABEL as addi, $rt, $zero, &LABEL
+sub assemble_la {
+    my ($class, $err, $op, $labels, $rt, $LABEL) = @_;
+
+    # as it happens, this opcode works exactly like "l" since the
+    # labels are replaced with their addresses before this is called
+    
+
+    # find address that corresponds to LABEL
+    #my $addr;
+    #for my $segment (values %$labels) {
+    #    $addr = $segment->{$LABEL} and last;
+    #}
+    #return $err->("could not find address for label $LABEL")
+    #    unless $addr;
+
+
+    return $class->assemble_i($OPCODES{addi}, $rt, 0, $LABEL);
+}    
+
+# load register
 # assemble l as add, $rd, $rs, $zero
 sub assemble_l {
-    my ($class, $op, $rd, $rs) = @_;
+    my ($class, $err, $op, $labels, $rd, $rs) = @_;
     return $class->assemble_r('add', $rd, $rs, 0);
 }    
 

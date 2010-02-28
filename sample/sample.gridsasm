@@ -9,7 +9,7 @@ j end
 init:
 li $t0, 0
 addi $t1, $zero, 0x12345678
-li $a0, hellostr
+la $a0, hellostr
 syscall Node.logstr
 li $a0, 0
 j memload

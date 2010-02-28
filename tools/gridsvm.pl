@@ -13,9 +13,11 @@ use Grids::VM;
 use Grids::Console;
 use Grids::Code::Program;
 
+use AnyEvent;
+
 my $infile = shift;
 
-my $vm = Grids::VM->new(memory_limit => 16);
+my $vm = Grids::VM->new(memory_limit => 16 * 1024 * 1024);
 
 my %handlers = (
                 help  => \&help,
@@ -39,14 +41,18 @@ if ($infile) {
     $msg = dis_current_instruction();
 }
 
-my $con = Grids::Console->new(
-                          title    => "GridsVM",
-                          prompt   => "GridsVM> ",
-                          handlers => \%handlers,
-                          message  => $msg,
-                          );
+my $main = AnyEvent->condvar;
 
-$con->run;
+my $con = Grids::Console->new(
+    cv => $main,
+    title    => "GridsVM",
+    prompt   => "GridsVM> ",
+    handlers => \%handlers,
+    message  => $msg,
+);
+
+$con->listen_for_input;
+$main->recv;
 
 
 ########### commands
