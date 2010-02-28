@@ -177,8 +177,6 @@ sub initiate_node_protocol {
 sub data_received {
     my ($self, $connection, $data) = @_;
 
-    warn "data received [$data]";
-
     # todo: make sure this is destroyed when connection is closed
     my $protocol_handler = $connection->protocol;
 
