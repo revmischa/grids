@@ -68,7 +68,7 @@ my $client = Grids::Client->new(
     debug            => $debug,
     conf             => $conf,
     id               => $identity,
-    use_encryption   => 0,
+    use_encryption   => 1,
     transport_driver => 'TCP::AnyEvent',
 );
 
