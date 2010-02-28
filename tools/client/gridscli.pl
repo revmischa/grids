@@ -25,12 +25,12 @@ my $dump;
 my $debug;
 
 my %prog_opts = (
-                 'h|help'  => \$help,
-                 'i|id'    => \$id_name,
-                 'c|conf'  => \$conffile,
-                 'dump'    => \$dump,
-                 'd|debug' => \$debug,
-                 );
+    'h|help'  => \$help,
+    'i|id'    => \$id_name,
+    'c|conf'  => \$conffile,
+    'dump'    => \$dump,
+    'd|debug' => \$debug,
+);
 
 GetOptions(%prog_opts);
 
@@ -40,33 +40,34 @@ print "Loaded settings from $conffile\n" if $conf->load;
 die Dumper($conf) if $dump;
 
 my $con = Grids::Console->new(
-                          conf => $conf,
-                          title => "Grids",
-                          prompt => "Grids> ",
-                          handlers => {
-                              newid    => \&create_id,
-                              help     => \&help,
-                              set      => \&Grids::Console::set,
-                              save     => \&Grids::Console::save,
-                              list     => \&Grids::Console::list,
-                              services => \&list_services,
-                              connect  => \&connect,
-                              cl       => \&connect_localhost,
-                              echo     => \&echo,
-                          },
-                          );
+    conf => $conf,
+    title => "Grids",
+    prompt => "Grids> ",
+    handlers => {
+        newid    => \&create_id,
+        help     => \&help,
+        set      => \&Grids::Console::set,
+        save     => \&Grids::Console::save,
+        list     => \&Grids::Console::list,
+        services => \&list_services,
+        connect  => \&connect,
+        cl       => \&connect_localhost,
+        echo     => \&echo,
+    },
+);
 
 # load identity
 my $identity = $con->interactively_load_identity($id_name);
 unless ($identity) {
     $con->print_error("No identity specified.");
-
+    exit 1;
 }
 
 my $client = Grids::Client->new(
     debug            => $debug,
     conf             => $conf,
     id               => $identity,
+    use_encryption   => 0,
     transport_driver => 'TCP::AnyEvent',
 );
 
@@ -92,12 +93,11 @@ sub connect {
 
     $client->connect($ip_addr);
 
-    my $read_cv = AnyEvent->condvar;
-    $read_cv->recv;
 }
 
 sub run {
-    $con->run;
+    $con->listen_for_input;
+    AnyEvent->condvar->recv;
 }
 
 sub create_id {

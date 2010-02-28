@@ -46,21 +46,17 @@ sub connect {
     my $client = tcp_connect $host, $port, sub {
         my ($fh, $connected_host, $connected_port) = @_;
 
-        # create a condvar to receive read events
-        my $res_cv = AnyEvent->condvar;
-
         # create connection instance
         my $conn = Grids::Protocol::Connection::TCP::AnyEvent->new(
             transport => $self,
             channel => $fh,
             inbound => 0,
+            res_cv => $res_cv,
         );
         push @{$self->connections}, $conn;
 
-        my $handle = $self->connection_handle($fh, $connected_host, $connected_port, $conn, $res_cv);
-
-        $res_cv->cb(sub {
-            my $data = $res_cv->recv;  # non-blocking read
+        my $handle = $self->connection_handle($fh, $connected_host, $connected_port, $conn, sub {
+            my $data = shift;
 
             if (defined $data) {
                 $self->data_received($conn, $data);
@@ -129,6 +125,7 @@ sub remove_connection {
 
     # done reading
     $connection->clear_handle;
+    $connection->clear_res_cv;
 
     # dispatch disconnected event
     $self->disconnected($connection);
@@ -151,26 +148,20 @@ sub new_listen_sock {
         # called when client connection is accepted
         my ($fh, $host, $port) = @_;
 
-        warn "connection received from $host:$port";
-
-        # create a condvar to receive read events
-        my $res_cv = AnyEvent->condvar;
-
         # create connection instance
         my $conn = Grids::Protocol::Connection::TCP::AnyEvent->new(
             transport => $self,
             channel => $fh,
             inbound => 1,
+            res_cv => $res_cv,
         );
         
         # keep track of connection
         push @{$self->connections}, $conn;
 
         # create a handle for this connection
-        my $handle = $self->connection_handle($fh, $host, $port, $conn, $res_cv);
-
-        $res_cv->cb(sub {
-            my $data = $res_cv->recv;  # non-blocking read
+        my $handle = $self->connection_handle($fh, $host, $port, $conn, sub {
+            my $data = shift;
 
             if (defined $data) {
                 $self->data_received($conn, $data);
@@ -188,35 +179,35 @@ sub new_listen_sock {
 }
 
 sub connection_handle {
-    my ($self, $fh, $connected_host, $connected_port, $conn, $res_cv) = @_;
+    my ($self, $fh, $connected_host, $connected_port, $conn, $read_cb) = @_;
 
-    my $handle = new AnyEvent::Handle(
+    my $handle; $handle = new AnyEvent::Handle(
         fh => $fh,
         on_error => sub {
-            my ($handle) = @_;                
+            my (undef, $fatal, $msg) = @_;                
+
+            warn "socket error: $msg";
 
             $self->reset($conn);
             $handle->destroy;
-            $res_cv->send;
         },
         on_eof => sub {
             my ($handle) = @_;                
 
             $self->reset($conn);
             $handle->destroy;
-            $res_cv->send;
         },
     );
 
     # create a read watcher
-    my $read_handler = $self->read_handler($fh, $connected_host, $connected_port, $res_cv);
+    my $read_handler = $self->read_handler($fh, $connected_host, $connected_port, $read_cb);
     $handle->on_read($read_handler);
 
     $conn->handle($handle);
 }
 
 sub read_handler {
-    my ($self, $fh, $host, $port, $res_cv) = @_;
+    my ($self, $fh, $host, $port, $read_cb) = @_;
 
     my $read_handler = sub {
         my ($handle) = @_;
@@ -236,7 +227,7 @@ sub read_handler {
             # read in the message
             $handle->push_read(chunk => $incoming_len, sub {
                 my (undef, $message) = @_;
-                $res_cv->send($message);
+                $read_cb->($message);
             });
         });
     };

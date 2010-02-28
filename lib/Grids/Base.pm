@@ -199,6 +199,8 @@ sub do_next_event {
 sub enqueue_event {
     my ($self, $event_name, $connection, $args) = @_;
 
+    warn "enqueing event $event_name";
+
     croak "enqueue_event() requires a connection"
         unless $connection;
 

@@ -3,7 +3,8 @@ package Grids::Console;
 use Moose;
 
 use Grids::Identity;
-use Term::ReadLine;
+use AnyEvent;
+use AnyEvent::Handle;
 use Storable;
 use Carp qw (croak);
 
@@ -24,10 +25,14 @@ has conf => (
     isa => 'Grids::Conf',
 );
 
-has term => (
+has handle => (
     is => 'rw',
-    lazy => 1,
-    builder => 'build_term',
+    clearer => 'clear_handle',
+);
+
+has IN => (
+    is => 'rw',
+    default => sub { \*STDIN },
 );
 
 has OUT => (
@@ -46,40 +51,60 @@ has handlers => (
     default => sub { {} },
 );
 
-sub build_term {
-    my ($self) = @_;
-    return new Term::ReadLine($self->title);
-}
-
 sub BUILD {
     my $self = shift;
 
     $self->set_handler($_, $self->handlers->{$_}) foreach keys %{$self->handlers};
+    $| = 1;
 }
 
-sub run {
-    my $self = shift;
+sub finish {
+    my ($self) = @_;
 
-    my $prompt = $self->prompt;
+    $self->handle->destroy;
+    $self->clear_handle;
+}
+
+sub print_prompt {
+    my ($self) = @_;
+
+    my $out = $self->OUT;
+    print $out $self->prompt . ' ';
+}
+
+sub listen_for_input {
+    my $self = shift;
 
     $self->print("\n" . $self->msg) if $self->msg;
 
-    while (defined (my $line = $self->term->readline($prompt))) {
-        if ($line =~ /^\s*(q|quit|exit)\b/ig) {
-            last;
-        }
+    my $handle; $handle = new AnyEvent::Handle(
+        fh => $self->IN,
+        on_read => sub {
 
-        my $res = eval {
-            $self->do_command($line);
-        };
+            $handle->push_read (line => sub {
+                my ($hdl, $line) = @_;
 
-        if ($@) {
-            $self->print("Error: $@");
-        } else {
-            $self->print($res) if $res;
-            $self->term->addhistory($line) if $line =~ /\S/;
-        }
-    }
+                if ($line =~ /^\s*(q|quit|exit)\b/ig) {
+                    return $self->finish;
+                }
+
+                my $res = eval {
+                    $self->do_command($line);
+                };
+
+                if ($@) {
+                    $self->print("Error: $@");
+                } else {
+                    $self->print($res) if $res;
+                }
+
+                $self->print_prompt;
+            });
+        },
+    );
+
+    $self->handle($handle);
+    $self->print_prompt;
 }
 
 sub yesorno {
@@ -260,8 +285,8 @@ sub interactively_generate_identity {
     my $con = shift;
     my $conf = $con->conf;
 
-    $con->print_title('Generating new identity');
-    my $name = $con->ask("What personal identifier would you like to give this identity? [default] ") || 'default';
+    #$con->print_title('Generating new identity');
+    my $name = 'default'; #$con->ask("What personal identifier would you like to give this identity? [default] ") || 'default';
 
     return Grids::Identity->new(name => $name);
 
