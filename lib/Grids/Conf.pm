@@ -8,8 +8,16 @@ use Storable;
 use Carp qw (croak);
 use Data::Dumper;
 
+use constant {
+    DEFAULT_FILE_NAME => '.gridsnode',
+};
+
 has conf_file => (
     is => 'rw',
+    isa => 'Maybe[Str]',
+    default => sub {
+        DEFAULT_FILE_NAME
+    },
 );
 
 has conf => (
@@ -18,23 +26,46 @@ has conf => (
     default => sub { {} },
 );
 
+has loaded => (
+    is => 'rw',
+    isa => 'Bool',
+);
+
+sub file_name {
+    my ($self) = @_;
+    return $self->conf_file || DEFAULT_FILE_NAME;
+}
+
 sub save {
     my $self = shift;
+
     my $vars = $self->conf;
-    Storable::nstore($vars, $self->conf_file);
+
+    $self->dump;
+
+    my $file_name = $self->file_name;
+    Storable::nstore($vars, $file_name);
 }
 
 sub load {
     my $self = shift;
-    my $conffile = $self->conf_file;
 
-    return undef unless $conffile && -e $conffile;
+    my $file_name = $self->file_name;
 
-    my $varsref = Storable::retrieve($conffile);
+    return undef unless $file_name && -e $file_name;
 
+    my $varsref = Storable::retrieve($file_name);
+    $self->loaded($varsref ? 1 : 0);
     $self->set_conf_vars(%$varsref);
 
+    $self->dump;
+
     return 1;
+}
+
+sub dump {
+    my $self = shift;
+    warn Dumper($self->conf);
 }
 
 *set = \&set_conf;
@@ -63,7 +94,8 @@ sub set_conf_vars {
 }
 
 # creates a new conf with a value if it doesn't exist, does nothing if
-# it already exists
+# it already exists. useful for setting default values.
+*default = \&add_conf;
 sub add_conf { $_[0]->conf->{$_[1]} ||= $_[2] }
 
 no Moose;

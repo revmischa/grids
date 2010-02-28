@@ -35,30 +35,35 @@ has 'debug' => (
     is => 'rw',
     isa => 'Bool',
     default => 0,
+    lazy => 1,
 );
 
 has 'event_queue' => (
     is => 'rw',
     isa => 'Grids::Protocol::EventQueue',
     default => sub { Grids::Protocol::EventQueue->new; },
+    lazy => 1,
 );
 
 has 'transport_driver' => (
     is => 'rw',
     isa => 'Str',
     default => 'TCP::AnyEvent',
+    lazy => 1,
 );
 
 has 'encapsulation_class' => (
     is => 'rw',
     isa => 'Str',
     default => 'JSON',
+    lazy => 1,
 );
 
 has 'use_encryption' => (
     is => 'rw',
     isa => 'Bool',
     default => sub { 1 },
+    lazy => 1,
 );
 
 # dispatch events as they come in, don't wait for do_next_event() to
@@ -66,8 +71,36 @@ has 'use_encryption' => (
 has 'auto_flush_queue' => (
     is => 'rw',
     isa => 'Bool',
+    lazy => 1,
     default => sub { 1 },
 );
+
+has 'autosave_configuration' => (
+    is => 'rw',
+    isa => 'Bool',
+    lazy => 1,
+    default => sub { 1 },
+);
+
+has 'autoload_configuration' => (
+    is => 'rw',
+    isa => 'Bool',
+    lazy => 1,
+    default => sub { 1 },
+);
+
+sub DEMOLISH {
+    my $self = shift;
+
+    $self->configuration->save if $self->autosave_configuration;
+    $self->disconnect_all;
+}
+
+sub BUILD {
+    my $self = shift;
+
+    $self->configuration->load if $self->autoload_configuration;
+}
 
 sub _conf_builder {
     my ($self) = @_;
@@ -136,6 +169,19 @@ sub listen {
 
     my $t = $self->new_transport; 
     $t->listen;
+}
+
+sub disconnect_all_clients {
+    my ($self) = @_;
+
+    $_->close_all_clients for @{$self->transports};
+}
+
+sub disconnect_all {
+    my ($self) = @_;
+
+    $_->disconnect for @{$self->transports};
+    $self->transports([]);
 }
 
 # sends an event

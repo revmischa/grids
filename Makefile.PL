@@ -7,13 +7,16 @@ WriteMakefile(
 
     # required modules
     PREREQ_PM         => {
-        Term::ReadLine => 0,
+        AnyEvent => 0,
         Storable => 0,
         Class::Autouse => 0,
         JSON::XS => 0,
         JSON => 0,
         Moose => 0,
+        Getopt::Long => 0,
+        FindBin => 0,
         Digest::SHA1 => 0,
+        Sys::Hostname => 0,
     },
 
     ($] >= 5.005 ?     ## Add these new keywords supported since 5.005

@@ -29,7 +29,7 @@ our $READ_SIZE = 1450;
 sub disconnect {
     my ($self, $connection) = @_;
 
-    $self->reset($connection);
+    $self->reset($connection) if $connection;
 }
 
 sub connect {

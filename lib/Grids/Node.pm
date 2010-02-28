@@ -92,11 +92,6 @@ sub network_broadcast {
     $network->send_to_peers($event);
 }
 
-sub disconnect_all_clients {
-    my ($self) = @_;
-
-    $_->close_all_clients for @{$self->transports};
-}
 
 # someone has connected to us
 sub incoming_connection_established {

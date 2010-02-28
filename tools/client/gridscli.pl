@@ -15,7 +15,6 @@ use Grids::Address::IPv4;
 use AnyEvent;
 use Carp qw (croak);
 use Getopt::Long;
-use Data::Dumper;
 
 ############
 
@@ -40,7 +39,11 @@ print "Loaded settings from $conffile\n" if $conf->load;
 
 die Dumper($conf) if $dump;
 
+# main loop condition
+my $main = AnyEvent->condvar;
+
 my $con = Grids::Console->new(
+    cv => $main,
     conf => $conf,
     title => "Grids",
     prompt => "Grids> ",
@@ -101,7 +104,7 @@ sub connect {
 
 sub run {
     $con->listen_for_input;
-    AnyEvent->condvar->recv;
+    $main->recv;
 }
 
 sub create_id {

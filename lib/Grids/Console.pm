@@ -17,7 +17,7 @@ has prompt => (
 has title => (
     is => 'rw',
     isa => 'Str',
-    default => sub { 'Grids' },
+    default => sub { 'Welcome to Grids' },
 );
 
 has conf => (
@@ -51,6 +51,11 @@ has handlers => (
     default => sub { {} },
 );
 
+# condvar to be notified when user requests exit
+has cv => (
+    is => 'rw',
+);
+
 sub BUILD {
     my $self = shift;
 
@@ -63,19 +68,11 @@ sub finish {
 
     $self->handle->destroy;
     $self->clear_handle;
-}
-
-sub print_prompt {
-    my ($self) = @_;
-
-    my $out = $self->OUT;
-    print $out $self->prompt . ' ';
+    $self->cv->send if $self->cv;
 }
 
 sub listen_for_input {
     my $self = shift;
-
-    $self->print("\n" . $self->msg) if $self->msg;
 
     my $handle; $handle = new AnyEvent::Handle(
         fh => $self->IN,
@@ -104,6 +101,9 @@ sub listen_for_input {
     );
 
     $self->handle($handle);
+
+    $self->print_title($self->title);
+    $self->print("\n" . $self->msg) if $self->msg;
     $self->print_prompt;
 }
 
@@ -168,8 +168,9 @@ sub set {
 
     if (! $var) {
         return "Usage: set [\$variable] [\$value]\nDisplays current value of \$variable if \$value is not defined";
-    } elsif (! $val) {
+    } elsif (! defined $val) {
         $val = $self->conf->get_conf($var);
+        $val = 'undef' unless defined $val;
         return "$var: $val";
     } else {
         my $old_val = $self->conf->get_conf($var);
@@ -207,7 +208,14 @@ sub print_error {
 sub print_title {
     my ($self, $msg) = @_;
     
-    $self->print(" -- $msg --");
+    $self->print(" -- $msg --") if $msg;
+}
+
+sub print_prompt {
+    my ($self) = @_;
+
+    my $out = $self->OUT;
+    print $out $self->prompt . ' ';
 }
 
 sub interactively_load_identity {
@@ -320,7 +328,7 @@ sub interactively_generate_identity {
 sub save {
     my $self = shift;
     $self->conf->save;
-    return "saved settings to " . $self->conf->conf_file;
+    return "saved settings to " . $self->conf->file_name;
 }
 
 no Moose;

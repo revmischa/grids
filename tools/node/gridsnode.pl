@@ -19,17 +19,17 @@ use Getopt::Long;
 use Sys::Hostname;
 use AnyEvent;
 
-my $conffile = 'gridsnode.conf';
+my $conffile;
 my $nodename = hostname;
 my ($help, $id, $debug);
 
 my %prog_opts = (
-                 'h|help'  => \$help,
-                 'n|name'  => \$nodename,
-                 'c|conf'  => \$conffile,
-                 'i|id'    => \$id,
-                 'd|debug' => \$debug,
-                 );
+    'h|help'  => \$help,
+    'n|name'  => \$nodename,
+    'c|conf'  => \$conffile,
+    'i|id'    => \$id,
+    'd|debug' => \$debug,
+);
 
 GetOptions(%prog_opts);
 
@@ -37,18 +37,21 @@ usage() and exit if $help;
 
 my $conf = Grids::Conf->new(conf_file => $conffile);
 
-my $node;
+# main loop condition
+my $main = AnyEvent->condvar;
+
 my $con = Grids::Console->new(
-                          conf => $conf,
-                          title => "GridsNode",
-                          prompt => "GridsNode [$nodename]> ",
-                          handlers => {
-                              help  => \&help,
-                              set   => \&Grids::Console::set,
-                              save  => \&Grids::Console::save,
-                              list  => \&Grids::Console::list,
-                          },
-                          );
+    cv => $main,
+    conf => $conf,
+    title => "GridsNode",
+    prompt => "GridsNode [$nodename]> ",
+    handlers => {
+        help  => \&help,
+        set   => \&Grids::Console::set,
+        save  => \&Grids::Console::save,
+        list  => \&Grids::Console::list,
+    },
+);
 
 run();
 
@@ -63,7 +66,7 @@ sub client_disconnected {
 }
 
 sub run {
-    $con->print("Loaded settings from $conffile") if $conf->load;
+    $con->print("Loaded settings from " . $conf->file_name) if $conf->loaded;
 
     # get identity
     my $identity = $con->interactively_load_identity;
@@ -72,11 +75,8 @@ sub run {
         exit 0;
     }
     
-    # main loop condition
-    my $main = AnyEvent->condvar;
-
     # create node
-    $node = Grids::Node->new(
+    my $node = Grids::Node->new(
         conf => $conf,
         debug => $debug,
         id => $identity,
@@ -92,6 +92,10 @@ sub run {
 
     # listen for user input
     $con->listen_for_input;
+
+    local $SIG{INT} = sub {
+        $main->send;
+    };
 
     # main loop
     $main->recv;
