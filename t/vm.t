@@ -25,41 +25,44 @@ my $vm = new Grids::VM;
 is($vm->pc, 0, "initted vm");
 $vm->load_program($program);
 
-$vm->step;
-is($vm->reg('t0'), 0x12345678, 'li');
+# test arithmetic
+{
+    $vm->step;
+    is($vm->reg('t0'), 0x12345678, 'li');
 
-$vm->step;
-is($vm->reg('t1'), 0x12345679, 'addi');
+    $vm->step;
+    is($vm->reg('t1'), 0x12345679, 'addi');
 
-$vm->step;
-is($vm->reg('t1'), 0x12345675, 'addi subtract');
+    $vm->step;
+    is($vm->reg('t1'), 0x12345675, 'addi subtract');
 
-$vm->step;
-is($vm->reg('a0'), 5, 'addiu');
+    $vm->step;
+    is($vm->reg('a0'), 5, 'addiu');
 
-$vm->step;
-is($vm->reg('a1'), 7, 'addiu');
+    $vm->step;
+    is($vm->reg('a1'), 7, 'addiu');
 
-$vm->step;
-is($vm->reg('a2'), 6, 'addi subtract');
+    $vm->step;
+    is($vm->reg('a2'), 6, 'addi subtract');
 
-$vm->step;
-is($vm->reg('at'), 6 << 3, 'sll');
+    $vm->step;
+    is($vm->reg('at'), 6 << 3, 'sll');
 
-$vm->step;
-is($vm->reg('v0'), $vm->reg('at') >> 1, 'srl');
+    $vm->step;
+    is($vm->reg('v0'), $vm->reg('at') >> 1, 'srl');
 
-$vm->step;
-is($vm->reg('a0'), 0, 'xor');
+    $vm->step;
+    is($vm->reg('a0'), 0, 'xor');
 
-$vm->step;
-is($vm->reg_u('a0'), 0xFFFFFFFE, 'addiu');
+    $vm->step;
+    is($vm->reg_u('a0'), 0xFFFFFFFE, 'addiu');
 
-$vm->step;
-is($vm->reg_u('a0'), 0xFFFFFFFF, 'xori');
+    $vm->step;
+    is($vm->reg_u('a0'), 0xFFFFFFFF, 'xori');
 
-$vm->step;
-is($vm->reg('a1'), 0x7FFFFFFF, 'andi');
+    $vm->step;
+    is($vm->reg('a1'), 0x7FFFFFFF, 'andi');
+}
 
 # test lb
 {
@@ -79,6 +82,19 @@ is($vm->reg('a1'), 0x7FFFFFFF, 'andi');
     $vm->step;
     $vm->step;
     is($vm->reg('t3'), 0b00000001, 'andi');
+}
+
+# test multu
+{
+    $vm->step; # li
+    $vm->step; # li
+    $vm->step; # multu
+    $vm->step; # mfhi
+    $vm->step; # mflo
+    is($vm->reg_u('t1'), 0x00ABCD12, "multu hi word");
+    is($vm->reg_u('t2'), 0x33B7953A, "multu lo word");
+    is($vm->reg_u('hi'), 0x00ABCD12, "multu hi word");
+    is($vm->reg_u('lo'), 0x33B7953A, "multu lo word");
 }
 
 # test and
@@ -114,24 +130,28 @@ is($vm->reg('a1'), 0x7FFFFFFF, 'andi');
     is($vm->reg('t2'), $vm->reg('t1'), "lh 0 offset");
 }
 
+# test unconditional branching
+{
+    my $pc = $vm->pc;
+    $vm->step;
+    is($vm->pc, $pc + 18, 'jreli');
+    is(op(), 'jreli', 'jrel op');
 
-my $pc = $vm->pc;
+    $pc = $vm->pc;
+    $vm->step; # jreli -2
+    is($vm->pc, $pc - 12, 'negative jreli');
+    is(op_r(), 'sll', 'negative jreli');
+}
+
+# nop
 $vm->step;
-is($vm->pc, $pc + 18, 'jreli');
-is(op(), 'jreli', 'jrel op');
-
-$pc = $vm->pc;
-$vm->step; # jreli -2
-is($vm->pc, $pc - 12, 'negative jreli');
-is(op_r(), 'sll', 'negative jreli');
-
-$vm->step; # nop
 is(op(), 'j', 'nop');
 
+# jump
 $vm->step; # j testbranching
 is(op(), 'addi', 'jump ok');
 
-# test branching
+# test conditional branching
 {
 
     $vm->step; # li
@@ -204,12 +224,14 @@ $vm->step; # nop
 $vm->step; # li $t4, 0xFFFFFFFF
 
 # test subu
-$vm->step; # or $t1, $zero, 0xFFFFFFFF
-is($vm->reg_u('t1'), 0xFFFFFFFF, 'or');
-$vm->step; # li $t3, 1
-is($vm->reg_u('t3'), 1, 'li');
-$vm->step; # subu $t2, $t1, $t3
-is($vm->reg_u('t2'), 0xFFFFFFFE, 'subu');
+{
+    $vm->step; # or $t1, $zero, 0xFFFFFFFF
+    is($vm->reg_u('t1'), 0xFFFFFFFF, 'or');
+    $vm->step; # li $t3, 1
+    is($vm->reg_u('t3'), 1, 'li');
+    $vm->step; # subu $t2, $t1, $t3
+    is($vm->reg_u('t2'), 0xFFFFFFFE, 'subu');
+}
 
 $vm->step; # j end
 $vm->step; # j beginning

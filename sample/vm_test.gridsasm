@@ -20,6 +20,13 @@ beginning:
   li $t2, 0xFFFFFFFF
   andi $t3, $t2, 0b00000001
 
+  ; test mult/div
+  li $t0, 0x00C0F0FA
+  li $t1, 0xE3F354A1
+  multu $t0, $t1
+  mfhi $t1
+  mflo $t2
+
   li $t2, 0b10110101
   li $t1, 0b00101001
   and $t0, $t2, $t1

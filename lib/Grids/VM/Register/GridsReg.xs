@@ -7,11 +7,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define REG(i) (*(handle + i))
+/////
 
-typedef I32 reg_t;
-typedef U32  ureg_t;
-typedef int * reghandle_t;
+#include "GridsReg.h"
+
+#define REG(i) (*(handle + i))
 
 reghandle_t alloc_regs(unsigned int count) {
   reghandle_t regs = malloc(sizeof(reg_t) * count);
@@ -62,6 +62,19 @@ ureg_t or_regs(reghandle_t handle, unsigned int idx1, unsigned int idx2) {
 
 ureg_t xor_regs(reghandle_t handle, unsigned int idx1, unsigned int idx2) {
   return get_reg_u(handle, idx1) ^ get_reg_u(handle, idx2);
+}
+
+reg_t hi(qword_t val){ 
+  return lo(val >> 32);
+}
+reg_t lo(qword_t val) {
+  return (reg_t)(val & 0x00000000FFFFFFFFFU);
+}
+ureg_t hi_u(uqword_t val){ 
+  return lo(val >> 32);
+}
+ureg_t lo_u(uqword_t val) {
+  return (ureg_t)(val & 0x00000000FFFFFFFFFU);
 }
 
 MODULE = Grids::VM::Register		PACKAGE = Grids::VM::Register
@@ -124,4 +137,30 @@ xor_regs(handle, idx1, idx2)
   unsigned int idx1
   unsigned int idx2
 
+qword_t
+mult_regs(handle, idx1, idx2)
+  reghandle_t handle
+  unsigned int idx1
+  unsigned int idx2
 
+uqword_t
+mult_regs_u(handle, idx1, idx2)
+  reghandle_t handle
+  unsigned int idx1
+  unsigned int idx2
+
+reg_t
+hi(val)
+  qword_t val
+
+reg_t
+lo(val)
+  qword_t val
+
+ureg_t
+hi_u(val)
+  qword_t val
+
+ureg_t
+lo_u(val)
+  qword_t val

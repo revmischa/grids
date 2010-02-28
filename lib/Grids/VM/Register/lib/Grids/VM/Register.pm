@@ -78,6 +78,20 @@ sub xor {
     return Grids::VM::Register::xor_regs($self->h, $idx1, $idx2);
 }
 
+# multiply rs * rt, return the product hi and lo words
+sub mult {
+    my ($self, $idx1, $idx2) = @_;
+
+    my $product = $self->get($idx1) * $self->get($idx2);
+    return (Grids::VM::Register::hi($product), Grids::VM::Register::lo($product));
+}
+sub mult_u {
+    my ($self, $idx1, $idx2) = @_;
+
+    my $product = $self->get_u($idx1) * $self->get_u($idx2);
+    return (Grids::VM::Register::hi_u($product), Grids::VM::Register::lo_u($product));
+}
+
 sub h { $_[0]->{handle} }
 
 sub DESTROY {

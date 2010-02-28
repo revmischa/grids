@@ -19,6 +19,7 @@ our (@REGS, %REGS); # mappings of register->symbolic name and vice-versa
              t0 t1 t2 t3 t4 t5 t6 t7
              s0 s1 s2 s3 s4 s5 s6 s7
              t8 t9 k0 k1 gp sp fp ra
+             hi lo
              /);
 }
 
@@ -44,11 +45,12 @@ our %OPCODES = (
     'sh'      => 0b101001,
     'sw'      => 0b101011,
 
+    # unconditional branch
     'j'       => 0b000010,
     'jal'     => 0b000011,
     'jreli'   => 0b110001,
 
-    # branch opcodes
+    # conditional branch
     'beq'     => 0b000100,
     'bne'     => 0b000101,
 
@@ -57,12 +59,13 @@ our %OPCODES = (
     'bgtz'    => 0b010101,
     'bgtzal'  => 0b010111,
 
-    'blez'    => 0b011011,
+    'blez'    => 0b000110,
     'blezal'  => 0b011001,
     'bltz'    => 0b011010,
     'bltzal'  => 0b010001,
     ####
 
+    # immediate arithmetic
     'addi'    => 0b001000,
     'addiu'   => 0b001001,
     'xori'    => 0b001110,
@@ -83,11 +86,18 @@ our %R_TYPE_FUNCS = (
     'addu'  => ["rd, rs, rt", 0b100001],
     'sub'   => ["rd, rs, rt", 0b100010],
     'subu'  => ["rd, rs, rt", 0b100011],
-
+    'div'   => ["rs, rt",     0b011010],
+    'divu'  => ["rs, rt",     0b011011],
+    'mult'  => ["rs, rt",     0b011000],
+    'multu' => ["rs, rt",     0b011001],
+ 
     'jr'    => ["rs",         0b001000],
 
     'sll'   => ["rd, rs, sa", 0b000000],
     'srl'   => ["rd, rs, sa", 0b000010],
+
+    'mfhi'  => ["rd",         0b010000],
+    'mflo'  => ["rd",         0b010010],
 
     'and'   => ["rd, rs, rt", 0b100100],
     'xor'   => ["rd, rs, rt", 0b100110],
@@ -163,6 +173,14 @@ sub sn {
         unpack(uc $templ, pack(uc $templ, $i));
 }
 
+sub s64 {
+    my $i = shift;
+    return sn('q', $i, 1);
+}
+sub u64 {
+    my $i = shift;
+    return sn('Q', $i, 0);
+}
 sub s32 {
     my $i = shift;
     return sn('l', $i, 1);

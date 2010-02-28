@@ -178,6 +178,26 @@ sub set_reg {
     return $self->regs->set($reg_idx, $val);
 }
 
+sub set_hilo {
+    my ($self, $hi, $lo) = @_;
+
+    my $hi_idx = $self->_reg('hi');
+    my $lo_idx = $self->_reg('lo');
+
+    $self->regs->set($hi_idx, $hi);
+    $self->regs->set($lo_idx, $lo);
+}
+
+sub set_hilo_u {
+    my ($self, $hi, $lo) = @_;
+
+    my $hi_idx = $self->_reg('hi');
+    my $lo_idx = $self->_reg('lo');
+
+    $self->regs->set_u($hi_idx, $hi);
+    $self->regs->set_u($lo_idx, $lo);
+}
+
 # utility method to look up a register number that accepts either the
 # register number (e.g. 4) or a name (e.g. 'a0')
 sub _reg {
@@ -187,7 +207,7 @@ sub _reg {
 
     my $reg_num = $REGS{lc $reg} || $reg;
 
-    croak "Invalid register $reg" if $reg_num < 0 || $reg_num > 31;
+    croak "Invalid register $reg" if $reg_num < 0 || $reg_num > @REGS;
 
     return $reg_num;
 }

@@ -11,12 +11,18 @@ use Grids::Code;
 
 ### utility funcs
 
-# returns 32-bit unsigned representation of this number
+sub _u64 {
+    my $i = shift;
+    return Grids::Code::u64($i);
+}
+sub _s64 {
+    my $i = shift;
+    return Grids::Code::s64($i);
+}
 sub _u32 {
     my $i = shift;
     return Grids::Code::u32($i);
 }
-# signed version
 sub _s32 {
     my $i = shift;
     return Grids::Code::s32($i);
@@ -94,6 +100,56 @@ sub r_sub {
 sub r_subu {
     my ($class, $vm, $rs, $rt, $rd, $sa) = @_;
     $vm->set_reg($rd, $vm->reg_u($rs) - $vm->reg_u($rt));
+}
+
+# hi/lo = $rs * $rt
+sub r_mult {
+    my ($class, $vm, $rs, $rt, $rd, $sa) = @_;
+    my ($prod_hi, $prod_lo) = $vm->regs->mult($rs, $rt);
+    $vm->set_hilo($prod_hi, $prod_lo);
+}
+sub r_multu {
+    my ($class, $vm, $rs, $rt, $rd, $sa) = @_;
+    my ($prod_hi, $prod_lo) = $vm->regs->mult_u($rs, $rt);
+    $vm->set_hilo_u($prod_hi, $prod_lo);
+}
+
+# $lo = $rs / $rt; $hi = $rs % $rt;
+sub r_div {
+    my ($class, $vm, $rs, $rt, $rd, $sa) = @_;
+
+    my $rs_val = $vm->reg($rs);
+    my $rt_val = $vm->reg($rt);
+
+    my $quot = int($rs_val / $rt_val);
+    my $rem  = $rs_val % $rt_val;
+
+    $vm->set_reg('lo', $quot);
+    $vm->set_reg('hi', $rem);
+}
+sub r_divu {
+    my ($class, $vm, $rs, $rt, $rd, $sa) = @_;
+
+    my $rs_val = $vm->reg_u($rs);
+    my $rt_val = $vm->reg_u($rt);
+
+    my $quot = int($rs_val / $rt_val);
+    my $rem  = $rs_val % $rt_val;
+
+    $vm->set_reg('lo', $quot);
+    $vm->set_reg('hi', $rem);
+}
+
+# rd = hi
+sub r_mfhi {
+    my ($class, $vm, $rs, $rt, $rd, $sa) = @_;
+    $vm->set_reg($rd, $vm->reg('hi'));
+}
+
+# rd = lo
+sub r_mflo {
+    my ($class, $vm, $rs, $rt, $rd, $sa) = @_;
+    $vm->set_reg($rd, $vm->reg('lo'));
 }
 
 # rd = rs << sa
