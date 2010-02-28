@@ -37,14 +37,16 @@ our %OPCODES = (
     'syscall' => 0b111111,
 
     # based memory access
-    'lw'      => 0b100011,
     'lb'      => 0b100000,
+    'lh'      => 0b100001,
+    'lw'      => 0b100011,
     'sb'      => 0b101000,
+    'sh'      => 0b101001,
     'sw'      => 0b101011,
 
     'j'       => 0b000010,
     'jal'     => 0b000011,
-    'jreli'   => 0b100001,
+    'jreli'   => 0b110001,
 
     # branch opcodes
     'beq'     => 0b000100,
@@ -124,8 +126,10 @@ our %OPCODES_REV;
 # opcodes which have an offset encoded in the immediate data
 our @OFFSET_OPCODES = qw (
     lw
+    lh
     lb
     sw
+    sh
     sb
 );
 

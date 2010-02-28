@@ -101,17 +101,17 @@ is($vm->reg('a1'), 0x7FFFFFFF, 'andi');
     is(pack('l', $vm->get_mem($vm->reg('t0'), 4)), "abef", "sb");
 
     $vm->step; # la
-    $vm->step; # lw
-    $vm->step; # lw
-    is($vm->reg_u('t1'), 0x00FF, "lw");
+    $vm->step; # lh
+    $vm->step; # lh
+    is($vm->reg_u('t1'), 0x00FF, "lh");
     is($vm->get_mem_u($vm->reg('t0') + 2, 2), 0x00FF, "get_mem_u 16");
     is($vm->get_mem_u($vm->reg('t0'), 4), 0x00FF1234, "get_mem_u 32");
 
     $vm->step; # addi
-    $vm->step; # lw
-    is($vm->reg_u('t2'), $vm->reg_u('t3'), "lw negative offset");
-    $vm->step; # lw
-    is($vm->reg('t2'), $vm->reg('t1'), "lw 0 offset");
+    $vm->step; # lh
+    is($vm->reg_u('t2'), $vm->reg_u('t3'), "lh negative offset");
+    $vm->step; # lh
+    is($vm->reg('t2'), $vm->reg('t1'), "lh 0 offset");
 }
 
 

@@ -32,13 +32,13 @@ beginning:
     li $t1, 0x66
     sb $t1, 3($t0)
 
-    ; words
+    ; halfwords
     la $t0, memtest2
-    lw $t1, 2($t0)
-    lw $t3, ($t0)
+    lh $t1, 2($t0)
+    lh $t3, ($t0)
     addi $t0, $t0, 2
-    lw $t2, -2($t0)
-    lw $t2, 0($t0)
+    lh $t2, -2($t0)
+    lh $t2, 0($t0)
     
 
   jreli 3   ; goto a
