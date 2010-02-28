@@ -25,14 +25,6 @@ sub DEMOLISH {
     $self->disconnect;
 }
 
-sub received_connection {
-    my ($self, $peer) = @_;
-
-    my $in_conn = Grids::Protocol::Connection->new(transport => $self, channel => $peer, inbound => 1);
-
-    $self->peer_conn($in_conn);
-}
-
 sub disconnect {
     my ($self) = @_;
 
@@ -53,8 +45,8 @@ sub connect {
     $self->peer($peer);
     $self->peer->peer($self);
  
-    $peer->received_connection($self);
-
+    my $in_conn = Grids::Protocol::Connection->new(transport => $peer, channel => $self, inbound => 1);
+    $peer->peer_conn($in_conn);
     $self->peer_conn( Grids::Protocol::Connection->new(transport => $self, channel => $peer, inbound => 0) );
 
     $peer->incoming_connection_established($peer->peer_conn);
@@ -64,14 +56,12 @@ sub connect {
 }
 
 sub write {
-    my ($self, $data) = @_;
-
-    my $conn = $self->peer->peer_conn;
+    my ($self, $data, $connection) = @_;
 
     confess "Attempted to write on an unconnected loop transport"
-        unless $conn && $self->peer;
+        unless $connection && $connection->channel;
 
-    $self->peer->data_received($conn, $data);
+    $connection->channel->data_received($self->peer->peer_conn, $data);
 
     return 1;
 }

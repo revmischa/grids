@@ -29,12 +29,12 @@ flush() for 1..10;
 # brodcast a "FooEvent" to all connected clients
 $clients[0]->do_request(event_args => { foo => 'bar', event_name => "FooEvent" }, event_name => 'Broadcast.Event');
 
-flush() for 1..10;
+flush() for 1..20;
 
 my $got_foo_count = 0;
 foreach my $client (@clients) {
-    $got_foo_count++;
-    ok($got_foo->{$client}, "client received broadcast event");
+    $got_foo_count++ if $got_foo->{$client};
+    ok($got_foo->{$client}, "client " . $client->name . " received broadcast event");
 }
 
 is($got_foo_count, scalar @clients, "correct number of clients received event");

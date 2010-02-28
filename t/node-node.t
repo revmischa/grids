@@ -13,9 +13,10 @@ use Grids::Identity;
 
 my $debug = 0;
 
-my $nodecount = 5;
+my $nodecount = 4;
 my $connections = 0;
 my $encrypted_connections = 0;
+my $connection_attempts;
 my @nodes;
 
 init_nodes();
@@ -33,7 +34,7 @@ sub init_nodes {
         $id->set_callback('otr_message', sub { my ($otr, $user, $proto, $peer, $notif) = @_; warn "[$user] OTR system message: $notif" });
 
         # create a new node
-        my $node = Grids::Node->new(debug => $debug, id => $id, use_encryption => 0);
+        my $node = Grids::Node->new(debug => $debug, id => $id, use_encryption => 0, transport_driver => 'Loop');
 
         # set node-node private key
         $node->configuration->set_conf('Node.PrivateKey' => '123');
@@ -44,7 +45,7 @@ sub init_nodes {
         $node->register_hook('Login', \&login);
         $node->register_hook('Error', \&node_error);
 
-        my $loop = $node->add_transport('Loop');
+        my $loop = $node->new_transport;
         $loopmap{$node} = $loop;
         push @nodes, $node;
     }
@@ -62,12 +63,14 @@ sub init_nodes {
             my $nextloop = $loopmap{$nextnode};
             my $conn = $loop->connect($nextloop);
             push @connections, $conn;
+
+            $connection_attempts++;
         }
     }
  
     flush() for (1 .. ($nodecount * 10));
 
-    is($connections, $nodecount, "all nodes connected");
+    is($connections, $connection_attempts, "all nodes connected");
 
     # test encrypted messaging
     {

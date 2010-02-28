@@ -23,6 +23,11 @@ sub reset {
     return 0;
 }
 
+sub listen {
+    my ($self) = @_;
+    return 0;
+}
+
 sub close_all {
     my ($self) = @_;
 
@@ -66,7 +71,7 @@ sub bind {
     };
 }
 
-# connected to another node
+# connected established, but protocol is not yet initialized
 sub connection_established {
     my ($self, $conn) = @_;
 
@@ -102,7 +107,7 @@ sub encrypted_connection_unready {
     my ($self, $connection, $otr, $peer_name) = @_;
 
     $connection->peer_fingerprint_is_verified(0);
-    $self->delegate_do('connection_unready', $connection, $peer_name);
+    $self->delegate_do('encrypted_connection_unready', $connection, $peer_name);
 }
 
 sub encrypted_connection_ready {
@@ -129,7 +134,6 @@ sub incoming_connection_established {
 sub data_received {
     my ($self, $connection, $data) = @_;
 
-#    warn "received [$data]";
     $self->delegate_do('data_received', $connection, $data);
 }
 

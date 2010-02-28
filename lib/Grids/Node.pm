@@ -18,7 +18,6 @@ use Class::Autouse qw/
     Grids::Network
 /;
 
-use Grids::Transport;
 use Carp qw/croak/;
 
 has 'network_id' => (
@@ -59,7 +58,7 @@ after enable_encryption => sub {
     my @protocols = $self->all_protocols;
     foreach my $p (@protocols) {
         $p->use_encryption(1);
-        $self->dbg("Encryption enabled for " . $p->peer_name);
+        $self->dbg("encryption enabled for " . $p->peer_name);
     }
 };
 
@@ -68,7 +67,7 @@ after disable_encryption => sub {
     my @protocols = $self->all_protocols;
     foreach my $p (@protocols) {
         $p->use_encryption(0);
-        $self->dbg("Encryption disabled for " . $p->peer_name);
+        $self->dbg("encryption disabled for " . $p->peer_name);
     }
 };
 
@@ -110,6 +109,8 @@ sub outgoing_connection_established {
 sub connection_ready {
     my ($self, $connection) = @_;
     
+    $self->dbg("node connection ready with peer " . $connection->peer->name);
+
     # inbound connections have already been added
     $self->network->add_to_peers(peer => $connection->peer)
         if $connection->outbound;
@@ -173,10 +174,9 @@ sub data_received {
     # todo: make sure this is destroyed when connection is closed
     my $protocol_handler = $connection->protocol;
 
-    if ($protocol_handler) {
+    if ($protocol_handler && $protocol_handler->initialized) {
         my $event = $protocol_handler->parse_request($connection, $data);
         if ($event) {
-            $event->connection($connection);  # FIXME
             $self->add_event_to_queue($event) or $self->warn("Could not enqueue event $event");
         }
     } else {
@@ -202,7 +202,7 @@ sub data_received {
 
         # write response
         my $proto_init_resp = $p->protocol_init_response;
-        $connection->write($proto_init_resp) or $self->dbg("Unable to write session init response");
+        $connection->write($proto_init_resp) or $self->dbg("unable to write session init response");
     }
 }
 

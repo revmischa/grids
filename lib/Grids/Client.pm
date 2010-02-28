@@ -4,7 +4,6 @@ use Moose;
     with 'Grids::Base';
     with 'Grids::Transport::Consumer';  # receives transport-related callbacks
 
-use Grids::Transport;
 use Grids::Protocol;
 use Grids::Protocol::EventQueue;
 use Grids::Protocol::Event;
@@ -41,8 +40,6 @@ __PACKAGE__->load_hooks;
 # called when our transport receives data
 sub data_received {
     my ($self, $connection, $data) = @_;
-
-    $self->dbg("received data [$data]");
 
     my $evt = $connection->parse_request($connection, $data);
     return unless $evt;
@@ -85,17 +82,14 @@ around connect => sub {
     my $client = $self->$orig($address);
     $self->client($client);
 
-    warn "client: $client";
-
     return $client;
 };
 
 sub disconnect {
     my ($self) = @_;
-
-    warn "disconnect called";
     
-    $self->transport->close_all_clients;
+    $_->close_all_clients foreach @{$self->transports};
+
     $self->clear_connection;
     $self->clear_client;
 }
@@ -104,14 +98,14 @@ sub disconnect {
 sub connection_ready {
     my ($self, $connection) = @_;
     
-    $self->dbg("Connection established with " . $connection->peer->name);
+    $self->dbg(($connection->inbound ? 'inbound' : 'outbound') . " connection ready with " . $connection->peer->name);
 }
 
 # encrypted connection started
 sub encrypted_connection_ready {
     my ($self, $connection) = @_;
     
-    $self->dbg("Encrypted connection established with " . $connection->peer->name);
+    $self->dbg("encrypted connection established with " . $connection->peer->name);
 }
 
 # Called when a connection with a Node has been established. This
@@ -121,7 +115,7 @@ sub encrypted_connection_ready {
 sub outgoing_connection_established {
     my ($self, $connection) = @_;
 
-    $self->dbg("Connection to node successful. Initiating Grids protocol...");
+    $self->dbg("connection to node successful. Initiating Grids protocol...");
     $self->connection($connection);
     $connection->initiate_protocol(id => $self->id, use_encryption => $self->use_encryption);
 }

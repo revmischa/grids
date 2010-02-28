@@ -30,11 +30,19 @@ sub hook_broadcast_event {
     my Grids::Node $node = shift;
     my Grids::Protocol::Event $evt = shift;
 
+    # dont broadcast broadcast acks
+    return if $evt->args->{ack};
+
     # what event should be broadcast?
-    my $event_name = delete $evt->args->{event_name}
-        or return $node->hook_error(BROADCAST_ERROR_NO_EVENT_NAME, {
-            message => 'broadcast requested but no event_name specified',
-        });
+    my $event_name = delete $evt->args->{event_name};
+
+    # we should return a hook error here, but since hook_error returns
+    # with the same event (BroadcastEvent) we can end up in an
+    # infinite loop
+    unless ($event_name) {
+        $node->warn('broadcast requested but no event_name specified');
+        return;
+    }
 
     # clone event
     my $new_evt = bless { %$evt }, ref $evt;
@@ -46,7 +54,7 @@ sub hook_broadcast_event {
     $new_evt->args(\%args);
 
     $node->network_broadcast($new_evt);
-    return $node->hook_ok;
+    return $node->hook_ok(ack => 1);
 }
 
 no Moose;

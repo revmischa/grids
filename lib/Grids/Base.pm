@@ -14,6 +14,7 @@ has 'id' => (
     is => 'rw',
     isa => 'Grids::Identity',
     required => 1,
+    handles => [qw/name/],
 );
 
 has 'configuration' => (
@@ -23,11 +24,11 @@ has 'configuration' => (
     builder => '_conf_builder',
 );
 
-has 'transport' => (
+has 'transports' => (
     is => 'rw',
-    does => 'Grids::Transport::Driver',
+    isa => 'ArrayRef',
     lazy => 1,
-    builder => '_transport_builder',
+    default => sub { [] },
 );
 
 has 'debug' => (
@@ -73,19 +74,22 @@ sub _conf_builder {
     return Grids::Conf->new;
 }
 
-sub _transport_builder {
-    my ($self) = @_;
+sub new_transport {
+    my ($self, $driver_class) = @_;
 
-    my $transport_driver = $self->transport_driver;
+    $driver_class ||= $self->transport_driver;
     my $encapsulation_class = $self->encapsulation_class;
 
     my $proto = Grids::Protocol->new(encapsulation_class => $encapsulation_class, id => $self->id)
         or die "Failed to create protocol handler";
 
-    my $t_class = "Grids::Transport::$transport_driver";
-    eval "use $t_class; 1;" or die "Could not load transport driver $transport_driver: $@";
+    my $t_class = "Grids::Transport::$driver_class";
+    eval "use $t_class; 1;" or die "Could not load transport driver $driver_class: $@";
 
     my $t = $t_class->new(delegate => $self);
+
+    # FIXME: need to remove this when done with it
+    push @{$self->transports}, $t;
 
     return $t;
 }
@@ -130,7 +134,8 @@ sub add_event_to_queue {
 sub listen {
     my ($self) = @_;
 
-    $self->transport->listen;
+    my $t = $self->new_transport; 
+    $t->listen;
 }
 
 # sends an event
@@ -158,7 +163,7 @@ sub do_next_event {
         $args ||= {};
 
         my $args_disp = %$args ? ' (' . join(', ', map { $_ . ' = ' . $args->{$_} } keys %$args) . ')' : '';
-        $self->dbg("Handling event " . $event->event_name . "$args_disp");
+        $self->dbg("handling event " . $event->event_name . "$args_disp");
     }
 
     # run hooks for this event
@@ -168,7 +173,7 @@ sub do_next_event {
 
     # capture errors from hooks
     if ($@) {
-        $self->warn("Error while running hooks for event " . $event->event_name . ": " .
+        $self->warn("error while running hooks for event " . $event->event_name . ": " .
             $@ . "\n");
     }
 
@@ -226,7 +231,8 @@ sub do_request {
 sub connect {
     my ($self, $address) = @_;
 
-    return $self->transport->connect($address);
+    my $t = $self->new_transport;
+    return $t->connect($address);
 }
 
 sub dbg {

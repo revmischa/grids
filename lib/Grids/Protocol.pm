@@ -42,6 +42,12 @@ has encrypted_connection_started => (
     default => sub { 0 },
 );
 
+has initialized => (
+    is => 'rw',
+    isa => 'Bool',
+    default => sub { 0 },
+);
+
 use Class::Autouse qw/
     Grids::Protocol::Event
     Grids::Peer
@@ -181,6 +187,8 @@ sub new_from_initiation_string {
     }
 
     $p->peer($peer);
+    $p->initialized(1);
+
     $connection->protocol($p);
     $connection->transport->connection_ready($connection);
 
@@ -217,6 +225,8 @@ sub parse_request {
             warn "Warning: peer is using an unknown version of Grids, things may break\n";
         }
 
+        $self->initialized(1);
+
         if ($status eq 'OK') {
             # we got a protocol response, we have their name and encapsulation method
 
@@ -226,7 +236,7 @@ sub parse_request {
 
             # try to create encapsulation subtype
             $self->set_encapsulation_method($info)
-                or return $self->error_event('Error.Protocol.UnsupportedEncapsulation', {encapsulation_method => $info});
+                or return $self->error_event('Error.Protocol.UnsupportedEncapsulation', $connection, {encapsulation_method => $info});
 
             # send request to establish an encrypted session
             $self->establish_encrypted_connection if $self->use_encryption;
@@ -238,19 +248,19 @@ sub parse_request {
             $connection->transport->connection_ready($connection);
 
             # post a Connected event
-            return $self->event('Connected', { peer_name => $self->peer_name });
+            return $self->event('Connected', $connection, { peer_name => $self->id->name });
         } elsif ($status eq 'ERROR') {
             if ($info eq 'Unauthorized') {
-                return $self->error_event('Error.Protocol.Unauthorized', {message => $info});
+                return $self->error_event('Error.Protocol.Unauthorized', $connection, {message => $info});
             } elsif ($info eq 'IncompatibleVersion') {
-                return $self->error_event('Error.Protocol.IncompatibleVersion', {min_version => $version});
+                return $self->error_event('Error.Protocol.IncompatibleVersion', $connection, {min_version => $version});
             } elsif ($info eq 'InvalidEncapsulations') {
-                return $self->error_event('Error.Protocol.InvalidEncapsulations');
+                return $self->error_event('Error.Protocol.InvalidEncapsulations', $connection);
             } else {
-                return $self->error_event('Error.Protocol.UnknownError', {msg => $info});
+                return $self->error_event('Error.Protocol.UnknownError', $connection, {msg => $info});
             }
         } else {
-            return $self->error_event('Error.Protocol.UnknownStatus', {status => $status});
+            return $self->error_event('Error.Protocol.UnknownStatus', $connection, {status => $status});
         }
     }
 
@@ -267,19 +277,19 @@ sub parse_request {
 
     # instantiate Event record
     my $event_name = delete $args->{_method};
-    return Grids::Protocol::Event->new(event_name => $event_name, args => $args, was_encrypted => $was_encrypted);
+    return Grids::Protocol::Event->new(connection => $connection, event_name => $event_name, args => $args, was_encrypted => $was_encrypted);
 }
 
 sub error_event {
-    my ($self, $error_event, $params) = @_;
+    my ($self, $error_event, $connection, $params) = @_;
     $params ||= {};
     $params->{error} = 1;
-    return Grids::Protocol::Event->new(event_name => $error_event, args => $params);
+    return $self->event($error_event, $connection, $params);
 }
 
 sub event {
-    my ($self, $event, $params) = @_;
-    return Grids::Protocol::Event->new(event_name => $event, args => $params);
+    my ($self, $event, $connection, $params) = @_;
+    return Grids::Protocol::Event->new(event_name => $event, args => $params, connection => $connection);
 }
 
 # take a received message string and parse it into a native data structure
