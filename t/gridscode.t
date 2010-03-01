@@ -9,8 +9,8 @@ use Grids::Code;
 # test assembler
 {
     is(asm(''), '', 'empty input');
-    is(asm(';'), '', 'comment');
-    is(asm('; blah blah blah'), '', 'comment');
+    is(asm(';'), '', 'asm blank comment');
+    is(asm('; blah blah blah'), '', 'asm comment');
     is(asm('add $t2, $t1, $t2'), pack("B48", '000000010010101001010000000001000000000000000000'), '');
     is(unpack("C", asm('.db 0x3f')), 0x3f, 'immediate byte');
     is(unpack("S", asm('.dh 0x1234')), 0x1234, 'immediate halfword');

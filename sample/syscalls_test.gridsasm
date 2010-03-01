@@ -1,27 +1,44 @@
-.rdata
+;; test preprocessor directives
+#ifndef _test_sys_write
+    # define _test_sys_write 4
 
+#    ifdef _test_sys_write
+        ;; should be reached
+        #define _test_stdout_fd 1
+#    endif
+#endif
+#ifndef _test_sys_write
+    ;; should not be reached
+#   define _test_sys_write  0
+#endif
+
+;; read-only data
+        .rdata
 debugtest:      .ascii  "Debug test!\n"
 hello:          .ascii  "Hello, world!\n"
 length:         .w      . - hello
-        
-.text
-        .globl        main
-        main:
-                # debug system call
-                la      $a1, debugtest
-                li      $a2, 12
-                li      $v0, 512        # debug.logstr syscall
-                syscall
 
-                # write()
-                li      $a0,1           # load stdout fd
-                la      $a1,hello       # load string address
-                lw      $a2,length      # load string length
-                li      $v0,4           # specify system write service
-                syscall
 
-                # try unopen fd
-                li      $a0,0xFFFF      # load bogus fd
-                li      $v0,4           # specify system write service
-                syscall
+;; main program
+        .text
+.globl        main
+main:
+        ; debug system call
+        la      $a1, debugtest
+        li      $a2, 12
+        li      $v0, 512        ; debug.logstr syscall
+        syscall
+
+        ; write()
+	li      $a0,_test_stdout_fd     ; load stdout fd
+	la      $a1,hello               ; load string address
+	lw      $a2,length              ; load string length
+	li      $v0,_test_sys_write     ; specify system write service
+	syscall
+
+	; try unopen fd
+	li      $a0,0xFFFF              ; load bogus fd
+	li      $v0,_test_sys_write     ; specify system write service
+	syscall
+
         

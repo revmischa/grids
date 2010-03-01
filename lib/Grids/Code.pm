@@ -2,8 +2,7 @@
 # assembling and disassembling GridsAsm and interperting GridsCode
 package Grids::Code;
 
-use strict;
-use warnings;
+use Moose;
 
 use bytes;
 use Class::Autouse qw/Grids::Code::Program/;
@@ -273,30 +272,85 @@ sub assemble_segment_map {
     my %addr = ( text => 0, data => 0 ),
     my %global_symbols = (); # keep track of .globl definitions
 
+    my @ifdef_eat_stack; # are we inside an untrue #ifdef or #ifndef?
+    my %defines; # #define'd values
     my $line_num = 1; # current source line
     my %labels; # segment -> label -> addresses
 
     my @lines = split("\n", $asm);
 
-    # first pass, remove labels and empty lines, substitute aliases
+    # first pass, remove labels and empty lines, substitute aliases,
+    # handle preprocessor directives
     my @pass1;
     foreach my $line (@lines) {
+        my $err = sub {
+            my $msg = shift;
+            print STDERR "Error at line $line_num: $msg (\"$line\")\n";
+            return 0;
+        };
+
         # remove comments
         if ((my $cmtidx = index($line, ';')) >= 0) {
             $line = substr($line, 0, $cmtidx);
         }
-        if ((my $cmtidx = index($line, '#')) >= 0) {
-            $line = substr($line, 0, $cmtidx);
-        }
 
-        # skip whitespace
-        next unless $line && $line =~ /\S/;
+        # strip whitespace
+        $line =~ s/^(\s*)//;
+        $line =~ s/(\s*)$//;
+        next unless $line;
 
         # do alias substitution
         my ($cmd) = $line =~ /^\s*(\w+)\s*$/;
         my $alias = $ALIASES{lc $cmd};
         if (defined $alias) {
             $line = $alias;
+        }
+
+        # parse preprocessor directive
+        my ($pd, $pd_args, $pd_rest) = $line =~ /^#\s*(\w+)\s*(?:\(([^)]*)\))?\s*(.*)$/;
+
+        # do preprocessor substitution
+        if (! $pd || $pd !~ /ifn?def/) { # (except for #ifdef and #ifndef)
+            foreach my $def (keys %defines) {
+                # don't do substitutions for the first param to #define
+                if ($pd && $pd eq 'define') {
+                    my ($pd_def, $repl) = $pd_rest =~ /^([-_\w]+)\s*(.*)$/;
+                    next if $def eq $pd_def;
+                }
+
+                # replace all instances of this definition with the
+                # substitution TODO: handle function-style macros
+                my $repl = $defines{$def};
+                $repl = '' unless defined $repl;
+
+                $line =~ s/\b($def)\b/$repl/g; # only replace if it's
+                                               # on word boundries
+            }
+        }
+
+        # if we are inside an untrue #ifdef or #ifndef, we are
+        # ignoring input (except #endif)
+        my $eat_stack_top = @ifdef_eat_stack - 1;
+        my $is_eating = $ifdef_eat_stack[$eat_stack_top];
+        next if $is_eating && $line !~ /#\s*endif/;
+
+        # preprocessor directive (e.g. #define foo bar)
+        if ($pd) {
+            if ($pd eq 'define') {
+                my ($def, $repl) = $pd_rest =~ /^([-_\w]+)\s*(.*)$/;
+                $defines{$def} = $repl;
+            } elsif ($pd eq 'undef') {
+                delete $defines{$pd_rest};
+            } elsif ($pd eq 'ifdef') {
+                push @ifdef_eat_stack, ! exists $defines{$pd_rest};
+            } elsif ($pd eq 'ifndef') {
+                push @ifdef_eat_stack, exists $defines{$pd_rest};
+            } elsif ($pd eq 'endif') {
+                pop @ifdef_eat_stack;
+            } else {
+                return $err->("unknown preprocessor directive '$pd'");
+            }
+            next;
         }
 
         # if this line begins with a label, break it into two lines
@@ -307,10 +361,13 @@ sub assemble_segment_map {
         }
 
         push @pass1, $line;
+        $line_num++;
     }
 
     my @pass2;
-    # second pass, calculate label offsets and parse instructions
+    $line_num = 1;
+    # second pass, calculate label offsets and parse instructions and
+    # handle directives
     foreach my $line (@pass1) {
         my $err = sub {
             my $msg = shift;
@@ -318,8 +375,12 @@ sub assemble_segment_map {
             return 0;
         };
 
+        # strip whitespace
+        $line =~ s/^(\s*)//;
+        $line =~ s/(\s*)$//;
+
         # is there a label definition at the start of the line?
-        if (my ($label, $rest) = $line =~ /\s*([-_A-Za-z0-9]+)\s*:(.*)/) {
+        if (my ($label, $rest) = $line =~ /([-_A-Za-z0-9]+)\s*:(.*)/) {
             # label definition
             return $err->("label $label redefined") if exists $labels{$current_segment}{$label};
             $labels{$current_segment}{$label} = $addr{$current_segment};
@@ -329,11 +390,21 @@ sub assemble_segment_map {
             next if ! $rest || $rest !~ /\S/;
         }
 
-        if (my ($type, $data) = $line =~ /^\s*\.((?:d?[bhwsz])|asciz|b|h|s|w|z|ascii)\s+\"?([^"]+)\"?\s*$/i) { # "])/) { #emacs is dumb
-            # data (.db .dh .dw .ds .dz, .b, .h, .w, .s, .z, .asciz, .ascii)
+        # determine what kind of statement this is
+
+        if (my ($type, $data) = $line =~ /^
+                \.(
+                    (?:d?[bhwsz])|asciz|b|h|s|w|z|ascii  # data type
+                )
+                \s+\"?  # optional open quote
+                    ([^"]+)  # operand
+                \"?  # optional close quote
+            $/ix) { # "])/) { #emacs is dumb
+
+            # assemble immediate data (.db .dh .dw .ds .dz, .b, .h, .w, .s, .z, .asciz, .ascii)
             $type = lc $type;
 
-            if ($data && $data =~ /^\s*([-\w\.]+)\s+([-\+\*\/])\s+([-\w\.]+)\s*$/) {
+            if ($data && $data =~ /^([-\w\.]+)\s+([-\+\*\/])\s+([-\w\.]+)$/) {
                 # this is something like ". - foo" or "bar * 10"
                 my ($lhs, $op, $rhs) = ($1, $2, $3);
 
@@ -398,7 +469,7 @@ sub assemble_segment_map {
             } else {
                 die "Unhandled immediate data type $type";
             }
-        } elsif (my ($directive, $arg) = $line =~ /^\s*\.(\w*)\s*(\S+)?\s*$/) {
+        } elsif (my ($directive, $arg) = $line =~ /^\.(\w*)\s*(\S+)?$/) {
             if ($directive =~ /^text|(r?data)$/) {
                 # .text, .rdata, etc...
                 # change our current segment
@@ -428,7 +499,7 @@ sub assemble_segment_map {
                 ([\w]+)\s*              # operation
                 ([\-\$\d\w]+)?\s*       # 1st arg
                 (?:,\s*([\-\d]+)?\(     # offset
-                 \s*([\-\$\d\w]+)\s*    # 3rd arg
+                 \s*([\-\$\d\w]+)       # 3rd arg
                  \))
             /x;
             if ($op && defined $rt && defined $rs) {
@@ -442,7 +513,7 @@ sub assemble_segment_map {
             my @instruction_regexes = (
                                        # syscall
                                        qr/
-                                       ^\s*(syscall)\s*$
+                                       ^(syscall)$
                                        /xi,
 
                                        # operation arg1[, arg2][, arg3]
@@ -916,6 +987,7 @@ sub opcode_type {
         return 'J';
     } elsif ((($opcode >> 2) ^ 0b000100) == 0) {
         # co-processor (e.g. floating point. not yet implemented)
+        warn "got coprocessor instruction, this is probably a mistake!";
         return 'C';
     } else {
         # immediate data
@@ -925,5 +997,6 @@ sub opcode_type {
     return '?'; # mystery!
 }
 
-1;
+no Moose;
+__PACKAGE__->meta->make_immutable;
 
