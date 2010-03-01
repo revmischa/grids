@@ -34,6 +34,18 @@ has pc => (
     isa => 'Int',
 );
 
+has show_debug => (
+    is => 'rw',
+    isa => 'Bool',
+    default => sub { 0 },
+);
+
+has show_warnings => (
+    is => 'rw',
+    isa => 'Bool',
+    default => sub { 1 },
+);
+
 # client/node
 has base => (
     is => 'rw',
@@ -58,8 +70,6 @@ has syscall_handlers => (
     isa => 'HashRef',
     default => sub { {} },
 );
-
-our $DEBUG = 1;
 
 =head1 NAME
 
@@ -145,7 +155,7 @@ Load all configured system call modules
 sub load_syscall_modules {
     my ($self) = @_;
 
-    foreach my $module (qw/Debug/) {
+    foreach my $module (qw/Debug POSIX/) {
         $self->load_syscall_module($module);
     }
 }
@@ -675,12 +685,23 @@ sub execute_r {
 Prints debug message C<$msg>
 
 =cut
-
 sub dbg {
-    my ($msg) = @_;
+    my ($self, $msg) = @_;
 
-    return unless $DEBUG;
+    return unless $self->show_debug;
     print $msg . "\n";
+}
+
+=item wrn($msg)
+
+Prints warning message C<$msg>
+
+=cut
+sub wrn {
+    my ($self, $msg) = @_;
+
+    return unless $self->show_warnings;
+    print STDERR $msg . "\n";
 }
 
 =back

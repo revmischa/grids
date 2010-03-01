@@ -10,6 +10,8 @@ sub BUILD {
 
     $self->register(
         512 => \&logstr,
+        513 => \&logstrz,
+        514 => \&lognum,
     );
 }
 
@@ -23,11 +25,11 @@ sub lognum {
            $vm->reg('a0'), $vm->reg('a0'), $vm->reg('a0'), $vm->reg('a0'));
 }
 
-# prints null-terminated string at addr in $a0
+# prints null-terminated string at addr in $a1
 sub logstrz {
     my ($self) = @_;
 
-    my $straddr = $self->vm->reg('a0');
+    my $straddr = $self->vm->reg_u('a1');
 
     my $str = '';
 
@@ -38,12 +40,12 @@ sub logstrz {
     printf "[debug.logstrz] %s\n", $str;
 }
 
-# prints string at addr in $a0, length $a1
+# prints string at addr in $a1, length $a2
 sub logstr {
     my ($self) = @_;
 
-    my $straddr = $self->vm->reg('a0');
-    my $strlen  = $self->vm->reg('a1');
+    my $straddr = $self->vm->reg_u('a1');
+    my $strlen  = $self->vm->reg_u('a2');
 
     my $str = pack("A$strlen", $self->vm->get_mem($straddr++, $strlen));
 

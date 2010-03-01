@@ -59,7 +59,7 @@ sub resize {
 sub set {
     my ($self, $offset, $data) = @_;
 
-    croak "Tried to set memory outside bounds, location = " . ($offset + length $data) . 
+    Carp::confess "Tried to set memory outside bounds, location = " . ($offset + length $data) . 
         ", size = " . $self->size
         if $offset + length $data > $self->size;
 
@@ -72,7 +72,7 @@ sub get {
     $offset ||= 0;
     $len = $self->size unless defined $len;
 
-    croak "Tried to get memory outside bounds, len = $len, location = " . ($offset + $len) . 
+    Carp::confess "Tried to get memory outside bounds, len = $len, location = " . ($offset + $len) . 
         ", size = " . $self->size
         if $offset + $len > $self->size;
 

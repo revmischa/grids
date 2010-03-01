@@ -696,7 +696,10 @@ sub assemble_i {
 
     my @arg_order;
 
-    if (scalar @args == 2) {
+    if (@args == 2 && $class->opcode_mnemonic($op) eq 'lw') {
+        # lw has rt, data
+        @arg_order = qw /rt data/;
+    } elsif (@args == 2) {
         # if we got two args and it is an I-type instruction, the
         # second arg is the immediate data
         @arg_order = qw /rs data/;
@@ -713,7 +716,15 @@ sub assemble_i {
     my @inst_order = qw (rs rt data);
     foreach my $field (@inst_order) {
         my $f = $fields{$field} || 0;
-        my $s = $field eq 'data' ? 32 : 5;
+        my $s = 5; # fields are 5 bits long
+
+        if ($field eq 'data') {
+            $s = 32;
+        } else {
+            die "invalid value for field $field: $f"
+                if $f < 0 || $f > @REGS;
+        }
+
         $bit_string .= sprintf("%0${s}b", $f);
     }
 

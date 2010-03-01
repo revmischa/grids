@@ -215,7 +215,7 @@ sub i_andi {
 # rt = $data($rs)
 sub i_lw {
     my ($class, $vm, $rs, $rt, $data) = @_;
-    my $mem_val = $vm->get_mem_u($vm->reg_u($rs) + _s32($data), 4);
+    my $mem_val = $vm->get_mem($vm->reg_u($rs) + _s32($data), 4);
     $vm->set_reg($rt, $mem_val);
 }
 

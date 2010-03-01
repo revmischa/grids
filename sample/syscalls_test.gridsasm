@@ -1,0 +1,27 @@
+.rdata
+
+debugtest:      .ascii  "Debug test!\n"
+hello:          .ascii  "Hello, world!\n"
+length:         .w      . - hello
+        
+.text
+        .globl        main
+        main:
+                # debug system call
+                la      $a1, debugtest
+                li      $a2, 12
+                li      $v0, 512        # debug.logstr syscall
+                syscall
+
+                # write()
+                li      $a0,1           # load stdout fd
+                la      $a1,hello       # load string address
+                lw      $a2,length      # load string length
+                li      $v0,4           # specify system write service
+                syscall
+
+                # try unopen fd
+                li      $a0,0xFFFF      # load bogus fd
+                li      $v0,4           # specify system write service
+                syscall
+        
