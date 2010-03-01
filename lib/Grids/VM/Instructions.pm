@@ -3,8 +3,7 @@
 
 package Grids::VM::Instructions;
 
-use strict;
-use warnings;
+use Moose;
 use Grids::Code;
 
 *dbg = \&Grids::VM::dbg;
@@ -260,50 +259,48 @@ sub i_addiu {
 }
 
 my %branch_funcs = (
+    # if $rs == $rt pc = data; else advance_pc (6);
+    beq => sub {
+        my $f = shift;
+        $f->{rs} == $f->{rt} ? $f->{data} : undef;
+    },
 
-                    # if $rs == $rt pc = data; else advance_pc (6);
-                    beq => sub {
-                        my $f = shift;
-                        $f->{rs} == $f->{rt} ? $f->{data} : undef;
-                    },
+    # if $rs != $rt pc = data; else advance_pc (6);
+    bne => sub {
+        my $f = shift;
+        $f->{rs} != $f->{rt} ? $f->{data} : undef;
+    },
 
-                    # if $rs != $rt pc = data; else advance_pc (6);
-                    bne => sub {
-                        my $f = shift;
-                        $f->{rs} != $f->{rt} ? $f->{data} : undef;
-                    },
+    # if $rs >= 0 pc = $data; else advance_pc (6);
+    bgez => sub {
+        my $f = shift;
+        $f->{rs} >= 0 ? $f->{data} : undef;
+    },
 
-                    # if $rs >= 0 pc = $data; else advance_pc (6);
-                    bgez => sub {
-                        my $f = shift;
-                        $f->{rs} >= 0 ? $f->{data} : undef;
-                    },
+    # if $rs > 0 pc = data; else advance_pc (6);
+    bgtz =>  sub {
+        my $f = shift;
+        $f->{rs} > 0 ? $f->{data} : undef;
+    },
 
-                    # if $rs > 0 pc = data; else advance_pc (6);
-                    bgtz =>  sub {
-                        my $f = shift;
-                        $f->{rs} > 0 ? $f->{data} : undef;
-                    },
+    # if $rs <= 0 pc = $data; else advance_pc (6);
+    blez => sub {
+        my $f = shift;
+        $f->{rs} <= 0 ? $f->{data} : undef;
+    },
 
-                    # if $rs <= 0 pc = $data; else advance_pc (6);
-                    blez => sub {
-                        my $f = shift;
-                        $f->{rs} <= 0 ? $f->{data} : undef;
-                    },
+    # if $rs < 0 pc = data; else advance_pc (6);
+    bltz =>  sub {
+        my $f = shift;
+        $f->{rs} < 0 ? $f->{data} : undef;
+    },
 
-                    # if $rs < 0 pc = data; else advance_pc (6);
-                    bltz =>  sub {
-                        my $f = shift;
-                        $f->{rs} < 0 ? $f->{data} : undef;
-                    },
-
-                    # pc = $rs
-                    jr => sub {
-                        my $f = shift;
-                        $f->{rs};
-                    },
-
-                    );
+    # pc = $rs
+    jr => sub {
+        my $f = shift;
+        $f->{rs};
+    },
+);
 
 sub branch {
     my ($class, $vm, $func, $fields) = @_;
@@ -330,4 +327,14 @@ sub branch {
     return undef;
 }
 
-1;
+sub r_syscall {
+    my ($class, $vm, $rs, $rt, $rd, $sa) = @_;
+
+    # system call number is in $v0
+    my $syscall = $vm->reg_u('v0');
+    $vm->syscall($syscall);
+}
+
+no Moose;
+__PACKAGE__->meta->make_immutable;
+

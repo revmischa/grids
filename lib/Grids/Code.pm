@@ -276,6 +276,9 @@ sub assemble_segment_map {
         if ((my $cmtidx = index($line, ';')) >= 0) {
             $line = substr($line, 0, $cmtidx);
         }
+        if ((my $cmtidx = index($line, '#')) >= 0) {
+            $line = substr($line, 0, $cmtidx);
+        }
 
         # skip whitespace
         next unless $line && $line =~ /\S/;
@@ -355,6 +358,9 @@ sub assemble_segment_map {
                     die "unable to parse statement $data";
                 }
             }
+
+            # replace \n with newline
+            $data =~ s/\\n/\n/g;
 
             if ($type =~ /d?b/) {
                 # byte
@@ -548,6 +554,7 @@ sub assemble_segment_map {
         }
     }
 
+    # return map of $segment_base_address => $segment_data
     my %ret = (map { $base_address{$_} => $segments{$_} } keys %base_address);
     return \%ret;
 }

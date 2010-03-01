@@ -34,10 +34,11 @@ has pc => (
     isa => 'Int',
 );
 
-has node => (
+# client/node
+has base => (
     is => 'rw',
-    isa => 'Grids::Node',
-    weak_ref => 1,
+    does => 'Grids::Base',
+    required => 0,
 );
 
 has memory_limit => (
@@ -46,7 +47,17 @@ has memory_limit => (
     default => sub { 128 * 1024 * 1024 },
 );
 
-Class::Autouse->autouse_recursive('Grids::VM::SysCall');
+has syscall_modules => (
+    is => 'rw',
+    isa => 'HashRef',
+    default => sub { {} },
+);
+
+has syscall_handlers => (
+    is => 'rw',
+    isa => 'HashRef',
+    default => sub { {} },
+);
 
 our $DEBUG = 1;
 
@@ -89,6 +100,7 @@ sub build_regs {
 sub BUILD {
     my $self = shift;
     $self->init;
+    $self->load_syscall_modules;
 }
 
 =item init
@@ -124,9 +136,68 @@ sub init_regs {
     $self->pc(0);
 }    
 
-=item node
+=item load_syscall_modules
 
-Returns the Node this VM uses
+Load all configured system call modules
+
+=cut
+
+sub load_syscall_modules {
+    my ($self) = @_;
+
+    foreach my $module (qw/Debug/) {
+        $self->load_syscall_module($module);
+    }
+}
+
+=item load_syscall_module($module)
+
+Loads system call handlers for Grids::VM::SysCall::$module
+
+=cut
+sub load_syscall_module {
+    my ($self, $module) = @_;
+
+    my $module_class = $module;
+    $module_class =~ s/[^-_\w\:]//g;
+
+    unless ($module_class) {
+        warn "tried to load malformed syscall module $module";
+        next;
+    }
+
+    $module_class = "Grids::VM::SysCall::$module_class";
+
+    unless (eval "use $module_class; 1;") {
+        warn "Error loading SysCall module $module: $@";
+        next;
+    }
+
+    $self->syscall_modules->{lc $module} = $module_class->new(
+        vm => $self,
+    );
+}
+
+=item register_syscall($syscall, $cb)
+
+Set a callback function to be called when $syscall is executed. Only
+one handler may be defined for each syscall.
+
+=cut
+sub register_syscall {
+    my ($self, $syscall, $cb) = @_;
+
+    if ($self->syscall_handlers->{$syscall}) {
+        croak "System call $syscall already has a registered handler";
+    }
+
+    # save callback
+    $self->syscall_handlers->{$syscall} = $cb;
+}
+
+=item base
+
+Returns the Node/Client this VM is attached to
 
 =cut
 
@@ -457,9 +528,6 @@ sub execute {
             $self->execute_i($opcode, \%fields);
         } elsif ($type eq 'J') {
             $self->execute_j($opcode, \%fields);
-        } elsif ($type eq 'S') {
-            $self->syscall($fields{syscall});
-            $self->pc($self->pc + 6);
         } else {
             die "Unknown instruction type '$type'\n";
         }
@@ -470,9 +538,9 @@ sub execute {
     return 1;
 }
 
-=item syscall($syscall_name)
+=item syscall($syscall)
 
-Does a syscall, giving the syscall access to C<$vm-E<gt>node>
+Does a system call
 
 =cut
 
@@ -480,15 +548,9 @@ sub syscall {
     my ($self, $syscall) = @_;
 
     # lookup syscall name
-    my $sysc_name = $Grids::Code::SYSCALLS_REV{$syscall};
-    die "Unknown syscall $syscall" unless defined $sysc_name;
-
-    # convert syscall to method call
-    $sysc_name =~ s/\./::/g;
-
-    no strict 'refs';
-    my $method_name = "Grids::VM::SysCall::$sysc_name";
-    $method_name->($self, $self->node);
+    my $sysc_func = $self->syscall_handlers->{$syscall};
+    die "Unknown syscall $syscall" unless defined $sysc_func;
+    $sysc_func->($self);
 }
 
 =item execute_branch($opcode, \%fields)
