@@ -154,46 +154,55 @@ sub opcode_mnemonic {
 # FIXME: any better way to do this?
 # force a number into a n-bit value
 sub sn {
-    my ($templ, $i, $signed) = @_;
+    my ($size, $i, $signed) = @_;
 
     Carp::confess "i is undefined" unless defined $i;
-
-    return $signed ?
-        unpack($templ, pack($templ, $i)) :
-        unpack(uc $templ, pack(uc $templ, $i));
+    my $templ = templ($size, $signed);
+    return unpack($templ, pack($templ, $i));
 }
+sub templ {
+    my ($size, $signed) = @_;
+    my $templ = {
+        1 => 'c',
+        2 => 's',
+        4 => 'l',
+        8 => 'q',
+    }->{$size} or Carp::confess "I don't know how to handle data of size $size";
+    $templ = uc $templ unless $signed;
 
+    return $templ;
+}
 sub s64 {
     my $i = shift;
-    return sn('q', $i, 1);
+    return sn(8, $i, 1);
 }
 sub u64 {
     my $i = shift;
-    return sn('Q', $i, 0);
+    return sn(8, $i, 0);
 }
 sub s32 {
     my $i = shift;
-    return sn('l', $i, 1);
+    return sn(4, $i, 1);
 }
 sub u32 {
     my $i = shift;
-    return sn('L', $i, 0);
+    return sn(4, $i, 0);
 }
 sub s16 {
     my $i = shift;
-    return sn('s', $i, 1);
+    return sn(2, $i, 1);
 }
 sub u16 {
     my $i = shift;
-    return sn('S', $i, 0);
+    return sn(2, $i, 0);
 }
 sub s8 {
     my $i = shift;
-    return sn('c', $i, 1);
+    return sn(1, $i, 1);
 }
 sub u8 {
     my $i = shift;
-    return sn('C', $i, 0);
+    return sn(1, $i, 0);
 }
 
 # given a 6-byte instruction, determine the opcode
@@ -339,9 +348,13 @@ sub assemble_segment_map {
                         return $class->parse_value($operand, 32);
                     } elsif ($operand =~ /^[-_\w]+$/) {
                         # assume this is a label
-                        warn "label address";
-                        #my $label_addr = $addr{$current_segment}{$
-                        return 0;
+                        my $label_addr = $labels{$current_segment}{$operand};
+
+                        unless (defined $label_addr) {
+                            return $err->("$operand not defined in current segment");
+                        }
+
+                        return $label_addr;
                     } else {
                         warn "unable to parse value '$operand'\n";
                     }
@@ -353,9 +366,9 @@ sub assemble_segment_map {
                 # lame hack for now to do arithmetic
                 if (defined $lhs && defined $rhs) {
                     $data = eval "$lhs $op $rhs";
-                    die $@ if $@;
+                    return $err->($@) if $@;
                 } else {
-                    die "unable to parse statement $data";
+                    return $err->("unable to parse statement $data");
                 }
             }
 
@@ -364,7 +377,7 @@ sub assemble_segment_map {
 
             if ($type =~ /d?b/) {
                 # byte
-                push @{$segments_inst{$current_segment}}, pack("C", $class->parse_value($data, 1));
+                push @{$segments_inst{$current_segment}}, pack("c", $class->parse_value($data, 1));
                 $addr{$current_segment} += 1;
             } elsif ($type =~ /d?h/) {
                 # halfword
@@ -397,9 +410,10 @@ sub assemble_segment_map {
                 push @segments, $directive;
             } elsif ($directive eq 'align') {
                 # change alignment
-
+                warn ".align not yet implemented";
             } elsif ($directive =~ /globa?l/) {
-                warn "global $arg";
+                # declare symbol global
+                # has no effect right now
             } else {
                 return $err->("Unknown directive '.$directive'");
             }
@@ -462,8 +476,7 @@ sub assemble_segment_map {
                     return $err->("invalid register '$1'") unless defined $reg_num;
                     push @args, $reg_num;
                 } elsif ($arg =~ /^\-?\d/) {
-                    # convert immediate value to 32-bit data
-                    my $val = $class->parse_value($arg, 32);
+                    my $val = $class->parse_value($arg, 4);
                     push @args, $val;
                 } else {
                     if (lc $operation eq 'syscall') {
@@ -498,7 +511,6 @@ sub assemble_segment_map {
             # calculate absolute address of this segment
             $base_address{$segment} = $seg_offset;
             my $seg_size = $addr{$segment};
-            warn "segment $segment is at offset $seg_offset, size = $seg_size";
 
             # offset all labels in this segment by the base address
             my $seg_labels = $labels{$segment};
@@ -565,10 +577,14 @@ sub parse_value {
     if ($val =~ /0x([A-Fa-f0-9]+)/i) {
         # convert from hex string
         return hex($1);
-    } elsif ($val =~ /0b(\d+)/i) {
-        # convert from 32-bit binary string left zero padded
+    } elsif ($val =~ /0b(\d+)(U)?/i) {
+        # binary string
+        my ($bitstr, $unsigned) = ($1, $2);
+
         my $b = $size * 8;
-        return unpack("N", pack("B$b", substr("0" x $b . "$1", -32)));
+        my $templ = templ($size, ! $unsigned);
+        my $num = unpack($templ, pack("B$b", $bitstr));
+        return $num;
     }
 
     return int($val);
