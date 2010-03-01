@@ -10,6 +10,8 @@ use warnings;
 
 use Grids::Code;
 use Grids::VM;
+require "include/grids_posix.h";
+
 use Data::Dumper;
 
 # syscall test program
@@ -21,7 +23,8 @@ my $program = Grids::Code->assemble_program($prog)
 my $segments = $program->segments;
 ok(%$segments, "assembled program");
 
-my $vm = new Grids::VM(show_warnings => 0);
+my $vm = new Grids::VM(show_warnings => 1, show_debug => 1);
+$vm->load_syscall_module('Test');
 is($vm->pc, 0, "initted vm");
 $vm->load_program($program);
 
@@ -43,5 +46,20 @@ is($vm->reg('v0'), length($teststr), "got write() return value");
 
 $vm->step; # li
 $vm->step; # li
+
+$vm->show_warnings(0);
 $vm->step; # syscall write
+$vm->show_warnings(1);
 is($vm->reg('v0'), -1, "got error writing to unopen fd");
+
+$vm->step; # la
+$vm->step; # la
+$vm->step; # lw
+$vm->step; # li
+my $buf_len = $vm->reg_u('a2');
+$vm->step; # read()
+is($vm->reg('v0'), $buf_len, "got read() return value");
+
+$vm->step; # lb
+is($vm->reg('t0'), ord('A'), "read data into buffer");
+

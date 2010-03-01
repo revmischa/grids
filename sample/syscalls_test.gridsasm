@@ -5,6 +5,7 @@
 #    ifdef _test_sys_write
         ;; should be reached
         #define _test_stdout_fd 1
+        #define bogus
 #    endif
 #endif
 #ifndef _test_sys_write
@@ -12,13 +13,25 @@
 #   define _test_sys_write  0
 #endif
 
+#undef bogus
+#ifndef bogus
+#    define sys_read 3
+#    define _sys_fake_read 9999
+#    define stdin 0
+#endif
+        
 ;; read-only data
         .rdata
 debugtest:      .ascii  "Debug test!\n"
 hello:          .ascii  "Hello, world!\n"
 length:         .w      . - hello
-
-
+buf:
+        .w      0
+        .w      0
+        .w      0
+        .w      0
+buflen:         .w      . - buf
+        
 ;; main program
         .text
 .globl        main
@@ -29,16 +42,25 @@ main:
         li      $v0, 512        ; debug.logstr syscall
         syscall
 
-        ; write()
-	li      $a0,_test_stdout_fd     ; load stdout fd
-	la      $a1,hello               ; load string address
-	lw      $a2,length              ; load string length
-	li      $v0,_test_sys_write     ; specify system write service
+        ; write() to stdout
+	li      $a0, _test_stdout_fd     ; load stdout fd
+	la      $a1, hello               ; load string address
+	lw      $a2, length              ; load string length
+	li      $v0, _test_sys_write     ; specify system write service
 	syscall
 
 	; try unopen fd
-	li      $a0,0xFFFF              ; load bogus fd
-	li      $v0,_test_sys_write     ; specify system write service
+	li      $a0, 0xFFFF              ; load bogus fd
+	li      $v0, _test_sys_write     ; specify system write service
 	syscall
 
+        ; read() from stdin
+        la      $a0, stdin
+        la      $a1, buf                ; buffer for storing the read value
+        lw      $a2, buflen             ; how much to read
+        li      $v0, _sys_fake_read
+        syscall
+
+        ;; check buffer
+        lb      $t0, 6($a1)
         

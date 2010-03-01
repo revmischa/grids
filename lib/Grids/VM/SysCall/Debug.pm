@@ -6,7 +6,7 @@ use Moose;
 sub BUILD {
     my ($self) = @_;
 
-    print "SysCall::Debug loaded\n";
+    $self->vm->dbg("SysCall::Debug loaded");
 
     $self->register(
         512 => \&logstr,
@@ -20,9 +20,8 @@ sub lognum {
     my ($self) = @_;
 
     my $vm = $self->vm;
-
-    printf("[debug.lognum] %032b %s %u 0x%08X\n",
-           $vm->reg('a0'), $vm->reg('a0'), $vm->reg('a0'), $vm->reg('a0'));
+    $vm->dbg("[debug.lognum] %032b %s %u 0x%08X",
+             $vm->reg('a0'), $vm->reg('a0'), $vm->reg('a0'), $vm->reg('a0'));
 }
 
 # prints null-terminated string at addr in $a1
@@ -37,7 +36,7 @@ sub logstrz {
         $str .= chr($c);
     }
 
-    printf "[debug.logstrz] %s\n", $str;
+    $self->vm->dbg(sprintf "[debug.logstrz] %s", $str);
 }
 
 # prints string at addr in $a1, length $a2
@@ -48,8 +47,7 @@ sub logstr {
     my $strlen  = $self->vm->reg_u('a2');
 
     my $str = pack("A$strlen", $self->vm->get_mem($straddr++, $strlen));
-
-    printf "[debug.logstr] %s\n", $str;
+    $self->vm->dbg(sprintf "[debug.logstr] %s", $str);
 }
 
 no Moose;
