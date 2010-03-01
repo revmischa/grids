@@ -124,8 +124,7 @@ sub r_div {
     my $quot = int($rs_val / $rt_val);
     my $rem  = $rs_val % $rt_val;
 
-    $vm->set_reg('lo', $quot);
-    $vm->set_reg('hi', $rem);
+    $vm->set_hilo($quot, $rem);
 }
 sub r_divu {
     my ($class, $vm, $rs, $rt, $rd, $sa) = @_;
@@ -136,8 +135,7 @@ sub r_divu {
     my $quot = int($rs_val / $rt_val);
     my $rem  = $rs_val % $rt_val;
 
-    $vm->set_reg('lo', $quot);
-    $vm->set_reg('hi', $rem);
+    $vm->set_hilo_u($quot, $rem);
 }
 
 # rd = hi
@@ -250,7 +248,8 @@ sub i_lb {
 # $data($rs) = rt
 sub i_sb {
     my ($class, $vm, $rs, $rt, $data) = @_;
-    $vm->set_mem($vm->reg_u($rs) + _s32($data), _s8($vm->reg($rt)), 1);
+    my $rt_val = $vm->reg($rt) & 0xFF;  # store lower byte
+    $vm->set_mem($vm->reg_u($rs) + _s32($data), _s8($rt_val), 1);
 }
 
 # is $rs unsigned too? need to check

@@ -1,12 +1,12 @@
-use strict;
 use Test::More qw(no_plan);
 
-# use locally built versions of memory/register for testing
-use lib 'lib';
-use lib 'lib/Grids/VM/Memory/lib';
-use lib 'lib/Grids/VM/Register/lib';
-use lib 'lib/Grids/VM/Memory/blib/arch/auto/Grids/VM/Memory';
-use lib 'lib/Grids/VM/Register/blib/arch/auto/Grids/VM/Register';
+BEGIN {
+    use FindBin;
+    require "$FindBin::Bin/load_vm.pl";
+};
+
+use strict;
+use warnings;
 
 use Grids::Code;
 use Grids::VM;
@@ -97,6 +97,11 @@ $vm->load_program($program);
     is($vm->reg_u('lo'), 0x33B7953A, "multu lo word");
 }
 
+# test div
+{
+    ;
+}
+
 # test and
 {
     $vm->step;
@@ -107,16 +112,25 @@ $vm->load_program($program);
 
 # test memory store/retrieve
 {
-    $vm->step; # la
-    $vm->step; # li
-    $vm->step; # sb
-    is(pack('l', $vm->get_mem($vm->reg('t0'), 4)), "abec", "sb");
+    $vm->step; # la memtest1
+    $vm->step; # li t1, 0x65
+    is(op(), 'sb', 'sb op');
+    $vm->step; # sb $t1, 2($t0)
+    is(op(), 'addi', 'la op');
+    $vm->step; # la memtest1step2
+    is($vm->reg_u('t0') + 4, $vm->reg_u('t2'), "pointers line up");
+    my $t0 = $vm->get_mem_u($vm->reg_u('t0'), 4);
+    my $t2 = $vm->get_mem_u($vm->reg_u('t2'), 4);
+    is($t0, $t2, "sb");
 
+    is(op(), 'addi', 'li op');
     $vm->step; # li
     $vm->step; # sb
     is(pack('l', $vm->get_mem($vm->reg('t0'), 4)), "abef", "sb");
 
+    is(op(), 'addi', 'addi');
     $vm->step; # la
+
     $vm->step; # lh
     $vm->step; # lh
     is($vm->reg_u('t1'), 0x00FF, "lh");
@@ -124,6 +138,8 @@ $vm->load_program($program);
     is($vm->get_mem_u($vm->reg('t0'), 4), 0x00FF1234, "get_mem_u 32");
 
     $vm->step; # addi
+
+    is(op(), 'lh', 'lh op');
     $vm->step; # lh
     is($vm->reg_u('t2'), $vm->reg_u('t3'), "lh negative offset");
     $vm->step; # lh
@@ -242,29 +258,3 @@ sub op { Grids::Code->opcode_mnemonic($vm->current_instruction_opcode); }
 
 # get opcode mnemonic for r-type
 sub op_r { Grids::Code->r_function_mnemonic($vm->current_instruction_r_func); }
-
-# read in a file
-sub slurp {
-    my $filename = shift;
-
-    unless (-e $filename) {
-        print STDERR "$filename does not exist.\n";
-        return undef;
-    }
-
-    my ($contents, $in);
-    unless (open($in, $filename)) {
-        print STDERR "Could not open $filename: $!\n";
-        return undef;
-    }
-
-    # slurp in file
-    do {
-        local $/;
-        $contents = <$in>;
-    };
-
-    close $in;
-
-    return $contents;
-}

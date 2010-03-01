@@ -35,7 +35,6 @@ our %OPCODES = (
     'li'      => 0b111110,
     'la'      => 0b111001,
     'l'       => 0b111101,
-    'syscall' => 0b111111,
 
     # based memory access
     'lb'      => 0b100000,
@@ -82,44 +81,35 @@ our @J_TYPE_OPS = qw /j jal jreli/;
 
 # definition of R-type functions
 our %R_TYPE_FUNCS = (
-    'add'   => ["rd, rs, rt", 0b100000],
-    'addu'  => ["rd, rs, rt", 0b100001],
-    'sub'   => ["rd, rs, rt", 0b100010],
-    'subu'  => ["rd, rs, rt", 0b100011],
-    'div'   => ["rs, rt",     0b011010],
-    'divu'  => ["rs, rt",     0b011011],
-    'mult'  => ["rs, rt",     0b011000],
-    'multu' => ["rs, rt",     0b011001],
+    'add'     => ["rd, rs, rt", 0b100000],
+    'addu'    => ["rd, rs, rt", 0b100001],
+    'sub'     => ["rd, rs, rt", 0b100010],
+    'subu'    => ["rd, rs, rt", 0b100011],
+    'div'     => ["rs, rt",     0b011010],
+    'divu'    => ["rs, rt",     0b011011],
+    'mult'    => ["rs, rt",     0b011000],
+    'multu'   => ["rs, rt",     0b011001],
  
-    'jr'    => ["rs",         0b001000],
+    'jr'      => ["rs",         0b001000],
 
-    'sll'   => ["rd, rs, sa", 0b000000],
-    'srl'   => ["rd, rs, sa", 0b000010],
+    'syscall' => ['',           0b001100],
 
-    'mfhi'  => ["rd",         0b010000],
-    'mflo'  => ["rd",         0b010010],
+    'sll'     => ["rd, rs, sa", 0b000000],
+    'srl'     => ["rd, rs, sa", 0b000010],
 
-    'and'   => ["rd, rs, rt", 0b100100],
-    'xor'   => ["rd, rs, rt", 0b100110],
-    'or'    => ["rd, rs, rt", 0b100101],
+    'mfhi'    => ["rd",         0b010000],
+    'mflo'    => ["rd",         0b010010],
+
+    'and'     => ["rd, rs, rt", 0b100100],
+    'xor'     => ["rd, rs, rt", 0b100110],
+    'or'      => ["rd, rs, rt", 0b100101],
 );
-
-# syscalls
-our %SYSCALLS = (
-                 'Node.log'    => 32,
-                 'Node.logstr' => 33,
-                 );
-
-# opcode reverse lookup table
-our %SYSCALLS_REV;
-@SYSCALLS_REV{values %SYSCALLS} = keys %SYSCALLS;
 
 # handlers for special opcodes
 our %SPECIAL_FUNCS = (
                       $OPCODES{li}      => 'assemble_li',
                       $OPCODES{l}       => 'assemble_l',
                       $OPCODES{la}      => 'assemble_la',
-                      $OPCODES{syscall} => 'assemble_syscall',
                       );
 
 if ($ASSEMBLE_BRANCH_FUNCS_SPECIAL) {
@@ -219,7 +209,8 @@ sub r_function_mnemonic {
     my ($class, $func) = @_;
 
     foreach my $name (keys %R_TYPE_FUNCS) {
-        return $name if $R_TYPE_FUNCS{$name}->[1] == $func;
+        my $func_info = $R_TYPE_FUNCS{$name};
+        return $name if $func_info->[ 1 ] == $func;
     }
 
     return undef;
@@ -266,10 +257,12 @@ sub assemble_segment_map {
 
     my $ret = '';
 
-    my $base = 'text'; # what segment are we assembling?
+    my @segments; # keep track of what order segments are in
+    my $current_segment = 'text'; # what segment are we assembling?
     my %segments = ( text => '', data => '' ); # segment => data
     my %segments_inst = ( text => [], data => [] ); # segment => instructions
     my %addr = ( text => 0, data => 0 ),
+    my %global_symbols = (); # keep track of .globl definitions
 
     my $line_num = 1; # current source line
     my %labels; # segment -> label -> addresses
@@ -313,44 +306,97 @@ sub assemble_segment_map {
             return 0;
         };
 
-        if (my ($type, $data) = $line =~ /^\s*\.d([bwlsz])\s\"?([^"]+)\"?\s*$/i) { # "])/) { #emacs is dumb
-            # data (.db .dl .dw .ds .dz)
+        # is there a label definition at the start of the line?
+        if (my ($label, $rest) = $line =~ /\s*([-_A-Za-z0-9]+)\s*:(.*)/) {
+            # label definition
+            return $err->("label $label redefined") if exists $labels{$current_segment}{$label};
+            $labels{$current_segment}{$label} = $addr{$current_segment};
+
+            # continue on, minus the label
+            $line = $rest;
+            next if ! $rest || $rest !~ /\S/;
+        }
+
+        if (my ($type, $data) = $line =~ /^\s*\.((?:d?[bhwsz])|asciz|b|h|s|w|z|ascii)\s+\"?([^"]+)\"?\s*$/i) { # "])/) { #emacs is dumb
+            # data (.db .dh .dw .ds .dz, .b, .h, .w, .s, .z, .asciz, .ascii)
             $type = lc $type;
-                                                                 
-            if ($type eq 'b') {
-                # byte
-                push @{$segments_inst{$base}}, pack("C", $class->parse_value($data, 1));
-                $addr{$base} += 1;
-            } elsif ($type eq 'w') {
-                # word
-                push @{$segments_inst{$base}}, pack("s", $class->parse_value($data, 2));
-                $addr{$base} += 2;
-            } elsif ($type eq 'l') {
-                # long
-                push @{$segments_inst{$base}}, pack("l", $class->parse_value($data, 4));
-                $addr{$base} += 4;
-            } elsif ($type eq 's') {
-                # char string
-                push @{$segments_inst{$base}}, $data;
-                $addr{$base} += length($data);
-            } elsif ($type eq 'z') {
-                # null-terminated char string
-                push @{$segments_inst{$base}}, $data . "\0";
-                $addr{$base} += length($data) + 1;
+
+            if ($data && $data =~ /^\s*([-\w\.]+)\s+([-\+\*\/])\s+([-\w\.]+)\s*$/) {
+                # this is something like ". - foo" or "bar * 10"
+                my ($lhs, $op, $rhs) = ($1, $2, $3);
+
+                # parse lhs and rhs, figure out numerical value
+                my $parse = sub {
+                    my ($operand) = @_;
+                    if ($operand eq '.') {
+                        # current address
+                        return $addr{$current_segment};
+                    } elsif ($operand =~ /^(0x|0b|\-)?\d+$/) {
+                        # already a number, treat it as a word
+                        return $class->parse_value($operand, 32);
+                    } elsif ($operand =~ /^[-_\w]+$/) {
+                        # assume this is a label
+                        warn "label address";
+                        #my $label_addr = $addr{$current_segment}{$
+                        return 0;
+                    } else {
+                        warn "unable to parse value '$operand'\n";
+                    }
+                };
+
+                $lhs = $parse->($lhs);
+                $rhs = $parse->($rhs);
+
+                # lame hack for now to do arithmetic
+                if (defined $lhs && defined $rhs) {
+                    $data = eval "$lhs $op $rhs";
+                    die $@ if $@;
+                } else {
+                    die "unable to parse statement $data";
+                }
             }
-        } elsif (my ($directive) = $line =~ /^\s*\.(\w+)\s*$/) {
-            # assembler directive
-            if ($directive eq 'text') {
-                $base = 'text';
-            } elsif ($directive eq 'data') {
-                $base = 'data';
+
+            if ($type =~ /d?b/) {
+                # byte
+                push @{$segments_inst{$current_segment}}, pack("C", $class->parse_value($data, 1));
+                $addr{$current_segment} += 1;
+            } elsif ($type =~ /d?h/) {
+                # halfword
+                push @{$segments_inst{$current_segment}}, pack("s", $class->parse_value($data, 2));
+                $addr{$current_segment} += 2;
+            } elsif ($type =~ /d?w/) {
+                # word
+                push @{$segments_inst{$current_segment}}, pack("l", $class->parse_value($data, 4));
+                $addr{$current_segment} += 4;
+            } elsif ($type =~ /(d?s)|ascii/) {
+                # char string
+                push @{$segments_inst{$current_segment}}, $data;
+                $addr{$current_segment} += length($data);
+            } elsif ($type =~ /(d?z)|asciz/) {
+                # null-terminated char string
+                push @{$segments_inst{$current_segment}}, $data . "\0";
+                $addr{$current_segment} += length($data) + 1;
+            } else {
+                die "Unhandled immediate data type $type";
+            }
+        } elsif (my ($directive, $arg) = $line =~ /^\s*\.(\w*)\s*(\S+)?\s*$/) {
+            if ($directive =~ /^text|(r?data)$/) {
+                # .text, .rdata, etc...
+                # change our current segment
+
+                die "segment $directive redeclared"
+                    if grep { $_ eq $directive } @segments;
+
+                $current_segment = $directive;
+                push @segments, $directive;
+            } elsif ($directive eq 'align') {
+                # change alignment
+
+            } elsif ($directive =~ /globa?l/) {
+                warn "global $arg";
             } else {
                 return $err->("Unknown directive '.$directive'");
             }
-        } elsif (my ($label) = $line =~ /\s*([\w\.\d]+)\s*:/) {
-            # label definition
-            return $err->("label $label redefined") if exists $labels{$base}{$label};
-            $labels{$base}{$label} = $addr{$base};
         } else {
             # must be an instruction. try to parse it
             my $operation; # op mnemonic
@@ -376,7 +422,7 @@ sub assemble_segment_map {
             my @instruction_regexes = (
                                        # syscall
                                        qr/
-                                       ^\s*(syscall)\s*([\w.]+)\s*$
+                                       ^\s*(syscall)\s*$
                                        /xi,
 
                                        # operation arg1[, arg2][, arg3]
@@ -416,7 +462,7 @@ sub assemble_segment_map {
                 } else {
                     if (lc $operation eq 'syscall') {
                         # syscall, dont do any special processing
-                        push @args, $arg;
+                        warn "shouldn't get arguments to syscall!";
                     } else {
                         # label reference
                         push @args, $arg;
@@ -424,26 +470,39 @@ sub assemble_segment_map {
                 }
             }
 
-            push @{$segments_inst{$base}}, [$line_num, $operation, @args];
-            $addr{$base} += 6;
+            push @{$segments_inst{$current_segment}}, [$line_num, $operation, @args];
+            $addr{$current_segment} += 6;
         }
 
         $line_num++;
     }
 
-    # get base address of data segment and lengths of text and data segments
-    my $data_base_addr = my $text_length = $addr{text}; # data segment starts after text segment
-    my $data_length = $addr{data};
-
-    # offset all addresses in data segment by the size of the text segment
-    my $data_labels = $labels{data};
-    foreach my $data_label (keys %$data_labels) {
-        $labels{data}{$data_label} += $data_base_addr;
-    }
-
     # set %addr addresses to new base addresses
-    $addr{data} = $data_base_addr;
-    $addr{text} = 0;
+    my %base_address = ( text => 0 );
+
+    # offset all addresses in other segments by the size of the text segment
+    {
+        my $text_seg_length = $addr{text}; # other segments start after text segment
+        my $seg_offset = $text_seg_length;
+
+        # go though each declared segment
+        foreach my $segment (@segments) {
+            next if $segment eq 'text';
+
+            # calculate absolute address of this segment
+            $base_address{$segment} = $seg_offset;
+            my $seg_size = $addr{$segment};
+            warn "segment $segment is at offset $seg_offset, size = $seg_size";
+
+            # offset all labels in this segment by the base address
+            my $seg_labels = $labels{$segment};
+            foreach my $seg_label (keys %$seg_labels) {
+                $labels{$segment}{$seg_label} += $seg_offset;
+            }
+
+            $seg_offset += $seg_size;
+        }
+    }
 
     # third pass, assemble instructions
     foreach my $segment (keys %segments_inst) {
@@ -465,7 +524,7 @@ sub assemble_segment_map {
             # replace label references with calculated label offsets
             my @new_args;
             foreach my $arg (@args) {
-                if ($arg !~ /^[\d\-]+$/ && $operation ne 'syscall') {
+                if ($arg !~ /^[\d\-]+$/) {
                     # search for label in each segment
                     my $addr;
                     foreach my $label_seg (keys %labels) {
@@ -489,7 +548,7 @@ sub assemble_segment_map {
         }
     }
 
-    my %ret = (map { $addr{$_} => $segments{$_} } keys %addr);
+    my %ret = (map { $base_address{$_} => $segments{$_} } keys %base_address);
     return \%ret;
 }
 
@@ -504,6 +563,7 @@ sub parse_value {
         my $b = $size * 8;
         return unpack("N", pack("B$b", substr("0" x $b . "$1", -32)));
     }
+
     return int($val);
 }
 
@@ -568,23 +628,6 @@ sub assemble_branch {
 
     return $class->assemble_i($op, @args);
 }    
-
-# assemble syscall
-sub assemble_syscall {
-    my ($class, $err, $op, $labels, $syscall_name) = @_;
-
-    my $syscall_num = $SYSCALLS{$syscall_name};
-    die "Unknown syscall: $syscall_name\n" unless defined $syscall_num;
-
-    my $bit_string = sprintf("%06b%032b%010b",
-                             $OPCODES{syscall},
-                             $syscall_num,
-                             0);
-
-    print "syscall [\"$syscall_name\"] = $bit_string\n";
-
-    return $class->pack_bit_string($bit_string);
-}
 
 # load immediate
 # assemble li as addi, $rt, $zero, data
@@ -763,12 +806,6 @@ sub disassemble_string {
     } elsif ($type eq 'J') {
         $ret .= $class->opcode_mnemonic($opcode);
         $ret .= sprintf(" 0x%08X", $fields{data});
-    } elsif ($type eq 'S') {
-        my $syscall_name = $SYSCALLS_REV{$fields{syscall}};
-
-        $ret .= $class->opcode_mnemonic($opcode);
-        $ret .= sprintf(" 0x%08X", $fields{syscall});
-        $ret .= " ; $syscall_name";
     }
 
     return $ret;
@@ -822,10 +859,6 @@ sub disassemble {
         $fields = {
             data => $bit_substr->(6, 32, $pack_template),
         };
-    } elsif ($type eq 'S') {
-        $fields = {
-            syscall => $bit_substr->(6, 32, $pack_template),
-        };
     } else {
         # unknown, probably data
     }
@@ -835,7 +868,7 @@ sub disassemble {
     return ($opcode, %$fields);
 }
 
-# given an opcode, returns 'R', 'I', 'J', 'S' or 'C' depending on the type
+# given an opcode, returns 'R', 'I', 'J', or 'C' depending on the type
 sub opcode_type {
     my ($class, $opcode) = @_;
 
@@ -844,9 +877,6 @@ sub opcode_type {
     if (! $opcode) {
         # register
         return 'R';
-    } elsif ($mnemonic eq 'syscall') {
-        # syscall
-        return 'S';
     } elsif (grep { $_ eq $mnemonic } @J_TYPE_OPS ) {
         # jump
         return 'J';

@@ -36,6 +36,7 @@ beginning:
     la $t0, memtest1
     li $t1, 0x65
     sb $t1, 2($t0)
+    la $t2, memtest1step2
     li $t1, 0x66
     sb $t1, 3($t0)
 
@@ -130,6 +131,9 @@ testjal:
  memtest1:
   .ds "abdc"
 
- memtest2:
-  .dl 0x00FF1234
+ memtest1step2:
+  .ds "abec"
+
+memtest2:
+  .dw 0x00FF1234
 

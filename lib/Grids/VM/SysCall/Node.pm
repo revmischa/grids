@@ -1,5 +1,8 @@
-use strict;
 package Grids::VM::SysCall::Node;
+
+use Moose;
+    with 'Grids::VM::SysCall';
+
 
 # prints value in $a0
 sub log {
@@ -25,4 +28,6 @@ sub logstr {
     printf "[Node.logstr] %s\n", $str;
 }
 
-1;
+no Moose;
+__PACKAGE__->meta->make_immutable;
+
