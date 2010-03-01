@@ -33,9 +33,13 @@ $vm->step; # syscall debug.logstr
 $vm->step; # li
 $vm->step; # la
 $vm->step; # lw
-is($vm->reg('a2'), length("Hello, world!\n"), "assembling string length");
+my $teststr = "Hello, world!\n";
+is($vm->reg('a2'), length($teststr), "assembling string length");
 $vm->step; # li
 $vm->step; # syscall write
+
+# check return value
+is($vm->reg('v0'), length($teststr), "got write() return value");
 
 $vm->step; # li
 $vm->step; # li

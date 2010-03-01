@@ -27,4 +27,18 @@ sub register {
     }
 }
 
+# return value (in $v0)
+sub retval {
+    my ($self, $val) = @_;
+    $self->vm->set_reg('v0', $val);
+}
+
+# return error with optional message
+sub ret_err {
+    my ($self, $errno, $msg) = @_;
+
+    $self->retval($errno);
+    $self->vm->wrn($msg) if $msg;
+}
+
 1;

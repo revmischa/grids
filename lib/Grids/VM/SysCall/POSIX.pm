@@ -19,12 +19,12 @@ sub BUILD {
     );
 }
 
-sub _ret_err {
+sub _err {
     my ($self, $errno, $msg) = @_;
+
     $self->errno($errno);
-    $self->vm->set_reg('v0', -1);
-    $self->vm->wrn($msg) if $msg;
-}
+    $self->ret_err(-1, $msg);
+};
 
 # prints string at addr in $a1, length $a2 to open file descriptor $a0
 sub write {
@@ -41,9 +41,9 @@ sub write {
     if ($fdno == 1) {
         # STDOUT
         printf "[posix.write] %s\n", $str;
-        $vm->set_reg('v0', $strlen);
+        return $self->retval($strlen);
     } else {
-        return $self->_ret_err(ENXIO, "tried to write to unknown file descriptor $fdno");
+        return $self->_err(ENXIO, "tried to write to unknown file descriptor $fdno");
     }
 }
 
