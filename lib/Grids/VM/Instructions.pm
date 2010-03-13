@@ -104,13 +104,11 @@ sub r_subu {
 # hi/lo = $rs * $rt
 sub r_mult {
     my ($class, $vm, $rs, $rt, $rd, $sa) = @_;
-    my ($prod_hi, $prod_lo) = $vm->regs->mult($rs, $rt);
-    $vm->set_hilo($prod_hi, $prod_lo);
+    $vm->regs->mult($rs, $rt, ($vm->get_hi_lo_idx));
 }
 sub r_multu {
     my ($class, $vm, $rs, $rt, $rd, $sa) = @_;
-    my ($prod_hi, $prod_lo) = $vm->regs->mult_u($rs, $rt);
-    $vm->set_hilo_u($prod_hi, $prod_lo);
+    $vm->regs->mult_u($rs, $rt, ($vm->get_hi_lo_idx));
 }
 
 # $lo = $rs / $rt; $hi = $rs % $rt;

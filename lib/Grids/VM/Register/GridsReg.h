@@ -1,4 +1,5 @@
 
+typedef U16   reg_idx_t;
 typedef I32   reg_t;
 typedef U32   ureg_t;
 typedef uint64_t uqword_t;

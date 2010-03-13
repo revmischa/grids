@@ -2,6 +2,7 @@ TYPEMAP
 
 reg_t           T_IV
 ureg_t          T_UV
+reg_idx_t       T_UV
 qword_t         T_IV
 uqword_t        T_UV
 reghandle_t     T_UV

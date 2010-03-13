@@ -80,16 +80,12 @@ sub xor {
 
 # multiply rs * rt, return the product hi and lo words
 sub mult {
-    my ($self, $idx1, $idx2) = @_;
-
-    my $product = $self->get($idx1) * $self->get($idx2);
-    return (Grids::VM::Register::hi($product), Grids::VM::Register::lo($product));
+    my ($self, $idx1, $idx2, $hi_idx, $lo_idx) = @_;
+    Grids::VM::Register::mult_regs($self->h, $idx1, $idx2, $hi_idx, $lo_idx);
 }
 sub mult_u {
-    my ($self, $idx1, $idx2) = @_;
-
-    my $product = $self->get_u($idx1) * $self->get_u($idx2);
-    return (Grids::VM::Register::hi_u($product), Grids::VM::Register::lo_u($product));
+    my ($self, $idx1, $idx2, $hi_idx, $lo_idx) = @_;
+    Grids::VM::Register::mult_regs_u($self->h, $idx1, $idx2, $hi_idx, $lo_idx);
 }
 
 sub h { $_[0]->{handle} }

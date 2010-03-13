@@ -259,24 +259,13 @@ sub set_reg {
     return $self->regs->set($reg_idx, $val);
 }
 
-sub set_hilo {
-    my ($self, $hi, $lo) = @_;
+# get location of hi and lo registers
+sub get_hi_lo_idx {
+    my ($self) = @_;
 
     my $hi_idx = $self->_reg('hi');
     my $lo_idx = $self->_reg('lo');
-
-    $self->regs->set($hi_idx, $hi);
-    $self->regs->set($lo_idx, $lo);
-}
-
-sub set_hilo_u {
-    my ($self, $hi, $lo) = @_;
-
-    my $hi_idx = $self->_reg('hi');
-    my $lo_idx = $self->_reg('lo');
-
-    $self->regs->set_u($hi_idx, $hi);
-    $self->regs->set_u($lo_idx, $lo);
+    return ($hi_idx, $lo_idx);
 }
 
 # utility method to look up a register number that accepts either the

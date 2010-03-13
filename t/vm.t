@@ -95,6 +95,8 @@ $vm->load_program($program);
     is($vm->reg_u('t2'), 0x33B7953A, "multu lo word");
     is($vm->reg_u('hi'), 0x00ABCD12, "multu hi word");
     is($vm->reg_u('lo'), 0x33B7953A, "multu lo word");
+    is($vm->reg('hi'), $vm->reg('t1'), "mfhi");
+    is($vm->reg_u('lo'), $vm->reg_u('t2'), "mflo");
 }
 
 # test div
