@@ -121,10 +121,11 @@ sub disconnected {
     my ($self, $connection) = @_;
 
     # remove peer connection
-    if ($connection->outbound) {
-        my $ok = $self->network->remove_from_peers($connection->peer);
-        $self->warn("network->remove_from_peers failed for " . $connection->peer->name) unless $ok;
-    }
+    # Removed if ($connection->outbound)
+    # Change by Patrick 4.14.10 due to network message duplication
+
+    my $ok = $self->network->remove_from_peers($connection->peer);
+    $self->warn("network->remove_from_peers failed for " . $connection->peer->name) unless $ok;
 
     # don't really need to do anything unless protocol has been established already
     return unless $connection->protocol;
