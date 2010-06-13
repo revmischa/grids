@@ -7,6 +7,8 @@ WriteMakefile(
 
     # required modules
     PREREQ_PM         => {
+        Data::UUID => 0,
+        Term::ReadLine => 0,
         AnyEvent => 0,
         Storable => 0,
         Class::Autouse => 0,
