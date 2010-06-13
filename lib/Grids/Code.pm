@@ -394,7 +394,7 @@ sub assemble_segment_map {
 
         if (my ($type, $data) = $line =~ /^
                 \.(
-                    (?:d?[bhwsz])|asciz|b|h|s|w|z|ascii  # data type
+                    (?:d?[bhwsz])|(?:asciz)|b|h|s|w|z|(?:ascii)  # data type
                 )
                 \s+\"?  # optional open quote
                     ([^"]+)  # operand
