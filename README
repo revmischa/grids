@@ -1,0 +1,57 @@
+The grids development platform aims to provide a common foundation for
+network-based applications. It is designed to be open, cross-platform
+and powerful, providing a standard set of protocols defining modern
+components of any net-aware application, including cryptography,
+redundant client/server architecture, data storage and distributed
+communication.
+
+Software can be more than just the sum of its parts, if coherently
+organized into a related collection of functionality the result can be
+a powerful tool for rapidly creating modern and useful projects. There
+are many examples of great features in many varied programs, but it is
+rare to find a single application combining more than a few cool
+libraries. This is of course due to the fact that few programmers have
+the time to learn the ins and outs of key fingerprints and
+cryptography, or distributed services, or don't feel like reinventing
+the wheel for the nth time.
+
+That being said, we now are fortunate enough to live in an age where
+software modularity and re-usability is a mature foundation for
+commercial-grade software. One only has to look at CPAN or the Apache
+project to find more incredibly useful tools than could ever be
+consumed. So many people have already "done the hard work", it's time
+that developers and end-users started reaping the rewards. Why should
+things like encryption, a robust client-server architecture, platform
+agnosticism, or verifiable identity be bonuses or goodies in modern
+software?
+
+The main goal of grids is to build a new foundation of network-aware
+software and include a new set of assumptions. Just as the invention
+of HTML let developers focus more on their content and worry less
+about font rendering, widget toolkits and sockets, so should modern
+practices be assumed. By default, all data transmitted over the wire
+in grids is encrypted with plausible deniability using OTR. Data
+structure serialization is incorporated, meaning you never have to
+worry about anything but a passing familiarity with deserializing JSON
+or XML. Making your network service distributed among many machines is
+not much different from an irc network. Native grids applications can
+run on any system with a grids implementation, and the reference
+implementation will run on any platform with a perl interpreter and c
+compiler. A grids virtual machine is included and can run grids-native
+applications in a handy sandbox. It is now the second decade of the
+21st century, if we can't have flying cars it should at least be
+possible for lazy programmers to make cool apps.
+
+Grids itself is not a piece of software, it is a collection of
+protocols and specifications. Since this project is still in the early
+stages there is no formal spec, but one will be forthcoming when all
+the requirements and scope of a basic platform are hammered out. For
+now the perl libraries posted here are the reference implementation.
+
+If anything here sparks your interest, we would love to have more
+people contributing ideas and code. The details of what will be
+encompassed are still to be worked out, and we are very interested to
+hear what other developers desire. If you're interested please send an
+email to a project maintainer.
+
+- Mischa S. <revmischa@cpan.org>
