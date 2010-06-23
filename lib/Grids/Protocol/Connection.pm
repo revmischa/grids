@@ -18,7 +18,8 @@ has 'channel' => (
 has 'protocol' => (
     is => 'rw',
     isa => 'Grids::Protocol',
-    handles => [qw/parse_request encapsulate id peer peer_name/],
+    handles => [qw/parse_request encapsulate id peer peer_name has_peer/],
+    predicate => 'has_protocol',
 );
 
 # is this the receiving end or the initiating end?

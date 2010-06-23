@@ -124,13 +124,15 @@ sub disconnected {
     # Removed if ($connection->outbound)
     # Change by Patrick 4.14.10 due to network message duplication
 
-    my $ok = $self->network->remove_from_peers($connection->peer);
-    $self->warn("network->remove_from_peers failed for " . $connection->peer->name) unless $ok;
+    if ($connection->has_protocol && $connection->has_peer) {
+        my $ok = $self->network->remove_from_peers($connection->peer);
+        $self->warn("network->remove_from_peers failed for " . $connection->peer->name) unless $ok;
+    }
 
     # don't really need to do anything unless protocol has been established already
-    return unless $connection->protocol;
+    return unless $connection->has_protocol;
 
-    if (! $self->network->peer_sessions($connection->peer)) {
+    if (! $connection->has_peer || ! $self->network->peer_sessions($connection->peer)) {
         $self->warn("got disconnected but no connection was established");
         return;
     }

@@ -29,6 +29,7 @@ has id => (
 has peer => (
     is => 'rw',
     isa => 'Grids::Peer',
+    predicate => 'has_peer',
 );
 
 has use_encryption => (
