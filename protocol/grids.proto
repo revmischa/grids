@@ -91,3 +91,34 @@ message Store {
 message Empty {
     required Message base = 1;
 }
+
+package grids.message.error.protocol;
+
+message UnsupportedSerializer {
+    required Message base = 1;
+    optional string serializer_method = 2;
+}
+
+message Unauthorized {
+    required Message base = 1;
+    optional string message = 2;
+}
+
+message IncompatibleVersion {
+    required Message base = 1;
+    optional string min_version = 2;
+}
+
+message UnknownError {
+    required Message base = 1;
+    optional string message = 2;
+}
+
+message UnknownStatus {
+    required Message base = 1;
+    optional string status = 2;
+}
+
+message InvalidSerializer {
+    required Message base = 1;
+}

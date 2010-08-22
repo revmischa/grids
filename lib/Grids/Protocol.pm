@@ -256,7 +256,7 @@ sub parse_request {
             } elsif ($info eq 'InvalidSerializer') {
                 return $self->error_event('Error.Protocol.InvalidSerializer', $connection);
             } else {
-                return $self->error_event('Error.Protocol.UnknownError', $connection, {msg => $info});
+                return $self->error_event('Error.Protocol.UnknownError', $connection, {message => $info});
             }
         } else {
             return $self->error_event('Error.Protocol.UnknownStatus', $connection, {status => $status});
