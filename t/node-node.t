@@ -42,7 +42,7 @@ sub init_nodes {
         # handle connections and node-node communication
         $node->register_hook('Connected', \&node_connected);
         $node->register_hook('Encrypted', \&connection_encrypted);
-        $node->register_hook('Login', \&login);
+        $node->register_hook('Node.Login', \&login);
         $node->register_hook('Error', \&node_error);
 
         push @nodes, $node;
@@ -115,7 +115,7 @@ sub node_connected {
 
     # try to log in with shared node privkey
     # FIXME: catch this
-    return { event => 'Login', node_private_key => $node->configuration->get('Node.PrivateKey') };
+    return { event => 'Node.Login', node_private_key => $node->configuration->get('Node.PrivateKey') };
 }
     
 # node-node login

@@ -27,15 +27,23 @@ message Message {
 
 package grids.message;
 
+// encrypted connection established
 message Encrypted {
     required Message base = 1;
 }
 
+// unencrypted connection established
+message Unencrypted {
+    required Message base = 1;
+}
+
+// test message
 message Echo {
     required Message base = 1;
     optional string echo_string = 2;
 }
 
+// connection established
 message Connected {
     required Message base = 1;
     optional string peer_name = 2;
@@ -47,8 +55,17 @@ message Login {
     required Message base = 1;
 }
 
+package grids.message.node;
+
+// node <--> node login
+message Login {
+    required Message base = 1;
+    required string node_private_key = 2;
+}
+
 package grids.message.OTR;
 
+// request to do OTR socialist millionaire protocol
 message SMPRequest {
     required Message base = 1;
     optional string peer_name = 2;
