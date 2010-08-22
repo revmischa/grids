@@ -191,7 +191,7 @@ sub smp_requested {
     my ($self, $connection, $peer_name, $question) = @_;
 
     $self->enqueue_event(
-        'SMP.Request', 
+        'OTR.SMPRequest', 
         $connection,
         {
             peer_name => $peer_name,
@@ -226,13 +226,6 @@ sub encrypted_connection_unready {
     # FIXME: "disconnected" is kinda misleading, could still have an unencrypted session active
     $self->enqueue_event('Unencrypted', $connection);  
     $self->dbg("encrypted connection with $peer_name ended");
-}
-
-# sends an event
-# FIXME: rename to something less ambiguous
-sub dispatch_event {
-    my ($self, $evt_name, $args) = @_;
-    $self->do_request(event_name => $evt_name, event_args => $args);
 }
 
 # fetches next event from event queue and handles it

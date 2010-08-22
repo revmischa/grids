@@ -72,7 +72,7 @@ sub c_do {
     $client->flush_event_queue;
 }
 sub c_req {
-    $client->dispatch_event(@_) if @_;
+    $client->send_event(@_) if @_;
     s_do();
     $client->flush_event_queue;
 }

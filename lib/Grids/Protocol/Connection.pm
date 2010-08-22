@@ -109,7 +109,7 @@ sub serialize_event {
 sub construct_event {
     my ($self, $event_name, $args) = @_;
 
-    my $evt = $self->protocol->construct_event($event_name, $args);
+    my $evt = $self->protocol->construct_event($event_name, $args) or return;
     $evt->connection($self);
     return $evt;
 }
@@ -118,7 +118,7 @@ sub construct_event {
 sub parse_request {
     my ($self, $data) = @_;
 
-    my $evt = $self->protocol->parse_request($self, $data);
+    my $evt = $self->protocol->parse_request($self, $data) or return;
     $evt->connection($self);
     return $evt;
 }

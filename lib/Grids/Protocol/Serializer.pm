@@ -32,7 +32,7 @@ sub construct_event {
 
         my $message_class = eval { $self->get_message_class($event); };
         unless ($message_class) {
-            warn "Unknown message type $event";
+            Carp::cluck("Unknown message type $event");
             return;
         }
 

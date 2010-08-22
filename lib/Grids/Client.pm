@@ -14,7 +14,7 @@ has 'connection' => (
     is => 'rw',
     isa => 'Grids::Protocol::Connection',
     clearer => 'clear_connection',
-    handles => [qw/send_event write/],
+    handles => [qw/write/],
 );
 
 # keep reference to client connection object as long as we need it
@@ -49,7 +49,7 @@ sub data_received {
 around do_request => sub {
     my ($orig, $self, %opts) = @_;
 
-    Carp::carp('$client->do_request is deprecated. use send_event()');
+    Carp::cluck('$client->do_request is deprecated. use send_event()');
 
     my $event = $self->construct_event($opts{event_name}, $opts{event_args});
     return $self->send_event($event);
@@ -72,6 +72,13 @@ sub send_broadcast_event {
     my $evt = $self->construct_event($event_name, $args);
     $evt->set_broadcast_flag;
     $self->send_event($evt);
+}
+
+sub send_event {
+    my ($self, $event_name, $args) = @_;
+
+    my $evt = $self->construct_event($event_name, $args);
+    $self->connection->send_event($evt);
 }
 
 around enqueue_event => sub {
@@ -125,7 +132,7 @@ sub outgoing_connection_established {
 # initiates a login, call after ProtocolEstablished event
 sub login {
     my $self = shift;
-    $self->dispatch_event('Authentication.Login');
+    $self->send_event('Authentication.Login');
 }
 
 sub select {

@@ -18,7 +18,7 @@ my ($node, @clients) = Grids::Test->node_with_many_clients($count, debug => $deb
 
 my $got_foo = {};
 
-# be notified of FooEvents
+# be notified of Echos
 foreach my $c (@clients) {
     $c->register_hook('Echo' => \&got_foo);
 }
@@ -39,7 +39,7 @@ foreach my $client (@clients) {
 
 is($got_foo_count, scalar @clients, "correct number of clients received event");
 
-# broadcast a "BarEvent" using the is_broadcast flag
+# broadcast using the is_broadcast flag
 my $bar_count = 0;
 $_->register_hook('Echo' => sub { $bar_count++ }) for @clients;
 

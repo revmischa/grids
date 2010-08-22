@@ -47,6 +47,14 @@ message Login {
     required Message base = 1;
 }
 
+package grids.message.OTR;
+
+message SMPRequest {
+    required Message base = 1;
+    optional string peer_name = 2;
+    required string question = 3;
+}
+
 package grids.message.services;
 
 message List {
