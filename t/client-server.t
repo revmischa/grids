@@ -62,22 +62,6 @@ my $storage_list = [];
 
     $server->configuration->set_conf('SMP.Secret', $secret);
     $client->initiate_smp($secret, $question);
-    flush();
-}
-
-sub flush {
-    for (1..20) {
-        c_flush();
-        s_flush();
-    }
-}
-
-sub s_flush {
-    $server->flush_event_queue;
-}
-
-sub c_flush {
-    $client->flush_event_queue;
 }
 
 sub c_req_expect_response {
@@ -90,7 +74,6 @@ sub c_req {
     my ($evt_name, $args) = @_;
     $client_got_event = 0;
     $client->send_event($evt_name, $args);
-    flush();
 }
 
 sub client_service_list {
