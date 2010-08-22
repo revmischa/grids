@@ -64,7 +64,7 @@ sub write {
         unless $connection && $connection->channel;
 
     $connection->channel->data_received($self->peer->peer_conn, $data);
-
+    #print "writing $data\n";
     return 1;
 }
 

@@ -8,9 +8,9 @@ Grids::Node->register_hooks(
 );
 
 sub hook_services_list {
-    my ($node, $info) = @_;
+    my ($node, $event) = @_;
 
-    return 0 unless $node->check_authentication($info);
+    return 0 unless $node->check_authentication($event);
 
     my @services = $node->services;
 

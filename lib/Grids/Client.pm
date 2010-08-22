@@ -46,7 +46,7 @@ sub data_received {
 }
 
 # deprecated interface
-around do_request => sub {
+around 'do_request' => sub {
     my ($orig, $self, %opts) = @_;
 
     Carp::cluck('$client->do_request is deprecated. use send_event()');
@@ -114,7 +114,7 @@ sub disconnect {
 sub connection_ready {
     my ($self, $connection) = @_;
     
-    $self->dbg(($connection->inbound ? 'inbound' : 'outbound') . " connection ready with " . $connection->peer->name);
+    $self->log->info(($connection->inbound ? 'inbound' : 'outbound') . " connection ready with " . $connection->peer->name);
 }
 
 # Called when a connection with a Node has been established. This
@@ -124,7 +124,7 @@ sub connection_ready {
 sub outgoing_connection_established {
     my ($self, $connection) = @_;
 
-    $self->dbg("connection to node successful. Initiating Grids protocol...");
+    $self->log->debug("connection to node successful. Initiating Grids protocol...");
     $self->connection($connection);
     $connection->initiate_protocol(id => $self->id, use_encryption => $self->use_encryption);
 }

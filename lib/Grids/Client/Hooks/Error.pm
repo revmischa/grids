@@ -13,7 +13,7 @@ sub error {
 
     die "Caught error: " . join "\n", map { "$_ = $info{args}{$_}\n" } keys %{$info{args}};
 
-    return 0;
+    return;
 }
 
 1;

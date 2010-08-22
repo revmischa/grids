@@ -132,6 +132,7 @@ sub register_hook {
     }
 }
 
+# returns a hook descriptor
 sub hook_save {
     my ($class, $hookname, $cb, $cb_obj) = @_;
 

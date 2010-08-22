@@ -17,11 +17,11 @@ use constant {
 sub process_broadcast_flag {
     my ($node, $evt) = @_;
 
-    return undef unless $evt->is_broadcast;
+    return unless $evt->is_broadcast;
     $evt->clear_broadcast_flag;
     $node->network_broadcast($evt);
 
-    return undef;
+    return;
 }
 
 # explicit request to broadcast an event to all connected clients

@@ -23,6 +23,13 @@ has name => (
     required => 1,
 );
 
+# this should be pubkey in the future
+sub id {
+    my ($self) = @_;
+
+    return $self->name;
+}
+
 sub build_session_token {
     my $self = shift;
     return Grids::UUID->new_id;

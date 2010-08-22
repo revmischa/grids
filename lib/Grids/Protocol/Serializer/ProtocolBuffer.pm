@@ -26,24 +26,19 @@ sub serialize {
     
     my $event_name = eval { $event->name }
         or confess "Trying to serialize event with no event name";
-        
-    my $message_class = eval { $self->get_message_class($event_name); };
-    unless ($message_class) {
-        confess $@;
-    }
 
     # get event as a hashref and serialize
     my $msg_str = eval {
-        $message_class->encode($event->serialize); 
-    } or croak "Unable to serialize event $event_name: $@";
+        $event->encode($event->serialize); 
+    } or confess "Unable to serialize event $event_name: $@";
     
-    return "$event_name|$msg_str";
+    return "$event_name\x00$msg_str";
 }
 
 sub deserialize {
     my ($self, $data) = @_;
     
-    my ($event_name, $msg_str) = $data =~ /^([\.\w:]+)\|(.*)$/sm;
+    my ($event_name, $msg_str) = $data =~ /^([\.\w:]+)\x00(.*)$/sm;
 
     unless ($event_name && $msg_str) {
         warn "Failed to parse message: '$data'";

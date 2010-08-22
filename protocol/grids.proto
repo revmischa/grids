@@ -7,6 +7,7 @@ message Message {
     required string event             = 1;  // event name, e.g. "Authentication.Login"
     required string id                = 2;  // message UUID
     optional string signed_id         = 3;  // cryptographically signed id. should be signed by sender's pubkey
+    optional string parent_id         = 13; // UUID of parent message, if this is a response
 
     optional string source            = 4;  // pubkey of sender
     optional string destination       = 5;  // pubkey of recipient
@@ -76,16 +77,36 @@ package grids.message.services;
 
 message List {
     required Message base = 1;
+
+    repeated string services = 2;
 }
 
 package grids.message.storage;
 
 message List {
     required Message base = 1;
+
+    repeated string keys = 2;
 }
 
-message Store {
+message Put {
     required Message base = 1;
+
+    required string key = 2;
+    optional bytes value = 3;
+}
+
+message Delete {
+    required Message base = 1;
+
+    required string key = 2;
+}
+
+message Get {
+    required Message base = 1;
+
+    required string key = 2;
+    optional bytes value = 3;
 }
 
 message Empty {

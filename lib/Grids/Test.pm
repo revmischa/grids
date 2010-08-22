@@ -9,20 +9,19 @@ use Grids::Identity;
 
 our %default_opts = (
     transport_driver => 'Loop',
+    log_level => 3,
 );
 
 # returns ($client, $server, $client_id, $server_id)
 sub client_server_pair {
     my ($class, %opts) = @_;
     
-    my $debug = $opts{debug} || 0;
-
     my $srv_id = Grids::Identity->create_for_test(name => 'test-server');
-    my $server = Grids::Node->new(debug => $debug, id => $srv_id, %default_opts);
+    my $server = Grids::Node->new(id => $srv_id, %default_opts);
     my $server_t = $server->new_transport;
 
     my $id = Grids::Identity->create_for_test(name => 'test-client');
-    my $client = Grids::Client->new(id => $id, %default_opts, debug => $debug);
+    my $client = Grids::Client->new(id => $id, %default_opts);
 
     # connect client to server using Loop transport
     $client->connect($server_t);

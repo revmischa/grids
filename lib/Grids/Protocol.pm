@@ -53,6 +53,7 @@ has got_initiation => (
 
 use Grids::Message;
 use Grids::Peer;
+
 use Grids::Protocol::Serializer;
 use Grids::Protocol::Serializer::JSON;
 use Grids::Protocol::Serializer::ProtocolBuffer;
@@ -162,7 +163,7 @@ sub new_from_initiation_string {
 
     my ($prog, $ver, $serializer_classes, $name) = split('/', $initstr);
 
-    return unless $prog eq 'Grids' && $ver eq '1.0' && $serializer_classes;
+    return unless lc $prog eq 'grids' && $ver eq '1.0' && $serializer_classes;
 
     my $peer;
     if ($name && index($name, 'name=') != -1) {
@@ -334,7 +335,10 @@ sub serialize_event {
         $event = $self->construct_event($event, $args);
         return $self->serializer->serialize($event);
     };
-    return unless $msg;
+    unless ($msg) {
+        warn $@;
+        return;
+    }
 
     # do we have a public key for the other party? if so, encrypt this message for them
     if ($self->peer && $self->use_encryption) {
@@ -367,12 +371,21 @@ sub decrypt_message {
     croak "decrypt_message() called without a peer defined"
         unless $self->peer && $self->peer_name;
 
-    my $plaintext = $self->id->decrypt($self->peer_name, $msg);
+    my ($plaintext, $should_discard) = $self->id->decrypt($self->peer_name, $msg);
+    return if $should_discard; # OTR internal protocol message or fragment, don't care.
+
     if (defined $plaintext && $plaintext ne $msg) {
+        # this was encrypted
         return wantarray ? ($plaintext, 1) : $plaintext;
-    } elsif ($msg =~ /^\?OTR/ && ! defined $plaintext) {
-        # encrypted but failed to decrypt. probably a message fragment
     } else {
+        # wasn't encrypted
+        if ($plaintext) {
+            # $plaintext = $msg, this shouldn't happen
+            warn "decrypt_message() got an expected result";
+            return;
+        }
+
+        # return original message, it wasn't encrypted
         return wantarray ? ($msg, 0) : $msg;
     }
 }

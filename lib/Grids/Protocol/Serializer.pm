@@ -36,14 +36,14 @@ sub construct_event {
             return;
         }
 
-        $event = $message_class->new({
-            base => {
-                event => $event,
-            },
-            %$args,
-        });
+        my $event_name = $event;
+        $event = $message_class->new($args);
         Grids::Protocol::Event->meta->apply($event);
+        $event->set_event($event_name);
     }
+
+#    use Data::Dumper;
+#    warn Dumper($event->serialize);
 
     return $event;
 }
@@ -51,7 +51,7 @@ sub construct_event {
 # turn "Foo.Bar" or "Foo::Bar" into "Grids::Message::Foo::Bar"
 sub get_message_class {
     my ($self, $msg_class) = @_;
-    
+
     confess "Invalid event class $msg_class"
         unless $msg_class =~ /^[\w:\.]+$/sm;
     

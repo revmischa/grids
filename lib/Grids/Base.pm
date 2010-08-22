@@ -4,6 +4,7 @@ package Grids::Base;
 
 use Moose::Role;
     with 'Grids::Hookable';
+    with 'Grids::Logger';
 
 use Carp qw/croak/;
 use Grids::Conf;
@@ -32,13 +33,6 @@ has 'transports' => (
     default => sub { [] },
 );
 
-has 'debug' => (
-    is => 'rw',
-    isa => 'Bool',
-    default => 0,
-    lazy => 1,
-);
-
 has 'event_queue' => (
     is => 'rw',
     isa => 'Grids::Protocol::EventQueue',
@@ -63,8 +57,7 @@ has 'encapsulation_class' => (
 has 'use_encryption' => (
     is => 'rw',
     isa => 'Bool',
-    default => sub { 1 },
-    lazy => 1,
+    default => 0,
 );
 
 # dispatch events as they come in, don't wait for do_next_event() to
@@ -215,7 +208,7 @@ sub encrypted_connection_ready {
     my ($self, $connection, $peer_name) = @_;
 
     $self->enqueue_event('Encrypted', $connection);
-    $self->dbg("encrypted connection established with " . $connection->peer->name .
+    $self->log->info("encrypted connection established with " . $connection->peer->name .
                ", verified=" . $connection->peer_fingerprint_is_verified);
 }
 
@@ -225,7 +218,7 @@ sub encrypted_connection_unready {
 
     # FIXME: "disconnected" is kinda misleading, could still have an unencrypted session active
     $self->enqueue_event('Unencrypted', $connection);  
-    $self->dbg("encrypted connection with $peer_name ended");
+    $self->log->info("encrypted connection with $peer_name ended");
 }
 
 # fetches next event from event queue and handles it
@@ -240,12 +233,10 @@ sub do_next_event {
         or croak "Invalid Event record in queue: missing connection";
 
     # debugging
-    if ($self->debug) {
+    if ($self->log_level > 4) {
         my $args = $event->serialize;
-        $args ||= {};
-
         my $args_disp = %$args ? ' (' . join(', ', map { $_ . ' = ' . $args->{$_} } keys %$args) . ')' : '';
-        $self->dbg("handling event " . $event->event_name . "$args_disp");
+        $self->log->trace("handling event " . $event->event_name . "$args_disp");
     }
 
     # run hooks for this event
@@ -255,7 +246,7 @@ sub do_next_event {
 
     # capture errors from hooks
     if ($@) {
-        $self->warn("error while running hooks for event " . $event->event_name . ": " .
+        $self->log->warn("error while running hooks for event " . $event->event_name . ": " .
             $@ . "\n");
     }
 
@@ -268,10 +259,11 @@ sub do_next_event {
             # default the return request to be of the same method
             my $res_evt = $res->{event} || $event->event_name;
 
-            # do request
-            $self->do_request(event_name => $res_evt,
-                              event_args => $res,
-                              connection => $conn);
+            # send reply event
+            my $reply = $conn->construct_event($res_evt, $res);
+            $reply->clear_id;
+            $reply->set_parent_id($event->id);
+            $conn->send_event($reply);
         }
     }
 
@@ -284,8 +276,6 @@ sub enqueue_event {
 
     croak "enqueue_event() requires a connection"
         unless $connection;
-
-    warn "$self enqueing event $event_name";
 
     # construct event record
     my $evt = $connection->construct_event($event_name, $args);
@@ -310,20 +300,12 @@ sub connect {
     return $t->connect($address);
 }
 
-sub dbg {
-    my ($self, $msg) = @_;
-    return unless $self->debug;
+around 'format_log_message' => sub {
+    my ($orig, $self, $msg) = @_;
     my $class = $self->meta->name;
     my $name = $self->id->name || '(no identity)';
-    print($name . '@' . "$class: [Debug] $msg\n");
-}
-
-sub warn {
-    my ($self, $msg) = @_;
-    my $class = $self->meta->name;
-    my $name = $self->id->name || '(no identity)';
-    print STDERR $name . '@' . "$class: [Warn] $msg\n";
-}
+    return $self->$orig($name . '@' . "$class: $msg");
+};
 
 1;
 

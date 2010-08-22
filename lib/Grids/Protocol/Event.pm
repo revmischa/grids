@@ -8,6 +8,7 @@ use Grids::UUID;
 has connection => (
     is => 'rw',
     isa => 'Grids::Protocol::Connection',
+    handles => [ 'peer' ],
 );
 
 has transport => (
@@ -36,6 +37,7 @@ sub error         { $_[0]->base->{error} }
 sub is_broadcast  { $_[0]->base->{is_broadcast} }
 sub is_ack        { $_[0]->base->{is_ack} }
 sub session_token { $_[0]->base->{session_token} }
+sub parent_id     { $_[0]->base->{parent_id} }
 
 sub clear_broadcast_flag {
     my ($self) = @_;
@@ -50,6 +52,16 @@ sub set_broadcast_flag {
 sub set_session_token {
     my ($self, $tok) = @_;
     $self->base->{session_token} = $tok;
+}
+
+sub set_parent_id {
+    my ($self, $id) = @_;
+    $self->base->{parent_id} = $id;
+}
+
+sub set_event {
+    my ($self, $evt) = @_;
+    $self->{base}->{event} = $evt;
 }
 
 around 'id' => sub {
@@ -96,6 +108,10 @@ sub serialize {
     }
 
     my %fields = %$self;
+
+    # delete extraneous information
+    delete $fields{$_} for qw/connection transport was_encrypted/;
+
     return \%fields;
 }
 

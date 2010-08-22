@@ -93,6 +93,10 @@ sub send_event {
     my ($self, $evt, $args) = @_;
 
     my $msg = $self->serialize_event($evt, $args);
+    unless ($msg) {
+        warn "Failed to serialize event: $evt";
+        return;
+    }
 
     return unless $msg;
     $self->write($msg);
