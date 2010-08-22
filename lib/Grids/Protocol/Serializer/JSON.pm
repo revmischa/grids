@@ -3,7 +3,9 @@ package Grids::Protocol::Serializer::JSON;
 use Moose;
     with 'Grids::Protocol::Serializer';
 
-use Carp;
+use namespace::autoclean;
+use Grids::Protocol::Event;
+use Carp qw/croak confess/;
 use JSON::XS;
 
 # parser
@@ -20,16 +22,44 @@ sub build_parser {
 }
 
 sub serialize {
-    my ($self, $params) = @_;
-    
-    eval { $self->json->encode($params) } or Carp::confess();
+    my ($self, $evt) = @_;
 
-    return $self->json->encode($params);
+    my $event_name = $evt->name;
+    my $obj = $evt->serialize;
+    my $ret = eval { $self->json->encode($obj) }
+        or confess $@;
+
+    return $ret;
 }
 
 sub deserialize {
     my ($self, $data) = @_;
-    return $self->json->decode($data);
+
+    my $obj = eval { $self->json->decode($data); }
+        or warn "Failed parsing message '$data': $@";
+
+    my $event_name = $obj->{base}{event};
+    unless ($event_name) {
+        warn "Failed parsing message: '$data': no event name found";
+        return;
+    }
+
+    my $message_class = eval { $self->get_message_class($event_name) };
+    unless ($message_class) {
+        warn "Failed parsing message: '$data': $@";
+        return;
+    }
+
+    my $evt = eval { $message_class->new($obj) };
+    unless ($evt) {
+        warn "Failed parsing message: '$data': $@";
+        return;
+    }
+
+    # we parsed the message successfully, apply Event role
+    Grids::Protocol::Event->meta->apply($evt);
+
+    return $evt;
 }
 
 no Moose;

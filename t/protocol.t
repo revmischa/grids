@@ -13,7 +13,7 @@ my $cli_id = Grids::Identity->create_for_test(name => 'proto-test-1');
 my $srv_id = Grids::Identity->create_for_test(name => 'proto-test-2');
 
 my $p_cli;
-# test_json();
+test_json();
 test_protobuf();
 
 sub test_json {
