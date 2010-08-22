@@ -18,7 +18,7 @@ has 'channel' => (
 has 'protocol' => (
     is => 'rw',
     isa => 'Grids::Protocol',
-    handles => [qw/parse_request encapsulate id peer peer_name has_peer/],
+    handles => [qw/parse_request serialize_event id peer peer_name has_peer/],
     predicate => 'has_protocol',
 );
 
@@ -102,7 +102,7 @@ sub send_event {
         $event_name = $evt;
     }
 
-    my $msg = $self->encapsulate($event_name, $args);
+    my $msg = $self->serialize_event($event_name, $args);
     return unless $msg;
     $self->write($msg);
 }

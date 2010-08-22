@@ -15,7 +15,7 @@ has transport => (
     isa => 'Grids::Transport',
 );
 
-has event_name => (
+has event => (
     is => 'rw',
     isa => 'Str',
     required => 1,

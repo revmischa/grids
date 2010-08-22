@@ -1,8 +1,7 @@
-package Grids::Protocol::Encapsulation::JSON;
+package Grids::Protocol::Serializer::JSON;
 
-use Grids::Protocol::Encapsulation;
 use Moose;
-    with 'Grids::Protocol::Encapsulation';
+    with 'Grids::Protocol::Serializer';
 
 use Carp;
 use JSON::XS;
@@ -20,7 +19,7 @@ sub build_parser {
     return JSON::XS->new->pretty(0),
 }
 
-sub encapsulate {
+sub serialize {
     my ($self, $params) = @_;
     
     eval { $self->json->encode($params) } or Carp::confess();
@@ -28,7 +27,7 @@ sub encapsulate {
     return $self->json->encode($params);
 }
 
-sub decapsulate {
+sub deserialize {
     my ($self, $data) = @_;
     return $self->json->decode($data);
 }

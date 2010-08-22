@@ -3,18 +3,18 @@ package Grids::Protocol;
 use Moose;
 use Carp qw/croak/;
 
-has encap => (
+has serializer => (
     is => 'rw',
-    isa => 'Grids::Protocol::Encapsulation', # should be 'does'
+    does => 'Grids::Protocol::Serializer',
 );
 
-has encapsulation_class => (
+has serializer_class => (
     is => 'rw',
     isa => 'Str',
-    default => sub { 'JSON' },
+    default => sub { 'ProtocolBuffer' },
 );
 
-has encap_method => (
+has serializer_method => (
     is => 'rw',
     isa => 'Str',
 );
@@ -55,13 +55,11 @@ use Class::Autouse qw/
     Grids::Peer
 /;
 
-use Grids::Protocol::Encapsulation; # this is required to load the
-                                    # role for instantiation of
-                                    # encapsulation handlers
+use Grids::Protocol::Serializer;
 
 # FIXME: moosify with roles
-# autouse all encapsulation methods
-Class::Autouse->autouse_recursive('Grids::Protocol::Encapsulation');
+# autouse all serialization classes
+Class::Autouse->autouse_recursive('Grids::Protocol::Serializer');
 
 use constant {
     MSG_INIT_PROTOCOL_PREFIX => '++',
@@ -71,27 +69,27 @@ use constant {
 sub BUILD {
     my $self = shift;
 
-    my $enc = $self->encapsulation_class;
+    my $ser = $self->serializer_class;
 
-    $self->set_encapsulation_method($enc)
-        or die "Unable to load encapsulation class $enc";
+    $self->set_serializer_method($ser)
+        or die "Unable to load serialization class $ser";
 }
 
-sub set_encapsulation_method {
-    my ($self, $enc) = @_;
+sub set_serializer_method {
+    my ($self, $ser) = @_;
 
     # fixme: use MooseX::Traits
-    return undef if $enc !~ /^[\w:]+$/;
-    my $encap_method = "Grids::Protocol::Encapsulation::$enc";
-    my $encap = eval { $encap_method->new };
+    return undef if $ser !~ /^[\w:]+$/;
+    my $ser_method = "Grids::Protocol::Serializer::$ser";
+    my $serializer = eval { $ser_method->new };
 
-    if (! $encap || $@) {
+    if (! $serializer || $@) {
         die "Failed to create protocol handler: $@\n";
     }
 
-    $self->encapsulation_class($enc);
-    $self->encap_method($encap_method);
-    $self->encap($encap);
+    $self->serializer_class($ser);
+    $self->serializer_method($ser_method);
+    $self->serializer($serializer);
 
     return 1;
 }
@@ -103,7 +101,7 @@ sub initiation_string {
     my $id = $self->id or croak "Tried to call initiation_string on a protocol with no identity defined";
     my $name = $id->name;
 
-    my @elements = ('Grids', '1.0', $self->encapsulation_class, "name=\"$name\"");
+    my @elements = ('Grids', '1.0', $self->serializer_class, "name=\"$name\"");
     return MSG_INIT_PROTOCOL_PREFIX . join('/', @elements);
 }
 
@@ -120,7 +118,7 @@ sub protocol_init_response {
     my $id = $self->id or croak "Tried to call protocol_init_response on a protocol with no identity defined";
     my $name = $id->name;
     
-    my @elements = ('OK', '1.0', $self->encapsulation_class, "name=\"$name\"");
+    my @elements = ('OK', '1.0', $self->serializer_class, "name=\"$name\"");
     return MSG_INIT_PROTOCOL_REPLY_PREFIX . join('/', @elements);
 }
 
@@ -166,9 +164,9 @@ sub new_from_initiation_string {
     return undef unless index($initstr, $prefix) == 0;
     $initstr = substr($initstr, length $prefix);
 
-    my ($prog, $ver, $encapsulation_classes, $name) = split('/', $initstr);
+    my ($prog, $ver, $serializer_classes, $name) = split('/', $initstr);
 
-    return undef unless $prog eq 'Grids' && $ver eq '1.0' && $encapsulation_classes;
+    return undef unless $prog eq 'Grids' && $ver eq '1.0' && $serializer_classes;
 
     my $peer;
     if ($name && index($name, 'name=') != -1) {
@@ -182,9 +180,9 @@ sub new_from_initiation_string {
     }
 
     my $p;
-    # try each requested encapsulation method in listed order
-    foreach my $enc (split(',', $encapsulation_classes)) {
-        $p = eval { $class->new(encapsulation => $enc, %$params) };
+    # try each requested serializer method in listed order
+    foreach my $ser (split(',', $serializer_classes)) {
+        $p = eval { $class->new(serializer => $ser, %$params) };
         last if $p;
     }
 
@@ -214,7 +212,7 @@ sub parse_request {
         my ($status, $version, $info, $name) = $data =~ m{
               ^(\w+)                    # Status (OK/ERROR)
               \/([^\/]+)                # Version
-              (?:\/(\w*))?              # Encapsulation method (e.g. JSON, XML)
+              (?:\/(\w*))?              # Serializer method (e.g. JSON, ProtocolBuffer)
               (?:\/name="([-\w\s]+)")?  # options, currently only name is supported
         }smix;
 
@@ -228,15 +226,15 @@ sub parse_request {
         }
 
         if ($status eq 'OK') {
-            # we got a protocol response, we have their name and encapsulation method
+            # we got a protocol response, we have their name and serializer method
 
             # create peer object
             my $peer = Grids::Peer->new(name => $name, connection => $connection);
             $self->peer($peer);
 
-            # try to create encapsulation subtype
-            $self->set_encapsulation_method($info)
-                or return $self->error_event('Error.Protocol.UnsupportedEncapsulation', $connection, {encapsulation_method => $info});
+            # try to create serializer subtype
+            $self->set_serializer_method($info)
+                or return $self->error_event('Error.Protocol.UnsupportedSerializer', $connection, {serializer_method => $info});
 
             # send request to establish an encrypted session
             $self->establish_encrypted_connection if $self->use_encryption;
@@ -254,8 +252,8 @@ sub parse_request {
                 return $self->error_event('Error.Protocol.Unauthorized', $connection, {message => $info});
             } elsif ($info eq 'IncompatibleVersion') {
                 return $self->error_event('Error.Protocol.IncompatibleVersion', $connection, {min_version => $version});
-            } elsif ($info eq 'InvalidEncapsulations') {
-                return $self->error_event('Error.Protocol.InvalidEncapsulations', $connection);
+            } elsif ($info eq 'InvalidSerializer') {
+                return $self->error_event('Error.Protocol.InvalidSerializer', $connection);
             } else {
                 return $self->error_event('Error.Protocol.UnknownError', $connection, {msg => $info});
             }
@@ -292,14 +290,14 @@ sub event {
     return Grids::Protocol::Event->new(event_name => $event, args => $params, connection => $connection);
 }
 
-# take a received message string and parse it into a native data structure
+# take a received message string and parse it into an event instance
 # should never need to be called directly
 # in list context also returns if the message was encrypted
-sub decapsulate {
+sub deserialize_event {
     my ($self, $data) = @_;
 
-    croak "Attempting to decapsulate message without an encapsulation method specified"
-        unless $self->encap;
+    croak "Attempting to deserialize event without a serialization method specified"
+        unless $self->serializer;
 
     my $was_encrypted;
     if ($self->use_encryption && $self->peer && $self->peer_name) {
@@ -315,28 +313,37 @@ sub decapsulate {
         warn "no peer defined, unable to decrypt message" if $self->use_encryption;
     }
 
-    my $args = $self->encap->decapsulate($data);
-    return wantarray ? ($args, $was_encrypted) : $args;
+    my $event = $self->serializer->deserialize($data);
+    return wantarray ? ($event, $was_encrypted) : $event;
 }
 
-# encapsulate a protocol event for transmission
-sub encapsulate {
-    my ($self, $event, $args) = @_;
+# serialize a protocol event for transmission
+# takes either Event instance or ($event_name, $args_hashref)
+sub serialize_event {
+    my ($self, $event) = @_;
 
-    croak "Attempting to encapsulate message without an encapsulation method specified"
-        unless $self->encap;
+    croak "Attempting to serialize event without a serialization method specified"
+        unless $self->serializer;
+        
+    # check if we got passed an event instance or an event name
+    if (! ref $event) {
+        # construct event object
+        my $args = $_[2];
+        my $event = Grids::Protocol::Event->new(
+            event => $event,
+            args => $args,
+        );
+    }
 
-    $args ||= {};
-    $args->{_method} = $event;
-
-    my $msg = $self->encap->encapsulate($args);
+    my $msg = $self->serializer->serialize($event);
 
     # do we have a public key for the other party? if so, encrypt this message for them
-    $msg = $self->encrypt_message($msg) if $self->peer && $self->use_encryption;
+    if ($self->peer && $self->use_encryption) {
+        $msg = $self->encrypt_message($msg);
+    }
 
     return $msg;
 }
-
 
 # encrypt this message for our peer, if we have their public key
 sub encrypt_message {

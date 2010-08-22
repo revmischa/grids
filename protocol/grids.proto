@@ -1,0 +1,19 @@
+// This is the top-level Google ProtocolBuffer definitions for GRIDS message passing.
+
+package grids;
+
+// base event class. most messages are based off of this format
+message Event {
+    required string event             = 1; // event name, e.g. "Authentication.Login"
+    required string id                = 2; // message UUID
+    optional string signed_message_id = 3; // cryptographically signed id. should be signed by sender's pubkey
+
+    required string source            = 4; // pubkey of sender
+    required string destination       = 5; // pubkey of recipient
+
+    optional uint64 timestamp         = 6; // unix timestamp of when this message was created
+    optional uint64 expires           = 7; // unix timestamp of when this message is no longer valid/useful
+
+    extensions 1000 to 18999;   // extensions must use these tag ids
+}
+
