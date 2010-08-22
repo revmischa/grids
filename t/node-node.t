@@ -55,7 +55,7 @@ sub init_nodes {
             my $node = $nodes[$i];
             my $nextnode = $nodes[$j];
 
-            ok(1, "connecting " . ($i+1) . "[$node] <-...-> " . ($j + 1) . "[$nextnode]");
+            ok(1, "connecting " . ($i+1) . "[$node] <- - -> " . ($j + 1) . "[$nextnode]");
 
             my $conn = $node->new_transport->connect($nextnode->new_transport);
 
@@ -65,8 +65,6 @@ sub init_nodes {
         }
     }
  
-    flush() for (1 .. ($nodecount * 10));
-
     is($connections, $connection_attempts, "all nodes connected");
 
     # test encrypted messaging
@@ -77,19 +75,11 @@ sub init_nodes {
         # establish encrypted connections
         $_->activate_encryption foreach @nodes;
 
-        flush() for (1 .. ($nodecount * 15));
-
-        is($encrypted_connections, 2 * $nodecount, "encrypted sessions started");
+        is($encrypted_connections, $connection_attempts, "encrypted sessions started");
     }
 
     # disconnect all loops
     $_->disconnect_all_clients for @nodes;
-}
-
-
-# process all waiting events
-sub flush {
-    $_->flush_event_queue foreach @nodes;
 }
 
 # node got error
