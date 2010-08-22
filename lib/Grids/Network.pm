@@ -11,7 +11,7 @@ use Class::Autouse qw/
 
 use Carp qw/croak/;
 
-# msgId => "$peer" => acked?
+# msg_id => "$peer" => acked?
 has known_acks => (
     is => 'rw',
     isa => 'HashRef',

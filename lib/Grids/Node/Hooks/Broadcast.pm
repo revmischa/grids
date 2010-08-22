@@ -18,8 +18,11 @@ sub process_broadcast_flag {
     my ($node, $evt) = @_;
 
     return unless $evt->is_broadcast;
-    $evt->clear_broadcast_flag;
-    $node->network_broadcast($evt);
+
+    # clone evt and broadcast it
+    my $clone = $evt->clone_cleaned;
+    $clone->clear_broadcast_flag;
+    $node->network_broadcast($clone);
 
     return;
 }
@@ -44,11 +47,10 @@ sub hook_broadcast_event {
     }
 
     # clone event
-    my $new_evt = bless { %$evt }, ref $evt;
-    $new_evt->event_name($event_name);
-    $new_evt->clear_id;
-    warn "broadcasting $event_name";
+    my $new_evt = $evt->clone;
+    $new_evt->set_event($event_name);
 
+    warn "new evt name: " . $new_evt->name;
     $node->network_broadcast($new_evt);
     return $node->hook_ok(base => { ack => 1 });
 }

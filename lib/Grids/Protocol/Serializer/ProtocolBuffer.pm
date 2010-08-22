@@ -24,7 +24,7 @@ sub build_parser {
 sub serialize {
     my ($self, $event) = @_;
     
-    my $event_name = eval { $event->name }
+    my $event_name = $event->name
         or confess "Trying to serialize event with no event name";
 
     # get event as a hashref and serialize
@@ -32,9 +32,12 @@ sub serialize {
         my $ser = $event->serialize;
 
         # event name is encoded in the serialized transmission. eliminate it to save space
-        delete $ser->{base}{event}; 
+        # we need to copy base so we don't mess up the original event
+        my %new_base = %{$ser->{base}};
+        delete $new_base{event};
+        $ser->{base} = \%new_base;
 
-        $event->encode($event->serialize); 
+        $event->encode($ser); 
     } or confess "Unable to serialize event $event_name: $@";
     
     return "$event_name\x00$msg_str";

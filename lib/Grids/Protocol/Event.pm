@@ -44,6 +44,11 @@ sub clear_broadcast_flag {
     $self->base->{is_broadcast} = 0;
 }
 
+sub clear_session_token {
+    my ($self) = @_;
+    $self->base->{session_token} = 0;
+}
+
 sub set_broadcast_flag {
     my ($self) = @_;
     $self->base->{is_broadcast} = 1;
@@ -76,10 +81,18 @@ around 'id' => sub {
     return $self->$orig($new);
 };
 
-# used for event cloning (broadcasts, etc)
 sub clear_id {
     my ($self) = @_;
     delete $self->base->{id};
+}
+
+# used for event cloning (broadcasts, replies, acks)
+sub clear_ids {
+    my ($self) = @_;
+
+    $self->clear_id;
+    delete $self->base->{parent_id};
+    delete $self->base->{signed_id};
 }
 
 # uuid identifying this event
@@ -113,6 +126,18 @@ sub serialize {
     delete $fields{$_} for qw/connection transport was_encrypted/;
 
     return \%fields;
+}
+
+# returns a copy of this event, with ids cleared
+sub clone_cleaned {
+    my ($self, %params) = @_;
+
+    my $new = $self->meta->clone_object($self, %params);
+
+    $new->clear_ids;
+    $new->clear_session_token;
+
+    return $new;
 }
 
 1;
