@@ -4,7 +4,7 @@ package grids;
 
 // base event class. most messages are based off of this format
 message Message {
-    required string event             = 1;  // event name, e.g. "Authentication.Login"
+    optional string event             = 1;  // event name, e.g. "Authentication.Login". This is usually not sent over the wire to save space.
     required string id                = 2;  // message UUID
     optional string signed_id         = 3;  // cryptographically signed id. should be signed by sender's pubkey
     optional string parent_id         = 13; // UUID of parent message, if this is a response
