@@ -6,6 +6,7 @@ use Moose;
 use Carp qw/croak confess/;
 use Google::ProtocolBuffers;
 use Grids::Util;
+use Grids::Protocol::Event;
 
 has parser => (
     is => 'rw',
@@ -23,58 +24,45 @@ sub build_parser {
 sub serialize {
     my ($self, $event) = @_;
     
-    my $event_name = $event->event
+    my $event_name = $event->name
         or croak "Trying to serialize event with no event name";
         
-    my $evt_class = $self->get_event_class($event_name);
-    
-    # maybe this should just be a warning?
-    eval "use $evt_class; 1"
-        or croak "Attempting to transmit event of type $event_name but no protocol definition exists.";
-        
+    my $evt_class = $self->get_message_class($event_name);
+
+    # get event as a hashref and serialize
     my $msg_str = eval {
-        $evt_class->encode($event->args || {}); 
+        $evt_class->encode($event->serialize); 
     } or croak "Unable to serialize event $event_name: $@";
     
-    return "$evt_class|$msg_str";
+    return "$event_name|$msg_str";
 }
 
 sub deserialize {
     my ($self, $data) = @_;
     
-    my ($event_class, $msg_str) = $data =~ /^([\w:]+\|(.*)$)/sm;
-    $event_class = eval { $self->get_event_class($event_class); };
+    my ($event_name, $msg_str) = $data =~ /^([\w:]+)\|(.*)$/sm;
+
+    unless ($event_name && $msg_str) {
+        warn "Failed to parse message: '$data'";
+        return;
+    }
+
+    my $event_class = eval { $self->get_message_class($event_name); };
     unless ($event_class) {
         warn $@;
         return;
     }
     
-    my $evt = eval { $event_class->decode($data); };
+    my $evt = eval { $event_class->decode($msg_str); };
     unless ($evt) {
-        warn $@;
+        warn "Failed to parse message: '$data': $@";
         return;
     }
+
+    # apply Event role
+    Grids::Protocol::Event->meta->apply($evt);
     
     return $evt;
-}
-
-# turn "Foo.Bar" or "Foo::Bar" into "Grids::Protocol::Message::Event::Foo::Bar"
-sub get_event_class {
-    my ($self, $event_class) = @_;
-    
-    confess "Invalid event class $event_class"
-        unless $event_class =~ /^[\w:\.]+$/sm;
-    
-    # find compiled event subclass
-    $event_class =~ s/\./::/g;
-    $event_class = "Event::$event_class" unless $event_class =~ /^Event::/;
-    $event_class = "Grids::Protocol::Message::$event_class";
-    
-    # maybe this should just be a warning?
-    eval "use $event_class; 1"
-        or confess "Attempting to handle event of type $event_class but no protocol definition exists.";
-
-    return $event_class;
 }
 
 # path to protocol definitions
@@ -90,7 +78,7 @@ sub compile {
     my $dir = $class->definitions_directory;
     Google::ProtocolBuffers->parsefile("$dir/grids.proto" => {
         include_dir => $dir,
-        generate_code => Grids::Util->base_dir . "/lib/Grids/Protocol/Message/Event.pm",
+        generate_code => Grids::Util->base_dir . "/lib/Grids/Message.pm",
         create_accessors => 1,
     });
 }

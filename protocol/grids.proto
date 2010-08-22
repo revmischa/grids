@@ -3,13 +3,13 @@
 package grids;
 
 // base event class. most messages are based off of this format
-message Event {
+message Message {
     required string event             = 1; // event name, e.g. "Authentication.Login"
     required string id                = 2; // message UUID
     optional string signed_message_id = 3; // cryptographically signed id. should be signed by sender's pubkey
 
-    required string source            = 4; // pubkey of sender
-    required string destination       = 5; // pubkey of recipient
+    optional string source            = 4; // pubkey of sender
+    optional string destination       = 5; // pubkey of recipient
 
     optional uint64 timestamp         = 6; // unix timestamp of when this message was created
     optional uint64 expires           = 7; // unix timestamp of when this message is no longer valid/useful
@@ -17,3 +17,10 @@ message Event {
     extensions 1000 to 18999;   // extensions must use these tag ids
 }
 
+package grids.message;
+
+message Echo {
+    required Message base = 1;
+
+    optional string echo_string = 2;
+}

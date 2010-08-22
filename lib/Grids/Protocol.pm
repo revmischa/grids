@@ -50,16 +50,12 @@ has got_initiation => (
     default => sub { 0 },
 );
 
-use Class::Autouse qw/
-    Grids::Protocol::Event
-    Grids::Peer
-/;
-
+use Grids::Message;
+use Grids::Peer;
+use Grids::Protocol::Event;
 use Grids::Protocol::Serializer;
-
-# FIXME: moosify with roles
-# autouse all serialization classes
-Class::Autouse->autouse_recursive('Grids::Protocol::Serializer');
+use Grids::Protocol::Serializer::JSON;
+use Grids::Protocol::Serializer::ProtocolBuffer;
 
 use constant {
     MSG_INIT_PROTOCOL_PREFIX => '++',
@@ -161,29 +157,35 @@ sub new_from_initiation_string {
     $params ||= {};
 
     my $prefix = MSG_INIT_PROTOCOL_PREFIX;
-    return undef unless index($initstr, $prefix) == 0;
+    return unless index($initstr, $prefix) == 0;
     $initstr = substr($initstr, length $prefix);
 
     my ($prog, $ver, $serializer_classes, $name) = split('/', $initstr);
 
-    return undef unless $prog eq 'Grids' && $ver eq '1.0' && $serializer_classes;
+    return unless $prog eq 'Grids' && $ver eq '1.0' && $serializer_classes;
 
     my $peer;
     if ($name && index($name, 'name=') != -1) {
-        ($name) = $name =~ m/name=\"([-\w]+)\"/i or return undef;
+        ($name) = $name =~ m/name=\"([-\w]+)\"/i or return;
 
         $peer = new Grids::Peer(connection => $connection, name => $name);
         $params->{peer} = $peer;
     } else {
         warn "did not get peer name";
-        return undef;
+        return;
     }
 
     my $p;
     # try each requested serializer method in listed order
     foreach my $ser (split(',', $serializer_classes)) {
-        $p = eval { $class->new(serializer => $ser, %$params) };
+        $p = eval { $class->new(serializer_class => $ser, %$params) };
+        warn $@ if $@;
         last if $p;
+    }
+
+    unless ($p) {
+        warn "unable to load suitable serializer for $serializer_classes";
+        return;
     }
 
     $p->peer($peer);
@@ -263,19 +265,20 @@ sub parse_request {
     }
 
     # decode message
-    my ($args, $was_encrypted) = eval { ($self->decapsulate($data)) };
+    my ($evt, $was_encrypted) = eval { ($self->deserialize_event($data)) };
 
-    if (! $args) {
-        warn "Could not decapsulate protocol message: $@" if $@;
+    if (! $evt) {
+        warn "Could not deserialize protocol message: $@" if $@;
         return undef;
     }
 
     warn "Received message from " . $self->peer_name . " but it was not encrypted: $data\n"
         if ! $was_encrypted && $self->use_encryption;
 
-    # instantiate Event record
-    my $event_name = delete $args->{_method};
-    return Grids::Protocol::Event->new(connection => $connection, event_name => $event_name, args => $args, was_encrypted => $was_encrypted);
+    $evt->connection($connection);
+    $evt->was_encrypted($was_encrypted);
+
+    return $evt;
 }
 
 sub error_event {
@@ -320,22 +323,19 @@ sub deserialize_event {
 # serialize a protocol event for transmission
 # takes either Event instance or ($event_name, $args_hashref)
 sub serialize_event {
-    my ($self, $event) = @_;
+    my ($self, $event, $args) = @_;
 
     croak "Attempting to serialize event without a serialization method specified"
         unless $self->serializer;
-        
-    # check if we got passed an event instance or an event name
-    if (! ref $event) {
-        # construct event object
-        my $args = $_[2];
-        my $event = Grids::Protocol::Event->new(
-            event => $event,
-            args => $args,
-        );
-    }
 
-    my $msg = $self->serializer->serialize($event);
+    my $msg = eval {
+        $event = $self->serializer->construct_event($event, $args);
+        return $self->serializer->serialize($event);
+    };
+    unless ($msg) {
+        warn "Failed to serialize event $event: $@";
+        return;
+    }
 
     # do we have a public key for the other party? if so, encrypt this message for them
     if ($self->peer && $self->use_encryption) {

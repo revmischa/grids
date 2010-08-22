@@ -17,12 +17,15 @@ my $p_cli;
 test_protobuf();
 
 sub test_json {
-    $p_cli = Grids::Protocol->new(serializer => 'JSON', id => $cli_id);
+    $p_cli = Grids::Protocol->new(serializer_class => 'JSON', id => $cli_id);
     run_tests();
 }
 
 sub test_protobuf {
-    $p_cli = Grids::Protocol->new(serializer => 'ProtocolBuffer', id => $cli_id);
+    $p_cli = Grids::Protocol->new(
+        serializer_class => 'ProtocolBuffer',
+        id => $cli_id,
+    );
     run_tests();
 }
 
@@ -38,13 +41,13 @@ sub run_tests {
 
     # test serialization / parsing
     {
-        my $req = $p_cli->serialize('Event', {
-            timestamp => '123456',
+        my $req = $p_cli->serialize_event('Echo', {
+            echo_string => '123456',
         });
 
         my $evt = $p_srv->parse_request($srv_conn, $req);
 
-        is($evt->event, 'Login', 'Correct event type');
-        is($evt->timestamp, '123456', 'Correct event args');
+        is($evt->name, 'Echo', 'Correct event type');
+        is($evt->echo_string, '123456', 'Correct event args');
     }
 }
