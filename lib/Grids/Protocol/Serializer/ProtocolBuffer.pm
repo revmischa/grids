@@ -29,6 +29,11 @@ sub serialize {
 
     # get event as a hashref and serialize
     my $msg_str = eval {
+        my $ser = $event->serialize;
+
+        # event name is encoded in the serialized transmission. eliminate it to save space
+        delete $ser->{base}{event}; 
+
         $event->encode($event->serialize); 
     } or confess "Unable to serialize event $event_name: $@";
     
@@ -56,6 +61,8 @@ sub deserialize {
         warn "Failed to parse message: '$data': $@";
         return;
     }
+
+    $evt->base->{event} = $event_name;
 
     # apply Event role
     Grids::Protocol::Event->meta->apply($evt);
