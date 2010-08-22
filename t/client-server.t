@@ -1,6 +1,6 @@
 
 # tests for high-level Grids client/server functionality
-use Test::More qw(no_plan);
+use Test::More tests => 5;
 
 use strict;
 use warnings;
@@ -43,10 +43,10 @@ c_req('Storage.List');
 my $question = 'smp_question';
 my $secret = 'smp_secret';
 
-$server->register_hook('SMP.Request', sub {
+$server->register_hook('OTR.SMPRequest', sub {
     my ($node, $evt) = @_;
-    my $peer_name = $evt->args->{peer_name};
-    my $req_question = $evt->args->{question};
+    my $peer_name = $evt->peer_name;
+    my $req_question = $evt->question;
 
     is($question, $req_question, "got correct SMP question in request");
 });

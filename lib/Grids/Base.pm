@@ -285,6 +285,8 @@ sub enqueue_event {
     croak "enqueue_event() requires a connection"
         unless $connection;
 
+    warn "$self enqueing event $event_name";
+
     # construct event record
     my $evt = $connection->construct_event($event_name, $args);
     return $self->add_event_to_queue($evt);

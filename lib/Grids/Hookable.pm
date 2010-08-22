@@ -146,13 +146,15 @@ sub hook_save {
 *hook_ok = \&event_hook_success;
 sub event_hook_success {
     my ($self, %opts) = @_;
-    return { success => 1, %opts };
+    $opts{base}{is_success} = 1;
+    return \%opts;
 }
 
 *hook_error = \&event_hook_error;
 sub event_hook_error {
     my ($self, $errcode, %opts) = @_;
-    return { error => $errcode, %opts };
+    $opts{base}{error} = $errcode;
+    return \%opts;
 }
 
 1;

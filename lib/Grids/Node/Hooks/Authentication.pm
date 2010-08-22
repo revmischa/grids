@@ -14,12 +14,14 @@ Grids::Node->register_hooks(
 );
 
 sub hook_login {
-    my Grids::Node $node = shift;
-    my Grids::Protocol::Event $evt = shift;
+    my $node = shift;
+    my $evt = shift;
 
     if ($node->test_any_hook('Authentication.Login.AuthCheck', $evt)) {
         # return success and token
-        return $node->event_hook_success(session_token => $evt->connection->peer->session_token);
+        return $node->event_hook_success(base => {
+            session_token => $evt->connection->peer->session_token,
+        });
     } else {
         return $node->event_hook_error(ERROR_LOGIN_INVALID);
     }

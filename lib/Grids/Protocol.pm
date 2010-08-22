@@ -202,7 +202,6 @@ sub parse_request {
     my ($self, $connection, $data) = @_;
 
     my $event;
-
     my $prefix = MSG_INIT_PROTOCOL_REPLY_PREFIX;
     if (index($data, $prefix) == 0) {
         # this is an initiation reply string, handle it
@@ -369,15 +368,14 @@ sub decrypt_message {
         unless $self->peer && $self->peer_name;
 
     my $plaintext = $self->id->decrypt($self->peer_name, $msg);
-    if (defined $plaintext) {
+    if (defined $plaintext && $plaintext ne $msg) {
         return wantarray ? ($plaintext, 1) : $plaintext;
+    } elsif ($msg =~ /^\?OTR/ && ! defined $plaintext) {
+        # encrypted but failed to decrypt. probably a message fragment
     } else {
         return wantarray ? ($msg, 0) : $msg;
     }
 }
-
-
-
 
 
 

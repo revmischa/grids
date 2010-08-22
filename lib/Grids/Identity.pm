@@ -42,7 +42,8 @@ has 'otr' => (
 );
 
 use constant {
-    MAX_MESSAGE_SIZE => 16350,
+#    MAX_MESSAGE_SIZE => 16350,
+    MAX_MESSAGE_SIZE => 512,
     PROTOCOL_NAME    => 'Grids',
 };
 
