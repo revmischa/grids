@@ -312,7 +312,8 @@ sub deserialize_event {
 
         if ($was_encrypted) {
             $data = $decrypted if defined $decrypted;
-        } else {
+        } elsif ($self->encrypted_connection_started) {
+            warn "Expected encrypted message but was unable to decrypt '$data'";
             return wantarray ? (undef, 0) : undef;
         }
     } else {

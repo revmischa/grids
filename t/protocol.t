@@ -17,7 +17,10 @@ test_json();
 test_protobuf();
 
 sub test_json {
-    $p_cli = Grids::Protocol->new(serializer_class => 'JSON', id => $cli_id);
+    $p_cli = Grids::Protocol->new(
+        serializer_class => 'JSON',
+        id => $cli_id,
+    );
     run_tests();
 }
 
@@ -39,13 +42,13 @@ sub run_tests {
 
     ok($p_srv, "Created new Grids::Protocol from initiation string");
 
-    # test serialization / parsing
+    # test serialization
     {
         my $req = $p_cli->serialize_event('Echo', {
             echo_string => '123456',
         });
 
-        my $evt = $p_srv->parse_request($srv_conn, $req);
+        my $evt = $p_srv->deserialize_event($req);
 
         is($evt->name, 'Echo', 'Correct event type');
         is($evt->echo_string, '123456', 'Correct event args');
