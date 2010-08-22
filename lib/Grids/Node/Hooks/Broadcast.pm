@@ -25,7 +25,7 @@ sub process_broadcast_flag {
 }
 
 # explicit request to broadcast an event to all connected clients
-# broadcasts a copy of the event with the event name specified in $args->{event_name}
+# currently broken, since we can't arbitrarily attach args to an event
 sub hook_broadcast_event {
     my ($node, $evt) = @_;
 
@@ -47,10 +47,7 @@ sub hook_broadcast_event {
     my $new_evt = bless { %$evt }, ref $evt;
     $new_evt->event_name($event_name);
     $new_evt->clear_id;
-
-    # copy args
-    my %args = %{$evt->args};
-    $new_evt->args(\%args);
+    warn "broadcasting $event_name";
 
     $node->network_broadcast($new_evt);
     return $node->hook_ok(base => { ack => 1 });

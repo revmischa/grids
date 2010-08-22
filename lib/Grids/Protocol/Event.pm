@@ -18,6 +18,7 @@ has transport => (
 has was_encrypted => (
     is => 'rw',
     isa => 'Bool',
+    default => 0,
 );
 
 sub proto { croak 'deprecated' }
@@ -40,6 +41,28 @@ sub clear_broadcast_flag {
     my ($self) = @_;
     $self->base->{is_broadcast} = 0;
 }
+
+sub set_broadcast_flag {
+    my ($self) = @_;
+    $self->base->{is_broadcast} = 1;
+}
+
+sub set_session_token {
+    my ($self, $tok) = @_;
+    $self->base->{session_token} = $tok;
+}
+
+around 'id' => sub {
+    my ($orig, $self, $new) = @_;
+
+    if (! $self->base->{id} && ! $new) {
+        $self->base->{id} = $self->build_id;
+    }
+
+    $self->base->{id} = $new if defined $new;
+
+    return $self->$orig($new);
+};
 
 # used for event cloning (broadcasts, etc)
 sub clear_id {

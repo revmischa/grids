@@ -69,7 +69,7 @@ sub send_to_peers {
     my @peers = $self->all_peers;
     foreach my $peer (@peers) {
         # does this peer have an ack?
-        if ($self->known_acks->{"$peer"}{$event->message_id}++) {
+        if ($self->known_acks->{"$peer"}{$event->id}++) {
             # we've already seen an acknowledgement for this message by this peer, skip
             next;
         }

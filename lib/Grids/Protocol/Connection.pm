@@ -18,7 +18,7 @@ has 'channel' => (
 has 'protocol' => (
     is => 'rw',
     isa => 'Grids::Protocol',
-    handles => [qw/parse_request id peer peer_name has_peer/],
+    handles => [qw/id peer peer_name has_peer/],
     predicate => 'has_protocol',
 );
 
@@ -110,6 +110,15 @@ sub construct_event {
     my ($self, $event_name, $args) = @_;
 
     my $evt = $self->protocol->construct_event($event_name, $args);
+    $evt->connection($self);
+    return $evt;
+}
+
+# opposite of serialize_event
+sub parse_request {
+    my ($self, $data) = @_;
+
+    my $evt = $self->protocol->parse_request($self, $data);
     $evt->connection($self);
     return $evt;
 }

@@ -20,14 +20,14 @@ my $got_foo = {};
 
 # be notified of FooEvents
 foreach my $c (@clients) {
-    $c->register_hook('FooEvent' => \&got_foo);
+    $c->register_hook('Echo' => \&got_foo);
 }
 
 
 flush() for 1..10;
 
-# brodcast a "FooEvent" to all connected clients
-$clients[0]->do_request(event_args => { foo => 'bar', event_name => "FooEvent" }, event_name => 'Broadcast.Event');
+# brodcast an "Echo" to all connected clients
+$clients[0]->send_broadcast_event('Echo');
 
 flush() for 1..20;
 
@@ -39,10 +39,13 @@ foreach my $client (@clients) {
 
 is($got_foo_count, scalar @clients, "correct number of clients received event");
 
-# broadcast a "BarEvent" using the _broadcast flag
+# broadcast a "BarEvent" using the is_broadcast flag
 my $bar_count = 0;
-$_->register_hook('BarEvent' => sub { $bar_count++ }) for @clients;
-$clients[0]->do_request(event_name => 'BarEvent', event_args => { 'bar' => 'baz', '_broadcast' => 1 });
+$_->register_hook('Echo' => sub { $bar_count++ }) for @clients;
+
+my $evt = $clients[0]->connection->construct_event('Echo');
+$evt->set_broadcast_flag;
+$clients[0]->send_event($evt);
 
 flush() for 1..10;
 
@@ -51,7 +54,7 @@ is($bar_count, scalar @clients, "correct number of clients received event with b
 sub got_foo {
     my ($client, $evt) = @_;
 
-    $got_foo->{$client} = $evt->args->{foo};
+    $got_foo->{$client} = 1;
 }
 
 sub flush {

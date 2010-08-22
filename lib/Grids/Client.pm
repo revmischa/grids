@@ -14,9 +14,7 @@ has 'connection' => (
     is => 'rw',
     isa => 'Grids::Protocol::Connection',
     clearer => 'clear_connection',
-    handles => {
-        write => 'write',
-    },
+    handles => [qw/send_event write/],
 );
 
 # keep reference to client connection object as long as we need it
@@ -41,30 +39,41 @@ __PACKAGE__->load_hooks;
 sub data_received {
     my ($self, $connection, $data) = @_;
 
-    my $evt = $connection->parse_request($connection, $data);
+    my $evt = $connection->parse_request($data);
     return unless $evt;
 
-    $evt->{connection} = $connection;
     $self->add_event_to_queue($evt);
 }
 
-# we only have one connection (unlike Node) so we can add it
+# deprecated interface
 around do_request => sub {
     my ($orig, $self, %opts) = @_;
 
-    # don't modify original args, someone might get upset
-    my $argsref = $opts{event_args};
-    my %args = $argsref ? %$argsref : ();
+    Carp::carp('$client->do_request is deprecated. use send_event()');
 
-    $args{_session_token} ||= $self->session_token if $self->session_token;
-    $opts{connection} ||= $self->connection if $self->connection;
-
-    $opts{event_args} = \%args if keys %args;
-
-    return $self->$orig(%opts);
+    my $event = $self->construct_event($opts{event_name}, $opts{event_args});
+    return $self->send_event($event);
 };
 
-# same as above
+sub construct_event {
+    my ($self, $event_name, $args) = @_;
+
+    # construct event
+    my $event = $self->connection->construct_event($event_name, $args);
+    $event->set_session_token($self->session_token) if $self->session_token;
+
+    return $event;
+}
+
+# sent an event to all everyone connected to our network
+sub send_broadcast_event {
+    my ($self, $event_name, $args) = @_;
+
+    my $evt = $self->construct_event($event_name, $args);
+    $evt->set_broadcast_flag;
+    $self->send_event($evt);
+}
+
 around enqueue_event => sub {
     my ($orig, $self, $event_name, $connection, $args) = @_;
     $connection ||= $self->connection;

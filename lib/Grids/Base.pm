@@ -285,6 +285,7 @@ sub do_next_event {
     return 1;
 }
 
+# add an incoming event to the queue to be processed
 sub enqueue_event {
     my ($self, $event_name, $connection, $args) = @_;
 

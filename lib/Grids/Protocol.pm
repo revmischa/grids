@@ -276,7 +276,7 @@ sub parse_request {
         if ! $was_encrypted && $self->use_encryption;
 
     $evt->connection($connection);
-    $evt->was_encrypted($was_encrypted);
+    $evt->was_encrypted($was_encrypted ? 1 : 0);
 
     return $evt;
 }
