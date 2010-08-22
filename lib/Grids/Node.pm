@@ -200,7 +200,7 @@ sub services {
 sub check_authentication {
     my ($self, $evt) = @_;
 
-    my $session_token = $evt->{args}->{_session_token} or return 0;
+    my $session_token = $evt->session_token or return 0;
     return $self->check_session_token($session_token);
 }
 

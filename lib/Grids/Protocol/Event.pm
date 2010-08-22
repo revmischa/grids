@@ -22,11 +22,30 @@ has was_encrypted => (
 
 sub proto { croak 'deprecated' }
 
-sub name { $_[0]->base->{event} }
+sub name          { $_[0]->base->{event} }
+sub event_name    { $_[0]->base->{event} }
+sub expires       { $_[0]->base->{expires} }
+sub timestamp     { $_[0]->base->{timestamp} }
+sub id            { $_[0]->base->{id} }
+sub signed_id     { $_[0]->base->{signed_id} }
+sub source        { $_[0]->base->{source} }
+sub destination   { $_[0]->base->{destination} }
+sub is_success    { $_[0]->base->{is_success} }
+sub error         { $_[0]->base->{error} }
+sub is_broadcast  { $_[0]->base->{is_broadcast} }
+sub is_ack        { $_[0]->base->{is_ack} }
+sub session_token { $_[0]->base->{session_token} }
 
-# allow us to unset the message id so it will be regenerated with a
-# new id, allowing cloning of events
-#clearer => 'clear_message_id',
+sub clear_broadcast_flag {
+    my ($self) = @_;
+    $self->base->{is_broadcast} = 0;
+}
+
+# used for event cloning (broadcasts, etc)
+sub clear_id {
+    my ($self) = @_;
+    delete $self->base->{id};
+}
 
 # uuid identifying this event
 sub build_id {

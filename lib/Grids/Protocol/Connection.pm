@@ -18,7 +18,7 @@ has 'channel' => (
 has 'protocol' => (
     is => 'rw',
     isa => 'Grids::Protocol',
-    handles => [qw/parse_request serialize_event id peer peer_name has_peer/],
+    handles => [qw/parse_request id peer peer_name has_peer/],
     predicate => 'has_protocol',
 );
 
@@ -92,19 +92,26 @@ sub continue_smp {
 sub send_event {
     my ($self, $evt, $args) = @_;
 
-    my $event_name;
+    my $msg = $self->serialize_event($evt, $args);
 
-    if (ref $evt) {
-        # got passed an Event instance
-        $event_name = $evt->event_name;
-        $args = $evt->args;
-    } else {
-        $event_name = $evt;
-    }
-
-    my $msg = $self->serialize_event($event_name, $args);
     return unless $msg;
     $self->write($msg);
+}
+
+sub serialize_event {
+    my ($self, $event_name, $args) = @_;
+
+    my $evt = $self->construct_event($event_name, $args);
+    my $ser = $self->protocol->serialize_event($evt);
+    return $ser;
+}
+
+sub construct_event {
+    my ($self, $event_name, $args) = @_;
+
+    my $evt = $self->protocol->construct_event($event_name, $args);
+    $evt->connection($self);
+    return $evt;
 }
 
 no Moose;

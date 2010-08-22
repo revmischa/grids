@@ -246,10 +246,9 @@ sub do_next_event {
     my $conn = $event->connection
         or croak "Invalid Event record in queue: missing connection";
 
-    my $args = $event->args;
-
     # debugging
     if ($self->debug) {
+        my $args = $event->serialize;
         $args ||= {};
 
         my $args_disp = %$args ? ' (' . join(', ', map { $_ . ' = ' . $args->{$_} } keys %$args) . ')' : '';
@@ -293,12 +292,7 @@ sub enqueue_event {
         unless $connection;
 
     # construct event record
-    my $evt = new Grids::Protocol::Event(
-        connection => $connection,
-        args       => $args,
-        event_name => $event_name,
-    );
-
+    my $evt = $connection->construct_event($event_name, $args);
     return $self->add_event_to_queue($evt);
 }
 
@@ -309,13 +303,8 @@ sub do_request {
     my $event = delete $opts{event_name} or Carp::confess("No event name found in event");
     my $args = delete $opts{event_args} || {};    
 
-    my $proto = $connection->protocol;
-    my $serialized_data = $proto->encapsulate($event, $args);
-    return 0 unless $serialized_data;
-
-    return $connection->write($serialized_data);
+    return $connection->send_event($event, $args);
 }
-
 
 # attempt to connect to a Node
 sub connect {

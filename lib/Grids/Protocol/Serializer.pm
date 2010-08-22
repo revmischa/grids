@@ -2,6 +2,9 @@ package Grids::Protocol::Serializer;
 
 use Moose::Role;
 
+use namespace::autoclean;
+use Scalar::Util qw/blessed/;
+
 requires qw/serialize deserialize/;
 
 around 'deserialize' => sub {
@@ -23,11 +26,16 @@ sub construct_event {
     my ($self, $event, $args) = @_;
 
     # check if we got passed an event instance or an event name
-    if (! ref $event) {
+    if (! blessed $event) {
         # construct event object
         $args ||= {};
 
-        my $message_class = $self->get_message_class($event);
+        my $message_class = eval { $self->get_message_class($event); };
+        unless ($message_class) {
+            warn "Unknown message type $event";
+            return;
+        }
+
         $event = $message_class->new({
             base => {
                 event => $event,
@@ -50,6 +58,9 @@ sub get_message_class {
     # find compiled event subclass
     $msg_class =~ s/\./::/g;
     $msg_class = "Grids::Message::$msg_class";
+
+    # verify this class exists
+    return unless eval { $msg_class->can('base') };
     
     return $msg_class;
 }

@@ -6,6 +6,7 @@ use Carp qw/croak/;
 has serializer => (
     is => 'rw',
     does => 'Grids::Protocol::Serializer',
+    handles => [ 'construct_event' ],
 );
 
 has serializer_class => (
@@ -52,7 +53,6 @@ has got_initiation => (
 
 use Grids::Message;
 use Grids::Peer;
-use Grids::Protocol::Event;
 use Grids::Protocol::Serializer;
 use Grids::Protocol::Serializer::JSON;
 use Grids::Protocol::Serializer::ProtocolBuffer;
@@ -268,7 +268,7 @@ sub parse_request {
     my ($evt, $was_encrypted) = eval { ($self->deserialize_event($data)) };
 
     if (! $evt) {
-        warn "Could not deserialize protocol message: $@" if $@;
+        warn "Could not deserialize protocol message with " . $self->serializer_method . ": $@" if $@;
         return undef;
     }
 
@@ -288,9 +288,12 @@ sub error_event {
     return $self->event($error_event, $connection, $params);
 }
 
+# utility method to create an event instance
 sub event {
-    my ($self, $event, $connection, $params) = @_;
-    return Grids::Protocol::Event->new(event_name => $event, args => $params, connection => $connection);
+    my ($self, $event_name, $connection, $params) = @_;
+    my $evt = $self->construct_event($event_name, $params);
+    $evt->connection($connection);
+    return $evt;
 }
 
 # take a received message string and parse it into an event instance
@@ -329,13 +332,10 @@ sub serialize_event {
         unless $self->serializer;
 
     my $msg = eval {
-        $event = $self->serializer->construct_event($event, $args);
+        $event = $self->construct_event($event, $args);
         return $self->serializer->serialize($event);
     };
-    unless ($msg) {
-        warn "Failed to serialize event $event: $@";
-        return;
-    }
+    return unless $msg;
 
     # do we have a public key for the other party? if so, encrypt this message for them
     if ($self->peer && $self->use_encryption) {

@@ -24,8 +24,8 @@ sub build_parser {
 sub serialize {
     my ($self, $event) = @_;
     
-    my $event_name = $event->name
-        or croak "Trying to serialize event with no event name";
+    my $event_name = eval { $event->name }
+        or confess "Trying to serialize event with no event name";
         
     my $message_class = eval { $self->get_message_class($event_name); };
     unless ($message_class) {
@@ -43,7 +43,7 @@ sub serialize {
 sub deserialize {
     my ($self, $data) = @_;
     
-    my ($event_name, $msg_str) = $data =~ /^([\w:]+)\|(.*)$/sm;
+    my ($event_name, $msg_str) = $data =~ /^([\.\w:]+)\|(.*)$/sm;
 
     unless ($event_name && $msg_str) {
         warn "Failed to parse message: '$data'";

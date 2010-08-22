@@ -17,24 +17,23 @@ use constant {
 sub process_broadcast_flag {
     my ($node, $evt) = @_;
 
-    return undef unless $evt->args && $evt->args->{_broadcast};
-
-    delete $evt->args->{_broadcast};
+    return undef unless $evt->is_broadcast;
+    $evt->clear_broadcast_flag;
     $node->network_broadcast($evt);
+
     return undef;
 }
 
 # explicit request to broadcast an event to all connected clients
 # broadcasts a copy of the event with the event name specified in $args->{event_name}
 sub hook_broadcast_event {
-    my Grids::Node $node = shift;
-    my Grids::Protocol::Event $evt = shift;
+    my ($node, $evt) = @_;
 
     # dont broadcast broadcast acks
-    return if $evt->args->{ack};
+    return if $evt->is_ack;
 
     # what event should be broadcast?
-    my $event_name = delete $evt->args->{event_name};
+    my $event_name = $evt->name;
 
     # we should return a hook error here, but since hook_error returns
     # with the same event (BroadcastEvent) we can end up in an
@@ -47,14 +46,14 @@ sub hook_broadcast_event {
     # clone event
     my $new_evt = bless { %$evt }, ref $evt;
     $new_evt->event_name($event_name);
-    $new_evt->clear_message_id;
+    $new_evt->clear_id;
 
     # copy args
     my %args = %{$evt->args};
     $new_evt->args(\%args);
 
     $node->network_broadcast($new_evt);
-    return $node->hook_ok(ack => 1);
+    return $node->hook_ok(base => { ack => 1 });
 }
 
 no Moose;

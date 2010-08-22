@@ -1,3 +1,4 @@
+
 # tests for high-level Grids client/server functionality
 use Test::More qw(no_plan);
 
@@ -92,14 +93,13 @@ sub client_storage_list {
 sub client_login_hook {
     my ($c, $evt) = @_;
 
-    my $args = $evt->args;
     is ($c, $client, "Got client in hook info");
     is ($evt->name, 'Authentication.Login', "Got correct event in hook info");
 
     if ($login_good) {
-        is($args->{success}, 1, 'Login successful');
+        is($evt->is_success, 1, 'Login successful');
     } else {
-        is($args->{error}, Grids::Node::Hooks::Authentication::ERROR_LOGIN_INVALID, 'Login unsuccessful');
+        is($evt->error, Grids::Node::Hooks::Authentication::ERROR_LOGIN_INVALID, 'Login unsuccessful');
     }
 
     return 1;
