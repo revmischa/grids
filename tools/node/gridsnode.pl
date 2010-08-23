@@ -78,7 +78,7 @@ sub run {
     # create node
     my $node = Grids::Node->new(
         conf => $conf,
-        debug => $debug,
+        log_level => $debug ? 5 : 3,
         id => $identity,
         transport_driver => 'TCP::AnyEvent',
         autosave_configuration => 1,

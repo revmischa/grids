@@ -33,14 +33,14 @@ practices be assumed. By default, all data transmitted over the wire
 in grids is encrypted with plausible deniability using OTR. Data
 structure serialization is incorporated, meaning you never have to
 worry about anything but a passing familiarity with deserializing JSON
-or XML. Making your network service distributed among many machines is
-not much different from an irc network. Native grids applications can
-run on any system with a grids implementation, and the reference
-implementation will run on any platform with a perl interpreter and c
-compiler. A grids virtual machine is included and can run grids-native
-applications in a handy sandbox. It is now the second decade of the
-21st century, if we can't have flying cars it should at least be
-possible for lazy programmers to make cool apps.
+or Google ProtoBuf. Making your network service distributed among many
+machines is not much different from an irc network. Native grids
+applications can run on any system with a grids implementation, and
+the reference implementation will run on any platform with a perl
+interpreter and c compiler. A grids virtual machine is included and
+can run grids-native applications in a handy sandbox. It is now the
+second decade of the 21st century, if we can't have flying cars it
+should at least be possible for lazy programmers to make cool apps.
 
 Grids itself is not a piece of software, it is a collection of
 protocols and specifications. Since this project is still in the early

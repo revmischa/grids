@@ -11,8 +11,6 @@ use lib 'lib';
 use Grids::Node;
 use Grids::Identity;
 
-my $debug = 0;
-
 my $nodecount = 4;
 my $connections = 0;
 my $encrypted_connections = 0;
@@ -34,7 +32,7 @@ sub init_nodes {
         $id->set_callback('otr_message', sub { my ($otr, $user, $proto, $peer, $notif) = @_; warn "[$user] OTR system message: $notif" });
 
         # create a new node
-        my $node = Grids::Node->new(debug => $debug, id => $id, use_encryption => 0, transport_driver => 'Loop');
+        my $node = Grids::Node->new(id => $id, use_encryption => 0, transport_driver => 'Loop');
 
         # set node-node private key
         $node->configuration->set_conf('Node.PrivateKey' => '123');

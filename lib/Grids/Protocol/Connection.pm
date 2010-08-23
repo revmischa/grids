@@ -76,7 +76,7 @@ sub teardown_protocol {
 sub write {
     my ($self, $data) = @_;
 
-    $self->transport->write($data, $self);
+    return $self->transport->write($data, $self);
 }
 
 sub initiate_smp {
@@ -99,7 +99,7 @@ sub send_event {
     }
 
     return unless $msg;
-    $self->write($msg);
+    return $self->write($msg);
 }
 
 sub serialize_event {

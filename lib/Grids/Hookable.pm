@@ -5,6 +5,13 @@ use Moose::Role;
 use Class::Autouse;
 use Carp qw/croak/;
 
+# instance hooks
+has 'hooks' => (
+    is => 'rw',
+    isa => 'HashRef',
+    default => sub { {} },
+);
+
 our %HOOKS; # package->hookname
 
 # load all hooks for this module
@@ -40,7 +47,7 @@ sub run_hooks {
 
     if (ref $self) {
         # look for hooks registered on this instance
-        push @res, $self->run_hooks_on($self->{hooks}, $hookname, $evt);
+        push @res, $self->run_hooks_on($self->hooks, $hookname, $evt);
     }
 
     # look for hooks registered in this package
@@ -120,10 +127,8 @@ sub register_hook {
 
     if (ref $self) {
         # adding hooks to an instance
-        $self->{hooks} ||= {};
-        $self->{hooks}->{$hookname} ||= [];
-
-        push @{$self->{hooks}->{$hookname}}, $hook_save;
+        $self->hooks->{$hookname} ||= [];
+        push @{$self->hooks->{$hookname}}, $hook_save;
     } else {
         # register package hooks
         $HOOKS{$self}->{$hookname} ||= [];

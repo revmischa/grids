@@ -57,7 +57,7 @@ has 'encapsulation_class' => (
 has 'use_encryption' => (
     is => 'rw',
     isa => 'Bool',
-    default => 0,
+    default => 1,
 );
 
 # dispatch events as they come in, don't wait for do_next_event() to
@@ -227,7 +227,7 @@ sub do_next_event {
     my ($self) = @_;
 
     my $event = $self->event_queue->shift
-        or return 0;
+        or return;
 
     my $conn = $event->connection
         or croak "Invalid Event record in queue: missing connection";
@@ -246,8 +246,8 @@ sub do_next_event {
 
     # capture errors from hooks
     if ($@) {
-        $self->log->warn("error while running hooks for event " . $event->event_name . ": " .
-            $@ . "\n");
+        $self->log->warn("error while running hooks for event "
+            . $event->event_name . ": " .  $@ . "\n");
     }
 
     # were there any results?
@@ -267,7 +267,7 @@ sub do_next_event {
         }
     }
 
-    return 1;
+    return $event;
 }
 
 # add an incoming event to the queue to be processed

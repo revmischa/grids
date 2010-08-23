@@ -1,6 +1,6 @@
 
 # tests for high-level Grids client/server functionality
-use Test::More tests => 17;
+use Test::More tests => 25;
 
 use strict;
 use warnings;
@@ -9,19 +9,27 @@ use lib 'lib';
 use Grids::Test;
 use Grids::Node::Hooks::Authentication;
 
-my $debug = 1;
-
-my ($client, $server, $id, $server_id, $server_transport) = Grids::Test->client_server_pair(debug => $debug, auto_flush_queue => 1);
+my ($client, $server, $id, $server_id, $server_transport) = Grids::Test->client_server_pair(auto_flush_queue => 1);
 
 my $client_got_event;
+my $server_got_event;
+my $encrypted = 0;
 $client->register_hook('Authentication.Login', \&client_login_hook);
 $client->register_hook('Services.List', \&client_service_list);
 $client->register_hook('Storage.List', \&client_storage_list);
-$client->register_hook(qr//, sub { $client_got_event = 1 });
+$client->register_hook(qr//, sub { $client_got_event = 1; return; });
+$server->register_hook(qr//, sub { $server_got_event = 1; return; });
+$client->register_hook('Encrypted', sub { $encrypted = 1; return; });
+
+# connect
+$client->connect($server_transport);
 
 # test failed login
 my $login_good = 0;
 c_req_expect_response('Authentication.Login');
+
+# we should now be encrypted
+is($encrypted, $client->use_encryption || 0, "Encryption status=$encrypted");
 
 # test key auth (broken atm)
 #$server->configuration->set_conf('Node.AuthorizedKeys', { $client->id => $id->pubkey->serialize });
@@ -62,6 +70,7 @@ my $storage_list = [];
 
     $server->configuration->set_conf('SMP.Secret', $secret);
     $client->initiate_smp($secret, $question);
+    # TODO: continue SMP
 }
 
 sub c_req_expect_response {
@@ -73,21 +82,23 @@ sub c_req_expect_response {
 sub c_req {
     my ($evt_name, $args) = @_;
     $client_got_event = 0;
+    $server_got_event = 0;
     $client->send_event($evt_name, $args);
+    ok($server_got_event, "Server got $evt_name event");
 }
 
 sub client_service_list {
     my ($c, $evt) = @_;
 
     ok($evt->services, "Services list");
-    return 0;
+    return;
 }
 
 sub client_storage_list {
     my ($c, $evt) = @_;
 
     is_deeply($evt->keys || [], $storage_list, "Storage.List");
-    return 0;
+    return;
 }
 
 sub client_login_hook {
@@ -102,5 +113,5 @@ sub client_login_hook {
         is($evt->error, Grids::Node::Hooks::Authentication::ERROR_LOGIN_INVALID, 'Login unsuccessful');
     }
 
-    return 1;
+    return;
 }

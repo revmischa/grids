@@ -81,10 +81,7 @@ after disable_encryption => sub {
 
 __PACKAGE__->load_hooks;
 
-
-
 #############
-
 
 # create new network instance
 sub _network_builder {

@@ -8,7 +8,7 @@ use Grids::Protocol;
 use Grids::Protocol::EventQueue;
 use Grids::Protocol::Event;
 
-use Carp qw (croak);
+use Carp qw/croak/;
 
 has 'connection' => (
     is => 'rw',
@@ -28,12 +28,9 @@ has 'session_token' => (
     isa => 'Str',
 );
 
-has 'hooks' => (
-    is => 'rw',
-    isa => 'HashRef',
-);
-
 __PACKAGE__->load_hooks;
+
+#############
 
 # called when our transport receives data
 sub data_received {
@@ -58,6 +55,9 @@ around 'do_request' => sub {
 sub construct_event {
     my ($self, $event_name, $args) = @_;
 
+    # refuse to construct event unless we're connected
+    return unless $self->connection;
+
     # construct event
     my $event = $self->connection->construct_event($event_name, $args);
     $event->set_session_token($self->session_token) if $self->session_token;
@@ -77,8 +77,8 @@ sub send_broadcast_event {
 sub send_event {
     my ($self, $event_name, $args) = @_;
 
-    my $evt = $self->construct_event($event_name, $args);
-    $self->connection->send_event($evt);
+    my $evt = $self->construct_event($event_name, $args) or return;
+    return $self->connection->send_event($evt);
 }
 
 around enqueue_event => sub {

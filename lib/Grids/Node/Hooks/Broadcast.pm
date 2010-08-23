@@ -5,7 +5,7 @@ use Grids::Node;
 
 Grids::Node->register_hooks(
     'Broadcast.Event' => \&hook_broadcast_event,
-    qr/.*/ => \&process_broadcast_flag,
+    qr// => \&process_broadcast_flag, # match all events
 );
 
 use constant {

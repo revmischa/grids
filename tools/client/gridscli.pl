@@ -15,6 +15,7 @@ use Grids::Address::IPv4;
 use AnyEvent;
 use Carp qw (croak);
 use Getopt::Long;
+use Data::Dumper;
 
 ############
 
@@ -70,7 +71,7 @@ unless ($identity) {
 my $client = Grids::Client->new(
     autosave_configuration => 1,
     autoload_configuration => 1,
-    debug                  => $debug,
+    log_level              => $debug ? 5 : 3,
     conf                   => $conf,
     id                     => $identity,
     use_encryption         => 1,
@@ -83,6 +84,14 @@ $client->register_hook('Services.List', sub {
 
 $client->register_hook('Connected', sub {
     $con->print("Connected");
+});
+
+$client->register_hook(qr//, sub {
+    my (undef, $evt) = @_;
+
+    return unless $debug;
+    $con->print("Got " . $evt->name . " event: " .
+        Dumper($evt));
 });
 
 run();
@@ -114,12 +123,18 @@ sub create_id {
 }
 
 sub list_services {
-    $client->dispatch_event('Services.List');
+    $client->send_event('Services.List');
+    return;
 }
 
 sub echo {
     my ($con, $msg) = @_;
-    $client->dispatch_event('Debug.Echo', { message => $msg });
+
+    unless ($client->send_event('Echo', { echo_message => $msg })) {
+        $con->print("ERROR: Failed to send event");
+    }
+
+    return;
 }
 
 sub help {
@@ -133,4 +148,4 @@ list    - show all variables
 newid   - create a new identity
 quit    - quit
 };
-    }
+}

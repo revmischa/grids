@@ -265,7 +265,8 @@ sub parse_request {
     }
 
     # decode message
-    my ($evt, $was_encrypted) = eval { ($self->deserialize_event($data)) };
+    my ($evt, $was_encrypted, $ignore) = eval { ($self->deserialize_event($data)) };
+    return if $ignore;
 
     if (! $evt) {
         warn "Could not deserialize protocol message with " . $self->serializer_method . ": $@" if $@;
@@ -296,9 +297,10 @@ sub event {
     return $evt;
 }
 
-# take a received message string and parse it into an event instance
-# should never need to be called directly
-# in list context also returns if the message was encrypted
+# take a received message string and parse it into an event instance.
+# should never need to be called from outside of protocol.
+# in list context returns: ($plaintext, $was_encrypted, $should_ignore)
+# if should_ignore is set, discard this message.
 sub deserialize_event {
     my ($self, $data) = @_;
 
@@ -309,6 +311,10 @@ sub deserialize_event {
     if ($self->use_encryption && $self->peer && $self->peer_name) {
         my $decrypted;
         ($decrypted, $was_encrypted) = $self->decrypt_message($data);
+        if (! defined $decrypted) {
+            # encryption protocol message. ignore
+            return (undef, undef, 1);
+        }
 
         if ($was_encrypted) {
             $data = $decrypted if defined $decrypted;
@@ -365,7 +371,8 @@ sub encrypt_message {
 }
 
 # takes a message and decrypts it using our privkey
-# returns ($message, $was_decrypted)
+# returns ($message, $was_encrypted)
+# returns undef if we should ignore this message
 sub decrypt_message {
     my ($self, $msg) = @_;
 
@@ -381,10 +388,13 @@ sub decrypt_message {
     } else {
         # wasn't encrypted
         if ($plaintext) {
-            # $plaintext = $msg, this shouldn't happen
+            # $plaintext == $msg, this shouldn't happen
             warn "decrypt_message() got an expected result";
             return;
         }
+
+        warn "failed to decrypt message '$msg'";
+        return;
 
         # return original message, it wasn't encrypted
         return wantarray ? ($msg, 0) : $msg;
