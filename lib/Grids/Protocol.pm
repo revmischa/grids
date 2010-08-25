@@ -3,12 +3,14 @@ package Grids::Protocol;
 use Moose;
 use Carp qw/croak/;
 
+# serializer instance
 has serializer => (
     is => 'rw',
     does => 'Grids::Protocol::Serializer',
     handles => [ 'construct_event' ],
 );
 
+# type of serialization to prefer (JSON, ProtocolBuffer)
 has serializer_class => (
     is => 'rw',
     isa => 'Str',
@@ -20,6 +22,7 @@ has serializer_method => (
     isa => 'Str',
 );
 
+# our grids identity and keypair
 has id => (
     is => 'rw',
     isa => 'Grids::Identity',
@@ -27,24 +30,29 @@ has id => (
     handles => [qw/initiate_smp/],
 );
 
+# the other end of our connection
 has peer => (
     is => 'rw',
     isa => 'Grids::Peer',
     predicate => 'has_peer',
 );
 
+# should we try to use OTR?
 has use_encryption => (
     is => 'rw',
     isa => 'Bool',
     default => sub { 1 },
 );
 
+# have we manually started an encrypted session?
+# note: this will not be set if the encryption is set up automatically
 has encrypted_connection_started => (
     is => 'rw',
     isa => 'Bool',
     default => sub { 0 },
 );
 
+# have we received a Grids protocol intitiation string?
 has got_initiation => (
     is => 'rw',
     isa => 'Bool',
@@ -309,21 +317,22 @@ sub deserialize_event {
 
     my $was_encrypted;
     if ($self->use_encryption && $self->peer && $self->peer_name) {
-        my $decrypted;
-        ($decrypted, $was_encrypted) = $self->decrypt_message($data);
-        if (! defined $decrypted) {
+        my ($decrypted, $should_discard);
+        ($decrypted, $was_encrypted, $should_discard) = $self->decrypt_message($data);
+        if ($should_discard) {
             # encryption protocol message. ignore
             return (undef, undef, 1);
         }
 
         if ($was_encrypted) {
             $data = $decrypted if defined $decrypted;
-        } elsif ($self->encrypted_connection_started) {
-            warn "Expected encrypted message but was unable to decrypt '$data'";
+        } elsif ($self->use_encryption) {
+            warn "Expected encrypted message but was unable to decrypt '$data'"
+                . " from " . $self->peer_name;
             return wantarray ? (undef, 0) : undef;
         }
-    } else {
-        warn "no peer defined, unable to decrypt message" if $self->use_encryption;
+    } elsif ($self->use_encryption) {
+        warn "no peer defined, unable to decrypt message";
     }
 
     my $event = $self->serializer->deserialize($data);
@@ -371,8 +380,7 @@ sub encrypt_message {
 }
 
 # takes a message and decrypts it using our privkey
-# returns ($message, $was_encrypted)
-# returns undef if we should ignore this message
+# returns ($message, $was_encrypted, $should_discard)
 sub decrypt_message {
     my ($self, $msg) = @_;
 
@@ -380,7 +388,8 @@ sub decrypt_message {
         unless $self->peer && $self->peer_name;
 
     my ($plaintext, $should_discard) = $self->id->decrypt($self->peer_name, $msg);
-    return if $should_discard; # OTR internal protocol message or fragment, don't care.
+    warn "should discard: $should_discard";
+    return (undef, undef, 1) if $should_discard; # OTR internal protocol message or fragment, don't care.
 
     if (defined $plaintext && $plaintext ne $msg) {
         # this was encrypted
@@ -392,9 +401,6 @@ sub decrypt_message {
             warn "decrypt_message() got an expected result";
             return;
         }
-
-        warn "failed to decrypt message '$msg'";
-        return;
 
         # return original message, it wasn't encrypted
         return wantarray ? ($msg, 0) : $msg;

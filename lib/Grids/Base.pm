@@ -47,10 +47,10 @@ has 'transport_driver' => (
     lazy => 1,
 );
 
-has 'encapsulation_class' => (
+has 'serialization_class' => (
     is => 'rw',
     isa => 'Str',
-    default => 'JSON',
+    default => 'ProtocolBuffer',
     lazy => 1,
 );
 
@@ -105,9 +105,9 @@ sub new_transport {
     my ($self, $driver_class) = @_;
 
     $driver_class ||= $self->transport_driver;
-    my $encapsulation_class = $self->encapsulation_class;
+    my $serialization_class = $self->serialization_class;
 
-    my $proto = Grids::Protocol->new(encapsulation_class => $encapsulation_class, id => $self->id)
+    my $proto = Grids::Protocol->new(serialization_class => $serialization_class, id => $self->id)
         or die "Failed to create protocol handler";
 
     my $t_class = "Grids::Transport::$driver_class";
