@@ -40,13 +40,13 @@ sub serialize {
         $event->encode($ser); 
     } or confess "Unable to serialize event $event_name: $@";
     
-    return "$event_name\x00$msg_str";
+    return "$event_name\x01$msg_str";
 }
 
 sub deserialize {
     my ($self, $data) = @_;
     
-    my ($event_name, $msg_str) = $data =~ /^([\.\w:]+)\x00(.*)$/sm;
+    my ($event_name, $msg_str) = $data =~ /^([\.\w:]+)\x01(.*)$/sm;
 
     unless ($event_name && $msg_str) {
         warn "Failed to parse message: '$data'";

@@ -9,7 +9,7 @@ use Grids::Identity;
 
 our %default_opts = (
     transport_driver => 'Loop',
-    log_level => 5,
+    log_level => 3,
 );
 
 # returns ($client, $server, $client_id, $server_id)

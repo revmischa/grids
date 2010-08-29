@@ -388,7 +388,6 @@ sub decrypt_message {
         unless $self->peer && $self->peer_name;
 
     my ($plaintext, $should_discard) = $self->id->decrypt($self->peer_name, $msg);
-    warn "should discard: $should_discard";
     return (undef, undef, 1) if $should_discard; # OTR internal protocol message or fragment, don't care.
 
     if (defined $plaintext && $plaintext ne $msg) {
