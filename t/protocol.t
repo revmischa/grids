@@ -18,6 +18,7 @@ test_protobuf();
 
 sub test_json {
     $p_cli = Grids::Protocol->new(
+        use_encryption => 0,
         serializer_class => 'JSON',
         id => $cli_id,
     );
@@ -26,6 +27,7 @@ sub test_json {
 
 sub test_protobuf {
     $p_cli = Grids::Protocol->new(
+        use_encryption => 0,
         serializer_class => 'ProtocolBuffer',
         id => $cli_id,
     );
@@ -37,7 +39,7 @@ sub run_tests {
 
     my $loop = new Grids::Transport::Null;
     my $srv_conn = new Grids::Protocol::Connection(transport => $loop, channel => 1, inbound => 0);
-    my $p_srv = Grids::Protocol->new_from_initiation_string($initiation, $srv_conn, { id => $srv_id });
+    my $p_srv = Grids::Protocol->new_from_initiation_string($initiation, $srv_conn, { id => $srv_id, use_encryption => 0 });
     $srv_conn->protocol($p_srv);
 
     ok($p_srv, "Created new Grids::Protocol from initiation string");
