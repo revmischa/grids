@@ -36,13 +36,13 @@ buflen:         .w      . - buf
         .text
 .globl        main
 main:
-        ; debug system call
-        la      $a1, debugtest
-        li      $a2, 12
-        li      $v0, 512        ; debug.logstr syscall
-        syscall
+    ; debug system call
+    la      $a1, debugtest
+    li      $a2, 12
+    li      $v0, 512        ; debug.logstr syscall
+    syscall
 
-        ; write() to stdout
+    ; write() to stdout
 	li      $a0, _test_stdout_fd     ; load stdout fd
 	la      $a1, hello               ; load string address
 	lw      $a2, length              ; load string length
@@ -54,13 +54,13 @@ main:
 	li      $v0, _test_sys_write     ; specify system write service
 	syscall
 
-        ; read() from stdin
-        la      $a0, stdin
-        la      $a1, buf                ; buffer for storing the read value
-        lw      $a2, buflen             ; how much to read
-        li      $v0, _sys_fake_read
-        syscall
+    ; read() from stdin
+    la      $a0, stdin
+    la      $a1, buf                ; buffer for storing the read value
+    lw      $a2, buflen             ; how much to read
+    li      $v0, _sys_fake_read
+    syscall
 
-        ;; check buffer
-        lb      $t0, 6($a1)
+    ;; check buffer
+    lb      $t0, 6($a1)
         

@@ -8,6 +8,8 @@ use Moose::Role;
 
 use Carp qw/croak/;
 use Grids::Conf;
+use Grids::Code;
+use Grids::ProcessTable;
 
 requires qw/data_received/;
 
@@ -24,6 +26,14 @@ has 'configuration' => (
     lazy => 1,
     builder => '_conf_builder',
     handles => [qw/get_conf/],
+);
+
+has 'process_table' => (
+    is => 'rw',
+    isa => 'Grids::ProcessTable',
+    lazy => 1,
+    builder => '_process_table_builder',
+    handles => [qw/run_program/],
 );
 
 has 'transports' => (
@@ -99,6 +109,11 @@ sub BUILD {
 sub _conf_builder {
     my ($self) = @_;
     return Grids::Conf->new;
+}
+
+sub _process_table_builder {
+    my ($self) = @_;
+    return Grids::ProcessTable->new;
 }
 
 sub new_transport {
@@ -246,7 +261,7 @@ sub do_next_event {
 
     # capture errors from hooks
     if ($@) {
-        $self->log->warn("error while running hooks for event "
+        $self->log->warn("Error while running hooks for event "
             . $event->event_name . ": " .  $@ . "\n");
     }
 
@@ -257,7 +272,8 @@ sub do_next_event {
             next unless ref $res && ref $res eq 'HASH';
 
             # default the return request to be of the same method
-            my $res_evt = $res->{event} || $event->event_name;
+            my $res_evt = delete $res->{event} || $event->event_name;
+            $self->log->error("Returning res event $res_evt");
 
             # send reply event
             my $reply = $conn->construct_event($res_evt, $res);

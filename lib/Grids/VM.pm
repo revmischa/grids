@@ -446,6 +446,17 @@ sub link {
     $self->set_reg('ra', $self->pc + 6);
 }
 
+=item run
+
+Run program until it reaches the end of execution. May run forever.
+
+=cut
+
+sub run {
+    my ($self) = @_;
+    while ($self->step) { }
+}
+
 =item step
 
 Steps the VM one instruction.

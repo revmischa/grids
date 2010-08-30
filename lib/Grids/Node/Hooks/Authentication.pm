@@ -3,11 +3,6 @@ package Grids::Node::Hooks::Authentication;
 use Moose;
 use Grids::Peer;
 
-use constant {
-    ERROR_LOGIN_INVALID => -1,
-    ERROR_AUTHENTICATION_REQUIRED => -2,
-};
-
 Grids::Node->register_hooks(
     'Authentication.Login.AuthCheck' => \&hook_auth_check_pubkey,
     'Authentication.Login' => \&hook_login,
@@ -23,7 +18,7 @@ sub hook_login {
             session_token => $evt->connection->peer->session_token,
         });
     } else {
-        return $node->event_hook_error(ERROR_LOGIN_INVALID);
+        return $node->event_hook_error("Error.Authentication.LoginInvalid");
     }
 }
 
@@ -43,7 +38,7 @@ sub hook_auth_check_pubkey {
 
 sub need_auth {
     my $self = shift;
-    return $self->event_hook_error(ERROR_AUTHENTICATION_REQUIRED);
+    return $self->event_hook_error("Error.Authentication.AuthenticationRequired");
 }
 
 no Moose;

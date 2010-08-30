@@ -73,6 +73,41 @@ my $storage_list = [];
     # TODO: continue SMP
 }
 
+# upload a simple program and execute it
+{
+    # simple program that stores a value in the client's storage
+    my $prog_key = 'cs-storage-key';
+    my $prog_str = ' - CLIENT SERVER STORAGE TEST PROGRAM - ';
+    my $prog_src = qq/
+    .rdata
+csteststring: .ascii "$prog_str"
+stringlength: .l . - csteststring
+cstestkey: .ascii "$prog_key"
+keylength: .l . - cstestkey
+
+    .text
+.globl main
+main:
+    ; save string in storage
+    la \$a0, cstestkey
+    ll \$a1, keylength
+    la \$a2, csteststring
+    ll \$a3, stringlength
+    li \$v0, SYSCALL_STORE
+    syscall
+/;
+
+    # upload program
+    c_req('Storage.Put', { key => 'testprogsrc', value => $prog_src });
+    
+    # tell node to load program from storage, compile it, and execute
+    c_req('Program.CompileAndExecute', { source_storage_key => 'testprogsrc' });
+
+    # should now have program and prog_str in storage
+    $storage_list = [ 'testprogsrc', $prog_key ];
+    c_req_expect_response('Storage.List');
+}
+
 sub c_req_expect_response {
     my ($evt_name, $args) = @_;
     c_req($evt_name, $args);
@@ -110,7 +145,7 @@ sub client_login_hook {
     if ($login_good) {
         is($evt->is_success, 1, 'Login successful');
     } else {
-        is($evt->error, Grids::Node::Hooks::Authentication::ERROR_LOGIN_INVALID, 'Login unsuccessful');
+        is($evt->error, 'Error.Authentication.LoginInvalid', 'Login unsuccessful');
     }
 
     return;

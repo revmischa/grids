@@ -106,10 +106,7 @@ sub run {
     my ($self) = @_;
 
     print "Running...\n";
-    while ($vm->step) {
-
-    }
-
+    $vm->run;
     return "Program reached end of memory";
 }
 

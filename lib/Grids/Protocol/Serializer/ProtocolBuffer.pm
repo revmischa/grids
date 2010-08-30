@@ -7,6 +7,7 @@ use Carp qw/croak confess/;
 use Google::ProtocolBuffers;
 use Grids::Util;
 use Grids::Protocol::Event;
+use File::Temp qw/tempfile/;
 
 has parser => (
     is => 'rw',
@@ -79,16 +80,41 @@ sub definitions_directory {
     return $base_dir . '/protocol';
 }
 
-# compile protocol definitions into classes
+# compile protocol definition into a class file
 sub compile {
-    my ($class) = @_;
-    
-    my $dir = $class->definitions_directory;
-    Google::ProtocolBuffers->parsefile("$dir/grids.proto" => {
-        include_dir => $dir,
-        generate_code => Grids::Util->base_dir . "/lib/Grids/Message.pm",
-        create_accessors => 1,
-    });
+    my ($class, @files) = @_;
+
+    my $out = '';
+
+    foreach my $file (@files) {
+        # transform proto filename into class name
+        my ($name) = $file =~ /\/?(\w+).proto$/i;
+        croak "I don't understand the filename $file" unless $name;
+        $name = lcfirst $name;
+
+        my $dir = $class->definitions_directory;
+
+        my ($outfh, $outfile) = tempfile();
+        Google::ProtocolBuffers->parsefile($file => {
+            include_dir => $dir,
+            generate_code => $outfh,
+            create_accessors => 1,
+        });
+        close $outfh;
+
+        open my $outfilefh, $outfile or die $!;
+        {
+            local $/;
+            $out .= <$outfilefh>;
+        }
+        close $outfilefh;
+    }
+
+    # save classes
+    my $save = Grids::Util->base_dir . "/lib/Grids/Message.pm";
+    open my $savefh, ">", $save or die $!;
+    print $savefh $out;
+    close $savefh;
 }
 
 no Moose;

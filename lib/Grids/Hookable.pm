@@ -160,6 +160,7 @@ sub event_hook_success {
 sub event_hook_error {
     my ($self, $errcode, %opts) = @_;
     $opts{base}{error} = $errcode;
+    $opts{base}{event} = $errcode;
     return \%opts;
 }
 
