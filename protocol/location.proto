@@ -1,0 +1,8 @@
+package grids.message.location;
+import "vector.proto"
+
+message Location {
+    required Vector position = 1;
+    required Vector rotation = 2;
+    required Vector scale = 3;
+}

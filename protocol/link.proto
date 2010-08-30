@@ -1,0 +1,22 @@
+package grids.message.link;
+
+message Link {
+    required string id_start = 1;
+    required string name_start = 2;
+    required string id_end = 3;
+    required string name_end = 4;
+
+    // can the start node read the end node
+    required bool start_read = 5;
+    // can the start node modify the end node
+    required bool start_modify = 6;
+    // did the start node create the end node
+    optional bool start_creator = 7;
+    
+    // can the end node read the start node   
+    required bool end_read = 8;
+    // can the end node modify the start node
+    required bool end_modify = 9;
+    // did the end node create the start node
+    optional bool end_creator = 10;
+}
