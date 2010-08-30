@@ -13,7 +13,7 @@ my $proto_dir = $FindBin::Bin;
 my @files = glob("$proto_dir/*.proto");
 
 # generate perl files
-#Grids::Protocol::Serializer::ProtocolBuffer->compile(@files);
+Grids::Protocol::Serializer::ProtocolBuffer->compile(@files);
 
 # generate CPP files
 my $PROTOC = '/home/bobo/dev/protobuf-2.3.0/src/protoc';

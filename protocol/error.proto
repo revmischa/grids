@@ -1,7 +1,7 @@
 import "base.proto";
 package grids.message.error;
 
-/* compiler & vm errors */
+// compiler and vm errors
 
 message CompileError {
     required Message base = 1;
@@ -9,14 +9,14 @@ message CompileError {
 }
 
 
-/* storage errors */
+// storage errors
 
 message KeyNotFound {
     required Message base = 1;
 }
 
 
-/* protocol setup errors */
+// protocol setup errors
 
 message UnsupportedSerializer {
     required Message base = 1;
@@ -33,7 +33,7 @@ message InvalidSerializer {
 }
 
 
-/* generic errors */
+// generic errors
 
 message UnknownError {
     required Message base = 1;
@@ -46,7 +46,7 @@ message UnknownStatus {
 }
 
 
-/* auth errors */
+// auth errors
 
 message Unauthorized {
     required Message base = 1;

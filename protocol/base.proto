@@ -25,3 +25,4 @@ message Message {
 
     extensions 1000 to 18999;   // extensions must use these tag ids
 }
+
