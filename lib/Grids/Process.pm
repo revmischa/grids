@@ -6,14 +6,14 @@ use namespace::autoclean;
 
 has 'vm' => (
     is => 'rw',
-    isa => 'Grids::VM'
+    isa => 'Grids::VM',
     required => 1,
-    handles => [qw/run/],
+    handles => [qw/run owner/],
 );
 
 has 'pid' => (
     is => 'rw',
-    isa => 'Int'
+    isa => 'Int',
     required => 1,
 );
 

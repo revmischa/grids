@@ -5,6 +5,7 @@ use Moose;
 
 use namespace::autoclean;
 use Grids::VM;
+use Grids::Process;
 
 our $PID_MAX = 65535;
 
@@ -42,10 +43,10 @@ sub min_unused_pid {
 }
 
 sub run_program {
-    my ($self, $program) = @_;
+    my ($self, $program, $user) = @_;
 
-    my $pid = $self->load_program($program);
-    $self->proc($pid)->run;
+    my $proc = $self->load_program($program, $user);
+    $proc->run;
 }
 
 # get process by PID
@@ -57,10 +58,10 @@ sub proc {
 # load program into VM and give it a PID. does not execute program
 # returns new process
 sub load_program {
-    my ($self, $program) = @_;
+    my ($self, $program, $user) = @_;
 
     # create a new VM instance for this program
-    my $vm = Grids::VM->new;
+    my $vm = Grids::VM->new(owner => $user);
     $vm->load_program($program);
 
     # assign PID, save it

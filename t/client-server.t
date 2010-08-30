@@ -79,21 +79,23 @@ my $storage_list = [];
     my $prog_key = 'cs-storage-key';
     my $prog_str = ' - CLIENT SERVER STORAGE TEST PROGRAM - ';
     my $prog_src = qq/
+#define SYSCALL_PUT 600
+
     .rdata
 csteststring: .ascii "$prog_str"
-stringlength: .l . - csteststring
+stringlength: .w . - csteststring
 cstestkey: .ascii "$prog_key"
-keylength: .l . - cstestkey
+keylength: .w . - cstestkey
 
     .text
 .globl main
 main:
     ; save string in storage
     la \$a0, cstestkey
-    ll \$a1, keylength
+    lw \$a1, keylength
     la \$a2, csteststring
-    ll \$a3, stringlength
-    li \$v0, SYSCALL_STORE
+    lw \$a3, stringlength
+    li \$v0, SYSCALL_PUT
     syscall
 /;
 

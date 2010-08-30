@@ -15,6 +15,9 @@ use Grids::VM::Instructions;
 use Grids::VM::Memory;
 use Grids::VM::Register;
 
+# base syscall modules to load
+our @SYSCALL_MODULES = qw/Debug Storage POSIX/;
+
 has mem => (
     is => 'rw',
     isa => 'Grids::VM::Memory',
@@ -32,6 +35,12 @@ has regs => (
 has pc => (
     is => 'rw',
     isa => 'Int',
+);
+
+# program owner
+has 'owner' => (
+    is => 'rw',
+    isa => 'Maybe[Grids::Peer]',
 );
 
 has show_debug => (
@@ -155,7 +164,7 @@ Load all configured system call modules
 sub load_syscall_modules {
     my ($self) = @_;
 
-    foreach my $module (qw/Debug POSIX/) {
+    foreach my $module (@SYSCALL_MODULES) {
         $self->load_syscall_module($module);
     }
 }

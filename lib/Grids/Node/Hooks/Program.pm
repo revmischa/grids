@@ -18,6 +18,7 @@ sub compile_and_execute {
     my $storage_key = $evt->source_storage_key;
     my $source = $node->client_storage->get($evt->peer, $storage_key);
     unless ($source) {
+        warn "no source";
         return $node->hook_error("Error.Storage.KeyNotFound");
     }
 
@@ -26,13 +27,14 @@ sub compile_and_execute {
         Grids::Code->assemble_program($source);
     };
     unless ($program) {
+        warn "$@";
         return $node->hook_error("Error.Program.CompileError",
             error => "Compile error: " . ($@ || '(unknown error)'),
         );
     }
 
     # run program
-    $node->run_program($program);
+    $node->run_program($program, $evt->peer);
 
     return;
 }

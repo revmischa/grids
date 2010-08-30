@@ -85,12 +85,22 @@ sub compile {
     my ($class, @files) = @_;
 
     my $out = '';
+    my %packages;
 
     foreach my $file (@files) {
+        # read in file, get message definitions
+        my $infh;
+        my $in;
+        open $infh, $file or die $!;
+        { local $/; $in = <$infh>; }
+        close $infh;
+        my (@classes) = $in =~ /message\s+(\w+)\s*\{/g;
+
         # transform proto filename into class name
         my ($name) = $file =~ /\/?(\w+).proto$/i;
         croak "I don't understand the filename $file" unless $name;
-        $name = lcfirst $name;
+        $packages{$name} = \@classes;
+        $name = ucfirst $name;
 
         my $dir = $class->definitions_directory;
 
@@ -115,6 +125,30 @@ sub compile {
     open my $savefh, ">", $save or die $!;
     print $savefh $out;
     close $savefh;
+
+    # generate awesome C++ switch statement for instantiation
+    my $cases = "if (false) {}\n";
+    foreach my $pkg (keys %packages) {
+        next if $pkg eq 'base';
+
+        my $full_pkg = "grids::message";
+        $full_pkg .= "::$pkg" if $pkg ne 'grids';
+
+        my @classes = @{ $packages{$pkg} };
+
+        my @cases = map {
+            my $type = "${full_pkg}::$_";
+            "else if (type == \"$type\")\n{\n  " .
+                "msg = new $type();\n  msg->ParseFromString(in_msg);\n}" 
+        } @classes;
+
+        $cases .= join("\n", @cases);
+    }
+
+    my $cases_file = Grids::Util->base_dir . "/src/protocol_type_parser.cpp";
+    open my $cases_file_fh, ">", $cases_file or die $!;
+    print $cases_file_fh $cases;
+    close $cases_file_fh;
 }
 
 no Moose;
