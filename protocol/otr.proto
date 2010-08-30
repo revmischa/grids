@@ -1,0 +1,9 @@
+import "base.proto";
+package grids.message.OTR;
+
+// request to do OTR socialist millionaire protocol
+message SMPRequest {
+    required Message base = 1;
+    optional string peer_name = 2;
+    required string question = 3;
+}

@@ -1,0 +1,8 @@
+import "base.proto";
+package grids.message.node;
+
+// node <--> node login
+message Login {
+    required Message base = 1;
+    required string node_private_key = 2;
+}

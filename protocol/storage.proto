@@ -1,0 +1,32 @@
+import "base.proto";
+package grids.message.storage;
+
+message List {
+    required Message base = 1;
+
+    repeated string keys = 2;
+}
+
+message Put {
+    required Message base = 1;
+
+    required string key = 2;
+    optional bytes value = 3;
+}
+
+message Delete {
+    required Message base = 1;
+
+    required string key = 2;
+}
+
+message Get {
+    required Message base = 1;
+
+    required string key = 2;
+    optional bytes value = 3;
+}
+
+message Empty {
+    required Message base = 1;
+}

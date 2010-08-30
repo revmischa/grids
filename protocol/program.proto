@@ -1,0 +1,8 @@
+import "base.proto";
+package grids.message.program;
+
+// Load a program's source from storage and compile and execute it
+message CompileAndExecute {
+    required Message base = 1;
+    required string source_storage_key = 2;
+}

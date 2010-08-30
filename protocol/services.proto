@@ -1,0 +1,8 @@
+import "base.proto";
+package grids.message.services;
+
+message List {
+    required Message base = 1;
+
+    repeated string services = 2;
+}

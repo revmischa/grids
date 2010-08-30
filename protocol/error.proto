@@ -1,0 +1,59 @@
+import "base.proto";
+package grids.message.error;
+
+/* compiler & vm errors */
+
+message CompileError {
+    required Message base = 1;
+    optional string error = 2;
+}
+
+
+/* storage errors */
+
+message KeyNotFound {
+    required Message base = 1;
+}
+
+
+/* protocol setup errors */
+
+message UnsupportedSerializer {
+    required Message base = 1;
+    optional string serializer_method = 2;
+}
+
+message IncompatibleVersion {
+    required Message base = 1;
+    optional string min_version = 2;
+}
+
+message InvalidSerializer {
+    required Message base = 1;
+}
+
+
+/* generic errors */
+
+message UnknownError {
+    required Message base = 1;
+    optional string message = 2;
+}
+
+message UnknownStatus {
+    required Message base = 1;
+    optional string status = 2;
+}
+
+
+/* auth errors */
+
+message Unauthorized {
+    required Message base = 1;
+    optional string message = 2;
+}
+
+message LoginInvalid {
+    required Message base = 1;
+}
+
