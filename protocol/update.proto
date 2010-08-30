@@ -1,0 +1,17 @@
+import "base.proto";
+import "link.proto";
+import "location.proto"
+
+package grids.message.update;
+
+message Request {
+    required Message base = 1;
+    repeated Link links = 2;
+    required string name = 3;
+    required Location location = 4;
+    required string text = 5;
+    required string room = 6;
+    required string id = 7; // the id of the sender
+    required string name = 8; // the name of the sender
+    optional bool destroy = 9;
+}

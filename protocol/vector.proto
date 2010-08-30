@@ -1,0 +1,8 @@
+
+package grids.message.vector;
+
+message Vector {
+    required float x = 1;
+    required float y = 2;
+    required float z = 3;
+}
