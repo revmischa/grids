@@ -21,6 +21,14 @@ has 'procs' => (
     default => sub { {} },
 );
 
+# client/node
+has base => (
+    is => 'rw',
+    does => 'Grids::Base',
+    required => 0,
+);
+
+
 sub get_next_pid {
     my ($self) = @_;
 
